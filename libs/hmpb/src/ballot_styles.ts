@@ -179,24 +179,3 @@ export function generateBallotStyles(params: {
 
   return { ballotStyles, candidateOrderings: ballotCandidateOrderings };
 }
-
-/**
- * @deprecated Use {@link generateBallotStyles}
- */
-export function generateBallotStylesDeprecated(params: {
-  contests: readonly Contest[];
-  ballotLanguageConfigs: BallotLanguageConfigs;
-  electionType: ElectionType;
-  isMiCombinedBallotPrimary: boolean;
-  parties: Parties;
-  precincts: Precinct[];
-  ballotTemplateId: BallotTemplateId;
-  electionId: ElectionId;
-}): BallotStyle[] {
-  const res = generateBallotStyles(params);
-
-  return res.ballotStyles.map((bs) => ({
-    ...bs,
-    orderedCandidatesByContest: res.candidateOrderings.get(bs.groupId),
-  }));
-}

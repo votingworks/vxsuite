@@ -17,7 +17,7 @@ import {
   generateBallotStyleGroupId,
   generateBallotStyleId,
 } from '@votingworks/utils';
-import { generateBallotStylesDeprecated } from './ballot_styles.js';
+import { generateBallotStyles } from './ballot_styles.js';
 import * as ballotRotation from './ballot_rotation.js';
 
 function makeContest(
@@ -206,7 +206,7 @@ describe('generateBallotStyles()', () => {
         { languages: [ENGLISH] },
         { languages: [ENGLISH, SPANISH] },
       ];
-      const ballotStyles = generateBallotStylesDeprecated({
+      const { ballotStyles, candidateOrderings } = generateBallotStyles({
         ballotLanguageConfigs,
         contests: Object.values(contests).flat(),
         electionType,
@@ -222,7 +222,7 @@ describe('generateBallotStyles()', () => {
         electionId: 'test-election',
       });
 
-      expect(ballotStyles).toEqual<BallotStyle[]>([
+      const expectedBallotStyles: BallotStyle[] = [
         ...ballotLanguageConfigs.map<BallotStyle>(({ languages }) => ({
           id: generateBallotStyleId({ ballotStyleIndex: 1, languages }),
           groupId: generateBallotStyleGroupId({ ballotStyleIndex: 1 }),
@@ -261,7 +261,20 @@ describe('generateBallotStyles()', () => {
             )
           ),
         })),
-      ]);
+      ];
+
+      expect(ballotStyles).toEqual(
+        expectedBallotStyles.map<BallotStyle>((bs) => ({
+          ...bs,
+          orderedCandidatesByContest: undefined,
+        }))
+      );
+
+      for (const bs of expectedBallotStyles) {
+        expect(candidateOrderings.get(bs.groupId)).toEqual(
+          bs.orderedCandidatesByContest
+        );
+      }
     }
   );
 
@@ -272,7 +285,7 @@ describe('generateBallotStyles()', () => {
         { languages: [ENGLISH] },
         { languages: [ENGLISH, SPANISH] },
       ];
-      const ballotStyles = generateBallotStylesDeprecated({
+      const { ballotStyles, candidateOrderings } = generateBallotStyles({
         ballotLanguageConfigs,
         contests: Object.values(contests).flat(),
         electionType,
@@ -288,7 +301,7 @@ describe('generateBallotStyles()', () => {
         electionId: 'test-election',
       });
 
-      expect(ballotStyles).toEqual<BallotStyle[]>([
+      const expectedBallotStyles: BallotStyle[] = [
         ...ballotLanguageConfigs.map<BallotStyle>(({ languages }) => ({
           id: generateBallotStyleId({ ballotStyleIndex: 1, languages }),
           groupId: generateBallotStyleGroupId({ ballotStyleIndex: 1 }),
@@ -327,7 +340,20 @@ describe('generateBallotStyles()', () => {
               ])
           ),
         })),
-      ]);
+      ];
+
+      expect(ballotStyles).toEqual(
+        expectedBallotStyles.map<BallotStyle>((bs) => ({
+          ...bs,
+          orderedCandidatesByContest: undefined,
+        }))
+      );
+
+      for (const bs of expectedBallotStyles) {
+        expect(candidateOrderings.get(bs.groupId)).toEqual(
+          bs.orderedCandidatesByContest
+        );
+      }
     }
   );
 
@@ -342,7 +368,7 @@ describe('generateBallotStyles()', () => {
         ballotRotation.getCandidateOrderingByPrecinctAlphabetical(params)
       );
 
-      const ballotStyles = generateBallotStylesDeprecated({
+      const { ballotStyles, candidateOrderings } = generateBallotStyles({
         ballotLanguageConfigs,
         contests: Object.values(contests).flat(),
         electionType,
@@ -358,7 +384,7 @@ describe('generateBallotStyles()', () => {
         electionId: 'test-election',
       });
 
-      expect(ballotStyles).toEqual<BallotStyle[]>([
+      const expectedBallotStyles: BallotStyle[] = [
         ...ballotLanguageConfigs.map<BallotStyle>(({ languages }) => ({
           id: generateBallotStyleId({
             ballotStyleIndex: 1,
@@ -430,7 +456,20 @@ describe('generateBallotStyles()', () => {
               ])
           ),
         })),
-      ]);
+      ];
+
+      expect(ballotStyles).toEqual(
+        expectedBallotStyles.map<BallotStyle>((bs) => ({
+          ...bs,
+          orderedCandidatesByContest: undefined,
+        }))
+      );
+
+      for (const bs of expectedBallotStyles) {
+        expect(candidateOrderings.get(bs.groupId)).toEqual(
+          bs.orderedCandidatesByContest
+        );
+      }
     }
   );
 
@@ -439,7 +478,7 @@ describe('generateBallotStyles()', () => {
       { languages: [ENGLISH] },
       { languages: [ENGLISH, SPANISH] },
     ];
-    const ballotStyles = generateBallotStylesDeprecated({
+    const { ballotStyles, candidateOrderings } = generateBallotStyles({
       ballotLanguageConfigs,
       contests: [
         partyAContest1,
@@ -460,7 +499,7 @@ describe('generateBallotStyles()', () => {
       electionId: 'test-election',
     });
 
-    expect(ballotStyles).toEqual<BallotStyle[]>([
+    const expectedBallotStyles: BallotStyle[] = [
       ...ballotLanguageConfigs.map<BallotStyle>(({ languages }) => ({
         id: generateBallotStyleId({
           ballotStyleIndex: 1,
@@ -569,7 +608,20 @@ describe('generateBallotStyles()', () => {
           ],
         },
       })),
-    ]);
+    ];
+
+    expect(ballotStyles).toEqual(
+      expectedBallotStyles.map<BallotStyle>((bs) => ({
+        ...bs,
+        orderedCandidatesByContest: undefined,
+      }))
+    );
+
+    for (const bs of expectedBallotStyles) {
+      expect(candidateOrderings.get(bs.groupId)).toEqual(
+        bs.orderedCandidatesByContest
+      );
+    }
   });
 
   test('primary election, split precincts, no rotation', () => {
@@ -577,7 +629,7 @@ describe('generateBallotStyles()', () => {
       { languages: [ENGLISH] },
       { languages: [ENGLISH, SPANISH] },
     ];
-    const ballotStyles = generateBallotStylesDeprecated({
+    const { ballotStyles, candidateOrderings } = generateBallotStyles({
       ballotLanguageConfigs,
       contests: [
         partyAContest1,
@@ -598,7 +650,7 @@ describe('generateBallotStyles()', () => {
       electionId: 'test-election',
     });
 
-    expect(ballotStyles).toEqual<BallotStyle[]>([
+    const expectedBallotStyles: BallotStyle[] = [
       ...ballotLanguageConfigs.map<BallotStyle>(({ languages }) => ({
         id: generateBallotStyleId({
           ballotStyleIndex: 1,
@@ -727,7 +779,20 @@ describe('generateBallotStyles()', () => {
           ],
         },
       })),
-    ]);
+    ];
+
+    expect(ballotStyles).toEqual(
+      expectedBallotStyles.map<BallotStyle>((bs) => ({
+        ...bs,
+        orderedCandidatesByContest: undefined,
+      }))
+    );
+
+    for (const bs of expectedBallotStyles) {
+      expect(candidateOrderings.get(bs.groupId)).toEqual(
+        bs.orderedCandidatesByContest
+      );
+    }
   });
 
   test('primary election, split precincts, rotation by precinct', () => {
@@ -738,7 +803,7 @@ describe('generateBallotStyles()', () => {
     mockGetAllPossibleCandidateOrderings.mockImplementation((_, params) =>
       ballotRotation.getCandidateOrderingByPrecinctAlphabetical(params)
     );
-    const ballotStyles = generateBallotStylesDeprecated({
+    const { ballotStyles, candidateOrderings } = generateBallotStyles({
       ballotLanguageConfigs,
       contests: [
         partyAContest1,
@@ -759,7 +824,7 @@ describe('generateBallotStyles()', () => {
       electionId: 'test-election',
     });
 
-    expect(ballotStyles).toEqual<BallotStyle[]>([
+    const expectedBallotStyles: BallotStyle[] = [
       ...ballotLanguageConfigs.map<BallotStyle>(({ languages }) => ({
         id: generateBallotStyleId({
           ballotStyleIndex: 1,
@@ -950,7 +1015,20 @@ describe('generateBallotStyles()', () => {
           ],
         },
       })),
-    ]);
+    ];
+
+    expect(ballotStyles).toEqual(
+      expectedBallotStyles.map<BallotStyle>((bs) => ({
+        ...bs,
+        orderedCandidatesByContest: undefined,
+      }))
+    );
+
+    for (const bs of expectedBallotStyles) {
+      expect(candidateOrderings.get(bs.groupId)).toEqual(
+        bs.orderedCandidatesByContest
+      );
+    }
   });
 
   test('precincts with the same district IDs in different orders', () => {
@@ -987,7 +1065,7 @@ describe('generateBallotStyles()', () => {
     };
 
     const ballotLanguageConfigs = [{ languages: [ENGLISH] }];
-    const ballotStyles = generateBallotStylesDeprecated({
+    const { ballotStyles } = generateBallotStyles({
       ballotLanguageConfigs,
       contests: [generalContest1, generalContest2],
       electionType: 'general',
