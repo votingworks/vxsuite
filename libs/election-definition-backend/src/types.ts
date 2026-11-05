@@ -13,10 +13,9 @@ import { z } from 'zod/v4';
 export type ExternalElectionSource = 'ms-sems';
 
 export interface ElectionInfo {
-  jurisdictionId: string;
   electionId: ElectionId;
   type: ElectionType;
-  isMiCombinedBallotPrimary: boolean;
+  isMiCombinedBallotPrimary?: boolean;
   date: DateWithoutTime;
   title: string;
   state: string;
@@ -28,28 +27,23 @@ export interface ElectionInfo {
   externalSource?: ExternalElectionSource;
 }
 
-export type ElectionInfoUpdate = Omit<
-  ElectionInfo,
-  'jurisdictionId' | 'externalSource'
->;
+export type ElectionInfoUpdate = Omit<ElectionInfo, 'externalSource'>;
 
 const TextInput = z
   .string()
   .transform((s) => s.trim())
   .refine((s) => s.length > 0);
 
-export const ElectionInfoUpdateSchema: z.ZodType<ElectionInfoUpdate> = z.object(
-  {
-    electionId: ElectionIdSchema,
-    type: ElectionTypeSchema,
-    isMiCombinedBallotPrimary: z.boolean(),
-    date: DateWithoutTimeSchema,
-    title: TextInput,
-    state: TextInput,
-    jurisdictionName: TextInput,
-    seal: z.string(),
-    signatureImage: z.string().optional(),
-    signatureCaption: z.string().optional(),
-    languageCodes: z.array(LanguageCodeSchema),
-  }
-);
+export const ElectionInfoUpdateSchema = z.object({
+  electionId: ElectionIdSchema,
+  type: ElectionTypeSchema,
+  isMiCombinedBallotPrimary: z.boolean().optional(),
+  date: DateWithoutTimeSchema,
+  title: TextInput,
+  state: TextInput,
+  jurisdictionName: TextInput,
+  seal: z.string(),
+  signatureImage: z.string().optional(),
+  signatureCaption: z.string().optional(),
+  languageCodes: z.array(LanguageCodeSchema),
+}) satisfies z.ZodType<ElectionInfoUpdate>;
