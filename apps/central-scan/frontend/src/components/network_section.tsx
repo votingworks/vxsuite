@@ -41,6 +41,13 @@ function ConnectionStatusMessage({
           is running a different software version
         </P>
       );
+    case 'online-machine-id-conflict':
+      return (
+        <P>
+          <Icons.Danger color="danger" /> Machine ID Conflict: VxAdmin (
+          {connection.hostMachineId}) has the same machine ID as this machine
+        </P>
+      );
     case 'online-machine-unconfigured':
       return (
         <P>

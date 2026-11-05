@@ -169,6 +169,20 @@ test('warns when host has incompatible software version', async () => {
   screen.getByText(DEV_MACHINE_ID);
 });
 
+test('warns when the host has the same machine ID', async () => {
+  apiMock.setAuthStatus({
+    status: 'logged_out',
+    reason: 'machine_locked',
+  });
+  apiMock.expectGetNetworkConnectionStatus('online-machine-id-conflict');
+  renderClientApp();
+  await screen.findByText('Adjudication Station Locked');
+  await screen.findByText(
+    'Machine ID Conflict: this adjudication station has the same machine ID as the host'
+  );
+  screen.getByText(DEV_MACHINE_ID);
+});
+
 test('warns when there is no network connection', async () => {
   apiMock.setAuthStatus({
     status: 'logged_out',

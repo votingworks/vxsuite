@@ -7,7 +7,7 @@ import {
   NETWORK_POLLING_INTERVAL_MS,
   NETWORK_REQUEST_TIMEOUT_MS,
 } from '@votingworks/networking';
-import { assert, deepEqual } from '@votingworks/basics';
+import { assert, deepEqual, throwIllegalValue } from '@votingworks/basics';
 import type { DippedSmartCardAuthApi } from '@votingworks/auth';
 import { Admin, formatElectionHashes, type UserRole } from '@votingworks/types';
 import { type BaseLogger, LogEventId } from '@votingworks/logging';
@@ -339,23 +339,41 @@ export function startClientNetworking({
           });
           if (registerResult.isErr()) {
             const errorType = registerResult.err().type;
-            assert(errorType === 'code-version-mismatch');
-            debug(
-              'Host at %s refused registration: incompatible code version (client is %s)',
-              hostAddress,
-              codeVersion
-            );
-            logStatusTransition(
-              {
-                connectionStatus:
-                  ClientConnectionStatus.OnlineIncompatibleHostVersion,
-              },
-              { clientCodeVersion: codeVersion }
-            );
-            clientStore.setConnection(
-              ClientConnectionStatus.OnlineIncompatibleHostVersion
-            );
-            return;
+            switch (errorType) {
+              case 'code-version-mismatch':
+                debug(
+                  'Host at %s refused registration: incompatible code version (client is %s)',
+                  hostAddress,
+                  codeVersion
+                );
+                logStatusTransition(
+                  {
+                    connectionStatus:
+                      ClientConnectionStatus.OnlineIncompatibleHostVersion,
+                  },
+                  { clientCodeVersion: codeVersion }
+                );
+                clientStore.setConnection(
+                  ClientConnectionStatus.OnlineIncompatibleHostVersion
+                );
+                return;
+              case 'machine-id-conflict':
+                debug(
+                  'Host at %s refused registration: host has the same machine ID (%s)',
+                  hostAddress,
+                  machineId
+                );
+                logStatusTransition({
+                  connectionStatus:
+                    ClientConnectionStatus.OnlineMachineIdConflict,
+                });
+                clientStore.setConnection(
+                  ClientConnectionStatus.OnlineMachineIdConflict
+                );
+                return;
+              default:
+                throwIllegalValue(errorType);
+            }
           }
           const hostConfig = registerResult.ok();
           logStatusTransition(

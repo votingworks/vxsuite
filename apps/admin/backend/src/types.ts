@@ -56,14 +56,15 @@ export interface BaseStore {
 }
 
 /** Why a VxAdmin host refused to register an adjudication station. */
-export interface RegisterAdjudicationStationError {
-  type: 'code-version-mismatch';
-}
+export type RegisterAdjudicationStationError =
+  | { type: 'code-version-mismatch' }
+  | { type: 'machine-id-conflict' };
 
 /** Error type for host to machine connection */
-export type RegistrationErrorType =
-  | RegisterScannerError['type']
-  | RegisterAdjudicationStationError['type'];
+export type RegistrationErrorType = Exclude<
+  RegisterScannerError['type'] | RegisterAdjudicationStationError['type'],
+  'machine-id-conflict'
+>;
 
 /** Connection status for a client machine in a multi-station setup. */
 export const ClientConnectionStatus = {
@@ -72,6 +73,7 @@ export const ClientConnectionStatus = {
   OnlineConnectedToHost: 'online-connected-to-host',
   OnlineMultipleHostsDetected: 'online-multiple-hosts-detected',
   OnlineIncompatibleHostVersion: 'online-incompatible-host-version',
+  OnlineMachineIdConflict: 'online-machine-id-conflict',
 } as const;
 
 /** Connection status for a client machine in a multi-station setup. */

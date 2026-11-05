@@ -33,6 +33,7 @@ import type {
   ElectionRecord,
   MachineConfig,
   RegisterAdjudicationStationError,
+  RegistrationErrorType,
   AdjudicatedCvr,
   BallotAdjudicationData,
   BallotImages,
@@ -89,7 +90,7 @@ function buildPeerApi({ workspace, logger, machineId }: PeerAppContext) {
       const machineConfig = getMachineConfig();
 
       function recordScanner(
-        registrationError: RegisterScannerError['type'] | null
+        registrationError: RegistrationErrorType | null
       ): void {
         store.setNetworkedMachineStatus(
           input.machineId,
@@ -101,11 +102,11 @@ function buildPeerApi({ workspace, logger, machineId }: PeerAppContext) {
         );
       }
 
-      function reject(
+      function logRejection(
         error: RegisterScannerError,
         details: string,
         extra: Record<string, string> = {}
-      ): Result<ScannerRegistration, RegisterScannerError> {
+      ): void {
         logger.log(LogEventId.AdminNetworkStatus, 'system', {
           message: `Rejected registration from scanner ${input.machineId}: ${details}`,
           disposition: 'failure',
@@ -113,12 +114,28 @@ function buildPeerApi({ workspace, logger, machineId }: PeerAppContext) {
           error: error.type,
           ...extra,
         });
+      }
+
+      function reject(
+        error: Exclude<RegisterScannerError, { type: 'machine-id-conflict' }>,
+        details: string,
+        extra: Record<string, string> = {}
+      ): Result<ScannerRegistration, RegisterScannerError> {
+        logRejection(error, details, extra);
         // Still record the scanner so it can be shown, along with the
         // problem, in the host's UI.
         recordScanner(error.type);
         return err(error);
       }
 
+      if (input.machineId === machineConfig.machineId) {
+        const error: RegisterScannerError = { type: 'machine-id-conflict' };
+        logRejection(
+          error,
+          'the scanner has the same machine ID as this host.'
+        );
+        return err(error);
+      }
       // Refuse to register a scanner running a different code version.
       if (input.codeVersion !== machineConfig.codeVersion) {
         return reject(
@@ -199,6 +216,14 @@ function buildPeerApi({ workspace, logger, machineId }: PeerAppContext) {
       RegisterAdjudicationStationError
     > {
       const machineConfig = getMachineConfig();
+      if (input.machineId === machineConfig.machineId) {
+        logger.log(LogEventId.AdminNetworkStatus, 'system', {
+          message: `Rejected registration from adjudication station ${input.machineId}: the station has the same machine ID as this host.`,
+          disposition: 'failure',
+          clientMachineId: input.machineId,
+        });
+        return err({ type: 'machine-id-conflict' });
+      }
       // Refuse to register an adjudication station running a different code
       // version.
       if (input.codeVersion !== machineConfig.codeVersion) {
