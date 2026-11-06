@@ -16,7 +16,6 @@ export * as CVR from './cdf/cast-vote-records/index.js';
 export * as BallotDefinition from './cdf/ballot-definition/index.js';
 export * from './cdf/ballot-definition/convert.js';
 export * from './cdf/ballot-definition/fixtures.js';
-export * from './converter_client.js';
 export * from './diagnostics.js';
 export * from './ballot_positions.js';
 export * from './dom.js';
