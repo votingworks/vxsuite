@@ -42,6 +42,7 @@ test('convertVxfElectionToCdfBallotDefinition', () => {
   expect(
     convertVxfElectionToCdfBallotDefinition(
       testVxfElection,
+      (bs) => bs.ballotPositions,
       (bs) => bs.orderedCandidatesByContest
     )
   ).toEqual(testCdfBallotDefinition);
@@ -258,6 +259,7 @@ test('convertVxfElectionToCdfBallotDefinition with translated election strings',
           translatedElectionStrings
         ),
       },
+      (bs) => bs.ballotPositions,
       (bs) => bs.orderedCandidatesByContest
     )
   ).toEqual(expectedCdfBallotDefinition);
@@ -275,6 +277,7 @@ for (const vxf of elections) {
   test(`round trip conversion for election fixture: ${vxf.title}`, () => {
     const cdf = convertVxfElectionToCdfBallotDefinition(
       vxf,
+      (bs) => bs.ballotPositions,
       (bs) => bs.orderedCandidatesByContest
     );
     expect(convertCdfBallotDefinitionToVxfElection(cdf)).toEqual(
@@ -437,6 +440,7 @@ test('ballot styles with same districts but different rotations in different pre
 
   const cdf = convertVxfElectionToCdfBallotDefinition(
     vxfElection,
+    (bs) => bs.ballotPositions,
     (bs) => bs.orderedCandidatesByContest
   );
 

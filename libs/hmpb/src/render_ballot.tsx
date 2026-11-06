@@ -37,6 +37,7 @@ import {
   type SystemSettings,
   type BallotPositions,
   type BallotCandidateOrderings,
+  type GetBallotPositionsFn,
   type GetCandidateOrderingsFn,
   type OptionalCandidateOrderings,
   type CandidateId,
@@ -364,6 +365,7 @@ export interface ElectionSerializationOptions {
 
 function serializeElection(
   election: Election,
+  getBallotPositions: GetBallotPositionsFn,
   getCandidateOrderings: GetCandidateOrderingsFn,
   options: ElectionSerializationOptions
 ): string {
@@ -395,6 +397,7 @@ function serializeElection(
         );
         return convertVxfElectionToCdfBallotDefinition(
           election,
+          getBallotPositions,
           getCandidateOrderings
         );
 
@@ -650,6 +653,9 @@ export async function createElectionDefinition<P extends BaseBallotProps>(p: {
       return contest;
     });
 
+  const getBallotPositions: GetBallotPositionsFn = (bs) =>
+    p.ballotPositions.get(bs.id);
+
   const isSplitElectionDef =
     p.serializationOptions.format === 'vxf' &&
     p.systemSettings.splitElectionDefinition;
@@ -659,7 +665,7 @@ export async function createElectionDefinition<P extends BaseBallotProps>(p: {
     const electionDefinition = electionWithBallotMeta(
       { ...p.baseElection, contests },
       p.getCandidateOrderings,
-      p.ballotPositions,
+      getBallotPositions,
       p.serializationOptions
     );
 
@@ -676,6 +682,7 @@ export async function createElectionDefinition<P extends BaseBallotProps>(p: {
   };
   const electionData = serializeElection(
     election,
+    getBallotPositions,
     p.getCandidateOrderings,
     p.serializationOptions
   );
@@ -734,17 +741,19 @@ export async function createElectionDefinition<P extends BaseBallotProps>(p: {
 function electionWithBallotMeta(
   baseElection: Election,
   getCandidateOrderings: GetCandidateOrderingsFn,
-  positionsByBallotStyle: Map<BallotStyleId, SheetPositions[]>,
+  getBallotPositions: GetBallotPositionsFn,
   opts: ElectionSerializationOptions
 ): ElectionDefinition {
   const ballotStyles = baseElection.ballotStyles.map((bs) => ({
     ...bs,
-    ballotPositions: positionsByBallotStyle.get(bs.id),
+    // @coverage-exclude: trivial fallback
+    ballotPositions: getBallotPositions(bs) ?? undefined,
     orderedCandidatesByContest: getCandidateOrderings(bs) ?? undefined,
   }));
 
   const electionData = serializeElection(
     { ...baseElection, ballotStyles },
+    getBallotPositions,
     getCandidateOrderings,
     opts
   );
