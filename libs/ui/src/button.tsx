@@ -544,35 +544,6 @@ export class Button<T = undefined> extends PureComponent<
   }
 }
 
-export const SegmentedButtonDeprecated = styled.span`
-  display: inline-flex;
-  white-space: nowrap;
-
-  & > button {
-    flex: 1;
-    box-shadow: inset 1px 0 0 rgb(190, 190, 190);
-  }
-
-  & > button:first-child {
-    box-shadow: none;
-  }
-
-  & > button:not(:last-child) {
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-  }
-
-  & > button:not(:first-child) {
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-  }
-
-  & > button:disabled {
-    background: #028099;
-    color: #fff;
-  }
-`;
-
 export const LabelButton = styled.label`
   ${buttonStyles}
 
