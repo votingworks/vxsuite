@@ -9,7 +9,6 @@ export * from './bmd/index.js';
 export * from './bmd_paper_ballot.js';
 export * from './breadcrumbs.js';
 export * from './button.js';
-export * from './button_list.js';
 export * from './callout.js';
 export * from './card.js';
 export * from './card_illustration.js';
