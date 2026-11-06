@@ -58,6 +58,7 @@ import {
 import type { Api, MachineMode, PeerApi } from '../src/index.js';
 import type { BaseStore } from '../src/types.js';
 import { Store } from '../src/store.js';
+import type { MachineModeController } from '../src/machine_mode.js';
 import { createWorkspace, type Workspace } from '../src/util/workspace.js';
 import { buildApp } from '../src/app.js';
 import { buildPeerApp } from '../src/peer_app.js';
@@ -193,6 +194,16 @@ export async function attachUsbDrive(
   );
 }
 
+export function buildMemoryMachineModeController(): MachineModeController {
+  let mode: MachineMode = 'host';
+  return {
+    get: () => mode,
+    set: (newMode) => {
+      mode = newMode;
+    },
+  };
+}
+
 export interface TestEnvironment {
   logger: MockLogger;
   auth: Mocked<DippedSmartCardAuthApi>;
@@ -205,6 +216,7 @@ export interface TestEnvironment {
   usbPlatform: SimulatedUsbPlatform;
   multiUsbDrive: MultiUsbDrive;
   mockPrinterHandler: MemoryPrinterHandler;
+  machineMode: MachineModeController;
 }
 
 export function buildTestEnvironment({
@@ -224,19 +236,14 @@ export function buildTestEnvironment({
   const usbPlatform = new SimulatedUsbPlatform(makeTemporaryDirectory());
   const multiUsbDrive = detectMultiUsbDrive({ logger, platform: usbPlatform });
   const mockPrinterHandler = createMockPrinterHandler();
-  let machineMode: MachineMode = 'host';
+  const machineMode = buildMemoryMachineModeController();
   const app = buildApp({
     auth,
     workspace,
     logger,
     multiUsbDrive,
     printer: mockPrinterHandler.printer,
-    machineMode: {
-      get: () => machineMode,
-      set: (newMachineMode) => {
-        machineMode = newMachineMode;
-      },
-    },
+    machineMode,
   });
   // port 0 will bind to a random, free port assigned by the OS
   const server = app.listen();
@@ -272,6 +279,7 @@ export function buildTestEnvironment({
     usbPlatform,
     multiUsbDrive,
     mockPrinterHandler,
+    machineMode,
   };
 }
 

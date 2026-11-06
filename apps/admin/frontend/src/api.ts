@@ -63,19 +63,6 @@ export const getMachineConfig = {
   },
 } as const;
 
-export const getMachineMode = {
-  queryKeyPrefix: 'getMachineMode',
-  // @coverage-defer
-  queryKey(): QueryKey {
-    return [this.queryKeyPrefix];
-  },
-  // @coverage-defer
-  useQuery() {
-    const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getMachineMode());
-  },
-} as const;
-
 export const setMachineMode = {
   useMutation() {
     const apiClient = useApiClient();
