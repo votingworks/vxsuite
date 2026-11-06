@@ -779,9 +779,6 @@ importers:
       buffer:
         specifier: ^6.0.3
         version: 6.0.3
-      events:
-        specifier: 3.3.0
-        version: 3.3.0
       http-proxy-middleware:
         specifier: 3.0.7
         version: 3.0.7(supports-color@8.1.1)
