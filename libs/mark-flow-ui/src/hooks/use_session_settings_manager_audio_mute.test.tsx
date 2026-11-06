@@ -26,6 +26,11 @@ const VOTER_AUTH: InsertedSmartCardAuth.AuthStatus = {
   sessionExpiresAt: mockSessionExpiresAt(),
 };
 
+const LOGGED_OUT_AUTH: InsertedSmartCardAuth.AuthStatus = {
+  status: 'logged_out',
+  reason: 'no_card',
+};
+
 const POLL_WORKER_AUTH: InsertedSmartCardAuth.AuthStatus = {
   status: 'logged_in',
   user: mockPollWorkerUser(),
@@ -64,7 +69,7 @@ function TestHookWrapper(props: { children: React.ReactNode }) {
 }
 
 function useTestHook() {
-  const [authStatus, setAuthStatus] = React.useState(VOTER_AUTH);
+  const [authStatus, setAuthStatus] = React.useState(LOGGED_OUT_AUTH);
   const [isAlarmActive, setIsAlarmActive] = React.useState(false);
 
   useSessionSettingsManager({ authStatus });
@@ -78,11 +83,30 @@ function useTestHook() {
   };
 }
 
-test('voter audio setting survives an alarm mute and poll worker round trip', async () => {
-  const { result } = renderHook(useTestHook, { wrapper: TestHookWrapper });
+async function renderAndStartVoterSession() {
+  const hook = renderHook(useTestHook, { wrapper: TestHookWrapper });
+  const { result } = hook;
 
   await waitFor(() => expect(result.current.isAudioEnabled).toEqual(true));
-  act(() => result.current.audioControls.setIsEnabled(true));
+  act(() => result.current.setAuthStatus(POLL_WORKER_AUTH));
+  act(() => result.current.setAuthStatus(VOTER_AUTH));
+  expect(result.current.isAudioEnabled).toEqual(true);
+
+  return hook;
+}
+
+test('unchanged voter audio setting survives a poll worker round trip', async () => {
+  const { result } = await renderAndStartVoterSession();
+
+  act(() => result.current.setAuthStatus(POLL_WORKER_AUTH));
+  expect(result.current.isAudioEnabled).toEqual(false);
+
+  act(() => result.current.setAuthStatus(VOTER_AUTH));
+  expect(result.current.isAudioEnabled).toEqual(true);
+});
+
+test('voter audio setting survives an alarm mute and poll worker round trip', async () => {
+  const { result } = await renderAndStartVoterSession();
 
   act(() => result.current.setIsAlarmActive(true));
   expect(result.current.isAudioEnabled).toEqual(true);
@@ -98,9 +122,7 @@ test('voter audio setting survives an alarm mute and poll worker round trip', as
 });
 
 test('voter audio setting survives a poll worker visit during an ongoing alarm', async () => {
-  const { result } = renderHook(useTestHook, { wrapper: TestHookWrapper });
-
-  await waitFor(() => expect(result.current.isAudioEnabled).toEqual(true));
+  const { result } = await renderAndStartVoterSession();
 
   act(() => result.current.setIsAlarmActive(true));
   act(() => result.current.setAuthStatus(POLL_WORKER_AUTH));
@@ -109,4 +131,13 @@ test('voter audio setting survives a poll worker visit during an ongoing alarm',
 
   act(() => result.current.setIsAlarmActive(false));
   expect(result.current.isAudioEnabled).toEqual(true);
+});
+
+test('voter-disabled audio stays disabled after a poll worker round trip', async () => {
+  const { result } = await renderAndStartVoterSession();
+
+  act(() => result.current.audioControls.setIsEnabled(false));
+  act(() => result.current.setAuthStatus(POLL_WORKER_AUTH));
+  act(() => result.current.setAuthStatus(VOTER_AUTH));
+  expect(result.current.isAudioEnabled).toEqual(false);
 });
