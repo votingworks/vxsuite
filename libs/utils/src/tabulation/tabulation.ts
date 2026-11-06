@@ -145,27 +145,6 @@ export function getEmptyElectionResults(
 }
 
 /**
- * Generate an empty {@link Tabulation.ManualElectionResult} with zero tallies for
- * all contests in the election. Includes placeholder zero tallies for official
- * candidates in candidate races, but no placeholder zero tallies for any
- * specific or generic write-in candidates.
- */
-export function getEmptyManualElectionResults(
-  election: Election
-): Tabulation.ManualElectionResults {
-  const contestResults = Object.fromEntries(
-    election.contests.map((contest) => [
-      contest.id,
-      getEmptyContestResults(contest, false),
-    ])
-  );
-  return {
-    contestResults,
-    ballotCount: 0,
-  };
-}
-
-/**
  * Adds a cast vote record to an election result and returns the election
  * result. Mutates the election result in place!
  */
@@ -518,22 +497,6 @@ export function getScannedBallotCountForSheet(
 ): number {
   // @coverage-defer
   return (cardCounts.bmd[sheetIndex] ?? 0) + (cardCounts.hmpb[sheetIndex] ?? 0);
-}
-
-/**
- * Counts the number of sheets that have been scanned based on the card counts.
- * Simply ignores the manual count.
- */
-export function getSheetCount(cardCounts: Tabulation.CardCounts): number {
-  return (
-    // @coverage-defer
-    iter(cardCounts.bmd)
-      .map((c) => c ?? 0)
-      .sum() +
-    iter(cardCounts.hmpb)
-      .map((c) => c ?? 0)
-      .sum()
-  );
 }
 
 /**

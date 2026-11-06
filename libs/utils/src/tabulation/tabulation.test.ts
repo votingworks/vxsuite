@@ -28,7 +28,6 @@ import {
   extractGroupSpecifier,
   tabulateCastVoteRecords,
   getOfficialCandidateNameLookup,
-  getEmptyManualElectionResults,
   combineManualElectionResults,
   buildManualResultsFixture,
   buildElectionResultsFixture,
@@ -39,7 +38,6 @@ import {
   mergeWriteInTallies,
   getGroupKey,
   getGroupSpecifierFromGroupKey,
-  getSheetCount,
   getScannedBallotCount,
   getHmpbBallotCount,
   getBmdBallotCount,
@@ -290,23 +288,6 @@ test('getEmptyElectionResults without generic write-in', () => {
       },
     },
   });
-});
-
-test('getEmptyManualElectionResults', () => {
-  const election = electionTwoPartyPrimaryFixtures.readElection();
-
-  const emptyManualElectionResults = getEmptyManualElectionResults(election);
-
-  // empty manual results should closely match empty regular results without the generic write-in
-  const emptyElectionResults = getEmptyElectionResults(election, false);
-
-  expect(emptyManualElectionResults.ballotCount).toEqual(0);
-  expect(emptyManualElectionResults.contestResults['fishing']).toEqual(
-    emptyElectionResults.contestResults['fishing']
-  );
-  expect(
-    emptyManualElectionResults.contestResults['zoo-council-mammal']
-  ).toEqual(emptyElectionResults.contestResults['zoo-council-mammal']);
 });
 
 test('buildElectionResultsFixture', () => {
@@ -702,42 +683,6 @@ test('getScannedBallotCountForSheet', () => {
       1
     )
   ).toEqual(12); // 8 BMD sheet-2 + 4 HMPB sheet-2
-});
-
-test('getSheetCount', () => {
-  expect(
-    getSheetCount({
-      bmd: [3],
-      hmpb: [20],
-    })
-  ).toEqual(23);
-  expect(
-    getSheetCount({
-      bmd: [3],
-      hmpb: [20, 35],
-    })
-  ).toEqual(58);
-  expect(
-    getSheetCount({
-      bmd: [3],
-      hmpb: [20, undefined, 1] as number[],
-    })
-  ).toEqual(24);
-  expect(
-    getSheetCount({
-      bmd: [3],
-      hmpb: [20],
-      manual: 56,
-    })
-  ).toEqual(23);
-
-  // With multi-page BMD ballots (combined into bmd array)
-  expect(
-    getSheetCount({
-      bmd: [13, 8], // 13 sheet-1 (3 single-page + 10 multi-page), 8 sheet-2
-      hmpb: [20],
-    })
-  ).toEqual(41); // 13 + 8 BMD sheets + 20 HMPB sheets
 });
 
 test('getBallotStyleIdPartyIdLookup', () => {
