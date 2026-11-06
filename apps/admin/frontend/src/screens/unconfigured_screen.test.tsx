@@ -1,7 +1,11 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { userEvent } from '@testing-library/user-event';
-import { createMemoryHistory } from 'history';
-import { mockKiosk } from '@votingworks/test-utils';
+import {
+  mockKiosk,
+  mockSessionExpiresAt,
+  mockSystemAdministratorUser,
+} from '@votingworks/test-utils';
+import type { DippedSmartCardAuth } from '@votingworks/types';
 import { deferred, err, ok } from '@votingworks/basics';
 import { BooleanEnvironmentVariableName } from '@votingworks/utils';
 import { mockUsbDriveStatus } from '@votingworks/ui';
@@ -309,31 +313,53 @@ test('Create New Election button is hidden when election design is disabled', as
   ).not.toBeInTheDocument();
 });
 
-test('Create New Election button opens election definition', async () => {
-  featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.ENABLE_ADMIN_ELECTION_DESIGN
-  );
+const systemAdministratorAuth: DippedSmartCardAuth.SystemAdministratorLoggedIn =
+  {
+    status: 'logged_in',
+    user: mockSystemAdministratorUser(),
+    sessionExpiresAt: mockSessionExpiresAt(),
+    programmableCard: { status: 'no_card' },
+  };
+
+test('Create New Election button is hidden when election definition is disabled for a system administrator', async () => {
   apiMock.expectListPotentialElectionPackagesOnUsbDrive([]);
-  const history = createMemoryHistory({ initialEntries: ['/election'] });
   renderInAppContext(<UnconfiguredScreen />, {
     apiMock,
-    history,
+    auth: systemAdministratorAuth,
+    usbDriveStatus: mockUsbDriveStatus('mounted'),
+  });
+  await screen.findButton('Select Other File...');
+  expect(
+    screen.queryByRole('button', { name: 'Create New Election' })
+  ).not.toBeInTheDocument();
+});
+
+test('Create New Election button is offered with election packages', async () => {
+  apiMock.expectListPotentialElectionPackagesOnUsbDrive([]);
+  apiMock.apiClient.getCurrentInProgressElection
+    .expectCallWith()
+    .resolves(null);
+  renderInAppContext(<UnconfiguredScreen />, {
+    apiMock,
+    auth: systemAdministratorAuth,
+    isElectionDefinitionEnabled: true,
     usbDriveStatus: mockUsbDriveStatus('mounted'),
   });
 
-  await userEvent.click(await screen.findButton('Create New Election'));
-  expect(history.location.pathname).toEqual('/election-definition');
+  await screen.findButton('Create New Election');
 });
 
 test('Create New Election button is offered when no USB drive is inserted', async () => {
-  featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.ENABLE_ADMIN_ELECTION_DESIGN
-  );
   apiMock.apiClient.listPotentialElectionPackagesOnUsbDrive
     .expectCallWith()
     .resolves(err({ type: 'no-entity', message: 'No USB drive found' }));
+  apiMock.apiClient.getCurrentInProgressElection
+    .expectCallWith()
+    .resolves(null);
   renderInAppContext(<UnconfiguredScreen />, {
     apiMock,
+    auth: systemAdministratorAuth,
+    isElectionDefinitionEnabled: true,
     usbDriveStatus: mockUsbDriveStatus('no_drive'),
   });
 

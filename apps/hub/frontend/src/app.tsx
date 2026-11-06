@@ -8,12 +8,14 @@ import {
 } from '@votingworks/ui';
 import { BrowserRouter, Redirect, Route, Switch } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
+import { ElectionDefinitionContextProvider } from '@votingworks/election-definition-ui';
 import { useState } from 'react';
 import {
   type ApiClient,
   ApiClientContext,
   createApiClient,
   createQueryClient,
+  electionDefinitionApi,
   getUser,
 } from './api.js';
 import {
@@ -139,18 +141,20 @@ export function App({
                 </UnauthenticatedApiClientContext.Provider>
               </Route>
               <ApiClientContext.Provider value={apiClient}>
-                <WaitForUserInfo>
-                  <Route path={routes.root.path} exact>
-                    <HomeScreen
-                      electionsFilterText={electionsFilterText}
-                      setElectionsFilterText={setElectionsFilterText}
+                <ElectionDefinitionContextProvider api={electionDefinitionApi}>
+                  <WaitForUserInfo>
+                    <Route path={routes.root.path} exact>
+                      <HomeScreen
+                        electionsFilterText={electionsFilterText}
+                        setElectionsFilterText={setElectionsFilterText}
+                      />
+                    </Route>
+                    <Route
+                      path={electionParamRoutes.root.path}
+                      component={ElectionScreens}
                     />
-                  </Route>
-                  <Route
-                    path={electionParamRoutes.root.path}
-                    component={ElectionScreens}
-                  />
-                </WaitForUserInfo>
+                  </WaitForUserInfo>
+                </ElectionDefinitionContextProvider>
               </ApiClientContext.Provider>
             </Switch>
           </BrowserRouter>

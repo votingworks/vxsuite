@@ -10,6 +10,10 @@
       "types": "./build/index.d.ts",
       "default": "./build/index.js"
     },
+    "./test-utils": {
+      "types": "./build/test_utils.d.ts",
+      "default": "./build/test_utils.js"
+    },
     "./package.json": "./package.json"
   },
   "files": [
@@ -27,6 +31,11 @@
     "test:run": "pnpm -w vx-task test:run $npm_package_name",
     "test:run:self": "vitest run --passWithNoTests",
     "type-check": "tsc --build"
+  },
+  "dependencies": {
+    "@votingworks/basics": "workspace:*",
+    "@votingworks/types": "workspace:*",
+    "zod": "4.6.6"
   },
   "devDependencies": {
     "@types/node": "24.19.2",

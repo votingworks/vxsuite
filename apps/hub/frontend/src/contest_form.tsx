@@ -37,6 +37,18 @@ import {
 } from '@votingworks/ui';
 
 import {
+  TooltipContainer,
+  Tooltip,
+  InputGroup,
+  Row,
+  FieldName,
+  FormBody,
+  FormErrorContainer,
+  FormFooter,
+  InputWithAudio,
+  AudioLinkButton,
+} from '@votingworks/election-definition-ui';
+import {
   getBallotsFinalizedAt,
   getElectionInfo,
   listDistricts,
@@ -46,19 +58,10 @@ import {
   deleteContest,
   getStateFeatures,
 } from './api.js';
-import {
-  FormFixed,
-  FormBody,
-  FormErrorContainer,
-  FormFooter,
-  FormTitle,
-} from './form_fixed.js';
-import { InputGroup, Row, FieldName, Column } from './layout.js';
+import { FormFixed, FormTitle } from './form_fixed.js';
+import { Column } from './layout.js';
 import { routes } from './routes.js';
-import { TooltipContainer, Tooltip } from './tooltip.js';
 import { generateId, replaceAtIndex } from './utils.js';
-import { InputWithAudio } from './ballot_audio/input_with_audio.js';
-import { AudioLinkButton } from './ballot_audio/audio_link_button.js';
 import { RichTextEditorWithAudio } from './ballot_audio/rich_text_editor_with_audio.js';
 
 const Form = styled(FormFixed)`

@@ -5,6 +5,7 @@ import type {
   ElectionUpload,
 } from '@votingworks/hub-backend';
 import type { NhStateBallotVariant } from '@votingworks/hmpb';
+import { createElectionDefinitionApi } from '@votingworks/election-definition-ui';
 import * as grout from '@votingworks/grout';
 import {
   QueryClient,
@@ -466,19 +467,9 @@ export const cloneElection = {
   },
 } as const;
 
-export const updateElectionInfo = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.updateElectionInfo, {
-      async onSuccess(result, { electionId }) {
-        if (result.isOk()) {
-          await invalidateElectionQueries(queryClient, electionId);
-        }
-      },
-    });
-  },
-} as const;
+export const electionDefinitionApi = createElectionDefinitionApi(useApiClient, {
+  invalidateElectionQueries,
+});
 
 export const updateDistricts = {
   useMutation() {

@@ -18,6 +18,7 @@ export interface AppContextInterface {
   auth: DippedSmartCardAuth.AuthStatus;
   machineConfig: MachineConfig;
   machineMode: MachineMode;
+  isElectionDefinitionEnabled: boolean;
 }
 
 const appContext: AppContextInterface = {
@@ -32,6 +33,7 @@ const appContext: AppContextInterface = {
     codeVersion: 'dev',
   },
   machineMode: 'host',
+  isElectionDefinitionEnabled: false,
 };
 
 export const AppContext = createContext(appContext);

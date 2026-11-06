@@ -5,12 +5,11 @@ import { userEvent } from '@testing-library/user-event';
 import { createMemoryHistory } from 'history';
 
 import { sleep } from '@votingworks/basics';
-import type { StateFeaturesConfig } from '@votingworks/hub-backend';
+import type { StateFeaturesConfig } from '@votingworks/election-definition-backend';
 
 import { act, render, screen } from '../../test/react_testing_library.js';
 import { AudioLinkButton } from './audio_link_button.js';
 import { createMockApiClient, provideApi } from '../../test/api_helpers.js';
-import { electionParamRoutes, routes } from '../routes.js';
 
 const electionId = 'election-1';
 
@@ -58,7 +57,7 @@ test('is omitted when audio proofing feature is turned off', async () => {
 
 function renderInContext(features: StateFeaturesConfig, ui: React.ReactNode) {
   const history = createMemoryHistory({
-    initialEntries: [routes.election(electionId).root.path],
+    initialEntries: [`/elections/${electionId}`],
   });
 
   const mockApi = createMockApiClient();
@@ -68,7 +67,7 @@ function renderInContext(features: StateFeaturesConfig, ui: React.ReactNode) {
     provideApi(
       mockApi,
       <Router history={history}>
-        <Route path={electionParamRoutes.root.path}>{ui}</Route>
+        <Route path="/elections/:electionId">{ui}</Route>
         <Route path="/" />
       </Router>
     )

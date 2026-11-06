@@ -72,25 +72,28 @@ import { randomUUID as uuid } from 'node:crypto';
 import type { BaseLogger } from '@votingworks/logging';
 import { type BallotTemplateId, generateBallotStyles } from '@votingworks/hmpb';
 import pg, { type DatabaseError } from 'pg';
+import {
+  type DuplicateElectionError,
+  type ExternalElectionSource,
+  getStateFeaturesConfig,
+  type StateCode,
+} from '@votingworks/election-definition-backend';
 import type {
-  ExternalElectionSource,
+  ElectionInfoUpdate,
   ElectionListing,
   ExportQaRun,
   GetExportedElectionError,
   Jurisdiction,
   Organization,
   QuickReportedPollStatus,
-  StateCode,
   UpdateQaRunStatusParams,
   User,
   UserType,
   ElectionStatus,
-  ElectionInfoUpdate,
 } from './types.js';
 import { Db } from './db/db.js';
 import type { Bindable, Client } from './db/client.js';
 import { generateId } from './utils.js';
-import { getStateFeaturesConfig } from './features.js';
 import { MAX_LIVE_REPORT_ACTIVITY_ITEMS } from './globals.js';
 import { CandidateOrderingsMap } from './candidate_orderings.js';
 
@@ -227,8 +230,6 @@ function isForeignKeyError(
     error.constraint === constraint
   );
 }
-
-export type DuplicateElectionError = 'duplicate-title-and-date';
 
 export type DuplicateDistrictErrorCode = 'duplicate-name';
 

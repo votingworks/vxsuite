@@ -9,9 +9,9 @@ import {
   type PrecinctSplit,
 } from '@votingworks/types';
 import { electionGeneralFixtures } from '@votingworks/fixtures';
+import { getStateFeaturesConfig } from '@votingworks/election-definition-backend';
 import { testSetupHelpers } from '../test/helpers.js';
 import { nonVxUser, organizations, jurisdictions } from '../test/mocks.js';
-import { getStateFeaturesConfig } from './features.js';
 import type { Jurisdiction, User } from './types.js';
 
 const { setupApp, cleanup } = testSetupHelpers();

@@ -250,6 +250,9 @@ importers:
       '@votingworks/dev-dock-backend':
         specifier: workspace:*
         version: link:../../../libs/dev-dock/backend
+      '@votingworks/election-definition-backend':
+        specifier: workspace:*
+        version: link:../../../libs/election-definition-backend
       '@votingworks/fs':
         specifier: workspace:*
         version: link:../../../libs/fs
@@ -389,6 +392,9 @@ importers:
       '@votingworks/dev-dock-frontend':
         specifier: workspace:*
         version: link:../../../libs/dev-dock/frontend
+      '@votingworks/election-definition-ui':
+        specifier: workspace:*
+        version: link:../../../libs/election-definition-ui
       '@votingworks/grout':
         specifier: workspace:*
         version: link:../../../libs/grout
@@ -525,6 +531,9 @@ importers:
       '@votingworks/coverage-check':
         specifier: workspace:*
         version: link:../../../libs/coverage-check
+      '@votingworks/election-definition-backend':
+        specifier: workspace:*
+        version: link:../../../libs/election-definition-backend
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../../../libs/fixtures
@@ -988,6 +997,9 @@ importers:
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../../../libs/basics
+      '@votingworks/election-definition-backend':
+        specifier: workspace:*
+        version: link:../../../libs/election-definition-backend
       '@votingworks/grout':
         specifier: workspace:*
         version: link:../../../libs/grout
@@ -1166,6 +1178,9 @@ importers:
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../../../libs/basics
+      '@votingworks/election-definition-ui':
+        specifier: workspace:*
+        version: link:../../../libs/election-definition-ui
       '@votingworks/grout':
         specifier: workspace:*
         version: link:../../../libs/grout
@@ -3730,6 +3745,16 @@ importers:
         version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.19.2)(@vitest/coverage-istanbul@5.0.2)(jsdom@30.1.3(@noble/hashes@1.8.0)(canvas@3.2.3))(vite@8.1.6(@types/node@24.19.2)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/election-definition-backend:
+    dependencies:
+      '@votingworks/basics':
+        specifier: workspace:*
+        version: link:../basics
+      '@votingworks/types':
+        specifier: workspace:*
+        version: link:../types
+      zod:
+        specifier: 4.6.6
+        version: 4.6.6
     devDependencies:
       '@types/node':
         specifier: 24.19.2
@@ -3748,19 +3773,83 @@ importers:
         version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.19.2)(@vitest/coverage-istanbul@5.0.2)(jsdom@30.1.3(@noble/hashes@1.8.0)(canvas@3.2.3))(vite@8.1.6(@types/node@24.19.2)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/election-definition-ui:
+    dependencies:
+      '@votingworks/basics':
+        specifier: workspace:*
+        version: link:../basics
+      '@votingworks/election-definition-backend':
+        specifier: workspace:*
+        version: link:../election-definition-backend
+      '@votingworks/grout':
+        specifier: workspace:*
+        version: link:../grout
+      '@votingworks/types':
+        specifier: workspace:*
+        version: link:../types
+      '@votingworks/ui':
+        specifier: workspace:*
+        version: link:../ui
+      react-router-dom:
+        specifier: ^5.3.4
+        version: 5.3.4(react@18.3.1)
     devDependencies:
+      '@tanstack/react-query':
+        specifier: 4.32.1
+        version: 4.32.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@testing-library/react':
+        specifier: ^16.3.3
+        version: 16.3.3(@testing-library/dom@10.4.1)(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@testing-library/user-event':
+        specifier: ^14.6.1
+        version: 14.6.6(@testing-library/dom@10.4.1)
+      '@types/history':
+        specifier: 4.7.11
+        version: 4.7.11
       '@types/node':
         specifier: 24.19.2
         version: 24.19.2
+      '@types/react':
+        specifier: 18.3.3
+        version: 18.3.3
+      '@types/react-dom':
+        specifier: 18.3.0
+        version: 18.3.0
+      '@types/react-router-dom':
+        specifier: ^5.3.3
+        version: 5.3.3
+      '@types/styled-components':
+        specifier: ^5.1.26
+        version: 5.1.26
       '@vitest/coverage-istanbul':
         specifier: 5.0.2
         version: 5.0.2(vitest@5.0.2)
       '@votingworks/coverage-check':
         specifier: workspace:*
         version: link:../coverage-check
+      '@votingworks/grout-test-utils':
+        specifier: workspace:*
+        version: link:../grout/test-utils
+      '@votingworks/test-utils':
+        specifier: workspace:*
+        version: link:../test-utils
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
+      history:
+        specifier: 4.10.1
+        version: 4.10.1
+      jsdom:
+        specifier: 30.1.3
+        version: 30.1.3(@noble/hashes@1.8.0)(canvas@3.2.3)
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: 18.3.1
+        version: 18.3.1(react@18.3.1)
+      styled-components:
+        specifier: ^5.3.11
+        version: 5.3.11(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)
       vitest:
         specifier: 5.0.2
         version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.19.2)(@vitest/coverage-istanbul@5.0.2)(jsdom@30.1.3(@noble/hashes@1.8.0)(canvas@3.2.3))(vite@8.1.6(@types/node@24.19.2)(esbuild@0.28.1)(yaml@2.8.2))

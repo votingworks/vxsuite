@@ -9,5 +9,9 @@
     "rootDir": "src",
     "declaration": true
   },
-  "references": [{ "path": "../coverage-check/tsconfig.build.json" }]
+  "references": [
+    { "path": "../basics/tsconfig.build.json" },
+    { "path": "../coverage-check/tsconfig.build.json" },
+    { "path": "../types/tsconfig.build.json" }
+  ]
 }

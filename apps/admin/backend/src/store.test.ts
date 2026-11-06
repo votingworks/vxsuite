@@ -25,8 +25,15 @@ import {
   getContests,
   type SheetPositions,
   type ContestPosition,
+  LanguageCode,
 } from '@votingworks/types';
-import { assert, assertDefined, find, typedAs } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  DateWithoutTime,
+  find,
+  typedAs,
+} from '@votingworks/basics';
 import { join } from 'node:path';
 import { createHash } from 'node:crypto';
 import {
@@ -2484,4 +2491,83 @@ describe('withholding unadjudicated central scan ballots from tallies', () => {
       }),
     ]).toHaveLength(3);
   });
+});
+
+test('design election round trip', () => {
+  const store = Store.memoryStore(makeTemporaryDirectory());
+  expect(store.getInProgressElection()).toEqual(undefined);
+
+  const electionInfo = {
+    electionId: 'design-election',
+    type: 'general',
+    date: new DateWithoutTime('2026-11-03'),
+    title: 'General Election',
+    state: 'Demo State',
+    jurisdictionName: 'Demo County',
+    seal: '<svg>seal</svg>',
+    signatureImage: '<svg>signature</svg>',
+    signatureCaption: 'Clerk',
+    languageCodes: [LanguageCode.ENGLISH],
+  } as const;
+  store.createInProgressElection({
+    ...electionInfo,
+    languageCodes: [...electionInfo.languageCodes],
+  });
+  expect(store.getInProgressElection()).toEqual(electionInfo);
+
+  const {
+    signatureImage: _signatureImage,
+    signatureCaption: _signatureCaption,
+    ...withoutSignature
+  } = electionInfo;
+  store.updateInProgressElectionInfo({
+    ...withoutSignature,
+    type: 'primary',
+    title: 'Primary Election',
+    languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
+  });
+  expect(store.getInProgressElection()).toEqual({
+    ...withoutSignature,
+    type: 'primary',
+    title: 'Primary Election',
+    languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
+  });
+
+  store.deleteInProgressElection();
+  expect(store.getInProgressElection()).toEqual(undefined);
+});
+
+test('only one design election can exist', () => {
+  const store = Store.memoryStore(makeTemporaryDirectory());
+  const electionInfo = {
+    electionId: 'design-election',
+    type: 'general',
+    date: new DateWithoutTime('2026-11-03'),
+    title: '',
+    state: 'DEMO',
+    jurisdictionName: '',
+    seal: '',
+    languageCodes: [LanguageCode.ENGLISH],
+  } as const;
+  store.createInProgressElection({
+    ...electionInfo,
+    languageCodes: [...electionInfo.languageCodes],
+  });
+  expect(() =>
+    store.createInProgressElection({
+      ...electionInfo,
+      electionId: 'another-design-election',
+      languageCodes: [...electionInfo.languageCodes],
+    })
+  ).toThrow();
+
+  store.deleteInProgressElection();
+  store.createInProgressElection({
+    ...electionInfo,
+    electionId: 'another-design-election',
+    languageCodes: [...electionInfo.languageCodes],
+  });
+  expect(store.getInProgressElection()?.electionId).toEqual(
+    'another-design-election'
+  );
 });

@@ -371,3 +371,22 @@ begin
     set cvrs_data_version = data_versions.cvrs_data_version + 1
     where election_id = new.election_id;
 end;
+
+create table design_elections (
+  id text primary key,
+  status text not null default 'in_progress'
+    check (status = 'in_progress'),
+  type text not null check (type in ('general', 'primary')),
+  title text not null,
+  date text not null,
+  state text not null,
+  jurisdiction_name text not null,
+  seal text not null,
+  signature_image text,
+  signature_caption text,
+  language_codes text not null,
+  created_at text not null default current_timestamp,
+  updated_at text not null default current_timestamp
+) strict;
+
+create unique index design_elections_singleton on design_elections ((1));

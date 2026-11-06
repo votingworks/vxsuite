@@ -15,13 +15,21 @@ import { type District, ElectionStringKey } from '@votingworks/types';
 
 import type { DuplicateDistrictError } from '@votingworks/hub-backend';
 import { assertDefined } from '@votingworks/basics';
+import {
+  TooltipContainer,
+  Tooltip,
+  FixedViewport,
+  FormBody,
+  FormFooter,
+  InputWithAudio,
+} from '@votingworks/election-definition-ui';
 import { ElectionNavScreen, Header } from './nav_screen.js';
 import {
   type ElectionIdParams,
   electionParamRoutes,
   routes,
 } from './routes.js';
-import { FixedViewport, ListActionsRow } from './layout.js';
+import { ListActionsRow } from './layout.js';
 import {
   getBallotsFinalizedAt,
   getElectionInfo,
@@ -30,10 +38,8 @@ import {
 } from './api.js';
 import { generateId } from './utils.js';
 import { useTitle } from './hooks/use_title.js';
-import { InputWithAudio } from './ballot_audio/input_with_audio.js';
 import { DistrictAudioPanel } from './district_audio_panel.js';
-import { FormFixed, FormBody, FormFooter } from './form_fixed.js';
-import { TooltipContainer, Tooltip } from './tooltip.js';
+import { FormFixed } from './form_fixed.js';
 
 export function DistrictsScreen(): JSX.Element {
   const { electionId } = useParams<ElectionIdParams>();
