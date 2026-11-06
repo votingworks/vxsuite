@@ -50,19 +50,11 @@ export interface TtsEditKey {
   original: string;
 }
 
-export const TtsEditKeySchema: z.ZodType<TtsEditKey> = z.object({
-  languageCode: z.string(),
-  jurisdictionId: z.string(),
-  original: z.string(),
-});
-
-const ExportSourceSchema = z.enum(['phonetic', 'text']);
-
 /**
  * Determines which type of input to use when generating election audio for
  * export (plain text, vs phonetic).
  */
-export type TtsExportSource = z.infer<typeof ExportSourceSchema>;
+export type TtsExportSource = 'phonetic' | 'text';
 
 /**
  * Speech synthesis edits for a given election string.
@@ -72,12 +64,6 @@ export interface TtsEdit {
   phonetic: PhoneticWord[];
   text: string;
 }
-
-export const TtsEditSchema: z.ZodType<TtsEdit> = z.object({
-  exportSource: ExportSourceSchema,
-  phonetic: z.array(PhoneticWordSchema),
-  text: z.string(),
-});
 
 /**
  * TTS user edits and metadata for a language-specific string.
