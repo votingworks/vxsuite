@@ -3075,9 +3075,6 @@ importers:
       '@votingworks/fs':
         specifier: workspace:*
         version: link:../fs
-      '@votingworks/grout':
-        specifier: workspace:*
-        version: link:../grout
       '@votingworks/logging':
         specifier: workspace:*
         version: link:../logging
