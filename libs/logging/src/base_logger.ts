@@ -16,7 +16,6 @@ import {
 
 export const LOGS_ROOT_LOCATION = '/var/log';
 export const LOG_NAME = 'vx-logs';
-export const FULL_LOG_PATH = `${LOGS_ROOT_LOCATION}/${LOG_NAME}.log`;
 
 // The following log sources are frontends and always expect to log through window.kiosk
 // In various tests window.kiosk may not be defined and we don't want to fallback to logging with console.log
