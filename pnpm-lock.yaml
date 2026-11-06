@@ -2774,9 +2774,6 @@ importers:
       util:
         specifier: ^0.12.4
         version: 0.12.4
-      zod:
-        specifier: 4.6.6
-        version: 4.6.6
     devDependencies:
       '@testing-library/dom':
         specifier: ^10.4.1
