@@ -3,7 +3,6 @@ import {
   type BallotTargetMark,
   type Candidate,
   type CandidateContest,
-  type CandidateId,
   type CandidateVote,
   type Contest,
   MarkStatus,
@@ -27,14 +26,6 @@ export function getSingleYesNoVote(
     return vote[0];
   }
   return undefined;
-}
-
-export function normalizeWriteInId(candidateId: CandidateId): string {
-  if (candidateId.startsWith('write-in')) {
-    return Tabulation.GENERIC_WRITE_IN_ID;
-  }
-
-  return candidateId;
 }
 
 /**
