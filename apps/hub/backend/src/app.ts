@@ -81,6 +81,7 @@ import {
   decodeQuickResultsMessage,
 } from '@votingworks/auth';
 import {
+  type DuplicateDistrictError,
   type DuplicateElectionError,
   type ElectionDefinitionMethods,
   getStateFeaturesConfig,
@@ -89,7 +90,6 @@ import {
 import type {
   MainExportTaskMetadata,
   DuplicateContestError,
-  DuplicateDistrictError,
   DuplicatePartyError,
   DuplicatePrecinctError,
   TestDecksTaskMetadata,

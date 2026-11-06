@@ -17,7 +17,6 @@ import {
 export type { TtsStringDefault } from './tts_strings.js';
 export type {
   BackgroundTask,
-  DuplicateDistrictError,
   DuplicatePartyError,
   MainExportTaskMetadata,
   SetPollingPlaceError,
@@ -43,6 +42,7 @@ export type {
   ExportQaStatus,
 } from './types.js';
 export type {
+  DuplicateDistrictError,
   StateFeature,
   StateFeaturesConfig,
 } from '@votingworks/election-definition-backend';
