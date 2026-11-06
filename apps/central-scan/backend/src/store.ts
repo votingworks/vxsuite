@@ -848,14 +848,16 @@ export class Store {
   /**
    * Yields all scanned sheets that were accepted and should be tabulated
    */
-  *forEachAcceptedSheet(): Generator<AcceptedSheet> {
+  async *forEachAcceptedSheet(): AsyncGenerator<AcceptedSheet> {
     const sql = `${getSheetsBaseQuery}
       where
         batches.deleted_at is null and
         sheets.deleted_at is null
       order by sheets.created_at
     `;
-    for (const row of this.client.each(sql) as Iterable<SheetRow>) {
+    for await (const row of this.client.eachAsync(
+      sql
+    ) as AsyncIterable<SheetRow>) {
       yield sheetRowToAcceptedSheet(row);
     }
   }
@@ -863,13 +865,15 @@ export class Store {
   /**
    * Yields all scanned sheets
    */
-  *forEachSheet(): Generator<Sheet> {
+  async *forEachSheet(): AsyncGenerator<Sheet> {
     const sql = `${getSheetsBaseQuery}
       where
         batches.deleted_at is null
       order by sheets.created_at
     `;
-    for (const row of this.client.each(sql) as Iterable<SheetRow>) {
+    for await (const row of this.client.eachAsync(
+      sql
+    ) as AsyncIterable<SheetRow>) {
       yield sheetRowToSheet(row);
     }
   }

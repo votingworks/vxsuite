@@ -2385,11 +2385,7 @@ export class Store implements BaseStore {
     return { ...votes, ...adjudicatedVotes };
   }
 
-  /**
-   * Returns an iterator of cast vote records for tabulation purposes. Filters
-   * the cast vote records by specified filters.
-   */
-  *getCastVoteRecords({
+  private getCastVoteRecordsQuery({
     electionId,
     election,
     filter,
@@ -2399,7 +2395,7 @@ export class Store implements BaseStore {
     election: Election;
     filter: Tabulation.Filter;
     excludeWithheldBallots: boolean;
-  }): Generator<Tabulation.CastVoteRecord> {
+  }): [sql: string, params: Bindable[]] {
     const [whereParts, params] = this.getTabulationFilterAsSql(
       election,
       electionId,
@@ -2410,7 +2406,7 @@ export class Store implements BaseStore {
       whereParts.push(`not ${this.getWithheldBallotsSqlCondition(electionId)}`);
     }
 
-    for (const row of this.client.each(
+    return [
       `
         select
           cvrs.ballot_style_group_id as ballotStyleGroupId,
@@ -2433,33 +2429,68 @@ export class Store implements BaseStore {
           cvrs.ballot_style_group_id = ballot_styles.group_id
         where ${whereParts.join(' and ')}
   `,
-      ...params
-    ) as Iterable<
-      StoreCastVoteRecordAttributes & {
-        cardType: 'bmd' | 'hmpb';
-        sheetNumber: number | null;
-        votes: string;
-        adjudicatedVotes: string | null;
-      }
-    >) {
-      const votes = this.applyAdjudicatedVotes({
-        votesString: row.votes,
-        adjudicatedVotesString: row.adjudicatedVotes,
-      });
-      const partyId = isCombinedBallotPrimary(election)
-        ? inferPartyFromVotes(election, votes)
-        : (row.partyId ?? undefined);
-      yield {
-        ballotStyleGroupId: row.ballotStyleGroupId,
-        partyId,
-        votingMethod: row.votingMethod,
-        batchId: row.batchId,
-        scannerId: row.scannerId,
-        precinctId: row.precinctId,
-        reportingStatus: row.reportingStatus,
-        card: this.convertSheetNumberToCard(row.cardType, row.sheetNumber),
-        votes,
-      };
+      params,
+    ];
+  }
+
+  private castVoteRecordFromRow(
+    row: StoreCastVoteRecordAttributes & {
+      cardType: 'bmd' | 'hmpb';
+      sheetNumber: number | null;
+      votes: string;
+      adjudicatedVotes: string | null;
+    },
+    election: Election
+  ): Tabulation.CastVoteRecord {
+    const votes = this.applyAdjudicatedVotes({
+      votesString: row.votes,
+      adjudicatedVotesString: row.adjudicatedVotes,
+    });
+    const partyId = isCombinedBallotPrimary(election)
+      ? inferPartyFromVotes(election, votes)
+      : (row.partyId ?? undefined);
+    return {
+      ballotStyleGroupId: row.ballotStyleGroupId,
+      partyId,
+      votingMethod: row.votingMethod,
+      batchId: row.batchId,
+      scannerId: row.scannerId,
+      precinctId: row.precinctId,
+      reportingStatus: row.reportingStatus,
+      card: this.convertSheetNumberToCard(row.cardType, row.sheetNumber),
+      votes,
+    };
+  }
+
+  /** Yields matching cast vote records, periodically yielding to the event loop. */
+  async *getCastVoteRecords(params: {
+    electionId: Id;
+    election: Election;
+    filter: Tabulation.Filter;
+    excludeWithheldBallots: boolean;
+  }): AsyncGenerator<Tabulation.CastVoteRecord> {
+    const [sql, sqlParams] = this.getCastVoteRecordsQuery(params);
+    for await (const row of this.client.eachAsync(sql, sqlParams)) {
+      yield this.castVoteRecordFromRow(
+        row as Parameters<typeof this.castVoteRecordFromRow>[0],
+        params.election
+      );
+    }
+  }
+
+  /** Like {@link getCastVoteRecords}, but blocking; use for small result sets. */
+  *getCastVoteRecordsSync(params: {
+    electionId: Id;
+    election: Election;
+    filter: Tabulation.Filter;
+    excludeWithheldBallots: boolean;
+  }): Generator<Tabulation.CastVoteRecord> {
+    const [sql, sqlParams] = this.getCastVoteRecordsQuery(params);
+    for (const row of this.client.each(sql, ...sqlParams)) {
+      yield this.castVoteRecordFromRow(
+        row as Parameters<typeof this.castVoteRecordFromRow>[0],
+        params.election
+      );
     }
   }
 
@@ -2638,7 +2669,7 @@ export class Store implements BaseStore {
     // filter on ballot_style.party_id)
     const { partyIds, ...restFilter } = filter;
 
-    for (const cvr of this.getCastVoteRecords({
+    for (const cvr of this.getCastVoteRecordsSync({
       electionId,
       election,
       filter: restFilter,
@@ -4098,6 +4129,11 @@ export class Store implements BaseStore {
       asSqliteBool(isOfficialResults),
       electionId
     );
+  }
+
+  /** Counts writes made through this store since it opened. */
+  getTotalChanges(): number {
+    return this.client.totalChanges();
   }
 
   getCastVoteRecordsDataVersion(electionId: Id): number {

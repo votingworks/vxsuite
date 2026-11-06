@@ -1,6 +1,6 @@
 import { writeFileSync } from 'node:fs';
 import { getLifetimeSheetCountFilePath } from '@votingworks/backend';
-import { err, ok, typedAs } from '@votingworks/basics';
+import { err, iter, ok, typedAs } from '@votingworks/basics';
 import {
   electionGeneralFixtures,
   electionGridLayoutNewHampshireTestBallotFixtures,
@@ -267,7 +267,9 @@ test('ballot needs review - return', async () => {
       await expectStatus(apiClient, { state: 'waiting_for_ballot' });
 
       // Make sure the ballot was still recorded in the db for backup purposes
-      expect(Array.from(workspace.store.forEachSheet())).toHaveLength(1);
+      expect(await iter(workspace.store.forEachSheet()).toArray()).toHaveLength(
+        1
+      );
     }
   );
 });
@@ -434,7 +436,9 @@ test('ballot with wrong election rejected', async () => {
       await expectStatus(apiClient, { state: 'waiting_for_ballot' });
 
       // Make sure the ballot was still recorded in the db for backup purposes
-      expect(Array.from(workspace.store.forEachSheet())).toHaveLength(1);
+      expect(await iter(workspace.store.forEachSheet()).toArray()).toHaveLength(
+        1
+      );
       expect(incrementLifetimeSheetCount).not.toHaveBeenCalled();
     }
   );

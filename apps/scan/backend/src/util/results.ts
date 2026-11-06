@@ -74,7 +74,9 @@ const BALLOT_TYPE_TO_VOTING_METHOD: Record<
   [BallotType.Provisional]: 'provisional',
 };
 
-function buildCvrsFromStore(store: Store): Iterable<Tabulation.CastVoteRecord> {
+function buildCvrsFromStore(
+  store: Store
+): AsyncIterable<Tabulation.CastVoteRecord> {
   const { electionDefinition } = assertDefined(store.getElectionRecord());
   const { election } = electionDefinition;
   const ballotStyleIdPartyIdLookup = getBallotStyleIdPartyIdLookup(election);

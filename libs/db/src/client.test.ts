@@ -3,7 +3,7 @@ import { Buffer } from 'node:buffer';
 import { SqliteError } from 'better-sqlite3';
 import * as fs from 'node:fs';
 import { basename, dirname, join } from 'node:path';
-import { err, ok, range, typedAs } from '@votingworks/basics';
+import { err, iter, ok, range, typedAs } from '@votingworks/basics';
 import {
   makeTemporaryDirectory,
   makeTemporaryFile,
@@ -991,6 +991,35 @@ function fileClientWithUsers(count: number): Client {
   return client;
 }
 
+test('eachAsync reads a snapshot without blocking writes', async () => {
+  const client = fileClientWithUsers(501);
+
+  const ids: unknown[] = [];
+  for await (const row of client.eachAsync('SELECT id FROM users')) {
+    ids.push((row as { id: string }).id);
+    if (ids.length === 1) {
+      client.run('DELETE FROM users');
+    }
+  }
+
+  expect(ids).toHaveLength(501);
+  expect(
+    await iter(client.eachAsync('SELECT id FROM users')).toArray()
+  ).toEqual([]);
+  client.close();
+});
+
+test('eachAsync cannot be used inside a transaction', async () => {
+  const client = fileClientWithUsers(1);
+
+  let next: Promise<unknown> | undefined;
+  client.transaction(() => {
+    next = client.eachAsync('SELECT id FROM users').next();
+  });
+
+  await expect(next).rejects.toThrow(/inside a transaction/);
+});
+
 test('each does not block queries on the main connection', () => {
   const client = fileClientWithUsers(2);
 
@@ -1002,5 +1031,14 @@ test('each does not block queries on the main connection', () => {
 
   expect(ids).toEqual(['user0', 'user1']);
   expect(client.all('SELECT id FROM users')).toEqual([]);
+  client.close();
+});
+
+test('totalChanges counts rows changed through the main connection', () => {
+  const client = fileClientWithUsers(3);
+  const before = client.totalChanges();
+
+  client.run('DELETE FROM users');
+  expect(client.totalChanges() - before).toEqual(3);
   client.close();
 });

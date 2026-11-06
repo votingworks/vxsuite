@@ -44,6 +44,8 @@ const SCHEMA_DIGEST_TABLE = 'vx_schema_digest';
 /** How long to wait for another process's write lock. */
 const BUSY_TIMEOUT_MS = 5_000;
 
+const EACH_ASYNC_CHUNK_SIZE = 500;
+
 const WAL_SIDECAR_SUFFIXES = ['-wal', '-shm'] as const;
 
 /** Renames a closed database to `to`, removing any WAL sidecars left at `to`. */
@@ -347,6 +349,11 @@ export class Client {
     return this.getDatabase().inTransaction;
   }
 
+  /** Counts rows changed through this connection since it opened. */
+  totalChanges(): number {
+    return (this.one('select total_changes() as n') as { n: number }).n;
+  }
+
   /**
    * Run {@link fn} within a transaction and roll back the transaction if an
    * exception occurs.
@@ -538,6 +545,29 @@ export class Client {
       yield* reader.prepare(sql).iterate(...params);
     } finally {
       reader.close();
+    }
+  }
+
+  /** Like {@link each}, but periodically yields to the event loop. */
+  async *eachAsync(
+    sql: string,
+    params: Bindable[] = []
+  ): AsyncGenerator<unknown, void, undefined> {
+    assert(
+      !this.isInTransaction(),
+      'eachAsync cannot be used inside a transaction: yielding to the event ' +
+        'loop would hold the transaction open across awaits'
+    );
+    let sinceYield = 0;
+    for (const row of this.iterateOnReader(sql, params)) {
+      yield row;
+      sinceYield += 1;
+      if (sinceYield >= EACH_ASYNC_CHUNK_SIZE) {
+        sinceYield = 0;
+        await new Promise<void>((resolve) => {
+          setImmediate(resolve);
+        });
+      }
     }
   }
 

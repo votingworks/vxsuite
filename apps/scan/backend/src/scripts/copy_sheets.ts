@@ -73,7 +73,9 @@ function copySheet(store: Store, sheet: AcceptedSheet): string {
   return newSheetId;
 }
 
-function copySheets({ targetSheetCount }: CopySheetsInput): void {
+async function copySheets({
+  targetSheetCount,
+}: CopySheetsInput): Promise<void> {
   const { store } = createWorkspace(
     assertDefined(getScanWorkspace()),
     new BaseLogger(LogSource.VxDevelopmentScript)
@@ -95,7 +97,7 @@ function copySheets({ targetSheetCount }: CopySheetsInput): void {
     500 // A cap to limit how much data the script loads
   );
 
-  const sheets = iter(store.forEachAcceptedSheet())
+  const sheets = await iter(store.forEachAcceptedSheet())
     .take(maxNumSheetsToReadForCopying)
     .toArray();
 
@@ -126,10 +128,10 @@ function copySheets({ targetSheetCount }: CopySheetsInput): void {
 /**
  * A script for copying a scanner store's sheet records to facilitate scale testing
  */
-export function main(args: readonly string[]): void {
+export async function main(args: readonly string[]): Promise<void> {
   try {
     checkEnvironment();
-    copySheets(parseCommandLineArgs(args));
+    await copySheets(parseCommandLineArgs(args));
   } catch (error) {
     console.error(`❌ ${extractErrorMessage(error)}`);
     process.exit(1);
