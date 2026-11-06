@@ -8,13 +8,12 @@ import {
 } from '@votingworks/types';
 import {
   CachedElectionLookups,
-  extractGroupSpecifier,
   getGroupKey,
   hasCrossoverVote,
   isGroupByEmpty,
 } from '@votingworks/utils';
 import { assert, assertDefined } from '@votingworks/basics';
-import type { WriteInForTally, WriteInTally } from '../types.js';
+import type { WriteInForTally } from '../types.js';
 import type { Store } from '../store.js';
 import {
   extractWriteInSummary,
@@ -57,57 +56,6 @@ export function getEmptyElectionWriteInSummary(
   }
 
   return electionWriteInSummary;
-}
-
-/**
- * Convert from a contest write-in summary back to the write-in tally records
- * that would be retrieved from the store. For testing purposes only.
- */
-export function convertContestWriteInSummaryToWriteInTallies(
-  contestWriteInSummary: Tabulation.GroupOf<Tabulation.ContestWriteInSummary>
-): Array<Tabulation.GroupOf<WriteInTally>> {
-  const writeInTallies: Array<Tabulation.GroupOf<WriteInTally>> = [];
-  const groupSpecifier = extractGroupSpecifier(contestWriteInSummary);
-
-  const { contestId, pendingTally, invalidTally, candidateTallies } =
-    contestWriteInSummary;
-
-  // @coverage-defer
-  if (pendingTally > 0) {
-    writeInTallies.push({
-      ...groupSpecifier,
-      contestId,
-      status: 'pending',
-      tally: pendingTally,
-    });
-  }
-
-  // @coverage-defer
-  if (invalidTally > 0) {
-    writeInTallies.push({
-      ...groupSpecifier,
-      contestId,
-      status: 'adjudicated',
-      adjudicationType: 'invalid',
-      tally: invalidTally,
-    });
-  }
-
-  for (const candidateTally of Object.values(candidateTallies)) {
-    writeInTallies.push({
-      ...groupSpecifier,
-      contestId,
-      status: 'adjudicated',
-      adjudicationType: candidateTally.isWriteIn
-        ? 'write-in-candidate'
-        : 'official-candidate',
-      candidateId: candidateTally.id,
-      candidateName: candidateTally.name,
-      tally: candidateTally.tally,
-    });
-  }
-
-  return writeInTallies;
 }
 
 /**
