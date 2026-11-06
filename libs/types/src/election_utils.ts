@@ -14,7 +14,6 @@ import {
   type CandidateContest,
   type ContestId,
   type District,
-  type DistrictId,
   type Election,
   type BallotStyleGroup,
   type Parties,
@@ -27,8 +26,6 @@ import {
   type BallotStyleGroupId,
   BmdBallotPaperSize,
   type BallotPaperSize,
-  type PrecinctSplitId,
-  type PrecinctSplit,
   hasSplits,
   type PrecinctOrSplit,
   type CandidateVote,
@@ -146,41 +143,6 @@ export function getPrecinctById({
 }
 
 /**
- * Retrieves a precinct index by precinct id.
- */
-export function getPrecinctIndexById({
-  election,
-  precinctId,
-}: {
-  election: Election;
-  precinctId: PrecinctId;
-}): number {
-  return election.precincts.findIndex((p) => p.id === precinctId);
-}
-
-/**
- * Retrieves a precinct split by id. Adds the precinct id to the split.
- */
-export function getPrecinctSplitById({
-  election,
-  precinctSplitId,
-}: {
-  election: Election;
-  precinctSplitId: PrecinctSplitId;
-}): (PrecinctSplit & { precinctId: PrecinctId }) | undefined {
-  return election.precincts
-    .flatMap((precinct) =>
-      hasSplits(precinct)
-        ? precinct.splits.map((split) => ({
-            ...split,
-            precinctId: precinct.id,
-          }))
-        : []
-    )
-    .find((split) => split.id === precinctSplitId);
-}
-
-/**
  * Retrieves a ballot style by id.
  */
 export function getBallotStyle({
@@ -259,72 +221,6 @@ export function getCandidateParties(
 }
 
 /**
- * Gets a description of all the parties for a given candidate. If in the future
- * the order of the parties changes according to the election, this function
- * will need to be updated.
- */
-export function getCandidatePartiesDescription(
-  election: Election,
-  candidate: Candidate
-): string | undefined {
-  const parties = getCandidateParties(election.parties, candidate);
-  if (parties.length === 0) {
-    return undefined;
-  }
-  return parties.map((p) => p.name).join(', ');
-}
-
-/**
- * Validates the votes for a given ballot style in a given election.
- *
- * @throws When an inconsistency is found.
- */
-export function validateVotes({
-  votes,
-  ballotStyle,
-  election,
-}: {
-  votes: VotesDict;
-  ballotStyle: BallotStyle;
-  election: Election;
-}): void {
-  const contests = getContests({ election, ballotStyle });
-
-  for (const contestId of Object.getOwnPropertyNames(votes)) {
-    const contest = findContest({ contests, contestId });
-
-    if (!contest) {
-      throw new Error(
-        `found a vote with contest id ${JSON.stringify(
-          contestId
-        )}, but no such contest exists in ballot style ${
-          ballotStyle.id
-        } (expected one of ${contests.map((c) => c.id).join(', ')})`
-      );
-    }
-  }
-}
-
-/**
- * @deprecated Does not support i18n. 'party.fullname` should be used instead.
- * Gets the adjective used to describe the political party for a primary
- * election, e.g. "Republican" or "Democratic".
- */
-export function getPartyPrimaryAdjectiveFromBallotStyle({
-  ballotStyleId,
-  election,
-}: {
-  ballotStyleId: BallotStyleId;
-  election: Election;
-}): string {
-  const parts = /(\d+)(\w+)/i.exec(ballotStyleId);
-  const abbrev = parts?.[2];
-  const party = election.parties.find((p) => p.abbrev === abbrev);
-  const name = party?.name;
-  return (name === 'Democrat' && 'Democratic') || name || '';
-}
-
-/**
  * Gets the party for a ballot style, if any.
  */
 export function getPartyForBallotStyle({
@@ -336,21 +232,6 @@ export function getPartyForBallotStyle({
 }): Party | undefined {
   const ballotStyle = getBallotStyle({ ballotStyleId, election });
   return election.parties.find((p) => p.id === ballotStyle?.partyId);
-}
-
-/**
- * Gets the full name of the political party for a primary election,
- * e.g. "Republican Party" or "Democratic Party".
- */
-export function getPartyFullNameFromBallotStyle({
-  ballotStyleId,
-  election,
-}: {
-  ballotStyleId: BallotStyleId;
-  election: Election;
-}): string {
-  const party = getPartyForBallotStyle({ ballotStyleId, election });
-  return party?.fullName ?? '';
 }
 
 /**
@@ -368,15 +249,6 @@ export function getPartyAbbreviationByPartyId({
   return party?.abbrev ?? '';
 }
 
-export function getDistrictIdsForPartyId(
-  election: Election,
-  partyId: PartyId
-): DistrictId[] {
-  return election.ballotStyles
-    .filter((bs) => bs.partyId === partyId)
-    .flatMap((bs) => bs.districts);
-}
-
 /**
  * Returns the ids of all parties with an associated contest defined. Will
  * return `undefined` for nonpartisan contests.
@@ -391,17 +263,6 @@ export function getPartyIdsWithContests(
       )
     ),
   ];
-}
-
-/**
- * Returns an array of party ids present in ballot styles in the given election.
- * In the case of a ballot style without a party the element "undefined" will be included
- * in the returned array.
- */
-export function getPartyIdsInBallotStyles(
-  election: Election
-): Array<PartyId | undefined> {
-  return Array.from(new Set(election.ballotStyles.map((bs) => bs.partyId)));
 }
 
 /**
