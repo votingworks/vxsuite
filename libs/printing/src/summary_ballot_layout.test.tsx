@@ -21,7 +21,6 @@ import { assertDefined } from '@votingworks/basics';
 import {
   SummaryBallotLayoutRenderer,
   type SummaryBallotPageLayout,
-  computeSummaryBallotLayoutWithRendering,
 } from './summary_ballot_layout.js';
 import { renderToPdf } from './render.js';
 
@@ -180,39 +179,6 @@ describe('SummaryBallotLayoutRenderer', () => {
     } finally {
       await renderer.close();
     }
-  });
-});
-
-describe('computeSummaryBallotLayoutWithRendering', () => {
-  test('computes page breaks using convenience function', async () => {
-    const election = createTestElection({
-      numCandidateContests: 35,
-      numYesNoContests: 15,
-      candidatesPerContest: 5,
-      longCandidateNames: true,
-      longContestTitles: true,
-    });
-    const electionDefinition = createElectionDefinition(election);
-    const votes = createMockVotes([...election.contests]);
-    const ballotStyle = assertDefined(
-      getBallotStyle({ ballotStyleId, election })
-    );
-
-    const result = await computeSummaryBallotLayoutWithRendering(
-      electionDefinition,
-      ballotStyle,
-      ballotStyle.orderedCandidatesByContest,
-      'precinct-1',
-      votes,
-      'mark'
-    );
-
-    // With 50 contests, we expect multiple pages
-    expect(result.length).toBeGreaterThan(1);
-
-    // Verify all contests are accounted for
-    const allContestIds = result.flatMap((p) => p.contestIds);
-    expect(allContestIds.length).toEqual(election.contests.length);
   });
 });
 
