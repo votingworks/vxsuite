@@ -11,7 +11,6 @@ export * from './environment_variable.js';
 export * as format from './format.js';
 export * from './features.js';
 export * from './features_mock.js';
-export * from './fetch_json.js';
 export * from './filenames.js';
 export * from './file_reading.js';
 export * from './hmpb/index.js';
