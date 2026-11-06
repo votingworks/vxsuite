@@ -37,10 +37,6 @@ export async function readTextEntry(entry: JSZipObject): Promise<string> {
   return new TextDecoder().decode(bytes);
 }
 
-export async function readJsonEntry(entry: JSZipObject): Promise<unknown> {
-  return JSON.parse(await readTextEntry(entry));
-}
-
 /**
  * Finds the most recently modified file in the entries that matches the given prefix and extension.
  * @param entries - represents the entries of a zip file
