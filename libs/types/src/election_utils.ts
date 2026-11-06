@@ -57,22 +57,6 @@ export function getContests({
 }
 
 /**
- * @deprecated Use {@link getOrderedCandidates}
- */
-export function getOrderedCandidatesForContestInBallotStyle({
-  contest,
-  ballotStyle,
-}: {
-  contest: CandidateContest;
-  ballotStyle: BallotStyle | BallotStyleGroup;
-}): readonly Candidate[] {
-  return getOrderedCandidates({
-    contest,
-    orderings: ballotStyle.orderedCandidatesByContest,
-  });
-}
-
-/**
  * Returns the contest's candidates in the order specified for ballot rotation,
  * or in their original order if no rotation is specified.
  */

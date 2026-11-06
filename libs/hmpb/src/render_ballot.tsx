@@ -364,6 +364,7 @@ export interface ElectionSerializationOptions {
 
 function serializeElection(
   election: Election,
+  getCandidateOrderings: GetCandidateOrderingsFn,
   options: ElectionSerializationOptions
 ): string {
   const electionToSerialize = (() => {
@@ -386,12 +387,17 @@ function serializeElection(
           default:
             return throwIllegalValue(options.version);
         }
+
       case 'cdf':
         assert(
           options.version === LATEST_SOFTWARE_VERSION,
           `CDF export only supported for software version ${LATEST_SOFTWARE_VERSION}`
         );
-        return convertVxfElectionToCdfBallotDefinition(election);
+        return convertVxfElectionToCdfBallotDefinition(
+          election,
+          getCandidateOrderings
+        );
+
       default:
         throwIllegalValue(options.format);
     }
@@ -668,7 +674,11 @@ export async function createElectionDefinition<P extends BaseBallotProps>(p: {
     })),
     contests,
   };
-  const electionData = serializeElection(election, p.serializationOptions);
+  const electionData = serializeElection(
+    election,
+    p.getCandidateOrderings,
+    p.serializationOptions
+  );
 
   function* ballotPositionLines() {
     for (const bs of election.ballotStyles) {
@@ -733,8 +743,12 @@ function electionWithBallotMeta(
     orderedCandidatesByContest: getCandidateOrderings(bs) ?? undefined,
   }));
 
-  const electionWithMeta: Election = { ...baseElection, ballotStyles };
-  const electionData = serializeElection(electionWithMeta, opts);
+  const electionData = serializeElection(
+    { ...baseElection, ballotStyles },
+    getCandidateOrderings,
+    opts
+  );
+
   const ballotHash = createHash('sha256').update(electionData).digest('hex');
   const election = safeParseElectionAnyVersion(electionData).unsafeUnwrap();
 

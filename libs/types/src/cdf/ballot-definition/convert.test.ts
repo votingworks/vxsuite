@@ -39,9 +39,12 @@ test('VXF fixture is valid', () => {
 });
 
 test('convertVxfElectionToCdfBallotDefinition', () => {
-  expect(convertVxfElectionToCdfBallotDefinition(testVxfElection)).toEqual(
-    testCdfBallotDefinition
-  );
+  expect(
+    convertVxfElectionToCdfBallotDefinition(
+      testVxfElection,
+      (bs) => bs.orderedCandidatesByContest
+    )
+  ).toEqual(testCdfBallotDefinition);
 });
 
 test('convertVxfElectionToCdfBallotDefinition with translated election strings', () => {
@@ -247,13 +250,16 @@ test('convertVxfElectionToCdfBallotDefinition with translated election strings',
   ];
 
   expect(
-    convertVxfElectionToCdfBallotDefinition({
-      ...testVxfElection,
-      ballotStrings: mergeUiStrings(
-        testVxfElection.ballotStrings,
-        translatedElectionStrings
-      ),
-    })
+    convertVxfElectionToCdfBallotDefinition(
+      {
+        ...testVxfElection,
+        ballotStrings: mergeUiStrings(
+          testVxfElection.ballotStrings,
+          translatedElectionStrings
+        ),
+      },
+      (bs) => bs.orderedCandidatesByContest
+    )
   ).toEqual(expectedCdfBallotDefinition);
 });
 
@@ -267,7 +273,10 @@ const elections = [election, primaryElection, electionTwoPartyPrimary];
 
 for (const vxf of elections) {
   test(`round trip conversion for election fixture: ${vxf.title}`, () => {
-    const cdf = convertVxfElectionToCdfBallotDefinition(vxf);
+    const cdf = convertVxfElectionToCdfBallotDefinition(
+      vxf,
+      (bs) => bs.orderedCandidatesByContest
+    );
     expect(convertCdfBallotDefinitionToVxfElection(cdf)).toEqual(
       normalizeVxfAfterCdfConversion(vxf)
     );
@@ -426,7 +435,10 @@ test('ballot styles with same districts but different rotations in different pre
     ],
   };
 
-  const cdf = convertVxfElectionToCdfBallotDefinition(vxfElection);
+  const cdf = convertVxfElectionToCdfBallotDefinition(
+    vxfElection,
+    (bs) => bs.orderedCandidatesByContest
+  );
 
   // Verify that each ballot style only references its own precinct
   const ballotStyle1 = cdf.Election[0]!.BallotStyle.find(
