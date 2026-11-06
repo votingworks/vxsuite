@@ -304,10 +304,6 @@ function buildApi({
       return workspace.store.getAppMode();
     },
 
-    getMachineMode(): MachineMode {
-      return machineMode.get();
-    },
-
     async setMachineMode(input: { mode: MachineMode }): Promise<void> {
       assert(
         store.getCurrentElectionId() === undefined,
