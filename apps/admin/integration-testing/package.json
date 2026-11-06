@@ -16,18 +16,7 @@
   },
   "dependencies": {
     "@playwright/test": "1.55.1",
-    "@votingworks/auth": "workspace:*",
-    "@votingworks/backend": "workspace:*",
-    "@votingworks/basics": "workspace:*",
-    "@votingworks/fixtures": "workspace:*",
-    "@votingworks/fs": "workspace:*",
-    "@votingworks/grout": "workspace:*",
     "@votingworks/integration-test-utils": "workspace:*",
-    "@votingworks/printing": "workspace:*",
-    "@votingworks/test-utils": "workspace:*",
-    "@votingworks/types": "workspace:*",
-    "@votingworks/usb-drive": "workspace:*",
-    "@votingworks/utils": "workspace:*",
     "concurrently": "7.6.0",
     "tmp": "^0.2.6"
   },
