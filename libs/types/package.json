@@ -46,7 +46,6 @@
     "@votingworks/coverage-check": "workspace:*",
     "ajv": "^8.20.0",
     "ajv6": "npm:ajv@6",
-    "esbuild-runner": "2.2.2",
     "eslint-plugin-vx": "workspace:*",
     "fast-check": "2.23.2",
     "sort-package-json": "^1.50.0",
