@@ -14,7 +14,6 @@ import type {
   CheckInBallotParty,
   Election,
   PrimarySummaryStatistics,
-  PrinterStatus,
   SummaryStatistics,
   ValidStreetInfo,
   Voter,
@@ -235,11 +234,6 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
       }
 
       return ok(payload);
-    },
-
-    // @coverage-defer
-    getPrinterStatus(): Promise<PrinterStatus> {
-      return printer.status();
     },
 
     getElection(): Result<Election, 'unconfigured' | ConfigurationStatus> {
