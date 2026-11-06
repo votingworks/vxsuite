@@ -18,6 +18,8 @@ import {
   isCombinedBallotPrimary,
   type DippedSmartCardAuth,
   type CandidateOrderings,
+  type District,
+  DistrictSchema,
   type ElectionId,
   LanguageCode,
   unsafeParse,
@@ -41,6 +43,8 @@ import {
   prepareSignatureFile,
 } from '@votingworks/auth';
 import {
+  type DistrictsUpdate,
+  type DuplicateDistrictError,
   type ElectionDefinitionMethods,
   type ElectionInfo,
   type ElectionInfoUpdate,
@@ -1875,6 +1879,59 @@ function buildApi({
       await requireElectionDefinitionAccess();
       loadInProgressElectionInfo(input);
       return assertDefined(getMachineState()).features;
+    },
+
+    async listDistricts(input: ElectionInput): Promise<District[]> {
+      await requireElectionDefinitionAccess();
+      loadInProgressElectionInfo(input);
+      return store.listDistricts(input.electionId);
+    },
+
+    async updateDistricts(
+      input: DistrictsUpdate
+    ): Promise<Result<void, DuplicateDistrictError>> {
+      await requireElectionDefinitionAccess();
+      let result: Result<void, DuplicateDistrictError>;
+      try {
+        loadInProgressElectionInfo(input);
+        result = store.updateDistricts({
+          electionId: input.electionId,
+          deletedDistrictIds: input.deletedDistrictIds,
+          updatedDistricts: input.updatedDistricts?.map((district) =>
+            unsafeParse(DistrictSchema, district)
+          ),
+          newDistricts: input.newDistricts?.map((district) =>
+            unsafeParse(DistrictSchema, district)
+          ),
+        });
+      } catch (error) {
+        await logger.logAsCurrentRole(
+          LogEventId.ElectionDefinitionDistrictsUpdated,
+          {
+            message: `Error updating districts for election definition ${input.electionId}: ${extractErrorMessage(error)}`,
+            disposition: 'failure',
+          }
+        );
+        throw error;
+      }
+      if (result.isErr()) {
+        await logger.logAsCurrentRole(
+          LogEventId.ElectionDefinitionDistrictsUpdated,
+          {
+            message: `Error updating districts for election definition ${input.electionId}: district ${result.err().districtId} has a duplicate name.`,
+            disposition: 'failure',
+          }
+        );
+        return result;
+      }
+      await logger.logAsCurrentRole(
+        LogEventId.ElectionDefinitionDistrictsUpdated,
+        {
+          message: `Updated districts for election definition ${input.electionId}.`,
+          disposition: 'success',
+        }
+      );
+      return result;
     },
     ...createSystemCallApi({
       usbDrive: usbDriveAdapter,
