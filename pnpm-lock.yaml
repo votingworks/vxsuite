@@ -5270,9 +5270,6 @@ importers:
       luxon:
         specifier: ^3.0.0
         version: 3.3.0
-      tmp:
-        specifier: ^0.2.6
-        version: 0.2.7
       yargs:
         specifier: 17.7.1
         version: 17.7.1
@@ -5292,9 +5289,6 @@ importers:
       '@types/node':
         specifier: 24.19.2
         version: 24.19.2
-      '@types/tmp':
-        specifier: 0.2.4
-        version: 0.2.4
       '@types/yargs':
         specifier: 17.0.22
         version: 17.0.22
