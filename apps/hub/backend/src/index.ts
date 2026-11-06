@@ -43,7 +43,6 @@ export type {
   ExportQaStatus,
 } from './types.js';
 export type {
-  StateFeature,
   StateFeaturesConfig,
   UserFeature,
   UserFeaturesConfig,

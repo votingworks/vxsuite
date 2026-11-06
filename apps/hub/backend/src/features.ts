@@ -224,7 +224,6 @@ export interface StateFeaturesConfig {
 }
 
 export type UserFeature = keyof UserFeaturesConfig;
-export type StateFeature = keyof StateFeaturesConfig;
 
 const vxUserFeaturesConfig: UserFeaturesConfig = {
   EXPORT_SCREEN: true,
