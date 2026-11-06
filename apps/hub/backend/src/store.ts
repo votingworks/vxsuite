@@ -231,13 +231,6 @@ function isForeignKeyError(
   );
 }
 
-export type DuplicateDistrictErrorCode = 'duplicate-name';
-
-export interface DuplicateDistrictError {
-  code: DuplicateDistrictErrorCode;
-  districtId: string;
-}
-
 export type DuplicatePrecinctError =
   | 'duplicate-precinct-name'
   | 'duplicate-split-name'
