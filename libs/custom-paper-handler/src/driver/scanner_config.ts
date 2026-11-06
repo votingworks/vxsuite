@@ -1,4 +1,4 @@
-import { Uint16toUint8, Uint32toUint8, type Uint8 } from '../bits.js';
+import type { Uint8 } from '../bits.js';
 import type { ConfigureScannerCommand } from './coders.js';
 
 export type PaperMovementAfterScan =
@@ -113,23 +113,4 @@ export function getScannerConfigCoderValues(
     sizeX: scannerConfig.scanHorizontalDimensionInDots,
     sizeY: scannerConfig.scanMaxVerticalDimensionInDots,
   };
-}
-
-// @coverage-defer
-export function encodeScannerConfig(scannerConfig: ScannerConfig): Uint8[] {
-  const data: Uint8[] = [];
-  data.push(
-    PaperMovementAfterScanEncoder[scannerConfig.paperMovementAfterScan]
-  );
-  data.push(scannerConfig.disableJamWheelSensor ? 0x04 : 0x00);
-  data.push(ScanDirectionEncoder[scannerConfig.scanDirection]);
-  data.push(0x00); // unsupported options
-  data.push(
-    ScanTypeEncoder[scannerConfig.scanDataFormat][scannerConfig.scanLight]
-  );
-  data.push(...Uint16toUint8(scannerConfig.horizontalResolution));
-  data.push(...Uint16toUint8(scannerConfig.verticalResolution));
-  data.push(...Uint16toUint8(scannerConfig.scanHorizontalDimensionInDots));
-  data.push(...Uint32toUint8(scannerConfig.scanMaxVerticalDimensionInDots));
-  return data;
 }
