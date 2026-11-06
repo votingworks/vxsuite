@@ -20,8 +20,8 @@ import {
   getGroupIdFromBallotStyleId,
   straightPartyNotYetImplemented,
   type Admin,
-  type SheetPositions,
   type BallotStyle,
+  type GetBallotPositionsFn,
 } from '@votingworks/types';
 import {
   combineElectionResults,
@@ -213,10 +213,6 @@ interface BallotContestLayout {
   ballotStyle: BallotStyle;
   contestIdsBySheet: Array<ContestId[]>;
 }
-
-export type GetBallotPositionsFn = (
-  bs: BallotStyle
-) => readonly SheetPositions[] | null | undefined;
 
 function getBallotContestLayouts(
   election: Election,

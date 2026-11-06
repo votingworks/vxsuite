@@ -704,7 +704,7 @@ test('writes single-file election when `splitElectionDefinition` setting is off'
   expect(parsedElection.unsafeUnwrap().ballotHash).toEqual(ballotHash);
 });
 
-test('omits ballot positions for non-scannable documents', async () => {
+test('omits ballot positions for non-scannable documents - split-file elections', async () => {
   const fixtures = vxGeneralElectionFixtures;
   const props = assertDefined(fixtures.fixtureSpecs[0]?.allBallotProps);
 
@@ -730,6 +730,33 @@ test('omits ballot positions for non-scannable documents', async () => {
   const ballotPositions = parsePositionsJsonl(ballotPositionsJsonl);
   expect(ballotPositions).toHaveLength(1);
   expect(ballotPositions[0]?.ballotStyleId).toEqual(props2.ballotStyle.id);
+});
+
+test('omits ballot positions for non-scannable documents - single-file elections', async () => {
+  const fixtures = vxGeneralElectionFixtures;
+  const props = assertDefined(fixtures.fixtureSpecs[0]?.allBallotProps);
+
+  const props1: NhStateBallotProps = { ...props[0]!, isHandCount: true };
+  const props2 = find(props, (p) => p.ballotStyle.id !== props1.ballotStyle.id);
+
+  const settings: SystemSettings = {
+    ...DEFAULT_SYSTEM_SETTINGS,
+    splitElectionDefinition: false,
+  };
+
+  const res = await layOutBallotsAndCreateElectionDefinition(
+    rendererPool,
+    vxDefaultBallotTemplate,
+    [props1, props2],
+    (bs) => bs.orderedCandidatesByContest,
+    { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
+    settings,
+    makeScratchDir()
+  );
+
+  const { ballotStyles } = res.electionDefinition.election;
+  expect(ballotStyles[0]?.ballotPositions).toBeUndefined();
+  expect(ballotStyles[1]?.ballotPositions).not.toBeUndefined();
 });
 
 function makeScratchDir(): ScratchDir {
