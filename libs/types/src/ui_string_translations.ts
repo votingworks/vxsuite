@@ -1,5 +1,5 @@
 import { z } from 'zod/v4';
-import { mapObject, mergeObjects, type EnumValues } from '@votingworks/basics';
+import { mergeObjects, type EnumValues } from '@votingworks/basics';
 import type { Dictionary } from './generic.js';
 
 /**
@@ -74,19 +74,4 @@ export function mergeUiStrings(
   ...otherStrings: UiStringsPackage[]
 ): UiStringsPackage {
   return otherStrings.reduce((acc, other) => mergeObjects(acc, other), strings);
-}
-
-/**
- * Filters a UI strings package, returning a new package with only the keys that
- * pass the condition function.
- */
-export function filterUiStrings(
-  uiStrings: UiStringsPackage,
-  condition: (key: string) => boolean
-): UiStringsPackage {
-  return mapObject(uiStrings, (languageStrings) =>
-    Object.fromEntries(
-      Object.entries(languageStrings).filter(([key]) => condition(key))
-    )
-  );
 }
