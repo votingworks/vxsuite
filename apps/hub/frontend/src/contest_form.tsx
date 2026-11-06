@@ -47,6 +47,7 @@ import {
   FormFooter,
   InputWithAudio,
   AudioLinkButton,
+  generateId,
 } from '@votingworks/election-definition-ui';
 import {
   getBallotsFinalizedAt,
@@ -61,7 +62,7 @@ import {
 import { FormFixed, FormTitle } from './form_fixed.js';
 import { Column } from './layout.js';
 import { routes } from './routes.js';
-import { generateId, replaceAtIndex } from './utils.js';
+import { replaceAtIndex } from './utils.js';
 import { RichTextEditorWithAudio } from './ballot_audio/rich_text_editor_with_audio.js';
 
 const Form = styled(FormFixed)`

@@ -25,10 +25,10 @@ import {
   FormErrorContainer,
   FormFooter,
   InputWithAudio,
+  generateId,
 } from '@votingworks/election-definition-ui';
 import { routes } from './routes.js';
 import * as api from './api.js';
-import { generateId } from './utils.js';
 import { FormFixed, FormTitle } from './form_fixed.js';
 
 export interface PollingPlaceFormProps {

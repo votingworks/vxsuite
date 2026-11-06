@@ -1,5 +1,4 @@
 import { assert } from '@votingworks/basics';
-import { customAlphabet } from 'nanoid';
 import useSoundLib from 'use-sound';
 
 /**

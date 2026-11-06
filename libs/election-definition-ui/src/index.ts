@@ -6,3 +6,4 @@ export * from './election_info_editor.js';
 export * from './form_fixed.js';
 export * from './layout.js';
 export * from './tooltip.js';
+export * from './utils.js';

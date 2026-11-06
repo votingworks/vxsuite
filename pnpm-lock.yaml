@@ -3789,6 +3789,9 @@ importers:
       '@votingworks/ui':
         specifier: workspace:*
         version: link:../ui
+      nanoid:
+        specifier: ^3.3.20
+        version: 3.3.20
       react-router-dom:
         specifier: ^5.3.4
         version: 5.3.4(react@18.3.1)

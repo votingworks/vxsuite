@@ -33,10 +33,13 @@ import { routes } from './routes.js';
 // Pin all IDs to a known value for deterministic tests.
 const ID = 'ID';
 const ELECTION_ID = unsafeParse(ElectionIdSchema, ID);
-vi.mock(import('./utils.js'), async (importActual) => ({
-  ...(await importActual()),
-  generateId: () => ID,
-}));
+vi.mock(
+  import('@votingworks/election-definition-ui'),
+  async (importActual) => ({
+    ...(await importActual()),
+    generateId: () => ID,
+  })
+);
 
 const TEST_ID_CLONE_ELECTION_BUTTON = 'CloneElectionButton';
 function getCloneButtonText(election: ElectionListing) {

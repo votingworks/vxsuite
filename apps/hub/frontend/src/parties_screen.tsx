@@ -18,6 +18,8 @@ import {
   FormBody,
   FormFooter,
   InputWithAudio,
+  generateId,
+  ListActionsRow,
 } from '@votingworks/election-definition-ui';
 import { ElectionNavScreen, Header } from './nav_screen.js';
 import {
@@ -27,10 +29,8 @@ import {
 } from './routes.js';
 import { getBallotsFinalizedAt, getElectionInfo, listParties } from './api.js';
 import { useTitle } from './hooks/use_title.js';
-import { generateId } from './utils.js';
 import * as api from './api.js';
 import { FormFixed } from './form_fixed.js';
-import { ListActionsRow } from './layout.js';
 import { PartyAudioPanel } from './party_audio_panel.js';
 
 export function PartiesScreen(): JSX.Element {
