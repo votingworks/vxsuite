@@ -128,7 +128,6 @@ export * from './utils/pin_length.js';
 export * from './utils/printer_state_reasons.js';
 export * from './test-utils/mock_usb_drive.js';
 export * from './fonts/roboto.js';
-export * from './battery_display.js';
 export * from './battery_low_alert.js';
 export * from './toolbar.js';
 export * from './network_status_indicator.js';
