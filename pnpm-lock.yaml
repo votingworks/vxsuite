@@ -2418,12 +2418,6 @@ importers:
       buffer:
         specifier: ^6.0.3
         version: 6.0.3
-      debug:
-        specifier: 4.3.4
-        version: 4.3.4(supports-color@5.5.0)
-      esbuild:
-        specifier: 0.28.1
-        version: 0.28.1
       history:
         specifier: 4.10.1
         version: 4.10.1
@@ -2458,9 +2452,6 @@ importers:
       '@testing-library/user-event':
         specifier: ^14.6.1
         version: 14.6.6(@testing-library/dom@10.4.1)
-      '@types/debug':
-        specifier: 4.1.12
-        version: 4.1.12
       '@types/history':
         specifier: 4.7.11
         version: 4.7.11
