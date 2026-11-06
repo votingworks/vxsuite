@@ -4,8 +4,7 @@ import {
   Icons,
   P,
   ToggleUsbPortsButton,
-  useAudioControls,
-  useAudioEnabled,
+  useMuteAudio,
   useSystemCallApi,
 } from '@votingworks/ui';
 import {
@@ -26,9 +25,6 @@ export function SetupPrinterPage({
   isCardlessVoterAuth,
   pollsState,
 }: SetupPrinterPageProps): JSX.Element {
-  const wasAudioEnabled = React.useRef(useAudioEnabled());
-  const { setIsEnabled: setAudioEnabled } = useAudioControls();
-
   // USB port management
   const systemCallApi = useSystemCallApi();
   const usbPortStatusQuery = systemCallApi.getUsbPortStatus.useQuery();
@@ -71,17 +67,8 @@ export function SetupPrinterPage({
     toggleUsbPortsMutation,
   ]);
 
-  // Disable TTS audio while alarm is playing to avoid confusion
-  React.useEffect(() => {
-    if (!shouldPlayAlarm) return;
-
-    setAudioEnabled(false);
-
-    function restoreAudioOnExit() {
-      setAudioEnabled(wasAudioEnabled.current);
-    }
-    return restoreAudioOnExit;
-  }, [setAudioEnabled, shouldPlayAlarm]);
+  // Mute TTS audio while alarm is playing to avoid confusion
+  useMuteAudio(shouldPlayAlarm);
 
   // Voter-facing alarm state when there's an active cardless voter session
   if (shouldPlayAlarm) {

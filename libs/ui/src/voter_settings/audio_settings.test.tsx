@@ -59,9 +59,12 @@ test('visual mode is disabled when button is pressed', async () => {
   // Start off with audio disabled to verify it's re-enabled when entering
   // audio-only mode:
   act(() => getAudioContext()!.setIsEnabled(false));
-  await waitFor(() => expect(getAudioContext()!.isEnabled).toEqual(false), {
-    timeout: 2000,
-  });
+  await waitFor(
+    () => expect(getAudioContext()!.isEnabledSetting).toEqual(false),
+    {
+      timeout: 2000,
+    }
+  );
 
   expect(currentTheme!.isVisualModeDisabled).toEqual(false);
   expect(onEnterAudioOnlyMode).not.toHaveBeenCalled();

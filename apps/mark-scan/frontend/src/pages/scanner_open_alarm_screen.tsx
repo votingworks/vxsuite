@@ -1,29 +1,12 @@
-import {
-  appStrings,
-  Icons,
-  P,
-  useAudioControls,
-  useAudioEnabled,
-} from '@votingworks/ui';
+import { appStrings, Icons, P, useMuteAudio } from '@votingworks/ui';
 
-import React from 'react';
 import {
   CenteredCardPageLayout,
   PollWorkerPrompt,
 } from '@votingworks/mark-flow-ui';
 
 export function ScannerOpenAlarmScreen(): JSX.Element {
-  const wasAudioEnabled = React.useRef(useAudioEnabled());
-  const { setIsEnabled: setAudioEnabled } = useAudioControls();
-
-  React.useEffect(() => {
-    setAudioEnabled(false);
-
-    function restoreAudioOnExit() {
-      setAudioEnabled(wasAudioEnabled.current);
-    }
-    return restoreAudioOnExit;
-  }, [setAudioEnabled]);
+  useMuteAudio(true);
 
   return (
     <CenteredCardPageLayout

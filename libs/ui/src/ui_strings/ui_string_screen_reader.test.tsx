@@ -262,6 +262,38 @@ test('is a no-op when audio is disabled', async () => {
   expectAudioActiveHookValue(false);
 });
 
+test('is a no-op and stays paused while muted', async () => {
+  const { getAudioContext, mockApiClient, render } = newTestContext();
+
+  mockApiClient.getUiStringAudioIds.mockResolvedValue({
+    titleBmdReviewScreen: ['abc'],
+  });
+
+  render(
+    <div>
+      <div data-testid="clickTarget">{appStrings.titleBmdReviewScreen()}</div>
+      <AudioActiveHookClient />
+    </div>
+  );
+
+  const clickTarget = await screen.findByTestId('clickTarget');
+  act(() => getAudioContext()?.setIsEnabled(true));
+  act(() => getAudioContext()?.setIsMuted(true));
+  expect(getAudioContext()?.isPaused).toEqual(true);
+
+  await userEvent.click(clickTarget);
+  act(() => {
+    vi.advanceTimersByTime(0);
+  });
+  await waitFor(() => {
+    // wait for promises
+  });
+
+  expect(getAudioContext()?.isPaused).toEqual(true);
+  expect(screen.queryByTestId('mockClips')).not.toBeInTheDocument();
+  expectAudioActiveHookValue(false);
+});
+
 test('handles missing audio ID data', async () => {
   const { getAudioContext, mockApiClient, render } = newTestContext();
 

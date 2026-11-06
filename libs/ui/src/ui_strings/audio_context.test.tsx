@@ -158,15 +158,17 @@ test('setIsEnabled', () => {
     wrapper: TestContextWrapper,
   });
 
-  expect(result.current?.isEnabled).toEqual(DEFAULT_AUDIO_ENABLED_STATE);
+  expect(result.current?.isEnabledSetting).toEqual(DEFAULT_AUDIO_ENABLED_STATE);
 
   act(() => result.current?.setIsEnabled(!DEFAULT_AUDIO_ENABLED_STATE));
-  expect(result.current?.isEnabled).toEqual(!DEFAULT_AUDIO_ENABLED_STATE);
-  expect(result.current?.isPaused).toEqual(!result.current?.isEnabled);
+  expect(result.current?.isEnabledSetting).toEqual(
+    !DEFAULT_AUDIO_ENABLED_STATE
+  );
+  expect(result.current?.isPaused).toEqual(!result.current?.isEnabledSetting);
 
   act(() => result.current?.setIsEnabled(DEFAULT_AUDIO_ENABLED_STATE));
-  expect(result.current?.isEnabled).toEqual(DEFAULT_AUDIO_ENABLED_STATE);
-  expect(result.current?.isPaused).toEqual(!result.current?.isEnabled);
+  expect(result.current?.isEnabledSetting).toEqual(DEFAULT_AUDIO_ENABLED_STATE);
+  expect(result.current?.isPaused).toEqual(!result.current?.isEnabledSetting);
 
   // Re-enabling should persist all playback settings:
 
@@ -178,7 +180,7 @@ test('setIsEnabled', () => {
 
   act(() => result.current?.setIsEnabled(true));
 
-  expect(result.current?.isEnabled).toEqual(true);
+  expect(result.current?.isEnabledSetting).toEqual(true);
   expect(result.current?.isPaused).toEqual(false);
   expect(result.current?.volume).toEqual(AudioVolume.MINIMUM);
   expect(result.current?.playbackRate).not.toEqual(DEFAULT_PLAYBACK_RATE);
@@ -190,10 +192,12 @@ test('toggleEnabled', () => {
   });
 
   act(() => result.current?.toggleEnabled());
-  expect(result.current?.isEnabled).toEqual(!DEFAULT_AUDIO_ENABLED_STATE);
+  expect(result.current?.isEnabledSetting).toEqual(
+    !DEFAULT_AUDIO_ENABLED_STATE
+  );
 
   act(() => result.current?.toggleEnabled());
-  expect(result.current?.isEnabled).toEqual(DEFAULT_AUDIO_ENABLED_STATE);
+  expect(result.current?.isEnabledSetting).toEqual(DEFAULT_AUDIO_ENABLED_STATE);
 });
 
 test('setIsPaused', () => {
@@ -262,7 +266,7 @@ test('reset', () => {
 
   act(() => result.current?.reset());
 
-  expect(result.current?.isEnabled).toEqual(DEFAULT_AUDIO_ENABLED_STATE);
+  expect(result.current?.isEnabledSetting).toEqual(DEFAULT_AUDIO_ENABLED_STATE);
   expect(result.current?.volume).toEqual(DEFAULT_AUDIO_VOLUME);
   expect(result.current?.playbackRate).toEqual(DEFAULT_PLAYBACK_RATE);
   expect(result.current?.isPaused).toEqual(false);
@@ -280,7 +284,7 @@ test('setControlsEnabled', () => {
   //
 
   act(() => result.current?.setIsEnabled(true));
-  expect(result.current?.isEnabled).toEqual(DEFAULT_AUDIO_ENABLED_STATE);
+  expect(result.current?.isEnabledSetting).toEqual(DEFAULT_AUDIO_ENABLED_STATE);
 
   act(() => result.current?.increasePlaybackRate());
   expect(result.current?.playbackRate).toEqual(DEFAULT_PLAYBACK_RATE);
@@ -302,20 +306,102 @@ test('disables audio when headphones are unplugged', () => {
 
   act(() => setMockHeadphonesPluggedIn(true));
   act(() => result.current?.setIsEnabled(true));
-  expect(result.current?.isEnabled).toEqual(true);
+  expect(result.current?.isEnabledSetting).toEqual(true);
 
   act(() => setMockHeadphonesPluggedIn(false));
-  expect(result.current?.isEnabled).toEqual(false);
+  expect(result.current?.isEnabledSetting).toEqual(false);
 
   // `setIsEnabled()` should be a no-op:
   act(() => result.current?.setIsEnabled(true));
-  expect(result.current?.isEnabled).toEqual(false);
+  expect(result.current?.isEnabledSetting).toEqual(false);
 
   // `reset()` should be a no-op for the enabled state:
   act(() => result.current?.reset());
-  expect(result.current?.isEnabled).toEqual(false);
+  expect(result.current?.isEnabledSetting).toEqual(false);
 
   // Should get re-enabled when headphones are plugged in:
   act(() => setMockHeadphonesPluggedIn(true));
-  expect(result.current?.isEnabled).toEqual(true);
+  expect(result.current?.isEnabledSetting).toEqual(true);
+});
+
+test('setIsMuted suspends playback without changing the setting', () => {
+  const { result } = renderHook(useAudioContext, {
+    wrapper: TestContextWrapper,
+  });
+
+  act(() => result.current?.setIsEnabled(true));
+  expect(result.current?.isPlaybackActive).toEqual(true);
+
+  vi.resetAllMocks();
+
+  act(() => result.current?.setIsMuted(true));
+  expect(result.current?.isMuted).toEqual(true);
+  expect(result.current?.isEnabledSetting).toEqual(true);
+  expect(result.current?.isPlaybackActive).toEqual(false);
+  expect(result.current?.isPaused).toEqual(true);
+  expect(mockWebAudioContext.suspend).toHaveBeenCalled();
+
+  vi.resetAllMocks();
+
+  act(() => result.current?.setIsMuted(false));
+  expect(result.current?.isMuted).toEqual(false);
+  expect(result.current?.isPlaybackActive).toEqual(true);
+  expect(result.current?.isPaused).toEqual(false);
+  expect(mockWebAudioContext.resume).toHaveBeenCalled();
+});
+
+test('unmuting keeps playback off when the setting is off', () => {
+  const { result } = renderHook(useAudioContext, {
+    wrapper: TestContextWrapper,
+  });
+
+  act(() => result.current?.setIsMuted(true));
+  act(() => result.current?.setIsEnabled(false));
+  act(() => result.current?.setIsMuted(false));
+
+  expect(result.current?.isEnabledSetting).toEqual(false);
+  expect(result.current?.isPlaybackActive).toEqual(false);
+  expect(result.current?.isPaused).toEqual(true);
+});
+
+test('setting changes while muted take effect on unmute', () => {
+  const { result } = renderHook(useAudioContext, {
+    wrapper: TestContextWrapper,
+  });
+
+  act(() => result.current?.setIsEnabled(false));
+  act(() => result.current?.setIsMuted(true));
+  act(() => result.current?.setIsEnabled(true));
+
+  expect(result.current?.isEnabledSetting).toEqual(true);
+  expect(result.current?.isPlaybackActive).toEqual(false);
+
+  act(() => result.current?.setIsMuted(false));
+  expect(result.current?.isPlaybackActive).toEqual(true);
+});
+
+test('setIsMuted works when controls are disabled', () => {
+  const { result } = renderHook(useAudioContext, {
+    wrapper: TestContextWrapper,
+  });
+
+  act(() => result.current?.setControlsEnabled(false));
+  act(() => result.current?.setIsMuted(true));
+  expect(result.current?.isMuted).toEqual(true);
+  expect(result.current?.isPlaybackActive).toEqual(false);
+
+  act(() => result.current?.setIsMuted(false));
+  expect(result.current?.isMuted).toEqual(false);
+});
+
+test('reset does not clear the mute', () => {
+  const { result } = renderHook(useAudioContext, {
+    wrapper: TestContextWrapper,
+  });
+
+  act(() => result.current?.setIsMuted(true));
+  act(() => result.current?.reset());
+
+  expect(result.current?.isMuted).toEqual(true);
+  expect(result.current?.isPlaybackActive).toEqual(false);
 });
