@@ -365,6 +365,15 @@ begin
     where election_id = old.election_id;
 end;
 
+create trigger cvr_file_entry_added after insert on cvr_file_entries
+begin
+  update data_versions
+    set cvrs_data_version = data_versions.cvrs_data_version + 1
+    where election_id = (
+      select election_id from cvr_files where id = new.cvr_file_id
+    );
+end;
+
 create trigger cvr_adjudication_updated after update of adjudicated_votes, is_adjudicated on cvrs
 begin
   update data_versions

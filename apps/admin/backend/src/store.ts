@@ -1507,13 +1507,13 @@ export class Store implements BaseStore {
      * Where the file came from. A USB export carries the hash of its signed
      * metadata, which detects re-imports of the same export; a network
      * transfer has no export signature and is deduplicated by (scanner,
-     * batch) instead.
+     * batch) instead. A USB import in progress has no hash yet.
      */
     source:
-      | { type: 'usb'; sha256Hash: string }
+      | { type: 'usb'; sha256Hash?: string }
       | { type: 'network'; scannerId: string; batchId: string };
   }): void {
-    if (source.type === 'usb') {
+    if (source.type === 'usb' && source.sha256Hash !== undefined) {
       assert(source.sha256Hash.length > 0, 'USB imports must record a hash');
     }
     this.client.run(
@@ -1545,7 +1545,7 @@ export class Store implements BaseStore {
       JSON.stringify([...scannerIds]),
       JSON.stringify([...pollingPlaceIds]),
       JSON.stringify(batchIds),
-      source.type === 'usb' ? source.sha256Hash : null,
+      source.type === 'usb' ? (source.sha256Hash ?? null) : null,
       source.type,
       source.type === 'network' ? source.scannerId : null,
       source.type === 'network' ? source.batchId : null
@@ -1735,18 +1735,22 @@ export class Store implements BaseStore {
   updateCastVoteRecordFileRecord({
     id,
     precinctIds,
+    sha256Hash,
   }: {
     id: Id;
     precinctIds: Set<string>;
+    sha256Hash?: string;
   }): void {
     this.client.run(
       `
         update cvr_files
         set
-          precinct_ids = ?
+          precinct_ids = ?,
+          sha256_hash = coalesce(?, sha256_hash)
         where id = ?
       `,
       JSON.stringify([...precinctIds]),
+      sha256Hash ?? null,
       id
     );
   }
