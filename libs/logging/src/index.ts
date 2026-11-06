@@ -1,6 +1,5 @@
 export * from './base_types.js';
 export * from './export.js';
-export * from './helpers.js';
 export * from './log_event_enums.js';
 export * from './test_utils.js';
 export * from './types.js';
