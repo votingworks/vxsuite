@@ -3,7 +3,7 @@ import { Buffer } from 'node:buffer';
 import { SqliteError } from 'better-sqlite3';
 import * as fs from 'node:fs';
 import { basename, dirname, join } from 'node:path';
-import { err, ok, typedAs } from '@votingworks/basics';
+import { err, ok, range, typedAs } from '@votingworks/basics';
 import {
   makeTemporaryDirectory,
   makeTemporaryFile,
@@ -290,6 +290,25 @@ test('reset file database client', () => {
     (client.one('SELECT COUNT(*) as count FROM users') as { count: number })
       .count
   ).toEqual(0);
+});
+
+test('an iteration spanning a reset finishes on the old database', () => {
+  const client = Client.fileClient(
+    makeTemporaryFile(),
+    mockBaseLogger({ fn: vi.fn }),
+    join(import.meta.dirname, '../test/fixtures/schema.sql')
+  );
+  client.run(`
+    INSERT INTO users (id, name, email, password_hash) VALUES
+      ('user1', 'Alice', 'alice@example.com', 'hash1')
+  `);
+
+  const iterator = client.each('SELECT id FROM users');
+  expect(iterator.next().value).toEqual({ id: 'user1' });
+  client.reset();
+  expect(iterator.next().done).toEqual(true);
+
+  expect([...client.each('SELECT id FROM users')]).toEqual([]);
 });
 
 test('reset file database client that has not connected yet', () => {
@@ -950,4 +969,38 @@ test('transaction rejects an async function', () => {
   expect(client.isInTransaction()).toEqual(false);
   client.run('insert into t (id) values (1)');
   expect(client.one('select count(*) as count from t')).toEqual({ count: 1 });
+});
+
+function fileClientWithUsers(count: number): Client {
+  const client = Client.fileClient(
+    makeTemporaryFile(),
+    mockBaseLogger({ fn: vi.fn }),
+    join(import.meta.dirname, '../test/fixtures/schema.sql')
+  );
+  client.transaction(() => {
+    for (const i of range(0, count)) {
+      client.run(
+        `INSERT INTO users (id, name, email, password_hash) VALUES (?, ?, ?, ?)`,
+        `user${i}`,
+        `User ${i}`,
+        `user${i}@example.com`,
+        'hash'
+      );
+    }
+  });
+  return client;
+}
+
+test('each does not block queries on the main connection', () => {
+  const client = fileClientWithUsers(2);
+
+  const ids: unknown[] = [];
+  for (const row of client.each('SELECT id FROM users ORDER BY id')) {
+    ids.push((row as { id: string }).id);
+    client.run('DELETE FROM users');
+  }
+
+  expect(ids).toEqual(['user0', 'user1']);
+  expect(client.all('SELECT id FROM users')).toEqual([]);
+  client.close();
 });

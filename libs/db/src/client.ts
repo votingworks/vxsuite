@@ -507,13 +507,38 @@ export class Client {
 
   /**
    * Runs `statement` to iterate over rows.
+   *
+   * Only SQL text iterates on a separate connection; a {@link Statement} blocks the main one.
    */
   each<P extends Bindable[] = []>(
     statement: Statement<P> | string,
     ...params: P
   ): IterableIterator<unknown> {
-    const stmt = this.asStatement(statement);
-    return stmt.iterate(...params);
+    // Reads inside a transaction must see its uncommitted writes.
+    if (typeof statement !== 'string' || this.isInTransaction()) {
+      return this.asStatement(statement).iterate(...params);
+    }
+    return this.iterateOnReader(statement, params);
+  }
+
+  private *iterateOnReader(
+    sql: string,
+    params: Bindable[]
+  ): IterableIterator<unknown> {
+    if (this.isMemoryDatabase()) {
+      yield* this.asStatement(sql).iterate(...params);
+      return;
+    }
+
+    // Creates the file and enables WAL before a reader opens it.
+    this.getDatabase();
+    const reader = new Database(this.getDatabasePath(), { readonly: true });
+    reader.pragma(`busy_timeout = ${BUSY_TIMEOUT_MS}`);
+    try {
+      yield* reader.prepare(sql).iterate(...params);
+    } finally {
+      reader.close();
+    }
   }
 
   /**
