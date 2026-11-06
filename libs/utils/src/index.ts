@@ -15,7 +15,6 @@ export * from './fetch_json.js';
 export * from './filenames.js';
 export * from './file_reading.js';
 export * from './hmpb/index.js';
-export * from './json_stream.js';
 export * from './languages.js';
 export * from './multi_language_mock.js';
 export * from './mutex.js';
