@@ -25,7 +25,6 @@ import {
   changeVoterAddress,
   getPollbookConfigurationInformation,
 } from './api.js';
-import { AUTOMATIC_FLOW_STATE_RESET_DELAY_MS } from './globals.js';
 
 type UpdateAddressFlowState =
   | { step: 'update' }
@@ -164,6 +163,7 @@ interface UpdateAddressFlowProps {
   voter: Voter;
   returnToPreviousScreen: () => void;
   returnToPreviousScreenLabelText: string;
+  onSuccess: () => void;
   election: Election;
 }
 
@@ -172,12 +172,11 @@ export function UpdateAddressFlow({
   returnToPreviousScreen,
   returnToPreviousScreenLabelText,
   election,
+  onSuccess,
 }: UpdateAddressFlowProps): JSX.Element {
   const [flowState, setFlowState] = useState<UpdateAddressFlowState>({
     step: 'update',
   });
-  const [timeoutIdForReset, setTimeoutIdForReset] =
-    useState<ReturnType<typeof setTimeout>>();
   const changeVoterAddressMutation = changeVoterAddress.useMutation();
 
   switch (flowState.step) {
@@ -195,13 +194,8 @@ export function UpdateAddressFlow({
               },
               {
                 onSuccess: () => {
-                  setTimeoutIdForReset(
-                    setTimeout(
-                      returnToPreviousScreen,
-                      AUTOMATIC_FLOW_STATE_RESET_DELAY_MS
-                    )
-                  );
                   setFlowState({ step: 'success' });
+                  onSuccess();
                 },
               }
             );
@@ -255,10 +249,7 @@ export function UpdateAddressFlow({
             <Button
               icon="Next"
               variant="primary"
-              onPress={() => {
-                clearTimeout(timeoutIdForReset);
-                returnToPreviousScreen();
-              }}
+              onPress={returnToPreviousScreen}
             >
               {returnToPreviousScreenLabelText}
             </Button>

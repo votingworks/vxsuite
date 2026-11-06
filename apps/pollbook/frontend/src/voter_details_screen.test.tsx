@@ -174,6 +174,58 @@ describe('common functionality', () => {
     expect(oldName.parentElement?.tagName).toEqual('S');
   });
 
+  test('returns to voter details automatically if the printer disconnects on the update success screen', async () => {
+    apiMock.setPrinterStatus(true);
+    apiMock.expectGetDeviceStatuses();
+
+    await renderComponent();
+
+    await userEvent.click(screen.getButton('Update Name'));
+    await userEvent.type(
+      await screen.findByRole('textbox', { name: 'First Name' }),
+      'NABBY'
+    );
+    await userEvent.type(
+      screen.getByRole('textbox', { name: 'Last Name' }),
+      'ADDAMS'
+    );
+
+    const nameChangeData: VoterNameChangeRequest = {
+      lastName: 'ADDAMS',
+      firstName: 'NABBY',
+      middleName: '',
+      suffix: '',
+    };
+    apiMock.expectChangeVoterName({
+      voterId: mockVoterId,
+      nameChangeData,
+      voterToUpdate: voter,
+    });
+    apiMock.expectGetVoter({
+      ...voter,
+      nameChange: { ...nameChangeData, timestamp: new Date().toISOString() },
+    });
+    await userEvent.click(screen.getButton('Confirm Name Update'));
+    await screen.findByRole('heading', { name: 'Voter Name Updated' });
+
+    apiMock.mockApiClient.getDeviceStatuses.reset();
+    apiMock.setPrinterStatus(false);
+    apiMock.expectGetDeviceStatuses();
+    await screen.findByRole(
+      'heading',
+      { name: 'No Printer Detected' },
+      { timeout: 2000 }
+    );
+
+    await waitFor(
+      () => {
+        expect(screen.queryByText('No Printer Detected')).toBeNull();
+      },
+      { timeout: 4000 }
+    );
+    screen.getButton('Update Name');
+  });
+
   test('invalid address change', async () => {
     apiMock.setPrinterStatus(true);
     apiMock.expectGetDeviceStatuses();

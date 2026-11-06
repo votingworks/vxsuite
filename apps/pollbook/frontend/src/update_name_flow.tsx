@@ -17,7 +17,6 @@ import { TitledCard, VoterName } from './shared_components.js';
 import { Column, Row } from './layout.js';
 import { changeVoterName } from './api.js';
 import { NameInputGroup } from './name_input_group.js';
-import { AUTOMATIC_FLOW_STATE_RESET_DELAY_MS } from './globals.js';
 
 type UpdateNameFlowState =
   | { step: 'update' }
@@ -86,17 +85,17 @@ function UpdateNameScreen({
 interface UpdateNameFlowProps {
   voter: Voter;
   returnToDetailsScreen: () => void;
+  onSuccess: () => void;
 }
 
 export function UpdateNameFlow({
   voter,
   returnToDetailsScreen,
+  onSuccess,
 }: UpdateNameFlowProps): JSX.Element {
   const [flowState, setFlowState] = useState<UpdateNameFlowState>({
     step: 'update',
   });
-  const [timeoutIdForReset, setTimeoutIdForReset] =
-    useState<ReturnType<typeof setTimeout>>();
   const changeVoterNameMutation = changeVoterName.useMutation();
 
   switch (flowState.step) {
@@ -113,13 +112,8 @@ export function UpdateNameFlow({
               },
               {
                 onSuccess: (updatedVoter) => {
-                  setTimeoutIdForReset(
-                    setTimeout(
-                      returnToDetailsScreen,
-                      AUTOMATIC_FLOW_STATE_RESET_DELAY_MS
-                    )
-                  );
                   setFlowState({ step: 'success', voter: updatedVoter });
+                  onSuccess();
                 },
               }
             );
@@ -174,10 +168,7 @@ export function UpdateNameFlow({
             <Button
               icon="Next"
               variant="primary"
-              onPress={() => {
-                clearTimeout(timeoutIdForReset);
-                returnToDetailsScreen();
-              }}
+              onPress={returnToDetailsScreen}
             >
               Return to Voter Details
             </Button>

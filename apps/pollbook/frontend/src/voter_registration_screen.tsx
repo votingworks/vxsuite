@@ -1,5 +1,5 @@
 import type { DuplicateVoterError } from '@votingworks/pollbook-backend';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   Button,
   ButtonBar,
@@ -27,7 +27,7 @@ import {
   getPollbookConfigurationInformation,
   registerVoter,
 } from './api.js';
-import { AUTOMATIC_FLOW_STATE_RESET_DELAY_MS } from './globals.js';
+import { useAutomaticFlowReset } from './use_automatic_flow_reset.js';
 import { ElectionManagerNavScreen, NoNavScreen } from './nav_screen.js';
 import { Column, FieldName, Row } from './layout.js';
 import { RequiredStaticInput, VoterName } from './shared_components.js';
@@ -145,12 +145,10 @@ export function VoterRegistrationScreen(): JSX.Element | null {
   const [flowState, setFlowState] = useState<RegistrationFlowState>({
     step: 'register',
   });
-  const [timeoutIdForFlowStateReset, setTimeoutIdForFlowStateReset] =
-    useState<ReturnType<typeof setTimeout>>();
-  const resetFlowState = useCallback(() => {
-    clearTimeout(timeoutIdForFlowStateReset);
+  function resetFlowState() {
     setFlowState({ step: 'register' });
-  }, [timeoutIdForFlowStateReset]);
+  }
+  useAutomaticFlowReset(flowState.step === 'success', resetFlowState);
   const [voter, setVoter] =
     useState<VoterRegistrationRequest>(createBlankVoter());
 
@@ -329,12 +327,6 @@ export function VoterRegistrationScreen(): JSX.Element | null {
                       if (result.isOk()) {
                         setFlowState({ step: 'success', voter: result.ok() });
                         setVoter(createBlankVoter());
-                        setTimeoutIdForFlowStateReset(
-                          setTimeout(
-                            resetFlowState,
-                            AUTOMATIC_FLOW_STATE_RESET_DELAY_MS
-                          )
-                        );
                       } else {
                         setFlowState({
                           step: 'has-name-match',
@@ -385,12 +377,6 @@ export function VoterRegistrationScreen(): JSX.Element | null {
                               voter: result.unsafeUnwrap(),
                             });
                             setVoter(createBlankVoter());
-                            setTimeoutIdForFlowStateReset(
-                              setTimeout(
-                                resetFlowState,
-                                AUTOMATIC_FLOW_STATE_RESET_DELAY_MS
-                              )
-                            );
                           },
                         }
                       );

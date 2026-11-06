@@ -39,7 +39,7 @@ import {
   checkInVoter,
 } from './api.js';
 import { AbsenteeModeCallout, VoterName } from './shared_components.js';
-import { AUTOMATIC_FLOW_STATE_RESET_DELAY_MS } from './globals.js';
+import { useAutomaticFlowReset } from './use_automatic_flow_reset.js';
 import { SelectPartyScreen } from './select_party_screen.js';
 
 type CheckInFlowState =
@@ -115,8 +115,6 @@ export function VoterCheckInScreen(): JSX.Element | null {
     step: 'search',
     search: createEmptySearchParams({ strictMatch: false }),
   });
-  const [timeoutIdForFlowStateReset, setTimeoutIdForFlowStateReset] =
-    useState<ReturnType<typeof setTimeout>>();
   const checkInVoterMutation = checkInVoter.useMutation();
   const checkInVoterMutate = checkInVoterMutation.mutate;
   const getIsAbsenteeModeQuery = getIsAbsenteeMode.useQuery();
@@ -125,12 +123,12 @@ export function VoterCheckInScreen(): JSX.Element | null {
     getPollbookConfigurationInformation.useQuery();
 
   const resetFlowState = useCallback(() => {
-    clearTimeout(timeoutIdForFlowStateReset);
     setFlowState({
       step: 'search',
       search: createEmptySearchParams({ strictMatch: false }),
     });
-  }, [timeoutIdForFlowStateReset]);
+  }, []);
+  useAutomaticFlowReset(flowState.step === 'success', resetFlowState);
 
   const setSearch = useCallback((search: VoterSearchParams) => {
     setFlowState({ step: 'search', search });
@@ -195,9 +193,6 @@ export function VoterCheckInScreen(): JSX.Element | null {
                 step: 'success',
                 voterId: flowState.voterId,
               });
-              setTimeoutIdForFlowStateReset(
-                setTimeout(resetFlowState, AUTOMATIC_FLOW_STATE_RESET_DELAY_MS)
-              );
             } else {
               setFlowState({ step: 'error', errorType: result.err() });
             }
@@ -205,7 +200,7 @@ export function VoterCheckInScreen(): JSX.Element | null {
         }
       );
     },
-    [checkInVoterMutate, flowState, resetFlowState]
+    [checkInVoterMutate, flowState]
   );
 
   if (
