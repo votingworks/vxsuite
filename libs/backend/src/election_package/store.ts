@@ -260,6 +260,7 @@ export class ElectionPackageStore<
         rmSync(tempDbPath, { force: true });
         throw error;
       }
+      tempClient.run('pragma journal_mode = delete');
       tempClient.close();
       chmodSync(tempDbPath, 0o444);
       this.client.replaceDatabaseFile(tempDbPath);

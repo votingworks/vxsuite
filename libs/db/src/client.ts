@@ -41,6 +41,19 @@ export type BackupError = { type: 'write-in-progress' } | { type: 'cancelled' };
  */
 const SCHEMA_DIGEST_TABLE = 'vx_schema_digest';
 
+/** How long to wait for another process's write lock. */
+const BUSY_TIMEOUT_MS = 5_000;
+
+const WAL_SIDECAR_SUFFIXES = ['-wal', '-shm'] as const;
+
+/** Renames a closed database to `to`, removing any WAL sidecars left at `to`. */
+function renameDatabase(from: string, to: string): void {
+  for (const suffix of WAL_SIDECAR_SUFFIXES) {
+    fs.rmSync(`${to}${suffix}`, { force: true });
+  }
+  fs.renameSync(from, to);
+}
+
 function shouldResetOnSchemaDigestMismatch(): boolean {
   return (
     !isNodeEnvProduction() ||
@@ -262,7 +275,8 @@ export class Client {
       .toISOString()
       .replace(/[^\d]+/g, '-')
       .replace(/-+$/, '')}`;
-    fs.renameSync(dbPath, backupPath);
+    client.disconnect();
+    renameDatabase(dbPath, backupPath);
     debug('backed up database to be reset to %s', backupPath);
 
     debug('resetting database to updated schema');
@@ -568,6 +582,10 @@ export class Client {
 
     if (this.connectionOptions?.queryOnly) {
       this.run('pragma query_only = 1');
+    } else if (!this.isMemoryDatabase()) {
+      this.run('pragma journal_mode = wal');
+      this.run('pragma synchronous = full');
+      this.run(`pragma busy_timeout = ${BUSY_TIMEOUT_MS}`);
     }
 
     if (this.connectionOptions?.registerRegexpFn) {
@@ -804,7 +822,8 @@ export class Client {
   /**
    * Swaps the database file at `sourcePath` in for this client's and
    * reconnects to it. The rename is atomic, so the file is either the old
-   * database or the new one at every point.
+   * database or the new one at every point. `sourcePath` must already be
+   * closed.
    */
   replaceDatabaseFile(sourcePath: string): void {
     assert(
@@ -812,7 +831,7 @@ export class Client {
       'cannot replace the file of an in-memory database'
     );
     this.disconnect();
-    fs.renameSync(sourcePath, this.getDatabasePath());
+    renameDatabase(sourcePath, this.getDatabasePath());
     this.connect();
   }
 
@@ -821,5 +840,11 @@ export class Client {
    */
   vacuum(): void {
     this.run('vacuum');
+    this.checkpoint();
+  }
+
+  /** Writes the write-ahead log back into the database file. */
+  checkpoint(): void {
+    this.getDatabase().pragma('wal_checkpoint(truncate)');
   }
 }

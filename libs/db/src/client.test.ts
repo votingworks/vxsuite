@@ -753,6 +753,18 @@ test('creates the schema in an empty database file', () => {
   expect(fs.existsSync(`${dbFile}.digest`)).toEqual(false);
 });
 
+test('file databases use write-ahead logging with full sync', () => {
+  const dbFile = makeTemporaryFile();
+  const logger = mockBaseLogger({ fn: vi.fn });
+  Client.fileClient(dbFile, logger).run('create table t (x)');
+  const client = Client.fileClient(dbFile, logger);
+  expect(client.one('pragma journal_mode')).toEqual({ journal_mode: 'wal' });
+  expect(client.one('pragma synchronous')).toEqual({ synchronous: 2 });
+  expect(Client.memoryClient().one('pragma journal_mode')).toEqual({
+    journal_mode: 'memory',
+  });
+});
+
 test('vacuuming reduces file size', () => {
   const dbFile = makeTemporaryFile();
   const schemaFile = join(import.meta.dirname, '../test/fixtures/schema.sql');
@@ -766,6 +778,7 @@ test('vacuuming reduces file size', () => {
     count: 0,
   });
 
+  client.checkpoint();
   const preInsertSize = fs.statSync(dbFile).size;
 
   client.transaction(() => {
@@ -789,8 +802,10 @@ test('vacuuming reduces file size', () => {
     }
   });
 
+  client.checkpoint();
   const postInsertSize = fs.statSync(dbFile).size;
   client.run('delete from users');
+  client.checkpoint();
   const postDeleteSize = fs.statSync(dbFile).size;
   client.vacuum();
   const postVacuumSize = fs.statSync(dbFile).size;
