@@ -2351,9 +2351,6 @@ importers:
       '@votingworks/dev-dock-backend':
         specifier: workspace:*
         version: link:../../../libs/dev-dock/backend
-      '@votingworks/fs':
-        specifier: workspace:*
-        version: link:../../../libs/fs
       '@votingworks/grout':
         specifier: workspace:*
         version: link:../../../libs/grout
@@ -2381,15 +2378,9 @@ importers:
       '@votingworks/utils':
         specifier: workspace:*
         version: link:../../../libs/utils
-      debug:
-        specifier: 4.3.4
-        version: 4.3.4(supports-color@5.5.0)
       express:
         specifier: 4.22.0
         version: 4.22.0(supports-color@5.5.0)
-      helmet:
-        specifier: ^8.1.0
-        version: 8.1.0
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -2399,13 +2390,7 @@ importers:
       vitest:
         specifier: 5.0.2
         version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.19.2)(@vitest/coverage-istanbul@5.0.2)(jsdom@30.1.3(@noble/hashes@1.8.0)(canvas@3.2.3))(vite@8.1.6(@types/node@24.19.2)(esbuild@0.28.1)(yaml@2.8.2))
-      zod:
-        specifier: 4.6.6
-        version: 4.6.6
     devDependencies:
-      '@types/debug':
-        specifier: 4.1.12
-        version: 4.1.12
       '@types/express':
         specifier: 4.17.14
         version: 4.17.14

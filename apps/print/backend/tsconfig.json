@@ -12,7 +12,6 @@
     { "path": "../../../libs/coverage-check/tsconfig.build.json" },
     { "path": "../../../libs/db/tsconfig.build.json" },
     { "path": "../../../libs/dev-dock/backend/tsconfig.build.json" },
-    { "path": "../../../libs/fs/tsconfig.build.json" },
     { "path": "../../../libs/fixtures/tsconfig.build.json" },
     { "path": "../../../libs/grout/tsconfig.build.json" },
     { "path": "../../../libs/printing/tsconfig.build.json" },
