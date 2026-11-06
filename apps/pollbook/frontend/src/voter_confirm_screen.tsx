@@ -36,6 +36,7 @@ import {
   MailingAddressChange,
   VoterStatusLabel,
 } from './shared_components.js';
+import { useAutomaticFlowReset } from './use_automatic_flow_reset.js';
 import { UpdateAddressFlow } from './update_address_flow.js';
 import { UpdateMailingAddressFlow } from './update_mailing_address_flow.js';
 import { getVoter } from './api.js';
@@ -113,6 +114,14 @@ export function VoterConfirmScreen({
   const [showUpdateAddressFlow, setShowUpdateAddressFlow] = useState(false);
   const [showUpdateMailingAddressFlow, setShowUpdateMailingAddressFlow] =
     useState(false);
+  const [hasCompletedUpdateFlow, setHasCompletedUpdateFlow] = useState(false);
+  // @coverage-defer
+  function closeUpdateFlows() {
+    setShowUpdateAddressFlow(false);
+    setShowUpdateMailingAddressFlow(false);
+    setHasCompletedUpdateFlow(false);
+  }
+  useAutomaticFlowReset(hasCompletedUpdateFlow, closeUpdateFlows);
   const [showInactiveVoterModal, setShowInactiveVoterModal] = useState(false);
   const [identificationMethod, setIdentificationMethod] = useState<
     Partial<VoterIdentificationMethod>
@@ -134,8 +143,9 @@ export function VoterConfirmScreen({
     return (
       <UpdateAddressFlow
         voter={voter}
+        returnToPreviousScreen={closeUpdateFlows}
         // @coverage-defer
-        returnToPreviousScreen={() => setShowUpdateAddressFlow(false)}
+        onSuccess={() => setHasCompletedUpdateFlow(true)}
         returnToPreviousScreenLabelText="Return to Check-In"
         election={election}
       />
@@ -146,8 +156,9 @@ export function VoterConfirmScreen({
     return (
       <UpdateMailingAddressFlow
         voter={voter}
+        returnToPreviousScreen={closeUpdateFlows}
         // @coverage-defer
-        returnToPreviousScreen={() => setShowUpdateMailingAddressFlow(false)}
+        onSuccess={() => setHasCompletedUpdateFlow(true)}
         returnToPreviousScreenLabelText="Return to Check-In"
       />
     );

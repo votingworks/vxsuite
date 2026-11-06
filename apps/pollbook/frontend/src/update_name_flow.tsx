@@ -17,7 +17,6 @@ import { TitledCard, VoterName } from './shared_components.js';
 import { Column, Row } from './layout.js';
 import { changeVoterName } from './api.js';
 import { NameInputGroup } from './name_input_group.js';
-import { useAutomaticFlowReset } from './use_automatic_flow_reset.js';
 
 type UpdateNameFlowState =
   | { step: 'update' }
@@ -86,17 +85,18 @@ function UpdateNameScreen({
 interface UpdateNameFlowProps {
   voter: Voter;
   returnToDetailsScreen: () => void;
+  onSuccess: () => void;
 }
 
 export function UpdateNameFlow({
   voter,
   returnToDetailsScreen,
+  onSuccess,
 }: UpdateNameFlowProps): JSX.Element {
   const [flowState, setFlowState] = useState<UpdateNameFlowState>({
     step: 'update',
   });
   const changeVoterNameMutation = changeVoterName.useMutation();
-  useAutomaticFlowReset(flowState.step === 'success', returnToDetailsScreen);
 
   switch (flowState.step) {
     case 'update':
@@ -113,6 +113,7 @@ export function UpdateNameFlow({
               {
                 onSuccess: (updatedVoter) => {
                   setFlowState({ step: 'success', voter: updatedVoter });
+                  onSuccess();
                 },
               }
             );

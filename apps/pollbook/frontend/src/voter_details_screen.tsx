@@ -50,6 +50,7 @@ import { UpdateMailingAddressFlow } from './update_mailing_address_flow.js';
 import { UpdateNameFlow } from './update_name_flow.js';
 import { CheckInDetails } from './voter_search_screen.js';
 import { PRINTING_INDICATOR_DELAY_MS } from './globals.js';
+import { useAutomaticFlowReset } from './use_automatic_flow_reset.js';
 import { getVoterPrecinct } from './types.js';
 import { partyAbbreviationToString } from './strings.js';
 
@@ -308,6 +309,14 @@ export function VoterDetailsScreen(): JSX.Element | null {
   const [showUpdateMailingAddressFlow, setShowUpdateMailingAddressFlow] =
     useState(false);
   const [showUpdateNameFlow, setShowUpdateNameFlow] = useState(false);
+  const [hasCompletedUpdateFlow, setHasCompletedUpdateFlow] = useState(false);
+  function closeUpdateFlows() {
+    setShowUpdateAddressFlow(false);
+    setShowUpdateMailingAddressFlow(false);
+    setShowUpdateNameFlow(false);
+    setHasCompletedUpdateFlow(false);
+  }
+  useAutomaticFlowReset(hasCompletedUpdateFlow, closeUpdateFlows);
   const [showUndoCheckinFlow, setShowUndoCheckinFlow] = useState(false);
   const [showMarkInactiveFlow, setShowMarkInactiveFlow] = useState(false);
   const [showInvalidateRegistrationFlow, setShowInvalidateRegistrationFlow] =
@@ -361,14 +370,11 @@ export function VoterDetailsScreen(): JSX.Element | null {
 
   if (showUpdateAddressFlow) {
     return (
-      <PrinterRequired
-        printer={printer}
-        // @coverage-defer
-        onClose={() => setShowUpdateAddressFlow(false)}
-      >
+      <PrinterRequired printer={printer} onClose={closeUpdateFlows}>
         <UpdateAddressFlow
           voter={voter}
-          returnToPreviousScreen={() => setShowUpdateAddressFlow(false)}
+          returnToPreviousScreen={closeUpdateFlows}
+          onSuccess={() => setHasCompletedUpdateFlow(true)}
           returnToPreviousScreenLabelText="Return to Voter Details"
           election={election}
         />
@@ -378,14 +384,11 @@ export function VoterDetailsScreen(): JSX.Element | null {
 
   if (showUpdateMailingAddressFlow) {
     return (
-      <PrinterRequired
-        printer={printer}
-        // @coverage-defer
-        onClose={() => setShowUpdateMailingAddressFlow(false)}
-      >
+      <PrinterRequired printer={printer} onClose={closeUpdateFlows}>
         <UpdateMailingAddressFlow
           voter={voter}
-          returnToPreviousScreen={() => setShowUpdateMailingAddressFlow(false)}
+          returnToPreviousScreen={closeUpdateFlows}
+          onSuccess={() => setHasCompletedUpdateFlow(true)}
           returnToPreviousScreenLabelText="Return to Voter Details"
         />
       </PrinterRequired>
@@ -394,14 +397,11 @@ export function VoterDetailsScreen(): JSX.Element | null {
 
   if (showUpdateNameFlow) {
     return (
-      <PrinterRequired
-        printer={printer}
-        // @coverage-defer
-        onClose={() => setShowUpdateNameFlow(false)}
-      >
+      <PrinterRequired printer={printer} onClose={closeUpdateFlows}>
         <UpdateNameFlow
           voter={voter}
-          returnToDetailsScreen={() => setShowUpdateNameFlow(false)}
+          returnToDetailsScreen={closeUpdateFlows}
+          onSuccess={() => setHasCompletedUpdateFlow(true)}
         />
       </PrinterRequired>
     );

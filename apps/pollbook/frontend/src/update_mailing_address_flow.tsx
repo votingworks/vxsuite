@@ -17,7 +17,6 @@ import { NoNavScreen } from './nav_screen.js';
 import { TitledCard, VoterName } from './shared_components.js';
 import { MailingAddressInputGroup } from './mailing_address_input_group.js';
 import { changeVoterMailingAddress } from './api.js';
-import { useAutomaticFlowReset } from './use_automatic_flow_reset.js';
 
 type UpdateMailingAddressFlowState =
   | { step: 'update' }
@@ -118,19 +117,20 @@ interface UpdateMailingAddressFlowProps {
   voter: Voter;
   returnToPreviousScreen: () => void;
   returnToPreviousScreenLabelText: string;
+  onSuccess: () => void;
 }
 
 export function UpdateMailingAddressFlow({
   voter,
   returnToPreviousScreen,
   returnToPreviousScreenLabelText,
+  onSuccess,
 }: UpdateMailingAddressFlowProps): JSX.Element {
   const [flowState, setFlowState] = useState<UpdateMailingAddressFlowState>({
     step: 'update',
   });
   const changeVoterMailingAddressMutation =
     changeVoterMailingAddress.useMutation();
-  useAutomaticFlowReset(flowState.step === 'success', returnToPreviousScreen);
 
   switch (flowState.step) {
     case 'update':
@@ -144,6 +144,7 @@ export function UpdateMailingAddressFlow({
               mailingAddressChangeData,
             });
             setFlowState({ step: 'success' });
+            onSuccess();
           }}
           onCancel={returnToPreviousScreen}
         />

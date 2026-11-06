@@ -25,7 +25,6 @@ import {
   changeVoterAddress,
   getPollbookConfigurationInformation,
 } from './api.js';
-import { useAutomaticFlowReset } from './use_automatic_flow_reset.js';
 
 type UpdateAddressFlowState =
   | { step: 'update' }
@@ -164,6 +163,7 @@ interface UpdateAddressFlowProps {
   voter: Voter;
   returnToPreviousScreen: () => void;
   returnToPreviousScreenLabelText: string;
+  onSuccess: () => void;
   election: Election;
 }
 
@@ -172,12 +172,12 @@ export function UpdateAddressFlow({
   returnToPreviousScreen,
   returnToPreviousScreenLabelText,
   election,
+  onSuccess,
 }: UpdateAddressFlowProps): JSX.Element {
   const [flowState, setFlowState] = useState<UpdateAddressFlowState>({
     step: 'update',
   });
   const changeVoterAddressMutation = changeVoterAddress.useMutation();
-  useAutomaticFlowReset(flowState.step === 'success', returnToPreviousScreen);
 
   switch (flowState.step) {
     case 'update':
@@ -195,6 +195,7 @@ export function UpdateAddressFlow({
               {
                 onSuccess: () => {
                   setFlowState({ step: 'success' });
+                  onSuccess();
                 },
               }
             );
