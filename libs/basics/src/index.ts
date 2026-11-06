@@ -1,7 +1,6 @@
 export * from './as_boolean.js';
 export * from './assert.js';
 export * from './buffers.js';
-export * as collections from './collections.js';
 export * from './date_without_time.js';
 export * from './deferred.js';
 export * from './duplicates.js';
