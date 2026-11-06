@@ -1471,18 +1471,12 @@ importers:
       buffer:
         specifier: ^6.0.3
         version: 6.0.3
-      debug:
-        specifier: 4.3.4
-        version: 4.3.4(supports-color@5.5.0)
       history:
         specifier: 4.10.1
         version: 4.10.1
       http-proxy-middleware:
         specifier: 3.0.7
         version: 3.0.7(supports-color@5.5.0)
-      luxon:
-        specifier: ^3.0.0
-        version: 3.3.0
       path:
         specifier: ^0.12.7
         version: 0.12.7
@@ -1526,18 +1520,12 @@ importers:
       '@types/connect':
         specifier: ^3.4.35
         version: 3.4.36
-      '@types/debug':
-        specifier: 4.1.12
-        version: 4.1.12
       '@types/history':
         specifier: 4.7.11
         version: 4.7.11
       '@types/kiosk-browser':
         specifier: workspace:*
         version: link:../../../libs/@types/kiosk-browser
-      '@types/luxon':
-        specifier: ^3.0.0
-        version: 3.2.0
       '@types/react':
         specifier: 18.3.3
         version: 18.3.3
