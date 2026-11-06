@@ -40,7 +40,6 @@
     "@iarna/toml": "^2.2.5",
     "@votingworks/basics": "workspace:*",
     "@votingworks/types": "workspace:*",
-    "@votingworks/utils": "workspace:*",
     "debug": "4.3.4",
     "yargs": "17.7.1",
     "zod": "4.6.6"
