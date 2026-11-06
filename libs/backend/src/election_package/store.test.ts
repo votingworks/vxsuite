@@ -1,4 +1,4 @@
-import { assertDefined } from '@votingworks/basics';
+import { assertDefined, range } from '@votingworks/basics';
 import {
   electionGeneralFixtures,
   makeTemporaryDirectory,
@@ -390,6 +390,26 @@ test('importElectionPackage into a memory store replaces the previous import', a
   expect(store.getEncodedBallotStore().getBallots()).toEqual([
     { ...replacement, id: expect.any(Number) },
   ]);
+});
+
+test('importElectionPackage imports more ballots than fit in one batch', async () => {
+  const store = ElectionPackageStore.memoryStore(INCLUDE_ALL);
+  const precinctId = assertDefined(election.precincts[0]).id;
+  const ballots: EncodedBallotEntry[] = range(0, 250).map((i) => ({
+    ballotStyleId: style1.id,
+    precinctId,
+    ballotType: 'precinct',
+    ballotMode: 'official',
+    encodedBallot: `ballot-${i}`,
+  }));
+  await importElectionPackageForTest(store, { electionDefinition, ballots });
+
+  expect(
+    store
+      .getEncodedBallotStore()
+      .getBallots()
+      .map((ballot) => ballot.encodedBallot)
+  ).toEqual(ballots.map((ballot) => ballot.encodedBallot));
 });
 
 test('importElectionPackage without ballots', async () => {

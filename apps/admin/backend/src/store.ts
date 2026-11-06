@@ -15,6 +15,7 @@ import {
   unique,
   deepEqual,
   throwIllegalValue,
+  type NotPromise,
 } from '@votingworks/basics';
 import {
   type BackupError,
@@ -386,7 +387,7 @@ export class Store implements BaseStore {
    *
    * Returns the result of the function.
    */
-  withTransaction<T>(fn: () => T): T {
+  withTransaction<T>(fn: () => NotPromise<T>): T {
     return this.client.transaction(fn, (result: T) => {
       if (isResult(result)) {
         return result.isOk();
@@ -1506,13 +1507,13 @@ export class Store implements BaseStore {
      * Where the file came from. A USB export carries the hash of its signed
      * metadata, which detects re-imports of the same export; a network
      * transfer has no export signature and is deduplicated by (scanner,
-     * batch) instead.
+     * batch) instead. A USB import in progress has no hash yet.
      */
     source:
-      | { type: 'usb'; sha256Hash: string }
+      | { type: 'usb'; sha256Hash?: string }
       | { type: 'network'; scannerId: string; batchId: string };
   }): void {
-    if (source.type === 'usb') {
+    if (source.type === 'usb' && source.sha256Hash !== undefined) {
       assert(source.sha256Hash.length > 0, 'USB imports must record a hash');
     }
     this.client.run(
@@ -1544,7 +1545,7 @@ export class Store implements BaseStore {
       JSON.stringify([...scannerIds]),
       JSON.stringify([...pollingPlaceIds]),
       JSON.stringify(batchIds),
-      source.type === 'usb' ? source.sha256Hash : null,
+      source.type === 'usb' ? (source.sha256Hash ?? null) : null,
       source.type,
       source.type === 'network' ? source.scannerId : null,
       source.type === 'network' ? source.batchId : null
@@ -1734,19 +1735,33 @@ export class Store implements BaseStore {
   updateCastVoteRecordFileRecord({
     id,
     precinctIds,
+    sha256Hash,
   }: {
     id: Id;
     precinctIds: Set<string>;
+    sha256Hash?: string;
   }): void {
     this.client.run(
       `
         update cvr_files
         set
-          precinct_ids = ?
+          precinct_ids = ?,
+          sha256_hash = coalesce(?, sha256_hash)
         where id = ?
       `,
       JSON.stringify([...precinctIds]),
+      sha256Hash ?? null,
       id
+    );
+  }
+
+  hasCastVoteRecord(electionId: Id, ballotId: BallotId): boolean {
+    return (
+      this.client.one(
+        'select 1 from cvrs where election_id = ? and ballot_id = ?',
+        electionId,
+        ballotId
+      ) !== undefined
     );
   }
 
@@ -2374,11 +2389,7 @@ export class Store implements BaseStore {
     return { ...votes, ...adjudicatedVotes };
   }
 
-  /**
-   * Returns an iterator of cast vote records for tabulation purposes. Filters
-   * the cast vote records by specified filters.
-   */
-  *getCastVoteRecords({
+  private getCastVoteRecordsQuery({
     electionId,
     election,
     filter,
@@ -2388,7 +2399,7 @@ export class Store implements BaseStore {
     election: Election;
     filter: Tabulation.Filter;
     excludeWithheldBallots: boolean;
-  }): Generator<Tabulation.CastVoteRecord> {
+  }): [sql: string, params: Bindable[]] {
     const [whereParts, params] = this.getTabulationFilterAsSql(
       election,
       electionId,
@@ -2399,7 +2410,7 @@ export class Store implements BaseStore {
       whereParts.push(`not ${this.getWithheldBallotsSqlCondition(electionId)}`);
     }
 
-    for (const row of this.client.each(
+    return [
       `
         select
           cvrs.ballot_style_group_id as ballotStyleGroupId,
@@ -2422,33 +2433,68 @@ export class Store implements BaseStore {
           cvrs.ballot_style_group_id = ballot_styles.group_id
         where ${whereParts.join(' and ')}
   `,
-      ...params
-    ) as Iterable<
-      StoreCastVoteRecordAttributes & {
-        cardType: 'bmd' | 'hmpb';
-        sheetNumber: number | null;
-        votes: string;
-        adjudicatedVotes: string | null;
-      }
-    >) {
-      const votes = this.applyAdjudicatedVotes({
-        votesString: row.votes,
-        adjudicatedVotesString: row.adjudicatedVotes,
-      });
-      const partyId = isCombinedBallotPrimary(election)
-        ? inferPartyFromVotes(election, votes)
-        : (row.partyId ?? undefined);
-      yield {
-        ballotStyleGroupId: row.ballotStyleGroupId,
-        partyId,
-        votingMethod: row.votingMethod,
-        batchId: row.batchId,
-        scannerId: row.scannerId,
-        precinctId: row.precinctId,
-        reportingStatus: row.reportingStatus,
-        card: this.convertSheetNumberToCard(row.cardType, row.sheetNumber),
-        votes,
-      };
+      params,
+    ];
+  }
+
+  private castVoteRecordFromRow(
+    row: StoreCastVoteRecordAttributes & {
+      cardType: 'bmd' | 'hmpb';
+      sheetNumber: number | null;
+      votes: string;
+      adjudicatedVotes: string | null;
+    },
+    election: Election
+  ): Tabulation.CastVoteRecord {
+    const votes = this.applyAdjudicatedVotes({
+      votesString: row.votes,
+      adjudicatedVotesString: row.adjudicatedVotes,
+    });
+    const partyId = isCombinedBallotPrimary(election)
+      ? inferPartyFromVotes(election, votes)
+      : (row.partyId ?? undefined);
+    return {
+      ballotStyleGroupId: row.ballotStyleGroupId,
+      partyId,
+      votingMethod: row.votingMethod,
+      batchId: row.batchId,
+      scannerId: row.scannerId,
+      precinctId: row.precinctId,
+      reportingStatus: row.reportingStatus,
+      card: this.convertSheetNumberToCard(row.cardType, row.sheetNumber),
+      votes,
+    };
+  }
+
+  /** Yields matching cast vote records, periodically yielding to the event loop. */
+  async *getCastVoteRecords(params: {
+    electionId: Id;
+    election: Election;
+    filter: Tabulation.Filter;
+    excludeWithheldBallots: boolean;
+  }): AsyncGenerator<Tabulation.CastVoteRecord> {
+    const [sql, sqlParams] = this.getCastVoteRecordsQuery(params);
+    for await (const row of this.client.eachAsync(sql, sqlParams)) {
+      yield this.castVoteRecordFromRow(
+        row as Parameters<typeof this.castVoteRecordFromRow>[0],
+        params.election
+      );
+    }
+  }
+
+  /** Like {@link getCastVoteRecords}, but blocking; use for small result sets. */
+  *getCastVoteRecordsSync(params: {
+    electionId: Id;
+    election: Election;
+    filter: Tabulation.Filter;
+    excludeWithheldBallots: boolean;
+  }): Generator<Tabulation.CastVoteRecord> {
+    const [sql, sqlParams] = this.getCastVoteRecordsQuery(params);
+    for (const row of this.client.each(sql, ...sqlParams)) {
+      yield this.castVoteRecordFromRow(
+        row as Parameters<typeof this.castVoteRecordFromRow>[0],
+        params.election
+      );
     }
   }
 
@@ -2627,7 +2673,7 @@ export class Store implements BaseStore {
     // filter on ballot_style.party_id)
     const { partyIds, ...restFilter } = filter;
 
-    for (const cvr of this.getCastVoteRecords({
+    for (const cvr of this.getCastVoteRecordsSync({
       electionId,
       election,
       filter: restFilter,
@@ -4087,6 +4133,11 @@ export class Store implements BaseStore {
       asSqliteBool(isOfficialResults),
       electionId
     );
+  }
+
+  /** Counts writes made through this store since it opened. */
+  getTotalChanges(): number {
+    return this.client.totalChanges();
   }
 
   getCastVoteRecordsDataVersion(electionId: Id): number {

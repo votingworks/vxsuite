@@ -361,6 +361,58 @@ test('tabulateElectionResults - includes empty groups', async () => {
   ]);
 });
 
+async function storeWithEmptyElection(): Promise<{
+  store: Store;
+  electionId: string;
+}> {
+  const store = Store.memoryStore(makeTemporaryDirectory());
+  const importResult = await store.importElectionPackage({
+    packagePath: await writeTempElectionZip({
+      electionDefinition:
+        electionTwoPartyPrimaryFixtures.readElectionDefinition(),
+      systemSettings,
+    }),
+  });
+  const { electionId } = importResult.unsafeUnwrap();
+  store.setCurrentElectionId(electionId);
+  return { store, electionId };
+}
+
+test('tabulateElectionResults - retries when the database changes partway', async () => {
+  const { store, electionId } = await storeWithEmptyElection();
+  const getTotalChanges = vi
+    .spyOn(store, 'getTotalChanges')
+    .mockReturnValueOnce(0)
+    .mockReturnValueOnce(1)
+    .mockReturnValueOnce(1)
+    .mockReturnValueOnce(1);
+
+  const results = await tabulateElectionResults({ electionId, store });
+
+  expect(Object.keys(results)).toHaveLength(1);
+  expect(getTotalChanges).toHaveBeenCalledTimes(4);
+});
+
+test('tabulateElectionResults - blocks on the last attempt if the database keeps changing', async () => {
+  const { store, electionId } = await storeWithEmptyElection();
+  let changes = 0;
+  vi.spyOn(store, 'getTotalChanges').mockImplementation(() => {
+    changes += 1;
+    return changes;
+  });
+  vi.spyOn(store, 'getCastVoteRecordsDataVersion').mockImplementation(
+    () => changes
+  );
+  const getCastVoteRecords = vi.spyOn(store, 'getCastVoteRecords');
+  const getCastVoteRecordsSync = vi.spyOn(store, 'getCastVoteRecordsSync');
+
+  const results = await tabulateElectionResults({ electionId, store });
+
+  expect(Object.keys(results)).toHaveLength(1);
+  expect(getCastVoteRecords).toHaveBeenCalledTimes(2);
+  expect(getCastVoteRecordsSync).toHaveBeenCalledTimes(1);
+});
+
 const candidateContestId =
   'State-Representatives-Hillsborough-District-34-b1012d38';
 

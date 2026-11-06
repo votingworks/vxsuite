@@ -12,6 +12,7 @@ import {
   type SheetOf,
   TEST_JURISDICTION,
 } from '@votingworks/types';
+import { iter } from '@votingworks/basics';
 import type { AcceptedSheet, RejectedSheet } from '@votingworks/backend';
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,
@@ -273,7 +274,7 @@ test('discardBatch hard-deletes the batch and its sheets', async () => {
   store.discardBatch(discardedBatchId);
   expect(store.getBatches().map((batch) => batch.id)).toEqual([savedBatchId]);
   expect(store.getBallotsCounted()).toEqual(1);
-  expect([...store.forEachSheet()]).toHaveLength(1);
+  expect(await iter(store.forEachSheet()).toArray()).toHaveLength(1);
   expect(store.getCanUnconfigure()).toEqual(true);
 
   // Batch number is reused after discarding a batch
@@ -599,8 +600,8 @@ test('iterating over sheets', async () => {
     pollingPlaceId: anyPollingPlace(election).id,
   });
 
-  expect(Array.from(store.forEachAcceptedSheet())).toEqual([]);
-  expect(Array.from(store.forEachSheet())).toEqual([]);
+  expect(await iter(store.forEachAcceptedSheet()).toArray()).toEqual([]);
+  expect(await iter(store.forEachSheet()).toArray()).toEqual([]);
 
   // Add and retrieve an accepted sheet
   const batchId = store.addBatch();
@@ -619,8 +620,10 @@ test('iterating over sheets', async () => {
     backImagePath: '1-back.jpg',
     indexInBatch: 1,
   };
-  expect(Array.from(store.forEachAcceptedSheet())).toEqual([expectedSheet1]);
-  expect(Array.from(store.forEachSheet())).toEqual([expectedSheet1]);
+  expect(await iter(store.forEachAcceptedSheet()).toArray()).toEqual([
+    expectedSheet1,
+  ]);
+  expect(await iter(store.forEachSheet()).toArray()).toEqual([expectedSheet1]);
   expect(store.getSheetInterpretation(sheet1Id)).toEqual(
     expectedSheet1.interpretation
   );
@@ -644,8 +647,10 @@ test('iterating over sheets', async () => {
     frontImagePath: '2-front.jpg',
     backImagePath: '2-back.jpg',
   };
-  expect(Array.from(store.forEachAcceptedSheet())).toEqual([expectedSheet1]);
-  expect(Array.from(store.forEachSheet())).toEqual([
+  expect(await iter(store.forEachAcceptedSheet()).toArray()).toEqual([
+    expectedSheet1,
+  ]);
+  expect(await iter(store.forEachSheet()).toArray()).toEqual([
     expectedSheet1,
     expectedSheet2,
   ]);
@@ -681,11 +686,11 @@ test('iterating over sheets', async () => {
     backImagePath: '3-back.jpg',
     indexInBatch: 2,
   };
-  expect(Array.from(store.forEachAcceptedSheet())).toEqual([
+  expect(await iter(store.forEachAcceptedSheet()).toArray()).toEqual([
     expectedSheet1,
     expectedSheet3,
   ]);
-  expect(Array.from(store.forEachSheet())).toEqual([
+  expect(await iter(store.forEachSheet()).toArray()).toEqual([
     expectedSheet1,
     expectedSheet2,
     { ...expectedSheet3, indexInBatch: 3 },
@@ -693,8 +698,8 @@ test('iterating over sheets', async () => {
 
   // Mark batch as deleted
   store.deleteBatch(batchId);
-  expect(Array.from(store.forEachAcceptedSheet())).toEqual([]);
-  expect(Array.from(store.forEachSheet())).toEqual([]);
+  expect(await iter(store.forEachAcceptedSheet()).toArray()).toEqual([]);
+  expect(await iter(store.forEachSheet()).toArray()).toEqual([]);
 });
 
 test('iterating over each accepted sheet includes correct batch sequence id', async () => {
@@ -742,7 +747,7 @@ test('iterating over each accepted sheet includes correct batch sequence id', as
   store.addSheet(batch3Sheet2Id, batch3Id, generateSheet());
   store.finishBatch(batch3Id);
 
-  const acceptedSheets = Array.from(store.forEachAcceptedSheet());
+  const acceptedSheets = await iter(store.forEachAcceptedSheet()).toArray();
   expect(acceptedSheets).toHaveLength(6);
   const expectedAcceptedSheets: Array<
     [id: string, batchId: string, indexInBatch: number]

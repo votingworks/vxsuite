@@ -2400,7 +2400,7 @@ describe('withholding unadjudicated central scan ballots from tallies', () => {
 
   function getTallyBatchIds(excludeWithheldBallots: boolean): string[] {
     return [
-      ...store.getCastVoteRecords({
+      ...store.getCastVoteRecordsSync({
         electionId,
         election,
         filter: {},

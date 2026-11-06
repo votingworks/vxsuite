@@ -406,11 +406,15 @@ export async function tabulateCastVoteRecords({
   cvrs,
   groupBy,
   expectedGroups,
+  yieldPeriodically = true,
 }: {
-  cvrs: Iterable<Tabulation.CastVoteRecord>;
+  cvrs:
+    | Iterable<Tabulation.CastVoteRecord>
+    | AsyncIterable<Tabulation.CastVoteRecord>;
   election: Election;
   groupBy?: Tabulation.GroupBy;
   expectedGroups?: Tabulation.GroupSpecifier[];
+  yieldPeriodically?: boolean;
 }): Promise<Tabulation.ElectionResultsGroupMap> {
   const groupedElectionResults: Tabulation.ElectionResultsGroupMap = {};
 
@@ -419,12 +423,12 @@ export async function tabulateCastVoteRecords({
     const electionResults = getEmptyElectionResults(election);
 
     let i = 0;
-    for (const cvr of cvrs) {
+    for await (const cvr of cvrs) {
       addCastVoteRecordToElectionResult(electionResults, cvr, election);
 
       i += 1;
       // @coverage-defer
-      if (i % YIELD_TO_EVENT_LOOP_EVERY_N_CVRS === 0) {
+      if (yieldPeriodically && i % YIELD_TO_EVENT_LOOP_EVERY_N_CVRS === 0) {
         await yieldToEventLoop();
       }
     }
@@ -443,7 +447,7 @@ export async function tabulateCastVoteRecords({
 
   // general case, grouping results by specified group by clause
   let i = 0;
-  for (const cvr of cvrs) {
+  for await (const cvr of cvrs) {
     const groupSpecifier = getCastVoteRecordGroupSpecifier(cvr, groupBy);
     const groupKey = getGroupKey(groupSpecifier, groupBy);
     const existingElectionResult = groupedElectionResults[groupKey];
@@ -461,7 +465,7 @@ export async function tabulateCastVoteRecords({
 
     i += 1;
     // @coverage-defer
-    if (i % YIELD_TO_EVENT_LOOP_EVERY_N_CVRS === 0) {
+    if (yieldPeriodically && i % YIELD_TO_EVENT_LOOP_EVERY_N_CVRS === 0) {
       await yieldToEventLoop();
     }
   }

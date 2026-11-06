@@ -28,6 +28,7 @@ import {
   assertDefined,
   type Optional,
   typedAs,
+  type NotPromise,
 } from '@votingworks/basics';
 import { DateTime } from 'luxon';
 import { join } from 'node:path';
@@ -206,8 +207,8 @@ export class Store {
    *
    * Returns the result of the function.
    */
-  withTransaction<T>(fn: () => T): T {
-    return this.client.transaction(() => fn());
+  withTransaction<T>(fn: () => NotPromise<T>): T {
+    return this.client.transaction(fn);
   }
 
   /**
@@ -778,13 +779,15 @@ export class Store {
   /**
    * Yields all scanned sheets that were accepted and should be tabulated
    */
-  *forEachAcceptedSheet(): Generator<AcceptedSheet> {
+  async *forEachAcceptedSheet(): AsyncGenerator<AcceptedSheet> {
     const sql = `${getSheetsBaseQuery}
       where
         sheets.rejected_at is null
       order by sheets.id
     `;
-    for (const row of this.client.each(sql) as Iterable<SheetRow>) {
+    for await (const row of this.client.eachAsync(
+      sql
+    ) as AsyncIterable<SheetRow>) {
       yield sheetRowToAcceptedSheet(row);
     }
   }
@@ -795,7 +798,7 @@ export class Store {
     ).electionDefinition;
     const allWriteInsByContest = new Map<string, WriteInEntry[]>();
 
-    for (const sheet of this.forEachAcceptedSheet()) {
+    for await (const sheet of this.forEachAcceptedSheet()) {
       const [frontInterpretation, backInterpretation] = sheet.interpretation;
 
       const interpretationsWithPaths = [
@@ -862,11 +865,13 @@ export class Store {
   /**
    * Yields all scanned sheets
    */
-  *forEachSheet(): Generator<Sheet> {
+  async *forEachSheet(): AsyncGenerator<Sheet> {
     const sql = `${getSheetsBaseQuery}
       order by sheets.id
     `;
-    for (const row of this.client.each(sql) as Iterable<SheetRow>) {
+    for await (const row of this.client.eachAsync(
+      sql
+    ) as AsyncIterable<SheetRow>) {
       yield sheetRowToSheet(row);
     }
   }
@@ -874,13 +879,15 @@ export class Store {
   /**
    * Yields all scanned sheets that are pending continuous export
    */
-  *forEachSheetPendingContinuousExport(): Generator<Sheet> {
+  async *forEachSheetPendingContinuousExport(): AsyncGenerator<Sheet> {
     const sql = `${getSheetsBaseQuery}
       inner join pending_continuous_export_operations on
         sheets.id = pending_continuous_export_operations.sheet_id
       order by sheets.id
     `;
-    for (const row of this.client.each(sql) as Iterable<SheetRow>) {
+    for await (const row of this.client.eachAsync(
+      sql
+    ) as AsyncIterable<SheetRow>) {
       yield sheetRowToSheet(row);
     }
   }
