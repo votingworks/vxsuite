@@ -390,3 +390,14 @@ create table design_elections (
 ) strict;
 
 create unique index design_elections_singleton on design_elections ((1));
+
+create table design_districts (
+  id text primary key,
+  election_id text not null,
+  name text not null,
+  foreign key (election_id) references design_elections(id)
+    on delete cascade
+) strict;
+
+create unique index design_districts_election_id_name_unique_index
+  on design_districts (election_id, name);
