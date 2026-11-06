@@ -952,15 +952,6 @@ export function buildApi(ctx: AppContext) {
       return await store.getLatestExportQaRunForElection(electionId);
     },
 
-    // @coverage-defer
-    getExportQaRun({
-      qaRunId,
-    }: {
-      qaRunId: string;
-    }): Promise<ExportQaRun | undefined> {
-      return store.getExportQaRun(qaRunId);
-    },
-
     getTestDecks({
       electionId,
     }: {
