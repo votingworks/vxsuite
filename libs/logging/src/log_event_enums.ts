@@ -262,6 +262,7 @@ export const LogEventId = {
   AdminRestoreModeEntered: 'admin-restore-mode-entered',
   ElectionDefinitionCreated: 'election-definition-created',
   ElectionDefinitionInfoUpdated: 'election-definition-info-updated',
+  ElectionDefinitionDistrictsUpdated: 'election-definition-districts-updated',
   ElectionDefinitionDiscarded: 'election-definition-discarded',
 } as const;
 export type LogEventId = (typeof LogEventId)[keyof typeof LogEventId];
@@ -1670,6 +1671,14 @@ const ElectionDefinitionInfoUpdated: LogDetails = {
   restrictInDocumentationToApps: [AppName.VxAdmin],
 };
 
+const ElectionDefinitionDistrictsUpdated: LogDetails = {
+  eventId: LogEventId.ElectionDefinitionDistrictsUpdated,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'A user added, renamed or deleted districts in the election definition being designed, or failed to. Success or failure indicated by disposition.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
 const ElectionDefinitionDiscarded: LogDetails = {
   eventId: LogEventId.ElectionDefinitionDiscarded,
   eventType: LogEventType.UserAction,
@@ -2058,6 +2067,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return ElectionDefinitionCreated;
     case LogEventId.ElectionDefinitionInfoUpdated:
       return ElectionDefinitionInfoUpdated;
+    case LogEventId.ElectionDefinitionDistrictsUpdated:
+      return ElectionDefinitionDistrictsUpdated;
     case LogEventId.ElectionDefinitionDiscarded:
       return ElectionDefinitionDiscarded;
     default:

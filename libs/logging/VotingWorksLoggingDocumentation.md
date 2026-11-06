@@ -770,6 +770,10 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)
 **Description:** A user edited the election info (title, date, type, state, jurisdiction, seal, signature or languages) of the election definition being designed, or failed to. Success or failure indicated by disposition.
 **Machines:** vx-admin
+### election-definition-districts-updated
+**Type:** [user-action](#user-action)
+**Description:** A user added, renamed or deleted districts in the election definition being designed, or failed to. Success or failure indicated by disposition.
+**Machines:** vx-admin
 ### election-definition-discarded
 **Type:** [user-action](#user-action)
 **Description:** A user discarded the election definition being designed.
