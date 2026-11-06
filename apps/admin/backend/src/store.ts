@@ -1750,6 +1750,16 @@ export class Store implements BaseStore {
     );
   }
 
+  hasCastVoteRecord(electionId: Id, ballotId: BallotId): boolean {
+    return (
+      this.client.one(
+        'select 1 from cvrs where election_id = ? and ballot_id = ?',
+        electionId,
+        ballotId
+      ) !== undefined
+    );
+  }
+
   /**
    * Adds a CVR file entry record and returns its ID. If a CVR file entry with
    * the same contents has already been added, returns the ID of that record and

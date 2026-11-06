@@ -1,4 +1,5 @@
 import path from 'node:path';
+import * as fs from 'node:fs/promises';
 import { createHash, randomUUID as uuid } from 'node:crypto';
 import {
   type CastVoteRecordAndReferencedFiles,
@@ -18,14 +19,18 @@ import {
 import { FileSystemEntryType, listDirectory } from '@votingworks/fs';
 import {
   type AdjudicationReason,
+  asSheet,
   type BallotId,
+  type BallotPageLayout,
   type CVR,
   type ElectionDefinition,
   getBallotStyle,
   getContests,
   getGroupIdFromBallotStyleId,
   getPrecinctById,
+  mapSheet,
   type MarkThresholds,
+  type SheetOf,
   type Tabulation,
 } from '@votingworks/types';
 import {
@@ -335,6 +340,26 @@ export function shouldStoreBallotImages(
   return prepared.needsAdjudication;
 }
 
+/** A ballot image read and written to a staging file, awaiting import. */
+interface StagedBallotImage {
+  imageFilePath: string;
+  pageLayout?: BallotPageLayout;
+}
+
+interface StagedCastVoteRecord {
+  prepared: PreparedCastVoteRecord;
+  images?: SheetOf<StagedBallotImage>;
+}
+
+function newMarkScoreDistribution(): MarkScoreDistribution {
+  // 0.1 increment buckets for logging
+  const distribution = new Map<number, number>();
+  for (let i = 1; i <= 20; i += 1) {
+    distribution.set(i / 100, 0);
+  }
+  return { distribution, total: 0 };
+}
+
 /**
  * Imports cast vote records given a cast vote record export directory path
  */
@@ -392,55 +417,16 @@ export async function importCastVoteRecords(
   const { adminAdjudicationReasons, markThresholds } =
     store.getSystemSettings(electionId);
 
-  return await store.withTransaction(async () => {
-    const scannerIds = new Set<string>();
-    const pollingPlaceIds = new Set<string>();
-    const batchIds: string[] = [];
+  // Same filesystem as the ballot images, so staged images can be renamed in.
+  const stagingDirectory = await fs.mkdtemp(
+    path.join(path.dirname(store.getBallotImagesPath()), '.cvr-import-')
+  );
+  const markScoreDistribution = newMarkScoreDistribution();
+  const staged: StagedCastVoteRecord[] = [];
+  const precinctIds = new Set<string>();
 
-    for (const batch of batchManifest) {
-      store.addScannerBatch({
-        batchId: batch.id,
-        electionId,
-        label: batch.label,
-        scannerId: batch.scannerId,
-        scannerMachineType: batch.scannerMachineType,
-        ballotCastingMode: batch.ballotCastingMode,
-        pollingPlaceId: batch.pollingPlaceId,
-        startedAt: batch.startTime,
-      });
-
-      scannerIds.add(batch.scannerId);
-      pollingPlaceIds.add(batch.pollingPlaceId);
-      batchIds.push(batch.id);
-    }
-
-    // Create a top-level record for the import
-    const importId = uuid();
-    store.addCastVoteRecordFileRecord({
-      id: importId,
-      electionId,
-      exportedTimestamp,
-      filename: exportDirectoryName,
-      isTestMode: isTestReport(castVoteRecordReportMetadata),
-      pollingPlaceIds,
-      scannerIds,
-      batchIds,
-      source: { type: 'usb', sha256Hash: exportHash },
-    });
-
-    // Create a mark score distribution map with 0.1 increment buckets for logging
-    const markScoreDistribution: MarkScoreDistribution = {
-      distribution: new Map<number, number>(),
-      total: 0,
-    };
-    for (let i = 1; i <= 20; i += 1) {
-      markScoreDistribution.distribution.set(i / 100, 0);
-    }
-
+  try {
     let castVoteRecordIndex = 0;
-    let newlyAdded = 0;
-    let alreadyPresent = 0;
-    const precinctIds = new Set<string>();
     for await (const castVoteRecordResult of castVoteRecordIterator) {
       if (castVoteRecordResult.isErr()) {
         return err({
@@ -448,138 +434,182 @@ export async function importCastVoteRecords(
           index: castVoteRecordIndex,
         });
       }
-      const parsed = castVoteRecordResult.ok();
-      const prepareResult = prepareCastVoteRecord(parsed, electionDefinition, {
-        adminAdjudicationReasons,
-        markThresholds,
-      });
+      const prepareResult = prepareCastVoteRecord(
+        castVoteRecordResult.ok(),
+        electionDefinition,
+        { adminAdjudicationReasons, markThresholds }
+      );
       if (prepareResult.isErr()) {
         return err({ ...prepareResult.err(), index: castVoteRecordIndex });
       }
       const prepared = prepareResult.ok();
-      const {
-        adjudicationFlags,
-        isHmpb,
-        referencedFiles,
-        writeIns: castVoteRecordWriteIns,
-      } = prepared;
-      const { markScores } = prepared.cvr;
 
-      const addCastVoteRecordResult = store.addCastVoteRecordFileEntry({
-        ballotId: prepared.ballotId,
-        cvr: prepared.cvr,
-        cvrFileId: importId,
-        electionId,
-        adjudicationFlags,
-      });
-      if (addCastVoteRecordResult.isErr()) {
-        return err({
-          ...addCastVoteRecordResult.err(),
-          index: castVoteRecordIndex,
-        });
-      }
-      const { cvrId: castVoteRecordId, isNew: isCastVoteRecordNew } =
-        addCastVoteRecordResult.ok();
-
-      if (isCastVoteRecordNew) {
-        if (shouldStoreBallotImages(prepared)) {
-          // Guaranteed to be defined given validation in readCastVoteRecordExport
-          assert(referencedFiles !== undefined);
-          for (const i of [0, 1] as const) {
-            const imageFileReadResult =
-              await referencedFiles.imageFiles[i].read();
-            if (imageFileReadResult.isErr()) {
+      let images: StagedCastVoteRecord['images'];
+      if (
+        shouldStoreBallotImages(prepared) &&
+        !store.hasCastVoteRecord(electionId, prepared.ballotId)
+      ) {
+        // Guaranteed to be defined given validation in readCastVoteRecordExport
+        assert(prepared.referencedFiles !== undefined);
+        const stagedImages: StagedBallotImage[] = [];
+        for (const i of [0, 1] as const) {
+          const imageFileReadResult =
+            await prepared.referencedFiles.imageFiles[i].read();
+          if (imageFileReadResult.isErr()) {
+            return err({
+              ...imageFileReadResult.err(),
+              index: castVoteRecordIndex,
+            });
+          }
+          let pageLayout: BallotPageLayout | undefined;
+          if (prepared.referencedFiles.layoutFiles !== undefined) {
+            const layoutFileReadResult =
+              await prepared.referencedFiles.layoutFiles[i].read();
+            if (layoutFileReadResult.isErr()) {
               return err({
-                ...imageFileReadResult.err(),
+                ...layoutFileReadResult.err(),
                 index: castVoteRecordIndex,
               });
             }
-            if (referencedFiles.layoutFiles !== undefined) {
-              const layoutFileReadResult =
-                await referencedFiles.layoutFiles[i].read();
-              if (layoutFileReadResult.isErr()) {
-                return err({
-                  ...layoutFileReadResult.err(),
-                  index: castVoteRecordIndex,
-                });
-              }
-              store.addBallotImage({
-                cvrId: castVoteRecordId,
-                electionDefinitionId: electionDefinition.election.id,
-                imageData: imageFileReadResult.ok(),
-                pageLayout: layoutFileReadResult.ok(),
-                side: (['front', 'back'] as const)[i],
-              });
-            } else {
-              // bmd ballots do not have pageLayout information.
-              store.addBallotImage({
-                cvrId: castVoteRecordId,
-                electionDefinitionId: electionDefinition.election.id,
-                imageData: imageFileReadResult.ok(),
-                side: (['front', 'back'] as const)[i],
-              });
-            }
+            pageLayout = layoutFileReadResult.ok();
           }
-        }
-        if (castVoteRecordWriteIns.length > 0) {
-          for (const castVoteRecordWriteIn of castVoteRecordWriteIns) {
-            store.addWriteIn({
-              castVoteRecordId,
-              contestId: castVoteRecordWriteIn.contestId,
-              electionId,
-              optionId: castVoteRecordWriteIn.optionId,
-              isUnmarked: castVoteRecordWriteIn.isUnmarked,
-              isUndetected: false,
-              machineMarkedText: castVoteRecordWriteIn.text,
-            });
-          }
-        }
-        if (isHmpb && markScores) {
-          updateMarkScoreDistributionFromMarkScores(
-            markScoreDistribution,
-            markScores
+          const imageFilePath = path.join(
+            stagingDirectory,
+            `${castVoteRecordIndex}-${i}.img`
           );
+          await fs.writeFile(imageFilePath, imageFileReadResult.ok());
+          stagedImages.push({ imageFilePath, pageLayout });
         }
+        images = asSheet(stagedImages);
       }
 
-      if (isCastVoteRecordNew) {
-        newlyAdded += 1;
-      } else {
-        alreadyPresent += 1;
-      }
+      staged.push({ prepared, images });
       precinctIds.add(prepared.cvr.precinctId);
-
       castVoteRecordIndex += 1;
     }
 
-    logger.log(
-      LogEventId.ImportCastVoteRecordsMarkScoreDistribution,
-      'election_manager',
-      {
-        disposition: 'success',
-        message: 'Mark score distribution (0.01–0.20) from CVR import.',
-        totalMarks: markScoreDistribution.total,
-        distribution: formatMarkScoreDistributionForLog(
-          markScoreDistribution.distribution
-        ),
+    const importResult = store.withTransaction(
+      (): Result<CvrFileImportInfo, ImportCastVoteRecordsError> => {
+        const scannerIds = new Set<string>();
+        const pollingPlaceIds = new Set<string>();
+        const batchIds: string[] = [];
+
+        for (const batch of batchManifest) {
+          store.addScannerBatch({
+            batchId: batch.id,
+            electionId,
+            label: batch.label,
+            scannerId: batch.scannerId,
+            scannerMachineType: batch.scannerMachineType,
+            ballotCastingMode: batch.ballotCastingMode,
+            pollingPlaceId: batch.pollingPlaceId,
+            startedAt: batch.startTime,
+          });
+
+          scannerIds.add(batch.scannerId);
+          pollingPlaceIds.add(batch.pollingPlaceId);
+          batchIds.push(batch.id);
+        }
+
+        // Create a top-level record for the import
+        const importId = uuid();
+        store.addCastVoteRecordFileRecord({
+          id: importId,
+          electionId,
+          exportedTimestamp,
+          filename: exportDirectoryName,
+          isTestMode: isTestReport(castVoteRecordReportMetadata),
+          pollingPlaceIds,
+          scannerIds,
+          batchIds,
+          source: { type: 'usb', sha256Hash: exportHash },
+        });
+
+        let newlyAdded = 0;
+        let alreadyPresent = 0;
+        for (const [index, entry] of staged.entries()) {
+          const { prepared, images } = entry;
+          const addCastVoteRecordResult = store.addCastVoteRecordFileEntry({
+            ballotId: prepared.ballotId,
+            cvr: prepared.cvr,
+            cvrFileId: importId,
+            electionId,
+            adjudicationFlags: prepared.adjudicationFlags,
+          });
+          if (addCastVoteRecordResult.isErr()) {
+            return err({ ...addCastVoteRecordResult.err(), index });
+          }
+          const { cvrId: castVoteRecordId, isNew: isCastVoteRecordNew } =
+            addCastVoteRecordResult.ok();
+
+          if (isCastVoteRecordNew) {
+            if (images) {
+              mapSheet(images, (image, side) => {
+                store.addBallotImageFromFile({
+                  cvrId: castVoteRecordId,
+                  electionDefinitionId: electionDefinition.election.id,
+                  imageFilePath: image.imageFilePath,
+                  pageLayout: image.pageLayout,
+                  side,
+                });
+              });
+            }
+            for (const castVoteRecordWriteIn of prepared.writeIns) {
+              store.addWriteIn({
+                castVoteRecordId,
+                contestId: castVoteRecordWriteIn.contestId,
+                electionId,
+                optionId: castVoteRecordWriteIn.optionId,
+                isUnmarked: castVoteRecordWriteIn.isUnmarked,
+                isUndetected: false,
+                machineMarkedText: castVoteRecordWriteIn.text,
+              });
+            }
+            if (prepared.isHmpb && prepared.cvr.markScores) {
+              updateMarkScoreDistributionFromMarkScores(
+                markScoreDistribution,
+                prepared.cvr.markScores
+              );
+            }
+            newlyAdded += 1;
+          } else {
+            alreadyPresent += 1;
+          }
+        }
+
+        // TODO: Calculate the precinct list before iterating through cast vote records, once there is
+        // only one geopolitical unit per batch
+        store.updateCastVoteRecordFileRecord({ id: importId, precinctIds });
+
+        return ok({
+          id: importId,
+          alreadyPresent,
+          exportedTimestamp,
+          fileMode: mode,
+          fileName: exportDirectoryName,
+          newlyAdded,
+          wasExistingFile: false,
+        });
       }
     );
 
-    // TODO: Calculate the precinct list before iterating through cast vote records, once there is
-    // only one geopolitical unit per batch
-    store.updateCastVoteRecordFileRecord({
-      id: importId,
-      precinctIds,
-    });
+    if (importResult.isOk()) {
+      logger.log(
+        LogEventId.ImportCastVoteRecordsMarkScoreDistribution,
+        'election_manager',
+        {
+          disposition: 'success',
+          message: 'Mark score distribution (0.01–0.20) from CVR import.',
+          totalMarks: markScoreDistribution.total,
+          distribution: formatMarkScoreDistributionForLog(
+            markScoreDistribution.distribution
+          ),
+        }
+      );
+    }
 
-    return ok({
-      id: importId,
-      alreadyPresent,
-      exportedTimestamp,
-      fileMode: mode,
-      fileName: exportDirectoryName,
-      newlyAdded,
-      wasExistingFile: false,
-    });
-  });
+    return importResult;
+  } finally {
+    await fs.rm(stagingDirectory, { recursive: true, force: true });
+  }
 }

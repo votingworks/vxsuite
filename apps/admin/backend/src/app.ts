@@ -1101,7 +1101,7 @@ function buildApi({
       }
     ): Promise<void> {
       const electionId = loadCurrentElectionIdOrThrow(workspace);
-      await transformWriteInsAndSetManualResults({
+      transformWriteInsAndSetManualResults({
         manualResults: input.manualResults,
         electionId,
         store,
@@ -1248,7 +1248,7 @@ function buildApi({
           contestResults: contestResultsForBallotStyleGroup,
         };
 
-      await transformWriteInsAndSetManualResults({
+      transformWriteInsAndSetManualResults({
         manualResults: manualResultsForBallotStyleGroup,
         electionId,
         store,
