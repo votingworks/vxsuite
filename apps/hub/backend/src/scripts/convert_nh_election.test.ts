@@ -3,7 +3,7 @@ import { expect, test } from 'vitest';
 import {
   type CandidateContest,
   getContests,
-  getOrderedCandidatesForContestInBallotStyle,
+  getOrderedCandidates,
   HmpbBallotPaperSize,
   safeParseElection,
 } from '@votingworks/types';
@@ -297,9 +297,9 @@ test('converts contests correctly, including each ward’s own candidate rotatio
   expect(contest.allowWriteIns).toEqual(true);
 
   function rotation(ward: string): string[] {
-    return getOrderedCandidatesForContestInBallotStyle({
+    return getOrderedCandidates({
       contest,
-      ballotStyle: ballotStyleForWard(election, ward),
+      orderings: ballotStyleForWard(election, ward).orderedCandidatesByContest,
     }).map((c) => c.name);
   }
   expect(rotation('Ward 1')).toEqual(['Ann', 'Bea', 'Cy']);
