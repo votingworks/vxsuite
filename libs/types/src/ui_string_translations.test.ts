@@ -4,7 +4,6 @@ import { safeParseJson } from './generic.js';
 import {
   type UiStringsPackage,
   UiStringsPackageSchema,
-  filterUiStrings,
   mergeUiStrings,
 } from './ui_string_translations.js';
 
@@ -71,27 +70,6 @@ test('mergeUiStrings', () => {
       appString: 'EN app string translation 2',
       appString2: 'EN app string 2 translation',
       appString3: 'EN app string 3 translation 2',
-    },
-    'es-US': {
-      appString: 'ES app string translation',
-    },
-  });
-});
-
-test('filterUiStrings', () => {
-  const strings: UiStringsPackage = {
-    en: {
-      appString: 'EN app string translation',
-      appString2: 'EN app string 2 translation',
-    },
-    'es-US': {
-      appString: 'ES app string translation',
-    },
-  };
-
-  expect(filterUiStrings(strings, (key) => key === 'appString')).toEqual({
-    en: {
-      appString: 'EN app string translation',
     },
     'es-US': {
       appString: 'ES app string translation',
