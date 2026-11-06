@@ -38,7 +38,12 @@ import {
   readElectionGeneral,
 } from '@votingworks/fixtures';
 import type { Server } from 'node:http';
-import { type Optional, assert, typedAs } from '@votingworks/basics';
+import {
+  type Optional,
+  assert,
+  assertDefined,
+  typedAs,
+} from '@votingworks/basics';
 import {
   constructElectionKey,
   DEFAULT_SYSTEM_SETTINGS,
@@ -55,9 +60,7 @@ import {
 } from '@votingworks/fujitsu-thermal-printer';
 import { createMockPdiScanner } from '@votingworks/pdi-scanner';
 import {
-  getMockUsbDirPath,
   getMockUsbDriveHandler,
-  SimulatedUsbPlatform,
   UsbDiskDevPathSchema,
 } from '@votingworks/usb-drive';
 import { ScreenRecordingFile } from './screen_recording.js';
@@ -621,19 +624,7 @@ test('quickConfigure clears the card and unconfigures after staging, before prog
   await apiClient.setElection({ inputPath: packagePath });
   await apiClient.insertCard({ role: 'election_manager' });
 
-  // Stand in for the machine mounting the drive, which configuring waits for.
-  const platform = new SimulatedUsbPlatform(getMockUsbDirPath());
-  const mounter = setInterval(() => {
-    const partition = platform
-      .getSimulatedDrives()
-      .find((drive) => drive.present)?.partition;
-    if (partition && !partition.mountpoint) {
-      void platform.mountPartition(partition.partPath);
-    }
-  }, 10);
-
   await apiClient.quickConfigure();
-  clearInterval(mounter);
 
   expect(unconfigure).toHaveBeenCalledTimes(1);
   expect(isPackageStagedAtUnconfigure).toEqual(true);
@@ -643,20 +634,19 @@ test('quickConfigure clears the card and unconfigures after staging, before prog
 });
 
 // Note: This test overwrites the global mock card state.
-test('quickConfigure configures the machine once its drive is mounted, then removes the card', async () => {
+test('quickConfigure configures from the staged package without inserting the drive, then removes the card', async () => {
   const hubExportDir = makeTemporaryDirectory({
     prefix: 'hub-export-test-',
   });
   const packagePath = await writeVxHubElectionPackage(hubExportDir);
 
   const usbDriveHandler = getMockUsbDriveHandler();
-  const platform = new SimulatedUsbPlatform(getMockUsbDirPath());
 
   let cardRoleAtConfigure: Optional<string>;
-  const configure = vi.fn(() => {
-    // Configuring reads the package off the drive, so it has to be mounted by
-    // now, with an election manager card inserted to authorize it.
-    expect(usbDriveHandler.status().status).toEqual('mounted');
+  const configure = vi.fn((directory: string) => {
+    // An inserted drive would make the app's frontend start a configure too.
+    expect(usbDriveHandler.status().status).toEqual('no_drive');
+    expect(directory).toEqual(usbDriveHandler.getDataPath());
     const { cardStatus } = readFromMockFile();
     cardRoleAtConfigure =
       cardStatus.status === 'ready'
@@ -672,24 +662,17 @@ test('quickConfigure configures the machine once its drive is mounted, then remo
   );
   await apiClient.setElection({ inputPath: packagePath });
 
-  // Stand in for the machine, which mounts an attached drive asynchronously.
-  // The delay outlasts the rest of the sequence, so quick configure has to wait
-  // for the mount rather than configuring as soon as it attaches the drive.
-  const mountDelay = setTimeout(() => {
-    const partition = platform
-      .getSimulatedDrives()
-      .find((drive) => drive.present)?.partition;
-    assert(partition);
-    void platform.mountPartition(partition.partPath);
-  }, 1_500);
-
   await apiClient.quickConfigure();
-  clearTimeout(mountDelay);
 
   expect(configure).toHaveBeenCalledTimes(1);
   expect(cardRoleAtConfigure).toEqual('election_manager');
   await expect(apiClient.getCardStatus()).resolves.toEqual({
     status: 'no_card',
+  });
+  await expect(
+    apiClient.getUsbDriveStatus({ purpose: 'data' })
+  ).resolves.toMatchObject({
+    status: 'removed',
   });
 });
 
@@ -725,12 +708,14 @@ test('quickConfigure stages the selected election package and keeps it selected'
   const electionPackage = electionFamousNames2021Fixtures.toElectionPackage();
 
   let cardDetailsAtConfigure: Optional<CardStatus>;
+  let configureDirectory: Optional<string>;
   const { apiClient, devDockDir } = setup(
     {
       quickConfigure: {
         unconfigure: () => Promise.resolve(),
-        configure: () => {
+        configure: (directory) => {
           cardDetailsAtConfigure = readFromMockFile().cardStatus;
+          configureDirectory = directory;
           return Promise.resolve();
         },
       },
@@ -740,28 +725,11 @@ test('quickConfigure stages the selected election package and keeps it selected'
   );
   await apiClient.setElection({ inputPath: packagePath });
 
-  // Stand in for the machine mounting the drive, which configuring waits for.
-  const platform = new SimulatedUsbPlatform(getMockUsbDirPath());
-  const mounter = setInterval(() => {
-    const partition = platform
-      .getSimulatedDrives()
-      .find((drive) => drive.present)?.partition;
-    if (partition && !partition.mountpoint) {
-      void platform.mountPartition(partition.partPath);
-    }
-  }, 10);
-
   await apiClient.quickConfigure();
-  clearInterval(mounter);
 
-  await expect(
-    apiClient.getUsbDriveStatus({ purpose: 'data' })
-  ).resolves.toMatchObject({
-    status: 'inserted',
-  });
-
-  // The machine finds the staged copy on the drive using its own reader.
-  const usbDriveDataPath = getMockUsbDriveHandler().getDataPath();
+  // The machine finds the staged copy in the directory it's given using its
+  // own reader.
+  const usbDriveDataPath = assertDefined(configureDirectory);
   const foundPath =
     await getMostRecentElectionPackageFilepath(usbDriveDataPath);
   expect(foundPath.unsafeUnwrap()).toEqual(

@@ -75,6 +75,83 @@ function addDiagnosticRecordAndLog(
   });
 }
 
+/**
+ * Configures the machine from the election package in `directory`, which is
+ * laid out like a USB drive.
+ */
+export async function configureElectionPackageFromDirectory(
+  {
+    auth,
+    logger,
+    workspace,
+  }: {
+    auth: InsertedSmartCardAuthApi;
+    logger: Logger;
+    workspace: Workspace;
+  },
+  directory: string
+): Promise<Result<ElectionDefinition, ElectionPackageConfigurationError>> {
+  const authStatus = await auth.getAuthStatus(
+    constructAuthMachineState(workspace)
+  );
+
+  const electionPackageResult = await readSignedElectionPackageFromDirectory(
+    authStatus,
+    directory,
+    logger,
+    { checkMarkScanSystemLimits: true }
+  );
+  if (electionPackageResult.isErr()) {
+    await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {
+      disposition: 'failure',
+      message: 'Error configuring machine.',
+      errorDetails: JSON.stringify(electionPackageResult.err()),
+    });
+    return electionPackageResult;
+  }
+  assert(isElectionManagerAuth(authStatus));
+  const { electionPackage, electionPackageHash, filePath } =
+    electionPackageResult.ok();
+  const { electionDefinition, systemSettings } = electionPackage;
+  assert(systemSettings);
+
+  const { election } = electionDefinition;
+
+  try {
+    // [TODO] Cancel the import if the user logs out while configuring,
+    // since large packages can take a while to import.
+    await workspace.store.getElectionPackageStore().importElectionPackage({
+      electionPackage,
+      electionPackageHash,
+      filePath,
+      jurisdiction: authStatus.user.jurisdiction,
+      logger,
+    });
+
+    workspace.store.withTransaction(() => {
+      workspace.store.startElectionSession();
+
+      if (election.pollingPlaces?.length === 1) {
+        workspace.store.setPollingPlaceId(
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          election.pollingPlaces[0]!.id
+        );
+      }
+    });
+  } catch (error) {
+    workspace.unconfigure();
+    throw error;
+  }
+
+  await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {
+    message: `Machine configured for election with hash: ${electionDefinition.ballotHash}`,
+    disposition: 'success',
+    ballotHash: electionDefinition.ballotHash,
+  });
+
+  return ok(electionDefinition);
+}
+
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function buildApi(
   auth: InsertedSmartCardAuthApi,
@@ -166,68 +243,12 @@ export function buildApi(
     async configureElectionPackageFromUsb(): Promise<
       Result<ElectionDefinition, ElectionPackageConfigurationError>
     > {
-      const authStatus = await auth.getAuthStatus(
-        constructAuthMachineState(workspace)
-      );
-
       const usbDriveStatus = await usbDrive.status();
       assert(usbDriveStatus.status === 'mounted', 'No USB drive mounted');
-      const electionPackageResult =
-        await readSignedElectionPackageFromDirectory(
-          authStatus,
-          usbDriveStatus.mountpoint,
-          logger,
-          { checkMarkScanSystemLimits: true }
-        );
-      if (electionPackageResult.isErr()) {
-        await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {
-          disposition: 'failure',
-          message: 'Error configuring machine.',
-          errorDetails: JSON.stringify(electionPackageResult.err()),
-        });
-        return electionPackageResult;
-      }
-      assert(isElectionManagerAuth(authStatus));
-      const { electionPackage, electionPackageHash, filePath } =
-        electionPackageResult.ok();
-      const { electionDefinition, systemSettings } = electionPackage;
-      assert(systemSettings);
-
-      const { election } = electionDefinition;
-
-      try {
-        // [TODO] Cancel the import if the user logs out while configuring,
-        // since large packages can take a while to import.
-        await workspace.store.getElectionPackageStore().importElectionPackage({
-          electionPackage,
-          electionPackageHash,
-          filePath,
-          jurisdiction: authStatus.user.jurisdiction,
-          logger,
-        });
-
-        workspace.store.withTransaction(() => {
-          workspace.store.startElectionSession();
-
-          if (election.pollingPlaces?.length === 1) {
-            workspace.store.setPollingPlaceId(
-              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-              election.pollingPlaces[0]!.id
-            );
-          }
-        });
-      } catch (error) {
-        workspace.unconfigure();
-        throw error;
-      }
-
-      await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {
-        message: `Machine configured for election with hash: ${electionDefinition.ballotHash}`,
-        disposition: 'success',
-        ballotHash: electionDefinition.ballotHash,
-      });
-
-      return ok(electionDefinition);
+      return configureElectionPackageFromDirectory(
+        { auth, logger, workspace },
+        usbDriveStatus.mountpoint
+      );
     },
 
     getPaperHandlerState(): SimpleServerStatus {

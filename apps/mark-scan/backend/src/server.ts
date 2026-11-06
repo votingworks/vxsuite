@@ -19,7 +19,11 @@ import {
   startCpuMetricsLogging,
 } from '@votingworks/backend';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
-import { buildApi, buildApp } from './app.js';
+import {
+  buildApi,
+  buildApp,
+  configureElectionPackageFromDirectory,
+} from './app.js';
 import type { Workspace } from './util/workspace.js';
 import { getPaperHandlerStateMachine } from './custom-paper-handler/state_machine.js';
 import { getDefaultAuth, getUserRole } from './util/auth.js';
@@ -139,8 +143,13 @@ export async function start({
   useDevDockRouter(app, express, {
     quickConfigure: {
       unconfigure: () => api.methods().unconfigureMachine(),
-      configure: async () => {
-        (await api.methods().configureElectionPackageFromUsb()).unsafeUnwrap();
+      configure: async (directory) => {
+        (
+          await configureElectionPackageFromDirectory(
+            { auth: resolvedAuth, logger, workspace },
+            directory
+          )
+        ).unsafeUnwrap();
       },
     },
   });
