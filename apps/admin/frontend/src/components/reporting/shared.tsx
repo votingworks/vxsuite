@@ -1,4 +1,4 @@
-import { Card, H3, H5, Icons } from '@votingworks/ui';
+import { Card, H3, Icons } from '@votingworks/ui';
 import styled from 'styled-components';
 import { routerPaths } from '../../router_paths.js';
 
@@ -6,10 +6,6 @@ export const ExportActions = styled.div`
   display: flex;
   justify-content: start;
   gap: 0.5rem;
-`;
-
-export const NoResultsNotice = styled(H5)`
-  margin-top: 2rem;
 `;
 
 export const GenerateButtonWrapper = styled.div`
