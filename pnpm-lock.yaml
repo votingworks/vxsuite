@@ -4057,18 +4057,9 @@ importers:
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../basics
-      '@votingworks/grout':
-        specifier: workspace:*
-        version: link:../grout
-      '@votingworks/logging':
-        specifier: workspace:*
-        version: link:../logging
       '@votingworks/types':
         specifier: workspace:*
         version: link:../types
-      '@votingworks/utils':
-        specifier: workspace:*
-        version: link:../utils
       buffer:
         specifier: ^6.0.3
         version: 6.0.3
@@ -4079,9 +4070,6 @@ importers:
       '@napi-rs/cli':
         specifier: ^3.5.1
         version: 3.5.1(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)(@types/node@24.19.2)(node-addon-api@8.3.1)(supports-color@8.1.1)
-      '@types/debug':
-        specifier: 4.1.12
-        version: 4.1.12
       '@types/node':
         specifier: 24.19.2
         version: 24.19.2
@@ -4097,9 +4085,6 @@ importers:
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../fixtures
-      '@votingworks/test-utils':
-        specifier: workspace:*
-        version: link:../test-utils
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
