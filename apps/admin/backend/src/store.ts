@@ -31,7 +31,9 @@ import {
   type ContestId,
   type ContestOptionId,
   type DiagnosticRecord,
+  type District,
   type DistrictId,
+  DistrictSchema,
   type Election,
   type ElectionDefinition,
   type Id,
@@ -65,6 +67,7 @@ import {
   type CandidateOrderings,
   unsafeParseJson,
   CandidateOrderingsSchema,
+  unsafeParse,
 } from '@votingworks/types';
 import {
   mkdirSync,
@@ -102,6 +105,8 @@ import {
 } from '@votingworks/backend';
 import type { BaseLogger } from '@votingworks/logging';
 import type {
+  DistrictsUpdate,
+  DuplicateDistrictError,
   ElectionInfo,
   ElectionInfoUpdate,
 } from '@votingworks/election-definition-backend';
@@ -168,6 +173,19 @@ interface DeleteCvrFileResult {
  * Path to the store's schema file, i.e. the file that defines the database.
  */
 const SchemaPath = join(import.meta.dirname, '../schema.sql');
+
+const NATURAL_SORT_COLLATOR = new Intl.Collator('en', { numeric: true });
+
+function isDuplicateDistrictNameError(error: unknown): boolean {
+  return (
+    error instanceof Error &&
+    'code' in error &&
+    error.code === 'SQLITE_CONSTRAINT_UNIQUE' &&
+    error.message.includes(
+      'design_districts.election_id, design_districts.name'
+    )
+  );
+}
 
 function convertSqliteTimestampToIso8601(
   sqliteTimestamp: string
@@ -4609,5 +4627,83 @@ export class Store implements BaseStore {
 
   deleteInProgressElection(): void {
     this.client.run('delete from design_elections');
+  }
+
+  listDistricts(electionId: ElectionId): District[] {
+    const districts = this.client.all(
+      `
+      select id, name
+      from design_districts
+      where election_id = ?
+    `,
+      electionId
+    ) as District[];
+    return districts.toSorted((a, b) =>
+      NATURAL_SORT_COLLATOR.compare(a.name, b.name)
+    );
+  }
+
+  updateDistricts(
+    input: DistrictsUpdate
+  ): Result<void, DuplicateDistrictError> {
+    const { electionId } = input;
+    return this.client.transaction(
+      (): Result<void, DuplicateDistrictError> => {
+        for (const districtId of input.deletedDistrictIds ?? []) {
+          this.client.run(
+            'delete from design_districts where id = ? and election_id = ?',
+            districtId,
+            electionId
+          );
+        }
+
+        for (const d of input.updatedDistricts ?? []) {
+          const district = unsafeParse(DistrictSchema, d);
+          const result = this.writeDistrict(district, () =>
+            assert(
+              this.client.one(
+                'update design_districts set name = ? where id = ? and election_id = ? returning id',
+                district.name,
+                district.id,
+                electionId
+              ),
+              'District not found'
+            )
+          );
+          if (result.isErr()) return result;
+        }
+
+        for (const d of input.newDistricts ?? []) {
+          const district = unsafeParse(DistrictSchema, d);
+          const result = this.writeDistrict(district, () =>
+            this.client.run(
+              'insert into design_districts (id, election_id, name) values (?, ?, ?)',
+              district.id,
+              electionId,
+              district.name
+            )
+          );
+          if (result.isErr()) return result;
+        }
+
+        return ok();
+      },
+      (result) => result.isOk()
+    );
+  }
+
+  private writeDistrict(
+    district: District,
+    write: () => void
+  ): Result<void, DuplicateDistrictError> {
+    try {
+      write();
+      return ok();
+    } catch (error) {
+      if (isDuplicateDistrictNameError(error)) {
+        return err({ code: 'duplicate-name', districtId: district.id });
+      }
+      throw error;
+    }
   }
 }
