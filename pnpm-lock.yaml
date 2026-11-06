@@ -1847,9 +1847,6 @@ importers:
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../../../libs/fixtures
-      '@votingworks/grout':
-        specifier: workspace:*
-        version: link:../../../libs/grout
       '@votingworks/integration-test-utils':
         specifier: workspace:*
         version: link:../../../libs/integration-test-utils

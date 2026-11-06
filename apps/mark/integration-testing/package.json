@@ -20,7 +20,6 @@
     "@votingworks/backend": "workspace:*",
     "@votingworks/basics": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
-    "@votingworks/grout": "workspace:*",
     "@votingworks/integration-test-utils": "workspace:*",
     "@votingworks/printing": "workspace:*",
     "@votingworks/types": "workspace:*",
