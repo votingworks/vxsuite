@@ -450,6 +450,33 @@ test('fileStore builds the import beside the live database', async () => {
   expect(existsSync(`${dbPath}.importing`)).toEqual(false);
 });
 
+test('importElectionPackage rejects an import while another is running', async () => {
+  const dbPath = join(makeTemporaryDirectory(), 'election-package.db');
+  const store = ElectionPackageStore.fileStore(
+    dbPath,
+    INCLUDE_ALL,
+    mockBaseLogger({ fn: vi.fn })
+  );
+  const packageToImport = await packageImport();
+
+  const firstImport = store.importElectionPackage(packageToImport);
+  await expect(
+    store.importElectionPackage({
+      ...packageToImport,
+      jurisdiction: 'jurisdiction-2',
+    })
+  ).rejects.toThrow('An election package import is already in progress');
+  await firstImport;
+  expect(store.getJurisdiction()).toEqual(jurisdiction);
+  expect(existsSync(`${dbPath}.importing`)).toEqual(false);
+
+  await store.importElectionPackage({
+    ...packageToImport,
+    jurisdiction: 'jurisdiction-2',
+  });
+  expect(store.getJurisdiction()).toEqual('jurisdiction-2');
+});
+
 test('fileStore leaves the live database read-only', async () => {
   const dbPath = join(makeTemporaryDirectory(), 'election-package.db');
   const store = ElectionPackageStore.fileStore(

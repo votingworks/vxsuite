@@ -1,7 +1,7 @@
 import { chmodSync, rmSync } from 'node:fs';
 import { Client } from '@votingworks/db';
 import { BaseLogger, LogSource } from '@votingworks/logging';
-import { assertDefined, DateWithoutTime } from '@votingworks/basics';
+import { assert, assertDefined, DateWithoutTime } from '@votingworks/basics';
 import {
   constructElectionKey,
   safeParseElection,
@@ -67,6 +67,7 @@ export class ElectionPackageStore<
 > {
   private cachedElectionRecord?: ElectionRecord | null;
   private cachedSystemSettings?: SystemSettings | null;
+  private isImporting = false;
 
   private readonly client: Client;
   private readonly include: I;
@@ -237,9 +238,25 @@ export class ElectionPackageStore<
    * Imports a whole election package, replacing whatever was imported before.
    * A file store builds the new database beside the live one, makes it
    * read-only, and swaps it in with one rename, so the live file is never
-   * written in place and a failed import leaves it untouched.
+   * written in place and a failed import leaves it untouched. Throws if
+   * another import is still running.
    */
   async importElectionPackage(input: ElectionPackageImport): Promise<void> {
+    assert(
+      !this.isImporting,
+      'An election package import is already in progress'
+    );
+    this.isImporting = true;
+    try {
+      await this.importElectionPackageExclusively(input);
+    } finally {
+      this.isImporting = false;
+    }
+  }
+
+  private async importElectionPackageExclusively(
+    input: ElectionPackageImport
+  ): Promise<void> {
     if (this.client.isMemoryDatabase()) {
       this.client.reset();
       await importInto(this.client, input, this.include);
