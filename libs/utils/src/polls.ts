@@ -90,25 +90,6 @@ export function getPollTransitionsFromState(
   }
 }
 
-// Used to determine, on VxMark, whether the polls state should be updated to
-// match the polls state on a precinct scanner card tally.
-export function isValidPollsStateChange(
-  prevState: PollsState,
-  newState: PollsState
-): boolean {
-  switch (prevState) {
-    case 'polls_closed_initial':
-      return newState === 'polls_open';
-    case 'polls_open':
-      return newState === 'polls_paused' || newState === 'polls_closed_final';
-    case 'polls_paused':
-      return newState === 'polls_open' || newState === 'polls_closed_final';
-    case 'polls_closed_final':
-      return false;
-    default:
-      throwIllegalValue(prevState);
-  }
-}
 export function getPollsTransitionActionPastTense(
   transitionType: PollsTransitionType
 ): string {
