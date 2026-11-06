@@ -1,7 +1,6 @@
 import type {
   ElectionDefinition,
   Id,
-  PageInterpretation,
   PollsState,
   PollsTransitionType,
   SheetInterpretationWithPages,
@@ -13,13 +12,6 @@ import type {
 export interface MachineConfig {
   machineId: string;
   codeVersion: string;
-}
-
-export interface PageInterpretationWithAdjudication<
-  T extends PageInterpretation = PageInterpretation,
-> {
-  interpretation: T;
-  contestIds?: readonly string[];
 }
 
 export type InterpretationResult = SheetInterpretationWithPages & {
