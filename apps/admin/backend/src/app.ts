@@ -92,7 +92,6 @@ import type {
   WriteInCandidateRecord,
   ImportElectionResultsReportingError,
   ManualResultsMetadata,
-  CastVoteRecordVoteInfo,
   AdjudicatedCvr,
   AdjudicationError,
   AppMode,
@@ -944,13 +943,6 @@ function buildApi({
       }
       adjudicateCvr(input, machineId, store, logger);
       return ok();
-    },
-
-    getCastVoteRecordVoteInfo(input: { cvrId: Id }): CastVoteRecordVoteInfo {
-      return store.getCastVoteRecordVoteInfo({
-        ...input,
-        electionId: loadCurrentElectionIdOrThrow(workspace),
-      });
     },
 
     getWriteInCandidates(

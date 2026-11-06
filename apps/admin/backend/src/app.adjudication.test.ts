@@ -1165,7 +1165,7 @@ test('handling unmarked write-ins', async () => {
 });
 
 test('adjudicating write-ins changes their status and is reflected in tallies', async () => {
-  const { auth, apiClient } = buildTestEnvironment();
+  const { auth, apiClient, workspace } = buildTestEnvironment();
   const electionDefinition =
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
   const { castVoteRecordExport } =
@@ -1212,8 +1212,10 @@ test('adjudicating write-ins changes their status and is reflected in tallies', 
     (o) => o.definition.id === 'write-in-0'
   );
   assert(writeInOption.writeInRecord !== undefined);
-  const initialVotes = (await apiClient.getCastVoteRecordVoteInfo({ cvrId }))
-    .votes;
+  const initialVotes = workspace.store.getCastVoteRecordVoteInfo({
+    electionId: assertDefined(workspace.store.getCurrentElectionId()),
+    cvrId,
+  }).votes;
 
   function formAdjudicatedCvrContest(
     overrides: Record<ContestOptionId, AdjudicatedContestOption>
@@ -1805,7 +1807,7 @@ test('qualified write-in candidate management', async () => {
 });
 
 test('qualified write-in mode: full flow with adjudication, tally reports, and candidate deletion', async () => {
-  const { auth, apiClient } = buildTestEnvironment();
+  const { auth, apiClient, workspace } = buildTestEnvironment();
   const electionDefinition =
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
   const { castVoteRecordExport } =
@@ -1891,8 +1893,10 @@ test('qualified write-in mode: full flow with adjudication, tally reports, and c
   });
 
   // Adjudicate a write-in for Alice
-  const initialVotes = (await apiClient.getCastVoteRecordVoteInfo({ cvrId }))
-    .votes;
+  const initialVotes = workspace.store.getCastVoteRecordVoteInfo({
+    electionId: assertDefined(workspace.store.getCurrentElectionId()),
+    cvrId,
+  }).votes;
   expect(
     await apiClient.adjudicateCvr({
       cvrId,
