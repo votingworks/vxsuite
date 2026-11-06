@@ -2909,9 +2909,6 @@ importers:
       combined-stream:
         specifier: ^1.0.8
         version: 1.0.8
-      debug:
-        specifier: 4.3.4
-        version: 4.3.4(supports-color@5.5.0)
       luxon:
         specifier: ^3.0.0
         version: 3.3.0
@@ -2931,9 +2928,6 @@ importers:
       '@types/combined-stream':
         specifier: ^1.0.3
         version: 1.0.3
-      '@types/debug':
-        specifier: 4.1.12
-        version: 4.1.12
       '@types/luxon':
         specifier: ^3.0.0
         version: 3.2.0
