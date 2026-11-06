@@ -148,23 +148,6 @@ export interface BallotPageQrCodeMetadata extends HmpbBallotPageMetadata {
   source: 'qr-code';
 }
 
-/** Represents partial timing marks found in a ballot card. */
-export interface PartialTimingMarks {
-  geometry: Geometry;
-  topLeftCorner: Point<SubPixelUnit>;
-  topRightCorner: Point<SubPixelUnit>;
-  bottomLeftCorner: Point<SubPixelUnit>;
-  bottomRightCorner: Point<SubPixelUnit>;
-  topRects: Rect[];
-  bottomRects: Rect[];
-  leftRects: Rect[];
-  rightRects: Rect[];
-  topLeftRect?: Rect;
-  topRightRect?: Rect;
-  bottomLeftRect?: Rect;
-  bottomRightRect?: Rect;
-}
-
 /** Represents complete, possibly inferred timing marks found in a ballot card. */
 export interface TimingMarks {
   geometry: Geometry;
@@ -321,20 +304,6 @@ export interface Quadrilateral {
   topRight: Point<SubPixelUnit>;
   bottomLeft: Point<SubPixelUnit>;
   bottomRight: Point<SubPixelUnit>;
-}
-
-// @coverage-defer
-export function getQuadrilateralBounds(q: Quadrilateral): Rect {
-  const left = Math.floor(Math.min(q.topLeft.x, q.bottomLeft.x));
-  const top = Math.floor(Math.min(q.topLeft.y, q.topRight.y));
-  const right = Math.ceil(Math.max(q.topRight.x, q.bottomRight.x));
-  const bottom = Math.ceil(Math.max(q.bottomLeft.y, q.bottomRight.y));
-  return {
-    left,
-    top,
-    width: right - left,
-    height: bottom - top,
-  };
 }
 
 /** A size in a grid. Units are typically either pixels or timing marks. */
