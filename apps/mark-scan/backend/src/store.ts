@@ -11,7 +11,7 @@ import {
   getMostRecentDiagnosticRecord,
   type ElectionPackageInclude,
 } from '@votingworks/backend';
-import { assert, type Optional } from '@votingworks/basics';
+import { assert, type Optional, type NotPromise } from '@votingworks/basics';
 import { Client as DbClient } from '@votingworks/db';
 import type { BaseLogger } from '@votingworks/logging';
 import {
@@ -94,8 +94,8 @@ export class Store {
    *
    * Returns the result of the function.
    */
-  withTransaction<T>(fn: () => T): T {
-    return this.client.transaction(() => fn());
+  withTransaction<T>(fn: () => NotPromise<T>): T {
+    return this.client.transaction(fn);
   }
 
   /**

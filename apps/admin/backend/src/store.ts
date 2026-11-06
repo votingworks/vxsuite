@@ -15,6 +15,7 @@ import {
   unique,
   deepEqual,
   throwIllegalValue,
+  type NotPromise,
 } from '@votingworks/basics';
 import {
   type BackupError,
@@ -386,7 +387,7 @@ export class Store implements BaseStore {
    *
    * Returns the result of the function.
    */
-  withTransaction<T>(fn: () => T): T {
+  withTransaction<T>(fn: () => NotPromise<T>): T {
     return this.client.transaction(fn, (result: T) => {
       if (isResult(result)) {
         return result.isOk();

@@ -25,6 +25,7 @@ import {
   assertDefined,
   find,
   type Optional,
+  type NotPromise,
 } from '@votingworks/basics';
 import { DateTime } from 'luxon';
 import { dirname, join } from 'node:path';
@@ -226,8 +227,8 @@ export class Store {
    *
    * Returns the result of {@link fn}.
    */
-  withTransaction<T>(fn: () => T): T {
-    return this.client.transaction(() => fn());
+  withTransaction<T>(fn: () => NotPromise<T>): T {
+    return this.client.transaction(fn);
   }
 
   getElectionPackageStore(): ElectionPackageStore<

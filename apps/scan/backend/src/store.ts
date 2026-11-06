@@ -28,6 +28,7 @@ import {
   assertDefined,
   type Optional,
   typedAs,
+  type NotPromise,
 } from '@votingworks/basics';
 import { DateTime } from 'luxon';
 import { join } from 'node:path';
@@ -206,8 +207,8 @@ export class Store {
    *
    * Returns the result of the function.
    */
-  withTransaction<T>(fn: () => T): T {
-    return this.client.transaction(() => fn());
+  withTransaction<T>(fn: () => NotPromise<T>): T {
+    return this.client.transaction(fn);
   }
 
   /**

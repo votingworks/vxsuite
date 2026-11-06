@@ -401,7 +401,7 @@ test('isInTransaction', () => {
   expect(client.isInTransaction()).toEqual(false);
 });
 
-test('transactions', async () => {
+test('transactions', () => {
   const client = Client.memoryClient();
 
   client.exec(
@@ -423,20 +423,6 @@ test('transactions', async () => {
       throw new Error('rollback');
     })
   ).toThrow('rollback');
-  expect(client.one('select count(*) as count from muppets')).toEqual({
-    count: 1,
-  });
-
-  // Should roll back on async exception:
-  await expect(() =>
-    client.transaction(() => {
-      client.run('insert into muppets (name) values (?)', 'Fozzie');
-      expect(client.one('select count(*) as count from muppets')).toEqual({
-        count: 2,
-      });
-      return Promise.reject(new Error('rollback'));
-    })
-  ).rejects.toThrow('rollback');
   expect(client.one('select count(*) as count from muppets')).toEqual({
     count: 1,
   });
@@ -470,18 +456,18 @@ test('transactions', async () => {
   });
 
   // Should commit if `shouldCommit` test returns true:
-  await expect(
+  expect(
     client.transaction(
       () => {
         client.run('insert into muppets (name) values (?)', 'Gonzo');
-        return Promise.resolve('another result');
+        return 'another result';
       },
       (result) => {
         expect(result).toEqual('another result');
         return true;
       }
     )
-  ).resolves.toEqual('another result');
+  ).toEqual('another result');
   expect(client.one('select count(*) as count from muppets')).toEqual({
     count: 3,
   });
@@ -931,4 +917,22 @@ test('backup surfaces a failure that is not a refusal or a cancellation', async 
   await expect(
     client.backup(join(makeTemporaryDirectory(), 'no-such-dir', 'snapshot.db'))
   ).rejects.toThrow('directory does not exist');
+});
+
+test('transaction rejects an async function', () => {
+  const client = Client.memoryClient();
+  client.run('create table t (id integer primary key)');
+
+  expect(() =>
+    client.transaction(
+      // @ts-expect-error - async bodies are rejected
+      async () => {
+        await Promise.resolve();
+      }
+    )
+  ).toThrowError(/synchronous/);
+
+  expect(client.isInTransaction()).toEqual(false);
+  client.run('insert into t (id) values (1)');
+  expect(client.one('select count(*) as count from t')).toEqual({ count: 1 });
 });

@@ -1,4 +1,10 @@
-import { assert, err, ok, type Result } from '@votingworks/basics';
+import {
+  assert,
+  err,
+  ok,
+  type Result,
+  type NotPromise,
+} from '@votingworks/basics';
 import { BaseLogger, LogEventId, LogSource } from '@votingworks/logging';
 import {
   isIntegrationTest,
@@ -334,46 +340,39 @@ export class Client {
    * If {@link shouldCommit} is specified, the transaction
    * will be committed only if {@link shouldCommit} returns true for the result
    * of {@link fn}.
+   *
+   * {@link fn} must be synchronous; do async work before or after it.
    */
-  transaction<T>(fn: () => T, shouldCommit?: (result: T) => boolean): T;
   transaction<T>(
-    fn: () => Promise<T>,
+    fn: () => NotPromise<T>,
     shouldCommit?: (result: T) => boolean
-  ): Promise<T>;
-  transaction<T>(
-    fn: () => T | Promise<T>,
-    shouldCommit?: (result: T) => boolean
-  ): T | Promise<T> {
+  ): T {
     this.run('begin transaction');
 
-    const concludeTransaction = (result: T): void => {
-      if (!shouldCommit || shouldCommit(result)) {
-        this.run('commit transaction');
-      } else {
-        this.run('rollback transaction');
-      }
-    };
-
+    let result: T;
     try {
-      const resultOrPromise = fn();
-
-      if (typeof (resultOrPromise as PromiseLike<T>)?.then === 'function') {
-        void (resultOrPromise as PromiseLike<T>).then(
-          concludeTransaction,
-          (error) => {
-            this.run('rollback transaction');
-            return error;
-          }
-        );
-      } else {
-        concludeTransaction(resultOrPromise as T);
-      }
-
-      return resultOrPromise;
+      result = fn();
     } catch (error) {
       this.run('rollback transaction');
       throw error;
     }
+
+    if (typeof (result as PromiseLike<T> | undefined)?.then === 'function') {
+      this.run('rollback transaction');
+      throw new TypeError(
+        'transaction() requires a synchronous function; its result is a ' +
+          'promise, which would leave the transaction open across awaits. ' +
+          'Move the asynchronous work outside the transaction.'
+      );
+    }
+
+    if (!shouldCommit || shouldCommit(result)) {
+      this.run('commit transaction');
+    } else {
+      this.run('rollback transaction');
+    }
+
+    return result;
   }
 
   /**

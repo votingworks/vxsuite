@@ -3,6 +3,9 @@
  */
 export type MaybePromise<T> = T | Promise<T>;
 
+/** Any type except a promise, to reject async callbacks where only sync ones are safe. */
+export type NotPromise<T> = T extends PromiseLike<unknown> ? never : T;
+
 /**
  * Represents an optional value where `undefined` is used when missing.
  */
