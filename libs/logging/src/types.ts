@@ -2,14 +2,13 @@ import {
   type Dictionary,
   EventLogging,
   type UserRole,
-  UserRoleSchema,
 } from '@votingworks/types';
 import { z } from 'zod/v4';
 import type { EnumValues } from '@votingworks/basics';
 import {
   AppName,
-  LogEventId,
-  LogEventType,
+  type LogEventId,
+  type LogEventType,
   LogSource,
 } from './log_event_enums.js';
 
@@ -35,29 +34,7 @@ export interface LogLine extends Dictionary<string> {
   timeLogInitiated?: string;
 }
 
-export const LogSourceSchema: z.ZodSchema<LogSource> = z.enum(LogSource);
 export const AppNameSchema: z.ZodSchema<AppName> = z.enum(AppName);
-export const LogEventIdSchema: z.ZodSchema<LogEventId> = z.enum(LogEventId);
-export const LogEventTypeSchema: z.ZodSchema<LogEventType> =
-  z.enum(LogEventType);
-export const LoggingUserRoleSchema: z.ZodSchema<LoggingUserRole> = z.union([
-  UserRoleSchema,
-  z.literal('vx-staff'),
-  z.literal('system'),
-  z.literal('unknown'),
-]);
-
-export const LogLineSchema: z.ZodSchema<LogLine> = z.object({
-  source: LogSourceSchema,
-  eventId: LogEventIdSchema,
-  eventType: LogEventTypeSchema,
-  user: LoggingUserRoleSchema,
-  disposition: z.string(),
-  message: z.string().optional(),
-  timeLogInitiated: z.string().optional(),
-  // this key is not required when writing logs but we want to make sure it is present when reading logs
-  timeLogWritten: z.string(),
-});
 
 export const DEVICE_TYPES_FOR_APP: Dictionary<EventLogging.DeviceType> = {
   [LogSource.VxAdminFrontend]: EventLogging.DeviceType.Ems,
