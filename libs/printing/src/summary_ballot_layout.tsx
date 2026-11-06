@@ -411,35 +411,3 @@ export class SummaryBallotLayoutRenderer {
     return pages;
   }
 }
-
-/**
- * Convenience function to compute page breaks for a single ballot.
- *
- * @param languageContext - Optional language context for rendering ballots
- *   in specific languages. When provided, measurements will use translations,
- *   ensuring accurate page breaks for non-English ballots.
- */
-export async function computeSummaryBallotLayoutWithRendering(
-  electionDefinition: ElectionDefinition,
-  ballotStyle: BallotStyle,
-  candidateOrderings: OptionalCandidateOrderings,
-  precinctId: string,
-  votes: VotesDict,
-  machineType: MachineType,
-  languageContext?: LanguageContext
-): Promise<SummaryBallotPageLayout[]> {
-  const renderer = new SummaryBallotLayoutRenderer();
-  try {
-    return await renderer.computePageBreaks(
-      electionDefinition,
-      ballotStyle,
-      candidateOrderings,
-      precinctId,
-      votes,
-      machineType,
-      languageContext
-    );
-  } finally {
-    await renderer.close();
-  }
-}
