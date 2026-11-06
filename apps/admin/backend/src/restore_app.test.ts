@@ -51,6 +51,10 @@ vi.mock(
   })
 );
 
+vi.mock(import('@votingworks/fs'), async () =>
+  (await import('../test/mock_fs.js')).mockFs()
+);
+
 vi.mock(
   import('./backup/restore/copy_step.js'),
   async (
@@ -84,6 +88,35 @@ function buildRestoreTestEnvironment() {
 
   mockSystemAdministratorAuth(auth);
 
+  /**
+   * Attaches a USB drive holding `backup`, as a backup drive would, and returns
+   * the backup's path on the mounted drive.
+   */
+  async function insertBackupDrive(backup: { path: string }): Promise<string> {
+    // A backup lives at `<root>/vxadmin-backups/<name>`; the drive gets the root.
+    await attachUsbDrive(
+      backupDriveClient,
+      usbPlatform,
+      dirname(dirname(backup.path)),
+      'ext4'
+    );
+    const listed = (await apiClient.listBackups()).unsafeUnwrap();
+    expect(listed).toHaveLength(1);
+    expect(listed[0]!.detailsResult.unsafeUnwrap()).toEqual({
+      machineId: DEV_MACHINE_ID,
+      createdAt: expect.stringMatching(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/),
+      cvrCount: 1,
+      election: {
+        id: election.id,
+        title: election.title,
+        date: election.date,
+        jurisdictionName: election.jurisdiction.name,
+        state: election.state,
+      },
+    });
+    return listed[0]!.path;
+  }
+
   return {
     auth,
     workspacePath,
@@ -92,6 +125,7 @@ function buildRestoreTestEnvironment() {
     backupDriveClient,
     server,
     usbPlatform,
+    insertBackupDrive,
   };
 }
 
@@ -106,42 +140,6 @@ afterEach(() => {
   env.server.close();
   vi.restoreAllMocks();
 });
-
-/**
- * Attaches a USB drive holding `backup`, as a backup drive would, and returns
- * the backup's path on the mounted drive.
- */
-async function insertBackupDrive(
-  backup: { path: string },
-  {
-    apiClient,
-    backupDriveClient,
-    usbPlatform,
-  }: ReturnType<typeof buildRestoreTestEnvironment>
-): Promise<string> {
-  // A backup lives at `<root>/vxadmin-backups/<name>`; the drive gets the root.
-  await attachUsbDrive(
-    backupDriveClient,
-    usbPlatform,
-    dirname(dirname(backup.path)),
-    'ext4'
-  );
-  const listed = (await apiClient.listBackups()).unsafeUnwrap();
-  expect(listed).toHaveLength(1);
-  expect(listed[0]!.detailsResult.unsafeUnwrap()).toEqual({
-    machineId: DEV_MACHINE_ID,
-    createdAt: expect.stringMatching(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/),
-    cvrCount: 1,
-    election: {
-      id: election.id,
-      title: election.title,
-      date: election.date,
-      jurisdictionName: election.jurisdiction.name,
-      state: election.state,
-    },
-  });
-  return listed[0]!.path;
-}
 
 function holdNextCopy() {
   const copyStarted = deferred<void>();
@@ -223,9 +221,9 @@ test('has no backups to offer without a USB drive', async () => {
 });
 
 test('restores a backup from the inserted USB drive and reports it as it runs', async () => {
-  const { apiClient, auth, workspacePath, logger } = env;
+  const { apiClient, auth, workspacePath, logger, insertBackupDrive } = env;
   const backup = await makeBackup();
-  const backupPath = await insertBackupDrive(backup, env);
+  const backupPath = await insertBackupDrive(backup);
   const { copyStarted, finishCopy } = holdNextCopy();
 
   // Restore mode has opened nothing in the workspace.
@@ -267,9 +265,9 @@ test('restores a backup from the inserted USB drive and reports it as it runs', 
 });
 
 test('a restore can be cancelled, and finishing it makes way for another', async () => {
-  const { apiClient, workspacePath } = env;
+  const { apiClient, workspacePath, insertBackupDrive } = env;
   const backup = await makeBackup();
-  const backupPath = await insertBackupDrive(backup, env);
+  const backupPath = await insertBackupDrive(backup);
   const { copyStarted, finishCopy } = holdNextCopy();
 
   await apiClient.startRestore({ backupPath });
@@ -310,8 +308,8 @@ test('passes on a drive whose backups directory is something else', async () => 
 });
 
 test('lists a backup whose manifest cannot be read alongside the rest', async () => {
-  const { apiClient } = env;
-  const backupPath = await insertBackupDrive(await makeBackup(), env);
+  const { apiClient, insertBackupDrive } = env;
+  const backupPath = await insertBackupDrive(await makeBackup());
   const unreadablePath = join(dirname(backupPath), 'unreadable');
   mkdirSync(unreadablePath);
 

@@ -30,6 +30,10 @@ vi.mock(
   })
 );
 
+vi.mock(import('@votingworks/fs'), async () =>
+  (await import('../test/mock_fs.js')).mockFs()
+);
+
 vi.mock(
   import('./backup/create/copy_step.js'),
   async (
@@ -42,30 +46,48 @@ vi.mock(
 
 const electionDefinition = readElectionGeneralDefinition();
 
-let env: ReturnType<typeof buildTestEnvironment>;
+let env: ReturnType<typeof buildBackupTestEnvironment>;
+
+function buildBackupTestEnvironment() {
+  const testEnv = buildTestEnvironment({ fileStore: true });
+  const { apiClient, usbPlatform } = testEnv;
+
+  async function attachBackupDrive(): Promise<string> {
+    await attachUsbDrive(
+      { getUsbDriveStatus: () => apiClient.getBackupDriveStatus() },
+      usbPlatform,
+      undefined,
+      'ext4'
+    );
+    const status = await apiClient.getBackupDriveStatus();
+    assert(status.status === 'mounted', 'backup drive did not mount');
+    return status.mountpoint;
+  }
+
+  async function waitForBackupToEnd() {
+    await vi.waitFor(
+      async () => {
+        expect((await apiClient.getBackupStatus())?.status).toEqual('ended');
+      },
+      { timeout: 10_000 }
+    );
+    const status = await apiClient.getBackupStatus();
+    assert(status?.status === 'ended');
+    return status;
+  }
+
+  return { ...testEnv, attachBackupDrive, waitForBackupToEnd };
+}
 
 beforeEach(() => {
   mockDiskSpace();
-  env = buildTestEnvironment({ fileStore: true });
+  env = buildBackupTestEnvironment();
   mockSystemAdministratorAuth(env.auth);
 });
 
 afterEach(() => {
   env.peerServer.close();
 });
-
-async function attachBackupDrive(): Promise<string> {
-  const { apiClient, usbPlatform } = env;
-  await attachUsbDrive(
-    { getUsbDriveStatus: () => apiClient.getBackupDriveStatus() },
-    usbPlatform,
-    undefined,
-    'ext4'
-  );
-  const status = await apiClient.getBackupDriveStatus();
-  assert(status.status === 'mounted', 'backup drive did not mount');
-  return status.mountpoint;
-}
 
 function holdNextCopy(): {
   copyStarted: Promise<void>;
@@ -92,21 +114,8 @@ function holdNextCopy(): {
   };
 }
 
-async function waitForBackupToEnd() {
-  const { apiClient } = env;
-  await vi.waitFor(
-    async () => {
-      expect((await apiClient.getBackupStatus())?.status).toEqual('ended');
-    },
-    { timeout: 10_000 }
-  );
-  const status = await apiClient.getBackupStatus();
-  assert(status?.status === 'ended');
-  return status;
-}
-
 test('the backup drive is reported separately from the data drive', async () => {
-  const { apiClient } = env;
+  const { apiClient, attachBackupDrive } = env;
   expect(await apiClient.getBackupDriveStatus()).toEqual({
     status: 'no_drive',
   });
@@ -123,12 +132,13 @@ test('the backup drive is reported separately from the data drive', async () => 
 });
 
 test('a backup is written to the backup drive and reported as it runs', async () => {
-  const { apiClient, auth, logger } = env;
+  const { apiClient, auth, logger, attachBackupDrive, waitForBackupToEnd } =
+    env;
   await configureMachine(apiClient, auth, electionDefinition);
   const mountpoint = await attachBackupDrive();
   const { copyStarted, finishCopy } = holdNextCopy();
 
-  expect(await env.apiClient.getBackupStatus()).toBeNull();
+  expect(await apiClient.getBackupStatus()).toBeNull();
   await apiClient.startBackup();
   await copyStarted;
   expect(await apiClient.getBackupStatus()).toEqual({
@@ -164,7 +174,7 @@ test('a backup is written to the backup drive and reported as it runs', async ()
 });
 
 test('a backup can be aborted while it runs', async () => {
-  const { apiClient, auth } = env;
+  const { apiClient, auth, attachBackupDrive, waitForBackupToEnd } = env;
   await configureMachine(apiClient, auth, electionDefinition);
   const mountpoint = await attachBackupDrive();
   const { copyStarted, finishCopy } = holdNextCopy();
@@ -194,7 +204,7 @@ test('a backup can be aborted while it runs', async () => {
 });
 
 test('finishing a backup clears its status so another can start', async () => {
-  const { apiClient, auth } = env;
+  const { apiClient, auth, attachBackupDrive, waitForBackupToEnd } = env;
   await configureMachine(apiClient, auth, electionDefinition);
   await attachBackupDrive();
 
@@ -211,7 +221,7 @@ test('finishing a backup clears its status so another can start', async () => {
 });
 
 test('getLastBackupOnDrive gets the last backup matching the current election', async () => {
-  const { apiClient, auth } = env;
+  const { apiClient, auth, attachBackupDrive, waitForBackupToEnd } = env;
   await configureMachine(apiClient, auth, electionDefinition);
   expect((await apiClient.getLastBackupOnDrive()).unsafeUnwrap()).toBeNull();
   await attachBackupDrive();
@@ -257,7 +267,7 @@ test('getLastBackupOnDrive gets the last backup matching the current election', 
 });
 
 test('getLastBackupOnDrive returns errors', async () => {
-  const { apiClient, auth } = env;
+  const { apiClient, auth, attachBackupDrive } = env;
   await configureMachine(apiClient, auth, electionDefinition);
   const mountpoint = await attachBackupDrive();
   const backupsPath = join(mountpoint, 'vxadmin-backups');
