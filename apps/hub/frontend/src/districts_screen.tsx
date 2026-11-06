@@ -1,46 +1,14 @@
-import React from 'react';
+import { H1 } from '@votingworks/ui';
 import { Switch, Route, useParams, useHistory } from 'react-router-dom';
-import styled from 'styled-components';
-import { assertDefined } from '@votingworks/basics';
-import type { DuplicateDistrictError } from '@votingworks/hub-backend';
-import {
-  type District,
-  type DistrictId,
-  type ElectionId,
-  ElectionStringKey,
-} from '@votingworks/types';
-import {
-  Button,
-  Callout,
-  DesktopPalette,
-  H1,
-  Modal,
-  P,
-  useCurrentTheme,
-} from '@votingworks/ui';
-import {
-  FixedViewport,
-  FormBody,
-  FormFixed,
-  FormFooter,
-  generateId,
-  InputWithAudio,
-  ListActionsRow,
-  Tooltip,
-  TooltipContainer,
-} from '@votingworks/election-definition-ui';
+import { ElectionStringKey } from '@votingworks/types';
+import { DistrictsEditor } from '@votingworks/election-definition-ui';
 import { ElectionNavScreen, Header } from './nav_screen.js';
 import {
   type ElectionIdParams,
   electionParamRoutes,
   routes,
 } from './routes.js';
-import {
-  getBallotsFinalizedAt,
-  getElectionInfo,
-  listDistricts,
-  updateDistricts,
-} from './api.js';
+import { getBallotsFinalizedAt } from './api.js';
 import { useTitle } from './hooks/use_title.js';
 import { DistrictAudioPanel } from './district_audio_panel.js';
 

@@ -473,20 +473,6 @@ export const electionDefinitionApi = createElectionDefinitionApi(useApiClient, {
   invalidateElectionQueries,
 });
 
-export const updateDistricts = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.updateDistricts, {
-      async onSuccess(result, { electionId }) {
-        if (result.isOk()) {
-          await invalidateElectionQueries(queryClient, electionId);
-        }
-      },
-    });
-  },
-} as const;
-
 export const createPrecinct = {
   useMutation() {
     const apiClient = useApiClient();

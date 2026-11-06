@@ -1,3 +1,23 @@
+import React from 'react';
+import styled from 'styled-components';
+import { assertDefined } from '@votingworks/basics';
+import type { DuplicateDistrictError } from '@votingworks/election-definition-backend';
+import type { District, DistrictId, ElectionId } from '@votingworks/types';
+import {
+  Button,
+  Callout,
+  DesktopPalette,
+  Modal,
+  P,
+  useCurrentTheme,
+} from '@votingworks/ui';
+import { InputWithAudio } from './ballot_audio/input_with_audio.js';
+import { useElectionDefinitionApi } from './election_definition_context.js';
+import { FormBody, FormFixed, FormFooter } from './form_fixed.js';
+import { FixedViewport, ListActionsRow } from './layout.js';
+import { Tooltip, TooltipContainer } from './tooltip.js';
+import { generateId } from './utils.js';
+
 export interface DistrictsEditorProps {
   electionId: ElectionId;
   editing: boolean;
@@ -74,8 +94,10 @@ export function DistrictsEditor(props: DistrictsEditorProps): React.ReactNode {
   );
   const [isConfirmingDelete, setIsConfirmingDelete] = React.useState(false);
 
-  const electionInfoQuery = getElectionInfo.useQuery(electionId);
-  const savedDistrictsQuery = listDistricts.useQuery(electionId);
+  const api = useElectionDefinitionApi();
+
+  const electionInfoQuery = api.getElectionInfo.useQuery(electionId);
+  const savedDistrictsQuery = api.listDistricts.useQuery(electionId);
 
   // Reset form on initial and post-save fetches:
   React.useEffect(() => {
@@ -86,7 +108,7 @@ export function DistrictsEditor(props: DistrictsEditorProps): React.ReactNode {
     setUpdatedDistricts([...savedDistrictsQuery.data]);
   }, [savedDistrictsQuery.data]);
 
-  const updateDistrictsMutation = updateDistricts.useMutation();
+  const updateDistrictsMutation = api.updateDistricts.useMutation();
   const error = updateDistrictsMutation.data?.err();
 
   if (!savedDistrictsQuery.isSuccess || !electionInfoQuery.isSuccess) {
