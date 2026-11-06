@@ -5409,9 +5409,6 @@ importers:
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../fixtures
-      '@votingworks/fs':
-        specifier: workspace:*
-        version: link:../fs
       '@votingworks/logging':
         specifier: workspace:*
         version: link:../logging
