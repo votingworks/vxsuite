@@ -9,11 +9,7 @@ import { createImageData, rgbToGrayscale } from '@votingworks/image-utils';
 import { pdfToImages } from '@votingworks/image-utils/pdf';
 import type { RgbaImageData } from '@votingworks/types';
 import { BITS_PER_BYTE } from '@votingworks/message-coder';
-import { readFileSync } from 'node:fs';
-import type {
-  FujitsuThermalPrinterDriver,
-  FujitsuThermalPrinterDriverInterface,
-} from './driver/driver.js';
+import type { FujitsuThermalPrinterDriverInterface } from './driver/driver.js';
 import type {
   CompressedBitImage,
   UncompressedBitImage,
@@ -339,16 +335,4 @@ export async function printPdf(
 
   await driver.setReplyParameter(IDLE_REPLY_PARAMETER);
   return ok();
-}
-
-// @coverage-defer
-export async function printFixture(
-  pdfFixturePath: string,
-  driver: FujitsuThermalPrinterDriver
-): Promise<void> {
-  const pdfData = readFileSync(pdfFixturePath);
-  const printResult = await printPdf(driver, pdfData);
-  if (printResult.isErr()) {
-    debug(`print failed on status: ${JSON.stringify(printResult.err())}`);
-  }
 }
