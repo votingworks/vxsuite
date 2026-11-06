@@ -11,7 +11,6 @@ import {
   type Id,
   IdSchema,
   type Iso8601Timestamp,
-  Iso8601TimestampSchema,
   DateWithoutTimeSchema,
 } from './generic.js';
 import {
@@ -159,17 +158,8 @@ export interface WriteInCandidate {
   readonly writeInIndex?: number;
   readonly partyIds?: readonly PartyId[];
 }
-export const WriteInCandidateSchema: z.ZodSchema<WriteInCandidate> = z.object({
-  id: WriteInIdSchema,
-  name: z.string().nonempty(),
-  isWriteIn: z.literal(true),
-  writeInIndex: z.number().int().nonnegative().optional(),
-  partyIds: z.array(PartyIdSchema).optional(),
-});
 
 export type OptionalCandidate = Optional<Candidate>;
-export const OptionalCandidateSchema: z.ZodSchema<OptionalCandidate> =
-  CandidateSchema.optional();
 
 // Contests
 export type ContestId = Id;
@@ -645,17 +635,6 @@ export interface GridPositionOption {
   readonly optionId: Id;
   readonly partyIds?: readonly PartyId[];
 }
-export const GridPositionOptionSchema: z.ZodSchema<GridPositionOption> =
-  z.object({
-    type: z.literal('option'),
-    sheetNumber: z.number().int().positive(),
-    side: z.union([z.literal('front'), z.literal('back')]),
-    column: z.number().nonnegative(),
-    row: z.number().nonnegative(),
-    contestId: ContestIdSchema,
-    optionId: IdSchema,
-    partyIds: z.array(PartyIdSchema).optional(),
-  });
 
 export interface GridPositionWriteIn {
   readonly type: 'write-in';
@@ -670,23 +649,8 @@ export interface GridPositionWriteIn {
   /** Grid coordinates of the write-in area, used to detect unmarked write-ins. */
   readonly writeInArea: Rect;
 }
-export const GridPositionWriteInSchema: z.ZodSchema<GridPositionWriteIn> =
-  z.object({
-    type: z.literal('write-in'),
-    sheetNumber: z.number().int().positive(),
-    side: z.union([z.literal('front'), z.literal('back')]),
-    column: z.number().nonnegative(),
-    row: z.number().nonnegative(),
-    contestId: ContestIdSchema,
-    writeInIndex: z.number().int().nonnegative(),
-    writeInArea: RectSchema,
-  });
 
 export type GridPosition = GridPositionOption | GridPositionWriteIn;
-export const GridPositionSchema: z.ZodSchema<GridPosition> = z.union([
-  GridPositionOptionSchema,
-  GridPositionWriteInSchema,
-]);
 
 // Declared without an explicit `z.ZodSchema<BallotStyle>` annotation (using
 // `satisfies` instead) so the inferred `ZodObject` type stays available for
@@ -717,7 +681,6 @@ export const BallotStylesSchema = z
   });
 
 export type JurisdictionId = Id;
-export const JurisdictionIdSchema: z.ZodSchema<JurisdictionId> = IdSchema;
 export interface Jurisdiction {
   readonly id: JurisdictionId;
   readonly name: string;
@@ -743,8 +706,6 @@ export const BmdBallotPaperSize = {
   Vsap150Thermal: 'vsap-150-thermal',
 } as const;
 export type BmdBallotPaperSize = EnumValues<typeof BmdBallotPaperSize>;
-export const BmdBallotPaperSizeSchema: z.ZodSchema<BmdBallotPaperSize> =
-  z.enum(BmdBallotPaperSize);
 
 export type BallotPaperSize = HmpbBallotPaperSize | BmdBallotPaperSize;
 
@@ -1115,8 +1076,6 @@ export const ElectionSchema = z
     }
   }) satisfies z.ZodType<Election>;
 export type OptionalElection = Optional<Election>;
-export const OptionalElectionSchema: z.ZodSchema<OptionalElection> =
-  ElectionSchema.optional();
 
 /**
  * @deprecated New usage of this type is highly discouraged. If being used as a
@@ -1234,8 +1193,6 @@ export const StraightPartyVoteSchema: z.ZodSchema<StraightPartyVote> =
   z.array(PartyIdSchema);
 
 export type OptionalYesNoVote = Optional<YesNoVote>;
-export const OptionalYesNoVoteSchema: z.ZodSchema<OptionalYesNoVote> =
-  YesNoVoteSchema.optional();
 export type Vote = CandidateVote | YesNoVote | StraightPartyVote;
 export const VoteSchema: z.ZodSchema<Vote> = z.union([
   CandidateVoteSchema,
@@ -1243,8 +1200,6 @@ export const VoteSchema: z.ZodSchema<Vote> = z.union([
   StraightPartyVoteSchema,
 ]);
 export type OptionalVote = Optional<Vote>;
-export const OptionalVoteSchema: z.ZodSchema<OptionalVote> =
-  VoteSchema.optional();
 export type VotesDict = Record<ContestId, Optional<Vote>>;
 export const VotesDictSchema: z.ZodSchema<VotesDict> = z.record(
   z.string(),
@@ -1501,7 +1456,6 @@ export const AdjudicationInfoSchema: z.ZodSchema<AdjudicationInfo> = z.object({
 });
 
 export type Side = 'front' | 'back';
-export const SideSchema = z.union([z.literal('front'), z.literal('back')]);
 
 export interface BatchInfo {
   id: string;
@@ -1542,24 +1496,3 @@ export type BallotCastingMode = z.infer<typeof BallotCastingModeSchema>;
 
 export const ScannerMachineTypeSchema = z.enum(['central', 'precinct']);
 export type ScannerMachineType = z.infer<typeof ScannerMachineTypeSchema>;
-
-export const BatchInfoSchema: z.ZodSchema<BatchInfo> = z.object({
-  id: IdSchema,
-  batchNumber: z.number().int().positive(),
-  label: z.string(),
-  startedAt: Iso8601TimestampSchema,
-  endedAt: z.optional(Iso8601TimestampSchema),
-  error: z.optional(z.string()),
-  count: z.number().nonnegative(),
-  ballotCastingMode: z.optional(BallotCastingModeSchema),
-  pollingPlaceId: IdSchema,
-});
-
-export interface CompletedBallot {
-  readonly ballotHash: string;
-  readonly ballotStyleId: BallotStyleId;
-  readonly precinctId: PrecinctId;
-  readonly votes: VotesDict;
-  readonly isTestMode: boolean;
-  readonly ballotType: BallotType;
-}
