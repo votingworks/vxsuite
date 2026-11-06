@@ -15,24 +15,6 @@ beforeEach(() => {
   vi.mocked(isMockPaperHandler).mockReturnValue(true);
 });
 
-test('getMockPaperHandlerStatus', () => {
-  const paperHandler = new MockPaperHandlerDriver();
-  const api = buildMockPaperHandlerApi({ paperHandler });
-
-  expect(api.getMockPaperHandlerStatus()).toEqual<MockPaperHandlerStatus>(
-    'noPaper'
-  );
-
-  paperHandler.setMockStatus('paperParked');
-  expect(api.getMockPaperHandlerStatus()).toEqual<MockPaperHandlerStatus>(
-    'paperParked'
-  );
-
-  // Expect no-op for non-mock paper handler:
-  vi.mocked(isMockPaperHandler).mockReturnValue(false);
-  expect(api.getMockPaperHandlerStatus()).toBeUndefined();
-});
-
 test('setMockPaperHandlerStatus', () => {
   const paperHandler = new MockPaperHandlerDriver();
   const api = buildMockPaperHandlerApi({ paperHandler });

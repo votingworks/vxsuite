@@ -11,14 +11,6 @@ export function buildMockPaperHandlerApi(params: {
   const { paperHandler } = params;
 
   return {
-    getMockPaperHandlerStatus(): MockPaperHandlerStatus | undefined {
-      if (!isMockPaperHandler(paperHandler)) {
-        return undefined;
-      }
-
-      return paperHandler.getMockStatus();
-    },
-
     setMockPaperHandlerStatus(input: {
       mockStatus: MockPaperHandlerStatus;
     }): void {
