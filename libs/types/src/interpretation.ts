@@ -145,11 +145,6 @@ export interface PageInterpretationWithFiles {
   imagePath: string;
   interpretation: PageInterpretation;
 }
-export const PageInterpretationWithFilesSchema: z.ZodSchema<PageInterpretationWithFiles> =
-  z.object({
-    imagePath: z.string(),
-    interpretation: PageInterpretationSchema,
-  });
 
 export type InvalidInterpretationReasonInfo =
   | {
