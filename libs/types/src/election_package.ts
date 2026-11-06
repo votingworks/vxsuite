@@ -42,16 +42,6 @@ export interface ElectionPackage {
   uiStrings: UiStringsPackage;
 }
 
-export interface ElectionPackageWithHash {
-  electionPackage: ElectionPackage;
-  /**
-   * Hash of the raw election package data (in ZIP format, before it's parsed).
-   * This can be used to ensure that a machine has been configured with the
-   * correct election package.
-   */
-  electionPackageHash: string;
-}
-
 export interface BallotStyleData {
   ballotStyleId: BallotStyleId;
   contestIds: ContestId[];
