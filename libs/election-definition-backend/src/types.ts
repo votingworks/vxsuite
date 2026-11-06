@@ -1,6 +1,8 @@
 import type { DateWithoutTime } from '@votingworks/basics';
 import {
   DateWithoutTimeSchema,
+  type District,
+  type DistrictId,
   type ElectionId,
   ElectionIdSchema,
   type ElectionType,
@@ -47,3 +49,10 @@ export const ElectionInfoUpdateSchema = z.object({
   signatureCaption: z.string().optional(),
   languageCodes: z.array(LanguageCodeSchema),
 }) satisfies z.ZodType<ElectionInfoUpdate>;
+
+export interface DistrictsUpdate {
+  readonly electionId: ElectionId;
+  readonly deletedDistrictIds?: DistrictId[];
+  readonly newDistricts?: District[];
+  readonly updatedDistricts?: District[];
+}
