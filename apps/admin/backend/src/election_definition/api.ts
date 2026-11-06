@@ -7,6 +7,8 @@ import {
   type Result,
 } from '@votingworks/basics';
 import {
+  type DistrictsUpdate,
+  type DuplicateDistrictError,
   type ElectionDefinitionMethods,
   type ElectionInfo,
   type ElectionInfoUpdate,
@@ -18,7 +20,12 @@ import {
 } from '@votingworks/election-definition-backend';
 import * as grout from '@votingworks/grout';
 import { LogEventId, type Logger } from '@votingworks/logging';
-import { type ElectionId, LanguageCode, unsafeParse } from '@votingworks/types';
+import {
+  type District,
+  type ElectionId,
+  LanguageCode,
+  unsafeParse,
+} from '@votingworks/types';
 import { isSystemAdministratorAuth } from '@votingworks/utils';
 import { constructAuthMachineState } from '../util/auth.js';
 import type { Workspace } from '../util/workspace.js';
@@ -138,6 +145,36 @@ export function createElectionDefinitionApiMethods({
     getStateFeatures(input: ElectionInput): StateFeaturesConfig {
       loadInProgressElectionInfo(input);
       return assertDefined(getMachineState()).features;
+    },
+
+    listDistricts(input: ElectionInput): District[] {
+      loadInProgressElectionInfo(input);
+      return store.listDistricts(input.electionId);
+    },
+
+    async updateDistricts(
+      input: DistrictsUpdate
+    ): Promise<Result<void, DuplicateDistrictError>> {
+      loadInProgressElectionInfo(input);
+      const result = store.updateDistricts(input);
+      if (result.isErr()) {
+        await logger.logAsCurrentRole(
+          LogEventId.ElectionDefinitionDistrictsUpdated,
+          {
+            message: `Error updating districts for election definition ${input.electionId}: district ${result.err().districtId} has a duplicate name.`,
+            disposition: 'failure',
+          }
+        );
+        return result;
+      }
+      await logger.logAsCurrentRole(
+        LogEventId.ElectionDefinitionDistrictsUpdated,
+        {
+          message: `Updated districts for election definition ${input.electionId}.`,
+          disposition: 'success',
+        }
+      );
+      return result;
     },
   } as const;
 
