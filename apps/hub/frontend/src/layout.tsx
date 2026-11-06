@@ -42,14 +42,6 @@ export const TableActionsRow = styled(Row)`
   gap: 0.5rem;
 `;
 
-export const ListActionsRow = styled.div`
-  border-bottom: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid
-    ${(p) => p.theme.colors.outline};
-  display: flex;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-`;
-
 export const NestedTr = styled.tr`
   td:first-child {
     padding-left: 3rem;
