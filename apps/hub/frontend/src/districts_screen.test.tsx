@@ -94,7 +94,9 @@ test('adding districts to empty list', async () => {
   const history = renderScreen(electionId);
 
   await screen.findByRole('heading', { name: 'Districts' });
-  screen.getByText("You haven't added any districts to this election yet.");
+  await screen.findByText(
+    "You haven't added any districts to this election yet."
+  );
   expect(screen.getButton('Edit Districts')).toBeDisabled();
 
   // Add first district:
