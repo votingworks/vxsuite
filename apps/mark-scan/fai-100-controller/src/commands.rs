@@ -13,8 +13,6 @@ pub enum CommandError {
     UnexpectedDataLength(usize),
     #[error("Unexpected command ID received: {0:x}")]
     UnexpectedCommandId(u8),
-    #[error("Error occurred when sending keypress event")]
-    KeypressError(#[from] uinput::Error),
     #[error("Error occurred when converting button value from raw response")]
     InvalidButton(TryFromPrimitiveError<ButtonSignal>),
     #[error("Error occurred when converting sip/puff signal status value from raw response")]

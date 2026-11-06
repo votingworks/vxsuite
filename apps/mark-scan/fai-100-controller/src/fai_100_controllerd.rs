@@ -12,6 +12,7 @@ use commands::{
     SipAndPuffDeviceStatus, SipAndPuffSignalStatus, VersionResponse,
 };
 use daemon_utils::{run_no_op_event_loop, write_pid_file};
+use evdev::KeyCode;
 use std::{
     fs::OpenOptions,
     io::{self, Read, Write},
@@ -24,7 +25,6 @@ use std::{
     thread::sleep,
     time::{Duration, Instant},
 };
-use uinput::event::keyboard;
 use usb_device::UsbDevice;
 use virtual_keyboard::{VirtualKeyboard, create_keyboard};
 use vx_logging::{Disposition, EventId, EventType, Source, log, set_source};
@@ -268,49 +268,49 @@ struct CurrentStatus {
 }
 
 struct KeypressSpec {
-    key: keyboard::Key,
+    key: KeyCode,
     send_shift: bool,
 }
 
 const fn get_key_for_button_signal(signal: &ButtonSignal) -> Option<KeypressSpec> {
-    let key: keyboard::Key;
+    let key: KeyCode;
     let mut send_shift: bool = false;
 
     match signal {
         ButtonSignal::Select => {
-            key = keyboard::Key::Enter;
+            key = KeyCode::KEY_ENTER;
         }
         ButtonSignal::Left => {
-            key = keyboard::Key::Left;
+            key = KeyCode::KEY_LEFT;
         }
         ButtonSignal::Right => {
-            key = keyboard::Key::Right;
+            key = KeyCode::KEY_RIGHT;
         }
         ButtonSignal::Up => {
-            key = keyboard::Key::Up;
+            key = KeyCode::KEY_UP;
         }
         ButtonSignal::Down => {
-            key = keyboard::Key::Down;
+            key = KeyCode::KEY_DOWN;
         }
         ButtonSignal::Help => {
             send_shift = true;
-            key = keyboard::Key::R;
+            key = KeyCode::KEY_R;
         }
         ButtonSignal::RateDown => {
-            key = keyboard::Key::Comma;
+            key = KeyCode::KEY_COMMA;
         }
         ButtonSignal::RateUp => {
-            key = keyboard::Key::Dot;
+            key = KeyCode::KEY_DOT;
         }
         ButtonSignal::VolumeDown => {
-            key = keyboard::Key::Minus;
+            key = KeyCode::KEY_MINUS;
         }
         ButtonSignal::VolumeUp => {
-            key = keyboard::Key::Equal;
+            key = KeyCode::KEY_EQUAL;
         }
         ButtonSignal::Pause | ButtonSignal::Play => {
             send_shift = true;
-            key = keyboard::Key::P;
+            key = KeyCode::KEY_P;
         }
         ButtonSignal::NoButton => return None,
     }
@@ -322,7 +322,7 @@ fn send_keystroke(keypress: &KeypressSpec, keyboard: &mut impl VirtualKeyboard) 
     if let Err(err) = keyboard.send_keystroke(
         keypress.key,
         if keypress.send_shift {
-            &[keyboard::Key::LeftShift]
+            &[KeyCode::KEY_LEFTSHIFT]
         } else {
             &[]
         },
@@ -340,7 +340,7 @@ fn send_keystroke(keypress: &KeypressSpec, keyboard: &mut impl VirtualKeyboard) 
 fn handle_sip_or_puff_signal(
     signal_status: SipAndPuffSignalStatus,
     consecutive_count: &mut u8,
-    key: keyboard::Key,
+    key: KeyCode,
     keyboard: &mut impl VirtualKeyboard,
 ) {
     if signal_status == SipAndPuffSignalStatus::Active {
@@ -438,13 +438,13 @@ fn handle_status_response(
         handle_sip_or_puff_signal(
             new_sip_status,
             &mut current_status.consecutive_sip_active_count,
-            keyboard::Key::_1,
+            KeyCode::KEY_1,
             keyboard,
         );
         handle_sip_or_puff_signal(
             new_puff_status,
             &mut current_status.consecutive_puff_active_count,
-            keyboard::Key::_2,
+            KeyCode::KEY_2,
             keyboard,
         );
     }
@@ -570,7 +570,7 @@ mod tests {
     use super::*;
 
     struct MockKeyboard {
-        pub keystrokes: Vec<(keyboard::Key, Vec<keyboard::Key>)>,
+        pub keystrokes: Vec<(KeyCode, Vec<KeyCode>)>,
     }
 
     impl MockKeyboard {
@@ -582,11 +582,7 @@ mod tests {
     }
 
     impl VirtualKeyboard for MockKeyboard {
-        fn send_keystroke(
-            &mut self,
-            key: keyboard::Key,
-            modifiers: &[keyboard::Key],
-        ) -> Result<(), uinput::Error> {
+        fn send_keystroke(&mut self, key: KeyCode, modifiers: &[KeyCode]) -> std::io::Result<()> {
             self.keystrokes.push((key, modifiers.to_vec()));
             Ok(())
         }
@@ -657,7 +653,7 @@ mod tests {
 
         assert_eq!(
             mock_keyboard.keystrokes,
-            vec![(keyboard::Key::R, vec![keyboard::Key::LeftShift])]
+            vec![(KeyCode::KEY_R, vec![KeyCode::KEY_LEFTSHIFT])]
         );
     }
 
@@ -677,15 +673,12 @@ mod tests {
         handle_status_response(new_status, current_status, &mut mock_keyboard, &temp_dir())
             .unwrap();
 
-        assert_eq!(
-            mock_keyboard.keystrokes,
-            vec![(keyboard::Key::Left, vec![])]
-        );
+        assert_eq!(mock_keyboard.keystrokes, vec![(KeyCode::KEY_LEFT, vec![])]);
     }
 
     fn assert_requires_consecutive_statuses(
         active_status: fn() -> NotificationStatusResponse,
-        expected_key: keyboard::Key,
+        expected_key: KeyCode,
     ) {
         set_source(SOURCE);
         let mut mock_keyboard = MockKeyboard::new();
@@ -727,7 +720,7 @@ mod tests {
 
     fn assert_counter_resets_on_idle(
         active_status: fn() -> NotificationStatusResponse,
-        expected_key: keyboard::Key,
+        expected_key: KeyCode,
     ) {
         set_source(SOURCE);
         let mut mock_keyboard = MockKeyboard::new();
@@ -779,21 +772,21 @@ mod tests {
 
     #[test]
     fn test_sip_requires_consecutive_statuses() {
-        assert_requires_consecutive_statuses(sip_active_status, keyboard::Key::_1);
+        assert_requires_consecutive_statuses(sip_active_status, KeyCode::KEY_1);
     }
 
     #[test]
     fn test_puff_requires_consecutive_statuses() {
-        assert_requires_consecutive_statuses(puff_active_status, keyboard::Key::_2);
+        assert_requires_consecutive_statuses(puff_active_status, KeyCode::KEY_2);
     }
 
     #[test]
     fn test_sip_counter_resets_on_idle() {
-        assert_counter_resets_on_idle(sip_active_status, keyboard::Key::_1);
+        assert_counter_resets_on_idle(sip_active_status, KeyCode::KEY_1);
     }
 
     #[test]
     fn test_puff_counter_resets_on_idle() {
-        assert_counter_resets_on_idle(puff_active_status, keyboard::Key::_2);
+        assert_counter_resets_on_idle(puff_active_status, KeyCode::KEY_2);
     }
 }

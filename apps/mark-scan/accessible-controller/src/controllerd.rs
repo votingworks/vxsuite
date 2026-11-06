@@ -8,6 +8,7 @@
 
 use clap::Parser;
 use daemon_utils::{run_no_op_event_loop, write_pid_file};
+use evdev::KeyCode;
 use std::{
     io::{self, Read},
     path::PathBuf,
@@ -19,7 +20,6 @@ use std::{
     thread::sleep,
     time::Duration,
 };
-use uinput::event::keyboard;
 use vx_logging::{Disposition, EventId, EventType, Source, log, set_source};
 
 use crate::{
@@ -177,7 +177,7 @@ fn on_port_data_received(keyboard: &mut impl VirtualKeyboard, data: &[u8]) {
             if let Err(err) = keyboard.send_keystroke(
                 key,
                 if send_shift {
-                    &[keyboard::Key::LeftShift]
+                    &[KeyCode::KEY_LEFTSHIFT]
                 } else {
                     &[]
                 },
@@ -207,7 +207,7 @@ mod tests {
     use super::*;
 
     struct MockKeyboard {
-        pub keystrokes: Vec<(keyboard::Key, Vec<keyboard::Key>)>,
+        pub keystrokes: Vec<(KeyCode, Vec<KeyCode>)>,
     }
 
     impl MockKeyboard {
@@ -219,11 +219,7 @@ mod tests {
     }
 
     impl VirtualKeyboard for MockKeyboard {
-        fn send_keystroke(
-            &mut self,
-            key: keyboard::Key,
-            modifiers: &[keyboard::Key],
-        ) -> Result<(), uinput::Error> {
+        fn send_keystroke(&mut self, key: KeyCode, modifiers: &[KeyCode]) -> std::io::Result<()> {
             self.keystrokes.push((key, modifiers.to_vec()));
             Ok(())
         }
@@ -245,7 +241,7 @@ mod tests {
         on_port_data_received(&mut mock_keyboard, &data);
         assert_eq!(
             mock_keyboard.keystrokes,
-            vec![(keyboard::Key::R, vec![keyboard::Key::LeftShift])]
+            vec![(KeyCode::KEY_R, vec![KeyCode::KEY_LEFTSHIFT])]
         );
     }
 
@@ -263,9 +259,6 @@ mod tests {
             0x09,
         ];
         on_port_data_received(&mut mock_keyboard, &data);
-        assert_eq!(
-            mock_keyboard.keystrokes,
-            vec![(keyboard::Key::Left, vec![])]
-        );
+        assert_eq!(mock_keyboard.keystrokes, vec![(KeyCode::KEY_LEFT, vec![])]);
     }
 }

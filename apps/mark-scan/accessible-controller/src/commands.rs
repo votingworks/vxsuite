@@ -1,6 +1,9 @@
-use uinput::event::keyboard;
+use crc::{CRC_16_XMODEM, Crc};
+use evdev::KeyCode;
 
 use crate::device::{Action, Button};
+
+const CRC: Crc<u16> = Crc::<u16>::new(&CRC_16_XMODEM);
 
 #[derive(Debug, thiserror::Error)]
 pub enum CommandError {
@@ -12,8 +15,6 @@ pub enum CommandError {
     InvalidCommand(u8),
     #[error("Invalid action received: {0}")]
     InvalidAction(u8),
-    #[error("Error occurred when sending keypress event")]
-    KeypressError(#[from] uinput::Error),
     #[error("Button value invalid: {0}")]
     InvalidButton(u8),
     #[error("Invalid CRC16 value: expected {expected:x}, actual {actual:x}")]
@@ -45,7 +46,7 @@ impl From<EchoCommand<'_>> for Vec<u8> {
         bytes.push(CommandId::Echo as u8);
         bytes.extend_from_slice(&payload_length.to_be_bytes());
         bytes.extend(command.payload);
-        bytes.extend_from_slice(&crc16::State::<crc16::XMODEM>::calculate(&bytes).to_be_bytes());
+        bytes.extend_from_slice(&CRC.checksum(&bytes).to_be_bytes());
         bytes
     }
 }
@@ -82,9 +83,7 @@ impl<'a> TryFrom<&'a [u8]> for EchoCommand<'a> {
         validate_payload_length(payload_length, bytes, NON_PAYLOAD_BYTES)?;
 
         let expected_crc = u16::from_be_bytes([bytes[5], bytes[6]]);
-        let actual_crc = crc16::State::<crc16::XMODEM>::calculate(
-            &bytes[..PAYLOAD_OFFSET + payload_length as usize],
-        );
+        let actual_crc = CRC.checksum(&bytes[..PAYLOAD_OFFSET + payload_length as usize]);
 
         if expected_crc != actual_crc {
             return Err(CommandError::InvalidCrc {
@@ -112,7 +111,7 @@ impl From<ButtonStatusCommand> for Vec<u8> {
         bytes.extend_from_slice(&2u16.to_be_bytes());
         bytes.push(command.button as u8);
         bytes.push(command.action as u8);
-        bytes.extend_from_slice(&crc16::State::<crc16::XMODEM>::calculate(&bytes).to_be_bytes());
+        bytes.extend_from_slice(&CRC.checksum(&bytes).to_be_bytes());
         bytes
     }
 }
@@ -143,9 +142,7 @@ impl TryFrom<&[u8]> for ButtonStatusCommand {
         validate_payload_length(payload_length, bytes, NON_PAYLOAD_BYTES)?;
 
         let expected_crc = u16::from_be_bytes([bytes[5], bytes[6]]);
-        let actual_crc = crc16::State::<crc16::XMODEM>::calculate(
-            &bytes[..PAYLOAD_OFFSET + payload_length as usize],
-        );
+        let actual_crc = CRC.checksum(&bytes[..PAYLOAD_OFFSET + payload_length as usize]);
 
         if expected_crc != actual_crc {
             return Err(CommandError::InvalidCrc {
@@ -163,47 +160,47 @@ impl TryFrom<&[u8]> for ButtonStatusCommand {
     }
 }
 
-pub fn handle_command(data: &[u8]) -> Result<Option<(keyboard::Key, bool)>, CommandError> {
+pub fn handle_command(data: &[u8]) -> Result<Option<(KeyCode, bool)>, CommandError> {
     let ButtonStatusCommand { button, action } = data.try_into()?;
 
-    let key: keyboard::Key;
+    let key: KeyCode;
     let mut send_shift: bool = false;
     match action {
         Action::Pressed => match button {
             Button::Select => {
-                key = keyboard::Key::Enter;
+                key = KeyCode::KEY_ENTER;
             }
             Button::Left => {
-                key = keyboard::Key::Left;
+                key = KeyCode::KEY_LEFT;
             }
             Button::Right => {
-                key = keyboard::Key::Right;
+                key = KeyCode::KEY_RIGHT;
             }
             Button::Up => {
-                key = keyboard::Key::Up;
+                key = KeyCode::KEY_UP;
             }
             Button::Down => {
-                key = keyboard::Key::Down;
+                key = KeyCode::KEY_DOWN;
             }
             Button::Help => {
                 send_shift = true;
-                key = keyboard::Key::R;
+                key = KeyCode::KEY_R;
             }
             Button::RateDown => {
-                key = keyboard::Key::Comma;
+                key = KeyCode::KEY_COMMA;
             }
             Button::RateUp => {
-                key = keyboard::Key::Dot;
+                key = KeyCode::KEY_DOT;
             }
             Button::VolumeDown => {
-                key = keyboard::Key::Minus;
+                key = KeyCode::KEY_MINUS;
             }
             Button::VolumeUp => {
-                key = keyboard::Key::Equal;
+                key = KeyCode::KEY_EQUAL;
             }
             Button::Pause => {
                 send_shift = true;
-                key = keyboard::Key::P;
+                key = KeyCode::KEY_P;
             }
         },
         Action::Released => {
@@ -255,7 +252,7 @@ mod tests {
         ];
         assert_eq!(
             handle_command(&data).unwrap().unwrap(),
-            (keyboard::Key::R, true)
+            (KeyCode::KEY_R, true)
         );
     }
 
@@ -272,7 +269,7 @@ mod tests {
         ];
         assert_eq!(
             handle_command(&data).unwrap().unwrap(),
-            (keyboard::Key::Left, false)
+            (KeyCode::KEY_LEFT, false)
         );
     }
 }
