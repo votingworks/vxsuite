@@ -81,6 +81,7 @@ import {
   decodeQuickResultsMessage,
 } from '@votingworks/auth';
 import {
+  type DistrictsUpdate,
   type DuplicateDistrictError,
   type DuplicateElectionError,
   type ElectionDefinitionMethods,
@@ -556,12 +557,9 @@ export function buildApi(ctx: AppContext) {
       return store.listDistricts(input.electionId);
     },
 
-    async updateDistricts(input: {
-      electionId: ElectionId;
-      deletedDistrictIds?: string[];
-      newDistricts?: District[];
-      updatedDistricts?: District[];
-    }): Promise<Result<void, DuplicateDistrictError>> {
+    async updateDistricts(
+      input: DistrictsUpdate
+    ): Promise<Result<void, DuplicateDistrictError>> {
       return store.updateDistricts(input);
     },
 
