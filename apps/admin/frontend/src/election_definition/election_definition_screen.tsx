@@ -8,6 +8,7 @@ import {
 } from 'react-router-dom';
 import styled from 'styled-components';
 import {
+  DistrictsEditor,
   ElectionDefinitionContextProvider,
   ElectionInfoEditor,
 } from '@votingworks/election-definition-ui';
@@ -97,11 +98,23 @@ function DeleteElectionButton(): JSX.Element {
   );
 }
 
+function DistrictsTab({ electionId }: { electionId: ElectionId }): JSX.Element {
+  const [editing, setEditing] = useState(false);
+  return (
+    <DistrictsEditor
+      electionId={electionId}
+      editing={editing}
+      onEditingChange={setEditing}
+    />
+  );
+}
+
 function DefinitionScreen(): JSX.Element | null {
   const { electionId } = useParams<{ electionId: ElectionId }>();
   const getCurrentInProgressElectionQuery =
     getCurrentInProgressElection.useQuery();
   const infoPath = routerPaths.electionDefinitionInfo(electionId);
+  const districtsPath = routerPaths.electionDefinitionDistricts(electionId);
 
   if (!getCurrentInProgressElectionQuery.isSuccess) {
     return null;
@@ -113,13 +126,24 @@ function DefinitionScreen(): JSX.Element | null {
   return (
     <NavScreenLite navItems={NAV_ITEMS} backRouterPath={routerPaths.election}>
       <Container>
-        <TabBar tabs={[{ title: 'Election Info', path: infoPath }]} />
+        <TabBar
+          tabs={[
+            { title: 'Election Info', path: infoPath },
+            { title: 'Districts', path: districtsPath },
+          ]}
+        />
         <Switch>
           <Route exact path={routerPaths.electionDefinitionInfo(':electionId')}>
             <ElectionInfoEditor
               electionId={electionId}
               footerActions={<DeleteElectionButton />}
             />
+          </Route>
+          <Route
+            exact
+            path={routerPaths.electionDefinitionDistricts(':electionId')}
+          >
+            <DistrictsTab electionId={electionId} />
           </Route>
           <Redirect to={infoPath} />
         </Switch>

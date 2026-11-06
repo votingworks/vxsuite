@@ -11,6 +11,7 @@ import {
 } from '@votingworks/test-utils';
 import {
   type DippedSmartCardAuth,
+  type District,
   constructElectionKey,
   LanguageCode,
 } from '@votingworks/types';
@@ -165,6 +166,53 @@ test('Create New Election creates an election and opens Election Info', async ()
   expectCurrentInProgressElection(updatedElectionInfo);
   await userEvent.click(screen.getButton('Save'));
   await screen.findButton('Edit');
+});
+
+test('the Districts tab edits the election districts', async () => {
+  const district: District = { id: 'district-1', name: 'District 1' };
+  const renamedDistrict: District = { ...district, name: 'District A' };
+  expectCurrentInProgressElection(generalElectionInfo);
+  expectElectionInfoQueries(generalElectionInfo);
+  const history = renderScreen(routerPaths.electionDefinitionInfo(electionId));
+  await screen.findButton('Edit');
+
+  apiMock.apiClient.listDistricts
+    .expectCallWith({ electionId })
+    .resolves([district]);
+  await userEvent.click(screen.getByRole('tab', { name: 'Districts' }));
+  await screen.findByRole('tab', { name: 'Districts', selected: true });
+  expect(history.location.pathname).toEqual(
+    routerPaths.electionDefinitionDistricts(electionId)
+  );
+
+  await userEvent.click(await screen.findButton('Edit Districts'));
+  screen.getByRole('tab', { name: 'Districts', selected: true });
+  const input = screen.getByDisplayValue('District 1');
+  await userEvent.clear(input);
+  await userEvent.type(input, renamedDistrict.name);
+
+  apiMock.apiClient.updateDistricts
+    .expectCallWith({
+      electionId,
+      deletedDistrictIds: [],
+      newDistricts: [],
+      updatedDistricts: [renamedDistrict],
+    })
+    .resolves(ok());
+  expectCurrentInProgressElection(generalElectionInfo);
+  apiMock.apiClient.getElectionInfo
+    .expectCallWith({ electionId })
+    .resolves(generalElectionInfo);
+  apiMock.apiClient.listDistricts
+    .expectCallWith({ electionId })
+    .resolves([renamedDistrict]);
+  await userEvent.click(screen.getButton('Save'));
+
+  await screen.findButton('Edit Districts');
+  expect(history.location.pathname).toEqual(
+    routerPaths.electionDefinitionDistricts(electionId)
+  );
+  screen.getByDisplayValue('District A');
 });
 
 test('an election definition in progress is shown on the Election screen', async () => {
