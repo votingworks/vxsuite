@@ -14,21 +14,8 @@ const TIME_FORMAT_STRING = `yyyy${WORD_SEPARATOR}MM${WORD_SEPARATOR}dd${SUBSECTI
 
 export const ELECTION_PACKAGE_FOLDER = 'election-packages';
 export const SCANNER_RESULTS_FOLDER = 'cast-vote-records';
-export const SCANNER_BACKUPS_FOLDER = 'scanner-backups';
 export const REPORT_FOLDER = 'reports';
 export const TEST_FILE_PREFIX = 'TEST';
-
-/**
- * @deprecated
- */
-export const CAST_VOTE_RECORD_REPORT_FILENAME = 'cast-vote-record-report.json';
-
-export interface CastVoteRecordReportListing {
-  machineId: string;
-  numberOfBallots: number;
-  isTestModeResults: boolean;
-  timestamp: Date;
-}
 
 export interface CastVoteRecordExportDirectoryNameComponents {
   inTestMode: boolean;
