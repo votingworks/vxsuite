@@ -3,7 +3,11 @@ import { Button, LinkButton, SearchSelect, H1, Callout } from '@votingworks/ui';
 import { Redirect, Route, Switch, useParams } from 'react-router-dom';
 import type { ContestId, Contest } from '@votingworks/types';
 import styled from 'styled-components';
-import { FixedViewport, ListActionsRow, Row } from './layout.js';
+import {
+  FixedViewport,
+  Row,
+  ListActionsRow,
+} from '@votingworks/election-definition-ui';
 import { ElectionNavScreen, Header } from './nav_screen.js';
 import {
   type ElectionIdParams,

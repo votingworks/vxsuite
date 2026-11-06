@@ -24,8 +24,18 @@ import {
 
 import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
 
+import {
+  Row,
+  InputGroup,
+  FieldName,
+  FormBody,
+  FormErrorContainer,
+  FormFooter,
+  InputWithAudio,
+  generateId,
+} from '@votingworks/election-definition-ui';
 import { routes } from './routes.js';
-import { Row, Column, InputGroup, FieldName } from './layout.js';
+import { Column } from './layout.js';
 import {
   listDistricts,
   getStateFeatures,
@@ -36,17 +46,10 @@ import {
   getBallotsFinalizedAt,
   getElectionInfo,
 } from './api.js';
-import { generateId, replaceAtIndex } from './utils.js';
+import { replaceAtIndex } from './utils.js';
 import { SealImageInput } from './seal_image_input.js';
 import { SignatureImageInput } from './signature_image_input.js';
-import {
-  FormBody,
-  FormErrorContainer,
-  FormFixed,
-  FormFooter,
-  FormTitle,
-} from './form_fixed.js';
-import { InputWithAudio } from './ballot_audio/input_with_audio.js';
+import { FormFixed, FormTitle } from './form_fixed.js';
 
 function createBlankPrecinct(): Precinct {
   return {

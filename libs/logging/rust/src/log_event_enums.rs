@@ -489,5 +489,13 @@ pub enum EventId {
     AdminRestoreModeScheduled,
     #[serde(rename = "admin-restore-mode-entered")]
     AdminRestoreModeEntered,
+    #[serde(rename = "election-definition-created")]
+    ElectionDefinitionCreated,
+    #[serde(rename = "election-definition-info-updated")]
+    ElectionDefinitionInfoUpdated,
+    #[serde(rename = "election-definition-districts-updated")]
+    ElectionDefinitionDistrictsUpdated,
+    #[serde(rename = "election-definition-discarded")]
+    ElectionDefinitionDiscarded,
 }
 derive_display!(EventId);

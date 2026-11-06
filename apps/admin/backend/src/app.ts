@@ -18,11 +18,18 @@ import {
   isCombinedBallotPrimary,
   type DippedSmartCardAuth,
   type CandidateOrderings,
+  type District,
+  DistrictSchema,
+  type ElectionId,
+  LanguageCode,
+  unsafeParse,
 } from '@votingworks/types';
 import {
   assert,
   assertDefined,
+  DateWithoutTime,
   deferred,
+  extractErrorMessage,
   type Err,
   err,
   ok,
@@ -35,6 +42,17 @@ import {
   generateSignedHashValidationQrCodeValue,
   prepareSignatureFile,
 } from '@votingworks/auth';
+import {
+  type DistrictsUpdate,
+  type DuplicateDistrictError,
+  type ElectionDefinitionMethods,
+  type ElectionInfo,
+  type ElectionInfoUpdate,
+  ElectionInfoUpdateSchema,
+  type ElectionInput,
+  type StateCode,
+  type StateFeaturesConfig,
+} from '@votingworks/election-definition-backend';
 import * as grout from '@votingworks/grout';
 import type { Printer } from '@votingworks/printing';
 import { randomUUID } from 'node:crypto';
@@ -103,6 +121,10 @@ import type {
   BallotImages,
 } from './types.js';
 import { setRestoreState, type Workspace } from './util/workspace.js';
+import {
+  getMachineState,
+  isElectionDefinitionEnabled,
+} from './election_definition/state.js';
 import { getMachineConfig } from './machine_config.js';
 import { isMultiStationAdjudicationEnabled } from './multi_station_config.js';
 import type { MachineModeController } from './machine_mode.js';
@@ -206,6 +228,22 @@ function getCurrentElectionRecord(
   return electionRecord;
 }
 
+function blankElectionInfo(
+  electionId: ElectionId,
+  stateCode: StateCode
+): ElectionInfoUpdate {
+  return {
+    electionId,
+    type: 'general',
+    date: DateWithoutTime.today(),
+    title: '',
+    state: stateCode,
+    jurisdictionName: '',
+    seal: '',
+    languageCodes: [LanguageCode.ENGLISH],
+  };
+}
+
 function buildApi({
   auth,
   workspace,
@@ -297,7 +335,28 @@ function buildApi({
     });
   }
 
-  return grout.createApi({
+  async function requireElectionDefinitionAccess(): Promise<void> {
+    if (!isElectionDefinitionEnabled()) {
+      throw new grout.UserError('election-definition:disabled');
+    }
+    const authStatus = await auth.getAuthStatus(
+      constructAuthMachineState(workspace.store)
+    );
+    if (!isSystemAdministratorAuth(authStatus)) {
+      throw new grout.UserError('auth:forbidden');
+    }
+  }
+
+  function loadInProgressElectionInfo(input: ElectionInput): ElectionInfo {
+    const electionInfo = store.getInProgressElection();
+    assert(
+      electionInfo?.electionId === input.electionId,
+      'Election definition not found'
+    );
+    return electionInfo;
+  }
+
+  const methods = {
     getMachineConfig,
 
     getAppMode(): AppMode {
@@ -1733,6 +1792,147 @@ function buildApi({
       });
     },
 
+    isElectionDefinitionEnabled,
+
+    async getCurrentInProgressElection(): Promise<ElectionInfo | null> {
+      await requireElectionDefinitionAccess();
+      return store.getInProgressElection() ?? null;
+    },
+
+    async createInProgressElection(): Promise<ElectionId> {
+      await requireElectionDefinitionAccess();
+      const electionId = randomUUID();
+      try {
+        const { stateCode } = assertDefined(getMachineState());
+        assert(
+          store.getCurrentElectionId() === undefined,
+          'Cannot create an election definition while an election is configured.'
+        );
+        assert(
+          store.getInProgressElection() === undefined,
+          'An election definition already exists.'
+        );
+        store.createInProgressElection(
+          blankElectionInfo(electionId, stateCode)
+        );
+      } catch (error) {
+        await logger.logAsCurrentRole(LogEventId.ElectionDefinitionCreated, {
+          message: `Error creating election definition: ${extractErrorMessage(error)}`,
+          disposition: 'failure',
+        });
+        throw error;
+      }
+      await logger.logAsCurrentRole(LogEventId.ElectionDefinitionCreated, {
+        message: `Created election definition ${electionId}.`,
+        disposition: 'success',
+      });
+      return electionId;
+    },
+
+    async discardInProgressElection(): Promise<void> {
+      await requireElectionDefinitionAccess();
+      const electionInfo = store.getInProgressElection();
+      store.deleteInProgressElection();
+      await logger.logAsCurrentRole(LogEventId.ElectionDefinitionDiscarded, {
+        message: electionInfo
+          ? `Discarded election definition ${electionInfo.electionId}.`
+          : 'No election definition to discard.',
+        disposition: 'success',
+      });
+    },
+
+    async getElectionInfo(input: ElectionInput): Promise<ElectionInfo> {
+      await requireElectionDefinitionAccess();
+      return loadInProgressElectionInfo(input);
+    },
+
+    async updateElectionInfo(
+      input: ElectionInfoUpdate
+    ): Promise<Result<void, never>> {
+      await requireElectionDefinitionAccess();
+      try {
+        const electionInfoUpdate = unsafeParse(ElectionInfoUpdateSchema, input);
+        assert(
+          !electionInfoUpdate.isMiCombinedBallotPrimary,
+          'Combined ballot primaries are not supported.'
+        );
+        loadInProgressElectionInfo(electionInfoUpdate);
+        store.updateInProgressElectionInfo(electionInfoUpdate);
+      } catch (error) {
+        await logger.logAsCurrentRole(
+          LogEventId.ElectionDefinitionInfoUpdated,
+          {
+            message: `Error updating election info for election definition ${input.electionId}: ${extractErrorMessage(error)}`,
+            disposition: 'failure',
+          }
+        );
+        throw error;
+      }
+      await logger.logAsCurrentRole(LogEventId.ElectionDefinitionInfoUpdated, {
+        message: `Updated election info for election definition ${input.electionId}.`,
+        disposition: 'success',
+      });
+      return ok();
+    },
+
+    async getStateFeatures(input: ElectionInput): Promise<StateFeaturesConfig> {
+      await requireElectionDefinitionAccess();
+      loadInProgressElectionInfo(input);
+      return assertDefined(getMachineState()).features;
+    },
+
+    async listDistricts(input: ElectionInput): Promise<District[]> {
+      await requireElectionDefinitionAccess();
+      loadInProgressElectionInfo(input);
+      return store.listDistricts(input.electionId);
+    },
+
+    async updateDistricts(
+      input: DistrictsUpdate
+    ): Promise<Result<void, DuplicateDistrictError>> {
+      await requireElectionDefinitionAccess();
+      let result: Result<void, DuplicateDistrictError>;
+      try {
+        loadInProgressElectionInfo(input);
+        result = store.updateDistricts({
+          electionId: input.electionId,
+          deletedDistrictIds: input.deletedDistrictIds,
+          updatedDistricts: input.updatedDistricts?.map((district) =>
+            unsafeParse(DistrictSchema, district)
+          ),
+          newDistricts: input.newDistricts?.map((district) =>
+            unsafeParse(DistrictSchema, district)
+          ),
+        });
+      } catch (error) {
+        await logger.logAsCurrentRole(
+          LogEventId.ElectionDefinitionDistrictsUpdated,
+          {
+            message: `Error updating districts for election definition ${input.electionId}: ${extractErrorMessage(error)}`,
+            disposition: 'failure',
+          }
+        );
+        throw error;
+      }
+      if (result.isErr()) {
+        await logger.logAsCurrentRole(
+          LogEventId.ElectionDefinitionDistrictsUpdated,
+          {
+            message: `Error updating districts for election definition ${input.electionId}: district ${result.err().districtId} has a duplicate name.`,
+            disposition: 'failure',
+          }
+        );
+        return result;
+      }
+      await logger.logAsCurrentRole(
+        LogEventId.ElectionDefinitionDistrictsUpdated,
+        {
+          message: `Updated districts for election definition ${input.electionId}.`,
+          disposition: 'success',
+        }
+      );
+      return result;
+    },
     ...createSystemCallApi({
       usbDrive: usbDriveAdapter,
       logger,
@@ -1743,7 +1943,9 @@ function buildApi({
       getAuthStatus: () =>
         auth.getAuthStatus(constructAuthMachineState(workspace.store)),
     }),
-  });
+  } as const;
+
+  return grout.createApi(methods satisfies ElectionDefinitionMethods);
 }
 
 /**

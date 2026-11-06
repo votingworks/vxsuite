@@ -80,11 +80,17 @@ import {
   decryptAes256,
   decodeQuickResultsMessage,
 } from '@votingworks/auth';
+import {
+  type DistrictsUpdate,
+  type DuplicateDistrictError,
+  type DuplicateElectionError,
+  type ElectionDefinitionMethods,
+  getStateFeaturesConfig,
+  type StateFeaturesConfig,
+} from '@votingworks/election-definition-backend';
 import type {
   MainExportTaskMetadata,
   DuplicateContestError,
-  DuplicateDistrictError,
-  DuplicateElectionError,
   DuplicatePartyError,
   DuplicatePrecinctError,
   TestDecksTaskMetadata,
@@ -128,12 +134,7 @@ import {
   splitCandidateName,
   userCanAccessJurisdiction,
 } from './utils.js';
-import {
-  type StateFeaturesConfig,
-  getStateFeaturesConfig,
-  getUserFeaturesConfig,
-  type UserFeaturesConfig,
-} from './features.js';
+import { getUserFeaturesConfig, type UserFeaturesConfig } from './features.js';
 import { QaConfig } from './qa_config.js';
 import { rootDebug } from './debug.js';
 import * as ttsStrings from './tts_strings.js';
@@ -556,12 +557,9 @@ export function buildApi(ctx: AppContext) {
       return store.listDistricts(input.electionId);
     },
 
-    async updateDistricts(input: {
-      electionId: ElectionId;
-      deletedDistrictIds?: string[];
-      newDistricts?: District[];
-      updatedDistricts?: District[];
-    }): Promise<Result<void, DuplicateDistrictError>> {
+    async updateDistricts(
+      input: DistrictsUpdate
+    ): Promise<Result<void, DuplicateDistrictError>> {
       return store.updateDistricts(input);
     },
 
@@ -1252,7 +1250,10 @@ export function buildApi(ctx: AppContext) {
     ...ttsStrings.apiMethods(ctx),
   } as const;
 
-  return grout.createApi(methods, middlewares);
+  return grout.createApi(
+    methods satisfies ElectionDefinitionMethods,
+    middlewares
+  );
 }
 
 // Set up API endpoint that should NOT be behind oauth integration

@@ -25,8 +25,17 @@ import {
   getContests,
   type SheetPositions,
   type ContestPosition,
+  LanguageCode,
 } from '@votingworks/types';
-import { assert, assertDefined, find, typedAs } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  DateWithoutTime,
+  err,
+  find,
+  ok,
+  typedAs,
+} from '@votingworks/basics';
 import { join } from 'node:path';
 import { createHash } from 'node:crypto';
 import {
@@ -2483,5 +2492,203 @@ describe('withholding unadjudicated central scan ballots from tallies', () => {
         excludeWithheldBallots: true,
       }),
     ]).toHaveLength(3);
+  });
+});
+
+test('design election round trip', () => {
+  const store = Store.memoryStore(makeTemporaryDirectory());
+  expect(store.getInProgressElection()).toEqual(undefined);
+
+  const electionInfo = {
+    electionId: 'design-election',
+    type: 'general',
+    date: new DateWithoutTime('2026-11-03'),
+    title: 'General Election',
+    state: 'Demo State',
+    jurisdictionName: 'Demo County',
+    seal: '<svg>seal</svg>',
+    signatureImage: '<svg>signature</svg>',
+    signatureCaption: 'Clerk',
+    languageCodes: [LanguageCode.ENGLISH],
+  } as const;
+  store.createInProgressElection({
+    ...electionInfo,
+    languageCodes: [...electionInfo.languageCodes],
+  });
+  expect(store.getInProgressElection()).toEqual(electionInfo);
+
+  const {
+    signatureImage: _signatureImage,
+    signatureCaption: _signatureCaption,
+    ...withoutSignature
+  } = electionInfo;
+  store.updateInProgressElectionInfo({
+    ...withoutSignature,
+    type: 'primary',
+    title: 'Primary Election',
+    languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
+  });
+  expect(store.getInProgressElection()).toEqual({
+    ...withoutSignature,
+    type: 'primary',
+    title: 'Primary Election',
+    languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
+  });
+
+  store.deleteInProgressElection();
+  expect(store.getInProgressElection()).toEqual(undefined);
+});
+
+test('only one design election can exist', () => {
+  const store = Store.memoryStore(makeTemporaryDirectory());
+  const electionInfo = {
+    electionId: 'design-election',
+    type: 'general',
+    date: new DateWithoutTime('2026-11-03'),
+    title: '',
+    state: 'DEMO',
+    jurisdictionName: '',
+    seal: '',
+    languageCodes: [LanguageCode.ENGLISH],
+  } as const;
+  store.createInProgressElection({
+    ...electionInfo,
+    languageCodes: [...electionInfo.languageCodes],
+  });
+  expect(() =>
+    store.createInProgressElection({
+      ...electionInfo,
+      electionId: 'another-design-election',
+      languageCodes: [...electionInfo.languageCodes],
+    })
+  ).toThrow();
+
+  store.deleteInProgressElection();
+  store.createInProgressElection({
+    ...electionInfo,
+    electionId: 'another-design-election',
+    languageCodes: [...electionInfo.languageCodes],
+  });
+  expect(store.getInProgressElection()?.electionId).toEqual(
+    'another-design-election'
+  );
+});
+
+describe('design districts', () => {
+  const electionId = 'design-election';
+
+  function setUpStore(): Store {
+    const store = Store.memoryStore(makeTemporaryDirectory());
+    store.createInProgressElection({
+      electionId,
+      type: 'general',
+      date: new DateWithoutTime('2026-11-03'),
+      title: '',
+      state: 'DEMO',
+      jurisdictionName: '',
+      seal: '',
+      languageCodes: [LanguageCode.ENGLISH],
+    });
+    return store;
+  }
+
+  test('add, rename and delete districts', () => {
+    const store = setUpStore();
+    expect(store.listDistricts(electionId)).toEqual([]);
+
+    expect(
+      store.updateDistricts({
+        electionId,
+        newDistricts: [
+          { id: 'd10', name: 'District 10' },
+          { id: 'd2', name: 'District 2' },
+          { id: 'd1', name: 'District 1' },
+        ],
+      })
+    ).toEqual(ok());
+    expect(store.listDistricts(electionId)).toEqual([
+      { id: 'd1', name: 'District 1' },
+      { id: 'd2', name: 'District 2' },
+      { id: 'd10', name: 'District 10' },
+    ]);
+
+    expect(
+      store.updateDistricts({
+        electionId,
+        deletedDistrictIds: ['d1'],
+        updatedDistricts: [{ id: 'd2', name: 'District 1' }],
+        newDistricts: [{ id: 'd3', name: 'District 3' }],
+      })
+    ).toEqual(ok());
+    expect(store.listDistricts(electionId)).toEqual([
+      { id: 'd2', name: 'District 1' },
+      { id: 'd3', name: 'District 3' },
+      { id: 'd10', name: 'District 10' },
+    ]);
+  });
+
+  test('duplicate names roll back the whole update', () => {
+    const store = setUpStore();
+    const districts = [
+      { id: 'd1', name: 'District 1' },
+      { id: 'd2', name: 'District 2' },
+    ];
+    store
+      .updateDistricts({ electionId, newDistricts: districts })
+      .unsafeUnwrap();
+
+    expect(
+      store.updateDistricts({
+        electionId,
+        deletedDistrictIds: ['d2'],
+        newDistricts: [{ id: 'd3', name: 'District 1' }],
+      })
+    ).toEqual(err({ code: 'duplicate-name', districtId: 'd3' }));
+    expect(
+      store.updateDistricts({
+        electionId,
+        updatedDistricts: [{ id: 'd2', name: 'District 1' }],
+      })
+    ).toEqual(err({ code: 'duplicate-name', districtId: 'd2' }));
+    expect(store.listDistricts(electionId)).toEqual(districts);
+  });
+
+  test('rejects unknown and conflicting district ids', () => {
+    const store = setUpStore();
+    store
+      .updateDistricts({
+        electionId,
+        newDistricts: [{ id: 'd1', name: 'District 1' }],
+      })
+      .unsafeUnwrap();
+
+    expect(() =>
+      store.updateDistricts({
+        electionId,
+        updatedDistricts: [{ id: 'missing', name: 'District 2' }],
+      })
+    ).toThrow('District not found');
+    expect(() =>
+      store.updateDistricts({
+        electionId,
+        newDistricts: [{ id: 'd1', name: 'District 2' }],
+      })
+    ).toThrow();
+    expect(store.listDistricts(electionId)).toEqual([
+      { id: 'd1', name: 'District 1' },
+    ]);
+  });
+
+  test('deleting the election deletes its districts', () => {
+    const store = setUpStore();
+    store
+      .updateDistricts({
+        electionId,
+        newDistricts: [{ id: 'd1', name: 'District 1' }],
+      })
+      .unsafeUnwrap();
+
+    store.deleteInProgressElection();
+    expect(store.listDistricts(electionId)).toEqual([]);
   });
 });

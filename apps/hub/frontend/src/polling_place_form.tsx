@@ -17,18 +17,19 @@ import {
 } from '@votingworks/types';
 import { assertDefined, find, throwIllegalValue } from '@votingworks/basics';
 
-import { routes } from './routes.js';
-import { Row, InputGroup, FieldName } from './layout.js';
-import * as api from './api.js';
-import { generateId } from './utils.js';
 import {
+  Row,
+  InputGroup,
+  FieldName,
   FormBody,
   FormErrorContainer,
-  FormFixed,
   FormFooter,
-  FormTitle,
-} from './form_fixed.js';
-import { InputWithAudio } from './ballot_audio/input_with_audio.js';
+  InputWithAudio,
+  generateId,
+} from '@votingworks/election-definition-ui';
+import { routes } from './routes.js';
+import * as api from './api.js';
+import { FormFixed, FormTitle } from './form_fixed.js';
 
 export interface PollingPlaceFormProps {
   editing: boolean;

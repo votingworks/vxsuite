@@ -5,6 +5,10 @@ import type {
   ElectionUpload,
 } from '@votingworks/hub-backend';
 import type { NhStateBallotVariant } from '@votingworks/hmpb';
+import {
+  createElectionDefinitionApi,
+  generateId,
+} from '@votingworks/election-definition-ui';
 import * as grout from '@votingworks/grout';
 import {
   QueryClient,
@@ -23,7 +27,6 @@ import type {
   PrecinctSelection,
   TtsEditKey,
 } from '@votingworks/types';
-import { generateId } from './utils.js';
 
 export const BACKGROUND_TASK_POLLING_INTERVAL_MS = 1_000;
 export const VXQR_REFETCH_INTERVAL_MS = 1_000;
@@ -466,33 +469,9 @@ export const cloneElection = {
   },
 } as const;
 
-export const updateElectionInfo = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.updateElectionInfo, {
-      async onSuccess(result, { electionId }) {
-        if (result.isOk()) {
-          await invalidateElectionQueries(queryClient, electionId);
-        }
-      },
-    });
-  },
-} as const;
-
-export const updateDistricts = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.updateDistricts, {
-      async onSuccess(result, { electionId }) {
-        if (result.isOk()) {
-          await invalidateElectionQueries(queryClient, electionId);
-        }
-      },
-    });
-  },
-} as const;
+export const electionDefinitionApi = createElectionDefinitionApi(useApiClient, {
+  invalidateElectionQueries,
+});
 
 export const createPrecinct = {
   useMutation() {

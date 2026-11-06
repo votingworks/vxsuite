@@ -9,9 +9,7 @@ import {
 } from '@votingworks/ui';
 
 import {
-  BooleanEnvironmentVariableName,
   isElectionManagerAuth,
-  isFeatureFlagEnabled,
   isSystemAdministratorAuth,
   isVendorAuth,
 } from '@votingworks/utils';
@@ -47,8 +45,13 @@ import { ElectionDefinitionScreen } from '../election_definition/election_defini
 import { CvrDataRefresher } from './cvr_data_refresher.js';
 
 export function AppRoutes(): JSX.Element | null {
-  const { electionDefinition, electionPackageHash, machineConfig, auth } =
-    useContext(AppContext);
+  const {
+    electionDefinition,
+    electionPackageHash,
+    machineConfig,
+    auth,
+    isElectionDefinitionEnabled,
+  } = useContext(AppContext);
   const election = electionDefinition?.election;
   const apiClient = useApiClient();
   const checkPinMutation = checkPin.useMutation();
@@ -126,10 +129,8 @@ export function AppRoutes(): JSX.Element | null {
         <Route exact path={routerPaths.election}>
           {election ? <ElectionScreen /> : <UnconfiguredScreen />}
         </Route>
-        {isFeatureFlagEnabled(
-          BooleanEnvironmentVariableName.ENABLE_ADMIN_ELECTION_DESIGN
-        ) && (
-          <Route exact path={routerPaths.electionDefinition}>
+        {isElectionDefinitionEnabled && (
+          <Route path={routerPaths.electionDefinition}>
             <ElectionDefinitionScreen />
           </Route>
         )}

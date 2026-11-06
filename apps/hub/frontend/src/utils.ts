@@ -1,16 +1,5 @@
 import { assert } from '@votingworks/basics';
-import { customAlphabet } from 'nanoid';
 import useSoundLib from 'use-sound';
-
-const idGenerator = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz', 12);
-
-/**
- * Generates a URL-friendly and double-click-copy-friendly unique ID using a
- * cryptographically secure RNG.
- */
-export function generateId(): string {
-  return idGenerator();
-}
 
 /**
  * Returns a copy of the given array with the value at the specified index

@@ -11,6 +11,7 @@ import {
 import { userEvent } from '@testing-library/user-event';
 import { err, ok } from '@votingworks/basics';
 import type React from 'react';
+import { createMemoryHistory } from 'history';
 import {
   createMockApiClient,
   type MockApiClient,
@@ -24,15 +25,8 @@ import {
   within,
 } from '../test/react_testing_library.js';
 import { PollingPlaceForm } from './polling_place_form.js';
-import { AudioLinkButton } from './ballot_audio/audio_link_button.js';
-import { routes } from './routes.js';
-
-vi.mock('./ballot_audio/audio_link_button.js');
-
-const MOCK_AUDIO_BUTTON_ID = 'MockAudioLinkButton';
-vi.mocked(AudioLinkButton).mockImplementation(({ to }) => (
-  <span data-testid={MOCK_AUDIO_BUTTON_ID} data-href={to} />
-));
+import { electionParamRoutes, routes } from './routes.js';
+import { withRoute } from '../test/routing_helpers.js';
 
 const idFactory = makeIdFactory();
 const electionId = 'election1';
@@ -76,7 +70,7 @@ test('add polling place', async () => {
   expect(exit).toHaveBeenCalledOnce();
   exit.mockClear();
 
-  expect(screen.queryByTestId(MOCK_AUDIO_BUTTON_ID)).not.toBeInTheDocument();
+  expect(screen.queryButton('Preview or Edit Audio')).not.toBeInTheDocument();
   expect(screen.getAllByRole('radio')).toEqual([
     screen.getByRole('radio', { name: 'Absentee Voting', checked: false }),
     screen.getByRole('radio', { name: 'Early Voting', checked: false }),
@@ -132,6 +126,7 @@ test('view polling place', async () => {
   const api = createMockApiClient();
   setMockPrecincts(api, [precinct1, precinct2, precinct3]);
   setMockFinalizedState(api, false);
+  setMockAudioEnabled(api);
 
   const savedPlace: PollingPlace = {
     id: idFactory.next(),
@@ -141,7 +136,7 @@ test('view polling place', async () => {
   };
 
   const switchToEdit = vi.fn();
-  renderForm(
+  const { history } = renderForm(
     api,
     <PollingPlaceForm
       editing={false}
@@ -154,20 +149,18 @@ test('view polling place', async () => {
   );
 
   await screen.findByRole('heading', { name: 'Polling Place Info' });
-  api.assertComplete();
 
-  const nameInput = screen.getByLabelText('Name');
+  const nameInput = screen.getByDisplayValue(savedPlace.name);
   expect(nameInput).toBeDisabled();
-  expect(nameInput).toHaveValue(savedPlace.name);
 
-  const nameAudioButton = screen.getByTestId(MOCK_AUDIO_BUTTON_ID);
-  expect(nameAudioButton).toHaveAttribute(
-    'data-href',
+  await userEvent.click(await screen.findButton('Preview or Edit Audio'));
+  expect(history.location.pathname).toEqual(
     pollingPlaceRoutes.audio({
       placeId: savedPlace.id,
       stringKey: ElectionStringKey.POLLING_PLACE_NAME,
     })
   );
+  api.assertComplete();
 
   const placeTypes = screen.getAllByRole('radio');
   for (const type of placeTypes) expect(type).toBeDisabled();
@@ -198,6 +191,7 @@ test('editing disabled when finalized', async () => {
   const api = createMockApiClient();
   setMockPrecincts(api, [precinct1, precinct2, precinct3]);
   setMockFinalizedState(api, true);
+  setMockAudioEnabled(api);
 
   const savedPlace: PollingPlace = {
     id: idFactory.next(),
@@ -224,17 +218,17 @@ test('editing disabled when finalized', async () => {
   await screen.findByRole('heading', { name: 'Polling Place Info' });
   api.assertComplete();
 
-  expect(screen.queryButton(/edit/i)).not.toBeInTheDocument();
+  expect(screen.queryButton('Edit')).not.toBeInTheDocument();
   expect(screen.queryButton(/delete/i)).not.toBeInTheDocument();
 
-  expect(screen.getByLabelText('Name')).toBeDisabled();
+  expect(screen.getByDisplayValue(savedPlace.name)).toBeDisabled();
   expect(screen.getByRole('radio')).toBeDisabled();
 
   for (const precinctOption of screen.getAllByRole('checkbox')) {
     expect(precinctOption).toBeDisabled();
   }
 
-  screen.getByTestId(MOCK_AUDIO_BUTTON_ID);
+  await screen.findButton('Preview or Edit Audio');
 });
 
 test('edit polling place', async () => {
@@ -468,8 +462,23 @@ function mockSplit(partial: Partial<PrecinctSplit>): PrecinctSplit {
   return partial as PrecinctSplit;
 }
 
-function renderForm(api: MockApiClient, ui: React.ReactNode) {
-  return render(provideApi(api, ui));
+function renderForm(api: MockApiClient, ui: React.ReactElement) {
+  const history = createMemoryHistory({
+    initialEntries: [routes.election(electionId).pollingPlaces.root.path],
+  });
+  const result = render(
+    provideApi(
+      api,
+      withRoute(ui, { paramPath: electionParamRoutes.root.path, history })
+    )
+  );
+  return { history, result };
+}
+
+function setMockAudioEnabled(api: MockApiClient) {
+  api.getStateFeatures
+    .expectRepeatedCallsWith({ electionId })
+    .resolves({ AUDIO_ENABLED: true });
 }
 
 function setMockFinalizedState(api: MockApiClient, finalized: boolean) {

@@ -66,6 +66,7 @@
     "@votingworks/auth": "workspace:*",
     "@votingworks/backend": "workspace:*",
     "@votingworks/basics": "workspace:*",
+    "@votingworks/election-definition-backend": "workspace:*",
     "@votingworks/grout": "workspace:*",
     "@votingworks/hmpb": "workspace:*",
     "@votingworks/image-utils": "workspace:*",

@@ -260,6 +260,10 @@ export const LogEventId = {
   LiveReportingUrlViewer: 'live-report-viewed',
   AdminRestoreModeScheduled: 'admin-restore-mode-scheduled',
   AdminRestoreModeEntered: 'admin-restore-mode-entered',
+  ElectionDefinitionCreated: 'election-definition-created',
+  ElectionDefinitionInfoUpdated: 'election-definition-info-updated',
+  ElectionDefinitionDistrictsUpdated: 'election-definition-districts-updated',
+  ElectionDefinitionDiscarded: 'election-definition-discarded',
 } as const;
 export type LogEventId = (typeof LogEventId)[keyof typeof LogEventId];
 
@@ -1651,6 +1655,38 @@ const AdminRestoreModeEntered: LogDetails = {
   restrictInDocumentationToApps: [AppName.VxAdmin],
 };
 
+const ElectionDefinitionCreated: LogDetails = {
+  eventId: LogEventId.ElectionDefinitionCreated,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'A user created a new election definition to design, or failed to. Success or failure indicated by disposition.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
+const ElectionDefinitionInfoUpdated: LogDetails = {
+  eventId: LogEventId.ElectionDefinitionInfoUpdated,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'A user edited the election info (title, date, type, state, jurisdiction, seal, signature or languages) of the election definition being designed, or failed to. Success or failure indicated by disposition.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
+const ElectionDefinitionDistrictsUpdated: LogDetails = {
+  eventId: LogEventId.ElectionDefinitionDistrictsUpdated,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'A user added, renamed or deleted districts in the election definition being designed, or failed to. Success or failure indicated by disposition.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
+const ElectionDefinitionDiscarded: LogDetails = {
+  eventId: LogEventId.ElectionDefinitionDiscarded,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'A user discarded the election definition being designed.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
 export function getDetailsForEventId(eventId: LogEventId): LogDetails {
   switch (eventId) {
     case LogEventId.ElectionConfigured:
@@ -2027,6 +2063,14 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return AdminRestoreModeScheduled;
     case LogEventId.AdminRestoreModeEntered:
       return AdminRestoreModeEntered;
+    case LogEventId.ElectionDefinitionCreated:
+      return ElectionDefinitionCreated;
+    case LogEventId.ElectionDefinitionInfoUpdated:
+      return ElectionDefinitionInfoUpdated;
+    case LogEventId.ElectionDefinitionDistrictsUpdated:
+      return ElectionDefinitionDistrictsUpdated;
+    case LogEventId.ElectionDefinitionDiscarded:
+      return ElectionDefinitionDiscarded;
     default:
       throwIllegalValue(eventId);
   }

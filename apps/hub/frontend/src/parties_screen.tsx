@@ -11,6 +11,16 @@ import { Route, Switch, useParams, useHistory } from 'react-router-dom';
 import { ElectionStringKey, type Party } from '@votingworks/types';
 import type { DuplicatePartyError } from '@votingworks/hub-backend';
 import styled from 'styled-components';
+import {
+  TooltipContainer,
+  Tooltip,
+  FixedViewport,
+  FormBody,
+  FormFooter,
+  InputWithAudio,
+  generateId,
+  ListActionsRow,
+} from '@votingworks/election-definition-ui';
 import { ElectionNavScreen, Header } from './nav_screen.js';
 import {
   type ElectionIdParams,
@@ -19,13 +29,9 @@ import {
 } from './routes.js';
 import { getBallotsFinalizedAt, getElectionInfo, listParties } from './api.js';
 import { useTitle } from './hooks/use_title.js';
-import { generateId } from './utils.js';
 import * as api from './api.js';
-import { InputWithAudio } from './ballot_audio/input_with_audio.js';
-import { FormFixed, FormBody, FormFooter } from './form_fixed.js';
-import { FixedViewport, ListActionsRow } from './layout.js';
+import { FormFixed } from './form_fixed.js';
 import { PartyAudioPanel } from './party_audio_panel.js';
-import { TooltipContainer, Tooltip } from './tooltip.js';
 
 export function PartiesScreen(): JSX.Element {
   const { electionId } = useParams<ElectionIdParams>();

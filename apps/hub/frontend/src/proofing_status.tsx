@@ -16,8 +16,8 @@ import {
 import { format } from '@votingworks/utils';
 import type { BackgroundTask, ExportQaRun } from '@votingworks/hub-backend';
 
+import { InputGroup, Row } from '@votingworks/election-definition-ui';
 import { type ElectionIdParams, routes } from './routes.js';
-import { InputGroup, Row } from './layout.js';
 import * as api from './api.js';
 import { TaskProgress } from './task_progress.js';
 
