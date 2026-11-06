@@ -17,6 +17,21 @@ import { buildApp } from './app.js';
 import type { AudioCard, Player as AudioPlayer } from './audio/player.js';
 import { buildMockLogger } from '../test/app_helpers.js';
 
+vi.mock(import('@votingworks/usb-drive'), async (importActual) => {
+  const actual = await importActual();
+  const fixtures = await import('@votingworks/fixtures');
+  return {
+    ...actual,
+    detectUsbDriveFromEnv: ({ logger }) =>
+      actual.detectUsbDrive({
+        logger,
+        platform: new actual.SimulatedUsbPlatform(
+          fixtures.makeTemporaryDirectory()
+        ),
+      }),
+  };
+});
+
 vi.mock('./app');
 vi.mock('./barcodes', async () => {
   // vi.mock factories are hoisted above imports, so the top-level

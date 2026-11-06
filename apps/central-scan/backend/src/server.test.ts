@@ -20,6 +20,21 @@ import { createBatchScannerStateMachine } from './scanner.js';
 import { buildCentralScannerApp } from './app.js';
 import { start } from './server.js';
 
+vi.mock(import('@votingworks/usb-drive'), async (importActual) => {
+  const actual = await importActual();
+  const fixtures = await import('@votingworks/fixtures');
+  return {
+    ...actual,
+    detectUsbDriveFromEnv: ({ logger }) =>
+      actual.detectUsbDrive({
+        logger,
+        platform: new actual.SimulatedUsbPlatform(
+          fixtures.makeTemporaryDirectory()
+        ),
+      }),
+  };
+});
+
 test('logs device attach/un-attach events', () => {
   const auth = buildMockDippedSmartCardAuth(vi.fn);
   const workspace = createWorkspace(

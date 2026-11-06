@@ -15,6 +15,21 @@ import { createWorkspace, type Workspace } from './util/workspace.js';
 import { PORT } from './globals.js';
 import { buildApp } from './app.js';
 
+vi.mock(import('@votingworks/usb-drive'), async (importActual) => {
+  const actual = await importActual();
+  const fixtures = await import('@votingworks/fixtures');
+  return {
+    ...actual,
+    detectUsbDriveFromEnv: ({ logger }) =>
+      actual.detectUsbDrive({
+        logger,
+        platform: new actual.SimulatedUsbPlatform(
+          fixtures.makeTemporaryDirectory()
+        ),
+      }),
+  };
+});
+
 vi.mock('./app');
 let workspace!: Workspace;
 

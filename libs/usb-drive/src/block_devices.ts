@@ -1,8 +1,7 @@
-import type { ChildProcess } from 'node:child_process';
 import makeDebug from 'debug';
-import { promises as fs } from 'node:fs';
-import { assert, type Optional } from '@votingworks/basics';
-import { exec, spawn } from './exec.js';
+import { type FSWatcher, promises as fs, watch } from 'node:fs';
+import type { Optional } from '@votingworks/basics';
+import { exec } from './exec.js';
 import { getResolvedMediaMountDir } from './media_mount_dir.js';
 import {
   type UsbDiskDevPath,
@@ -259,64 +258,69 @@ export interface BlockDeviceChangeWatcher {
   stop(): void;
 }
 
-const MONITOR_DEBOUNCE_MS = 50;
-const MONITOR_RESTART_DELAY_MS = 1_000;
+const UDEV_DATA_DIR = '/run/udev/data';
+const BLOCK_DEVICE_ENTRY_PATTERN = /^b\d+:\d+$/;
+const CHANGE_DEBOUNCE_MS = 50;
+const WATCH_RETRY_DELAY_MS = 1_000;
 
+/**
+ * Calls `onDeviceChange` (debounced) whenever udev updates a block device's
+ * entry in its database, the same files `udevadm info --export-db` reads.
+ */
 export function createBlockDeviceChangeWatcher(
-  onDeviceChange: () => void
+  onDeviceChange: () => void,
+  udevDataDir = UDEV_DATA_DIR
 ): BlockDeviceChangeWatcher {
   let debounceTimer: ReturnType<typeof setTimeout> | undefined;
-  let restartTimer: ReturnType<typeof setTimeout> | undefined;
-  let monitorProcess: ChildProcess | undefined;
+  let retryTimer: ReturnType<typeof setTimeout> | undefined;
+  let watcher: FSWatcher | undefined;
   let stopped = false;
 
   function scheduleChange(): void {
     clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(onDeviceChange, MONITOR_DEBOUNCE_MS);
+    debounceTimer = setTimeout(onDeviceChange, CHANGE_DEBOUNCE_MS);
   }
 
-  function stop(): void {
-    stopped = true;
-    clearTimeout(debounceTimer);
-    clearTimeout(restartTimer);
-    monitorProcess?.kill();
+  function retryLater(): void {
+    if (!stopped) {
+      retryTimer = setTimeout(() => startWatching(true), WATCH_RETRY_DELAY_MS);
+    }
   }
 
-  function startMonitor(): void {
-    assert(!stopped, 'startMonitor called after stop');
-    const proc = spawn('udevadm', [
-      'monitor',
-      '--udev',
-      '--subsystem-match=block',
-    ]);
-    monitorProcess = proc;
-    proc.stdout.on('data', scheduleChange);
-    // Handle spawn errors (e.g. binary not found) so they don't go unhandled.
-    // The 'exit'/'close' event will fire after 'error' and trigger a restart.
-    proc.on('error', (err) => {
-      debug(`udevadm monitor process error: ${err}`);
+  function startWatching(isRetry: boolean): void {
+    try {
+      watcher = watch(udevDataDir, (_event, filename) => {
+        if (filename === null || BLOCK_DEVICE_ENTRY_PATTERN.test(filename)) {
+          scheduleChange();
+        }
+      });
+    } catch (error) {
+      debug(`cannot watch ${udevDataDir}: ${error}`);
+      retryLater();
+      return;
+    }
+
+    watcher.on('error', (error) => {
+      debug(`watcher for ${udevDataDir} failed: ${error}`);
+      watcher?.close();
+      watcher = undefined;
+      retryLater();
     });
-    proc.on('exit', () => {
-      monitorProcess = undefined;
-      if (!stopped) {
-        restartTimer = setTimeout(startMonitor, MONITOR_RESTART_DELAY_MS);
-      }
-    });
+
+    if (isRetry) {
+      scheduleChange();
+    }
   }
 
-  startMonitor();
-
-  // Ensure the child process is killed when the parent Node.js process exits,
-  // even if stop() is never called explicitly.
-  function onProcessExit(): void {
-    stop();
-  }
-  process.on('exit', onProcessExit);
+  startWatching(false);
 
   return {
     stop(): void {
-      stop();
-      process.off('exit', onProcessExit);
+      stopped = true;
+      clearTimeout(debounceTimer);
+      clearTimeout(retryTimer);
+      watcher?.close();
+      watcher = undefined;
     },
   };
 }
