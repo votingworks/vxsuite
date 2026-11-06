@@ -73,6 +73,7 @@ import type { BaseLogger } from '@votingworks/logging';
 import { type BallotTemplateId, generateBallotStyles } from '@votingworks/hmpb';
 import pg, { type DatabaseError } from 'pg';
 import {
+  type DuplicateDistrictError,
   type DuplicateElectionError,
   type ExternalElectionSource,
   generateId,
