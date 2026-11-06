@@ -42,10 +42,7 @@ export type {
   ExportQaRun,
   ExportQaStatus,
 } from './types.js';
-export type {
-  StateFeature,
-  StateFeaturesConfig,
-} from '@votingworks/election-definition-backend';
+export type { StateFeaturesConfig } from '@votingworks/election-definition-backend';
 export type { UserFeature, UserFeaturesConfig } from './features.js';
 export type { Api, AuthErrorCode, UnauthenticatedApi } from './app.js';
 export type { ConvertMsResultsError } from './convert_ms_results.js';
