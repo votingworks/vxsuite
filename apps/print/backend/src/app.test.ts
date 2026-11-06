@@ -24,7 +24,6 @@ import {
   testCdfBallotDefinition,
   DEFAULT_SYSTEM_SETTINGS,
   anyPollingPlace,
-  type BallotMode,
 } from '@votingworks/types';
 import {
   electionFamousNames2021Fixtures,
@@ -62,6 +61,7 @@ import {
 } from '../test/app.js';
 import type { Api } from './app.js';
 import type { Workspace } from './util/workspace.js';
+import type { BallotPrintEntry } from './types.js';
 
 const mockFeatureFlagger = getFeatureFlagMock();
 const PRINT_SETTLEMENT_WAIT_OPTIONS = {
@@ -127,6 +127,15 @@ let logger: MockLogger;
 let mockUsbDrive: MockUsbDrive;
 let mockPrinterHandler: MemoryPrinterHandler;
 let workspace: Workspace;
+
+function getStoredBallots(
+  input: { ballotType?: BallotType; languageCode?: LanguageCode } = {}
+): BallotPrintEntry[] {
+  return workspace.store.getBallots({
+    ...input,
+    ballotMode: workspace.store.getTestMode() ? 'test' : 'official',
+  });
+}
 
 beforeEach(() => {
   mockFeatureFlagger.enableFeatureFlag(
@@ -291,7 +300,7 @@ test('configureElectionPackageFromUsb reads to and writes from store', async () 
     electionPackageHash: expect.any(String),
   });
 
-  const storedBallots = await apiClient.getBallots({});
+  const storedBallots = getStoredBallots({});
   expect(storedBallots).toHaveLength(1);
   expect(storedBallots[0]).toMatchObject({
     ballotStyleId,
@@ -465,7 +474,7 @@ test('mode toggling', async () => {
 
   await apiClient.setTestMode({ testMode: true });
   expect(await apiClient.getTestMode()).toEqual(true);
-  expect(await apiClient.getBallots({})).not.toHaveLength(0);
+  expect(getStoredBallots({})).not.toHaveLength(0);
   expect(await apiClient.getBallotPrintCounts()).not.toHaveLength(0);
   expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
     LogEventId.ToggledTestMode,
@@ -550,7 +559,7 @@ test('unconfigureMachine clears election configuration', async () => {
 
   expect(await apiClient.getElectionRecord()).toBeNull();
   expect(await apiClient.getPollingPlaceId()).toBeNull();
-  expect(await apiClient.getBallots({})).toEqual([]);
+  expect(getStoredBallots({})).toEqual([]);
   expect(await apiClient.getTestMode()).toEqual(false);
   expect(workspace.store.getSystemSettings()).toBeUndefined();
   expect(logger.log).toHaveBeenCalledWith(
@@ -1176,12 +1185,10 @@ test('printAllBallotStyles prints every style and updates counts in a stable ord
     ballotOrder.set(`${c.precinctId}-${c.ballotStyleId}`, i);
   }
 
-  const allPrecinctBallots = (
-    await apiClient.getBallots({
-      ballotType: BallotType.Precinct,
-      languageCode: LanguageCode.ENGLISH,
-    })
-  )
+  const allPrecinctBallots = getStoredBallots({
+    ballotType: BallotType.Precinct,
+    languageCode: LanguageCode.ENGLISH,
+  })
     .slice()
     .sort(
       (a, b) =>
@@ -1214,12 +1221,10 @@ test('printAllBallotStyles prints every style and updates counts in a stable ord
     expect(c.totalCount).toEqual(1);
   }
 
-  const allAbsenteeBallots = (
-    await apiClient.getBallots({
-      ballotType: BallotType.Absentee,
-      languageCode: LanguageCode.ENGLISH,
-    })
-  )
+  const allAbsenteeBallots = getStoredBallots({
+    ballotType: BallotType.Absentee,
+    languageCode: LanguageCode.ENGLISH,
+  })
     .slice()
     .sort(
       (a, b) =>
@@ -1253,33 +1258,6 @@ test('printAllBallotStyles prints every style and updates counts in a stable ord
     expect(c.precinctCount).toEqual(1);
     expect(c.absenteeCount).toEqual(2);
     expect(c.totalCount).toEqual(3);
-  }
-});
-
-test('getBallots uses the machine ballot mode even if the request names one', async () => {
-  const {
-    famousNamesMultiLangElectionDefinition,
-    famousNamesMultiLangOfficialAndTestBallots,
-  } = sharedFixtures;
-  await configureMachine({
-    electionDefinition: famousNamesMultiLangElectionDefinition,
-    ballots: famousNamesMultiLangOfficialAndTestBallots,
-    apiClient,
-    auth,
-    mockUsbDrive,
-  });
-  await apiClient.setTestMode({ testMode: true });
-
-  const requestWithBallotMode: { ballotMode: BallotMode } = {
-    ballotMode: 'official',
-  };
-  const ballots = await apiClient.getBallots(
-    requestWithBallotMode as Parameters<typeof apiClient.getBallots>[0]
-  );
-
-  expect(ballots).not.toHaveLength(0);
-  for (const ballot of ballots) {
-    expect(ballot.ballotMode).toEqual('test');
   }
 });
 
