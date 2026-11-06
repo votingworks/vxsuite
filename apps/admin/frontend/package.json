@@ -53,7 +53,6 @@
     "assert": "^2.0.0",
     "browserify-zlib": "^0.2.0",
     "buffer": "^6.0.3",
-    "debug": "4.3.4",
     "events": "3.3.0",
     "history": "4.10.1",
     "http-proxy-middleware": "3.0.7",
@@ -68,15 +67,13 @@
     "setimmediate": "^1.0.5",
     "stream-browserify": "^3.0.0",
     "styled-components": "^5.3.11",
-    "util": "^0.12.4",
-    "zod": "4.6.6"
+    "util": "^0.12.4"
   },
   "devDependencies": {
     "@testing-library/dom": "^10.4.1",
     "@testing-library/react": "^16.3.3",
     "@testing-library/user-event": "^14.6.1",
     "@types/connect": "^3.4.35",
-    "@types/debug": "4.1.12",
     "@types/history": "4.7.11",
     "@types/kiosk-browser": "workspace:*",
     "@types/luxon": "^3.0.0",
@@ -85,7 +82,6 @@
     "@types/react": "18.3.3",
     "@types/react-dom": "18.3.0",
     "@types/react-router-dom": "^5.3.3",
-    "@types/readable-stream": "2.3.9",
     "@types/styled-components": "^5.1.26",
     "@vitejs/plugin-react": "^6.1.1",
     "@vitest/coverage-istanbul": "5.0.2",
