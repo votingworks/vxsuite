@@ -13,6 +13,8 @@ import {
 import {
   BallotPositionsStore,
   CandidateOrderingsStore,
+  readBallotPositions,
+  readCandidateOrderings,
 } from '../ballot_meta/store.js';
 import { EncodedBallotStore } from './encoded_ballot_store.js';
 import {
@@ -267,10 +269,6 @@ export class ElectionPackageStore<
   }
 }
 
-/**
- * Streams the package into `client` inside one transaction, which spans
- * awaits; nothing else may use `client` while this runs.
- */
 async function importInto(
   client: Client,
   {
@@ -289,56 +287,51 @@ async function importInto(
   const encodedBallotStore = new EncodedBallotStore(client);
   const uiStringsStore = createUiStringStore(client);
 
-  await client.transaction(async () => {
-    client.run('delete from election');
-    client.run(
-      `
-      insert into election (
-        election_data,
+  await withElectionPackageZip(filePath, async (zip) => {
+    const positions = include.ballotPositions
+      ? await readBallotPositions(zip, election, systemSettings)
+      : [];
+    const candidateOrderings = include.candidateOrderings
+      ? await readCandidateOrderings(zip, election, systemSettings)
+      : [];
+
+    client.transaction(() => {
+      client.run('delete from election');
+      client.run(
+        `
+        insert into election (
+          election_data,
+          jurisdiction,
+          ballot_hash,
+          election_package_hash
+        ) values (?, ?, ?, ?)
+        `,
+        electionDefinition.electionData,
         jurisdiction,
-        ballot_hash,
-        election_package_hash
-      ) values (?, ?, ?, ?)
-      `,
-      electionDefinition.electionData,
-      jurisdiction,
-      electionDefinition.ballotHash,
-      electionPackageHash
-    );
-    client.run('delete from system_settings');
-    client.run(
-      'insert into system_settings (data) values (?)',
-      JSON.stringify(systemSettings)
-    );
+        electionDefinition.ballotHash,
+        electionPackageHash
+      );
+      client.run('delete from system_settings');
+      client.run(
+        'insert into system_settings (data) values (?)',
+        JSON.stringify(systemSettings)
+      );
+      ballotPositionsStore.addPositions(positions);
+      candidateOrderingsStore.addCandidateOrderings(candidateOrderings);
 
-    if (include.uiStrings) {
-      configureUiStrings({ electionPackage, logger, store: uiStringsStore });
-    }
-
-    await withElectionPackageZip(filePath, async (zip) => {
-      if (include.ballots) {
-        await encodedBallotStore.importBallots(zip);
-      }
-      if (include.ballotPositions) {
-        await ballotPositionsStore.importPositions(
-          zip,
-          election,
-          systemSettings
-        );
-      }
-      if (include.candidateOrderings) {
-        await candidateOrderingsStore.importCandidateOrderings(
-          zip,
-          election,
-          systemSettings
-        );
-      }
       if (include.uiStrings) {
-        await configureUiStringAudioClipsStreaming({
-          zip,
-          store: uiStringsStore,
-        });
+        configureUiStrings({ electionPackage, logger, store: uiStringsStore });
       }
     });
+
+    if (include.ballots) {
+      await encodedBallotStore.importBallots(zip);
+    }
+    if (include.uiStrings) {
+      await configureUiStringAudioClipsStreaming({
+        zip,
+        store: uiStringsStore,
+      });
+    }
   });
 }
