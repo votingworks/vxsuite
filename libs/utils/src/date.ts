@@ -26,21 +26,6 @@ function* getShortMonthNames(): Generator<string> {
 }
 export const MONTHS_SHORT = [...getShortMonthNames()];
 
-function* getLongMonthNames(): Generator<string> {
-  const monthShortNameFormatter = new Intl.DateTimeFormat(undefined, {
-    month: 'long',
-  });
-  const year = new Date().getFullYear();
-  for (
-    let month = 0;
-    new Date(year, month, 1).getFullYear() === year;
-    month += 1
-  ) {
-    yield monthShortNameFormatter.format(new Date(year, month, 1));
-  }
-}
-export const MONTHS_LONG = [...getLongMonthNames()];
-
 export function formatTimeZoneName(date: DateTime): string {
   return find(
     new Intl.DateTimeFormat(undefined, {
@@ -72,32 +57,6 @@ export function formatFullDateTimeZone(
   }).format(date.toJSDate());
 }
 
-export function formatLongDate(date: DateTime, timeZone?: string): string {
-  return new Intl.DateTimeFormat(undefined, {
-    timeZone,
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric',
-  }).format(date.toJSDate());
-}
-
-export function formatShortDate(date: DateTime, timeZone?: string): string {
-  return new Intl.DateTimeFormat(undefined, {
-    timeZone,
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  }).format(date.toJSDate());
-}
-
-export function formatTime(date: DateTime): string {
-  return new Intl.DateTimeFormat(undefined, {
-    timeZone: date.zoneName,
-    hour: 'numeric',
-    minute: 'numeric',
-  }).format(date.toJSDate());
-}
-
 /**
  * Get days in given month and year.
  */
@@ -109,11 +68,4 @@ export function getDaysInMonth(year: number, month: number): DateTime[] {
     date = date.plus(Duration.fromObject({ day: 1 }));
   }
   return days;
-}
-
-/**
- * Returns current UTC unix timestamp (epoch) in seconds
- */
-export function utcTimestamp(): number {
-  return Math.round(Date.now() / 1000);
 }
