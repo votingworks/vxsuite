@@ -2,34 +2,6 @@ import { useEffect, useRef } from 'react';
 import type { UseQueryResult } from '@tanstack/react-query';
 import { deepEqual } from '@votingworks/basics';
 
-/**
- * Registers a handler that will be called whenever some external state changes
- * (based on a deep equality check).
- *
- * Think of this like an event listener for events that are triggered outside of
- * the on-screen UI (e.g. similar to how we can put an onChange handler on, say,
- * a button, for a user event that is triggered in the UI).
- *
- * @deprecated Move the external state to the backend and use the
- * useQueryChangeListener hook instead.
- */
-export function useExternalStateChangeListener<State>(
-  currentState: State,
-  changeHandler: (
-    newState: State,
-    previousState?: State
-  ) => void | Promise<void>
-): void {
-  const previousState = useRef<State>();
-
-  useEffect(() => {
-    if (!deepEqual(previousState.current, currentState)) {
-      void changeHandler(currentState, previousState.current);
-      previousState.current = currentState;
-    }
-  }, [currentState, changeHandler]);
-}
-
 function identity<T>(value: T): T {
   return value;
 }
