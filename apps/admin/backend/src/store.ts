@@ -39,7 +39,7 @@ import {
   type Precinct,
   type PrecinctId,
   safeParse,
-  safeParseElection,
+  parseValidatedElection,
   safeParseJson,
   type Side,
   type SystemSettings,
@@ -510,7 +510,7 @@ export class Store implements BaseStore {
       id: r.id,
       electionDefinition: {
         ballotHash: r.ballotHash,
-        election: safeParseElection(r.electionData).unsafeUnwrap(),
+        election: parseValidatedElection(r.electionData),
         electionData: r.electionData,
       },
       createdAt: convertSqliteTimestampToIso8601(r.createdAt),
@@ -568,7 +568,7 @@ export class Store implements BaseStore {
     ) as { ballotHash: string; electionData: string };
     const electionDefinition: ElectionDefinition = {
       ballotHash,
-      election: safeParseElection(electionData).unsafeUnwrap(),
+      election: parseValidatedElection(electionData),
       electionData,
     };
     this.cachedElection = { id: electionId, electionDefinition };

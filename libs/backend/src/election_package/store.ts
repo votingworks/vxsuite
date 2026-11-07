@@ -4,7 +4,7 @@ import { BaseLogger, LogSource } from '@votingworks/logging';
 import { assertDefined, DateWithoutTime } from '@votingworks/basics';
 import {
   constructElectionKey,
-  safeParseElection,
+  parseValidatedElection,
   safeParseSystemSettings,
   type ElectionDefinition,
   type ElectionKey,
@@ -175,7 +175,7 @@ export class ElectionPackageStore<
         ? {
             electionDefinition: {
               ballotHash: row.ballotHash,
-              election: safeParseElection(row.electionData).unsafeUnwrap(),
+              election: parseValidatedElection(row.electionData),
               electionData: row.electionData,
             },
             electionPackageHash: row.electionPackageHash,
