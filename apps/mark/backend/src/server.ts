@@ -11,7 +11,12 @@ import {
   isFeatureFlagEnabled,
   isIntegrationTest,
 } from '@votingworks/utils';
-import { buildApp, buildApi, type Context } from './app.js';
+import {
+  buildApp,
+  buildApi,
+  configureElectionPackageFromDirectory,
+  type Context,
+} from './app.js';
 import type { Workspace } from './util/workspace.js';
 import { getDefaultAuth, getUserRole } from './util/auth.js';
 import { BarcodeClient } from './barcodes/index.js';
@@ -101,8 +106,10 @@ export async function start({
       setMockPatInputConnected(connected),
     quickConfigure: {
       unconfigure: () => api.methods().unconfigureMachine(),
-      configure: async () => {
-        (await api.methods().configureElectionPackageFromUsb()).unsafeUnwrap();
+      configure: async (directory) => {
+        (
+          await configureElectionPackageFromDirectory(context, directory)
+        ).unsafeUnwrap();
       },
     },
   });

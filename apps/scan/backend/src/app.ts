@@ -77,6 +77,100 @@ import { getScannerResultsByPrecinctMemoized } from './util/results.js';
 
 export const BALLOT_AUDIT_ID_FILE_NAME = 'ballot-audit-id-secret-key.txt';
 
+/**
+ * Configures the machine from the election package in `directory`, which is
+ * laid out like a USB drive.
+ */
+export async function configureFromElectionPackageInDirectory(
+  {
+    audioPlayer,
+    auth,
+    logger,
+    workspace,
+  }: {
+    audioPlayer: AudioPlayerInterface;
+    auth: InsertedSmartCardAuthApi;
+    logger: Logger;
+    workspace: Workspace;
+  },
+  directory: string
+): Promise<Result<void, ElectionPackageConfigurationError>> {
+  const { store } = workspace;
+  assert(!store.hasElection(), 'Already configured');
+
+  const authStatus = await auth.getAuthStatus(
+    constructAuthMachineState(workspace.store)
+  );
+
+  const electionPackageResult = await readSignedElectionPackageFromDirectory(
+    authStatus,
+    directory,
+    logger
+  );
+
+  if (electionPackageResult.isErr()) {
+    await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {
+      disposition: 'failure',
+      message: 'Error configuring machine.',
+      errorDetails: JSON.stringify(electionPackageResult.err()),
+    });
+    return electionPackageResult;
+  }
+  assert(isElectionManagerAuth(authStatus));
+
+  const { electionPackage, electionPackageHash, filePath } =
+    electionPackageResult.ok();
+
+  const { electionDefinition, systemSettings } = electionPackage;
+  const { election } = electionDefinition;
+  assert(systemSettings);
+
+  try {
+    // [TODO] Cancel the import if the user logs out while configuring,
+    // since large packages can take a while to import.
+    await store.getElectionPackageStore().importElectionPackage({
+      electionPackage,
+      electionPackageHash,
+      filePath,
+      jurisdiction: authStatus.user.jurisdiction,
+      logger,
+    });
+    const ballotAuditIdSecretKey =
+      systemSettings.precinctScanEnableBallotAuditIds
+        ? await generateRandomAes256Key()
+        : undefined;
+
+    store.withTransaction(() => {
+      store.startElectionSession();
+
+      if (election.pollingPlaces?.length === 1) {
+        store.setPollingPlaceId(
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          election.pollingPlaces[0]!.id
+        );
+      }
+
+      if (ballotAuditIdSecretKey) {
+        store.setBallotAuditIdSecretKey(ballotAuditIdSecretKey);
+      }
+    });
+  } catch (error) {
+    workspace.unconfigure();
+    throw error;
+  }
+
+  await audioPlayer.setIsScreenReaderEnabled(
+    !systemSettings.precinctScanDisableScreenReaderAudio
+  );
+
+  await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {
+    message: `Machine configured for election with hash: ${electionDefinition.ballotHash}`,
+    disposition: 'success',
+    ballotHash: electionDefinition.ballotHash,
+  });
+  return ok();
+}
+
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function buildApi({
   audioPlayer,
@@ -160,83 +254,12 @@ export function buildApi({
     async configureFromElectionPackageOnUsbDrive(): Promise<
       Result<void, ElectionPackageConfigurationError>
     > {
-      assert(!store.hasElection(), 'Already configured');
-
-      const authStatus = await auth.getAuthStatus(
-        constructAuthMachineState(workspace.store)
-      );
-
       const usbDriveStatus = await usbDrive.status();
       assert(usbDriveStatus.status === 'mounted', 'No USB drive mounted');
-
-      const electionPackageResult =
-        await readSignedElectionPackageFromDirectory(
-          authStatus,
-          usbDriveStatus.mountpoint,
-          logger
-        );
-
-      if (electionPackageResult.isErr()) {
-        await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {
-          disposition: 'failure',
-          message: 'Error configuring machine.',
-          errorDetails: JSON.stringify(electionPackageResult.err()),
-        });
-        return electionPackageResult;
-      }
-      assert(isElectionManagerAuth(authStatus));
-
-      const { electionPackage, electionPackageHash, filePath } =
-        electionPackageResult.ok();
-
-      const { electionDefinition, systemSettings } = electionPackage;
-      const { election } = electionDefinition;
-      assert(systemSettings);
-
-      try {
-        // [TODO] Cancel the import if the user logs out while configuring,
-        // since large packages can take a while to import.
-        await store.getElectionPackageStore().importElectionPackage({
-          electionPackage,
-          electionPackageHash,
-          filePath,
-          jurisdiction: authStatus.user.jurisdiction,
-          logger,
-        });
-        const ballotAuditIdSecretKey =
-          systemSettings.precinctScanEnableBallotAuditIds
-            ? await generateRandomAes256Key()
-            : undefined;
-
-        store.withTransaction(() => {
-          store.startElectionSession();
-
-          if (election.pollingPlaces?.length === 1) {
-            store.setPollingPlaceId(
-              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-              election.pollingPlaces[0]!.id
-            );
-          }
-
-          if (ballotAuditIdSecretKey) {
-            store.setBallotAuditIdSecretKey(ballotAuditIdSecretKey);
-          }
-        });
-      } catch (error) {
-        workspace.unconfigure();
-        throw error;
-      }
-
-      await audioPlayer.setIsScreenReaderEnabled(
-        !systemSettings.precinctScanDisableScreenReaderAudio
+      return configureFromElectionPackageInDirectory(
+        { audioPlayer, auth, logger, workspace },
+        usbDriveStatus.mountpoint
       );
-
-      await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {
-        message: `Machine configured for election with hash: ${electionDefinition.ballotHash}`,
-        disposition: 'success',
-        ballotHash: electionDefinition.ballotHash,
-      });
-      return ok();
     },
 
     getConfig(): PrecinctScannerConfig {

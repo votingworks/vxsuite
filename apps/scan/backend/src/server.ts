@@ -15,7 +15,11 @@ import {
   isIntegrationTest,
 } from '@votingworks/utils';
 import type { FujitsuThermalPrinterInterface } from '@votingworks/fujitsu-thermal-printer';
-import { buildApi, buildApp } from './app.js';
+import {
+  buildApi,
+  buildApp,
+  configureFromElectionPackageInDirectory,
+} from './app.js';
 import { PORT } from './globals.js';
 import type { Workspace } from './util/workspace.js';
 import * as scanner from './scanner.js';
@@ -97,9 +101,9 @@ export async function start({
   useDevDockRouter(app, express, {
     quickConfigure: {
       unconfigure: () => api.methods().unconfigureElection(),
-      configure: async () => {
+      configure: async (directory) => {
         (
-          await api.methods().configureFromElectionPackageOnUsbDrive()
+          await configureFromElectionPackageInDirectory(context, directory)
         ).unsafeUnwrap();
       },
     },

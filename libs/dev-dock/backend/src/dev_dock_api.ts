@@ -15,7 +15,6 @@ import {
   assert,
   assertDefined,
   iter,
-  sleep,
   throwIllegalValue,
 } from '@votingworks/basics';
 import {
@@ -183,10 +182,11 @@ export interface QuickConfigureApi {
   /** Removes the app's current election configuration. */
   unconfigure: () => Promise<void>;
   /**
-   * Configures the app from the election package on the USB drive, throwing if
-   * it can't.
+   * Configures the app from the election package in `directory`, laid out like
+   * a USB drive, throwing if it can't. The dock never inserts the drive, since
+   * the app's frontend would then start a configure of its own.
    */
-  configure: () => Promise<void>;
+  configure: (directory: string) => Promise<void>;
 }
 
 export interface MockSpec {
@@ -317,27 +317,6 @@ async function insertCard(
 
 async function removeCard(): Promise<void> {
   await execFile(MOCK_CARD_SCRIPT_PATH, ['--card-type', 'no-card']);
-}
-
-const USB_DRIVE_MOUNT_TIMEOUT_MS = 5_000;
-const USB_DRIVE_MOUNT_POLL_INTERVAL_MS = 50;
-
-/**
- * Waits for the host app to mount the mock USB drive, which it does
- * asynchronously after noticing the drive was attached. Configuring reads the
- * election package from the mounted drive, so it can't start any earlier.
- */
-async function waitForUsbDriveToMount(
-  usbDriveHandler: MockUsbDriveHandler
-): Promise<void> {
-  const timeoutTime = Date.now() + USB_DRIVE_MOUNT_TIMEOUT_MS;
-  while (usbDriveHandler.status().status !== 'mounted') {
-    assert(
-      Date.now() < timeoutTime,
-      'Timed out waiting for the machine to mount the mock USB drive'
-    );
-    await sleep(USB_DRIVE_MOUNT_POLL_INTERVAL_MS);
-  }
 }
 
 interface PdiScannerSheetQueueStatus {
@@ -561,10 +540,8 @@ function buildApi(
 
       // Re-configure with the selected election.
       await insertCard('election_manager', devDockDir);
-      usbDriveHandler.insert();
       try {
-        await waitForUsbDriveToMount(usbDriveHandler);
-        await mockSpec.quickConfigure.configure();
+        await mockSpec.quickConfigure.configure(usbDriveHandler.getDataPath());
       } finally {
         await removeCard();
       }
