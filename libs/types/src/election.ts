@@ -873,8 +873,12 @@ export const ElectionSchema = z
   })
   .check((ctx) => {
     const election = ctx.value;
+    const definedDistrictIds = new Set(election.districts.map((d) => d.id));
+    const definedPartyIds = new Set(election.parties.map((p) => p.id));
+    const precinctsById = new Map(election.precincts.map((p) => [p.id, p]));
+    const contestsById = new Map(election.contests.map((c) => [c.id, c]));
     for (const [contestIndex, contest] of election.contests.entries()) {
-      if (!election.districts.some((d) => d.id === contest.districtId)) {
+      if (!definedDistrictIds.has(contest.districtId)) {
         ctx.issues.push({
           code: 'custom',
           path: ['contests', contestIndex, 'districtId'],
@@ -893,7 +897,7 @@ export const ElectionSchema = z
       { id, districts, precincts },
     ] of election.ballotStyles.entries()) {
       for (const [districtIndex, districtId] of districts.entries()) {
-        if (!election.districts.some((d) => d.id === districtId)) {
+        if (!definedDistrictIds.has(districtId)) {
           ctx.issues.push({
             code: 'custom',
             path: [
@@ -912,7 +916,7 @@ export const ElectionSchema = z
 
       const sortedDistricts = [...districts].sort();
       for (const [precinctIndex, precinctId] of precincts.entries()) {
-        const precinct = election.precincts.find((p) => p.id === precinctId);
+        const precinct = precinctsById.get(precinctId);
         if (!precinct) {
           ctx.issues.push({
             code: 'custom',
@@ -965,7 +969,7 @@ export const ElectionSchema = z
         for (const [contestId, orderedCandidates] of Object.entries(
           ballotStyle.orderedCandidatesByContest
         )) {
-          const contest = election.contests.find((c) => c.id === contestId);
+          const contest = contestsById.get(contestId);
           if (!contest) {
             ctx.issues.push({
               code: 'custom',
@@ -1041,10 +1045,7 @@ export const ElectionSchema = z
 
     for (const [contestIndex, contest] of election.contests.entries()) {
       if (contest.type === 'candidate') {
-        if (
-          contest.partyId &&
-          !election.parties.some(({ id }) => id === contest.partyId)
-        ) {
+        if (contest.partyId && !definedPartyIds.has(contest.partyId)) {
           ctx.issues.push({
             code: 'custom',
             path: ['contests', contestIndex, 'partyId'],
@@ -1062,7 +1063,7 @@ export const ElectionSchema = z
           candidate,
         ] of contest.candidates.entries()) {
           for (const [i, partyId] of (candidate.partyIds ?? []).entries()) {
-            if (!election.parties.some((p) => p.id === partyId)) {
+            if (!definedPartyIds.has(partyId)) {
               ctx.issues.push({
                 code: 'custom',
                 path: [
