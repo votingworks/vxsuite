@@ -1,4 +1,4 @@
-import { type Result, err, ok } from '@votingworks/basics';
+import { type Result, DateWithoutTime, err, ok } from '@votingworks/basics';
 import type { z } from 'zod/v4';
 import { sha256 } from './sha256.js';
 import { safeParseCdfBallotDefinition } from './cdf/ballot-definition/convert.js';
@@ -75,6 +75,20 @@ export function safeParseElection(
   }
 
   return ok(result.ok().vxfElection);
+}
+
+/**
+ * Parses election data that already passed {@link safeParseElection} when it
+ * was imported, skipping validation for VXF elections.
+ */
+export function parseValidatedElection(electionData: string): Election {
+  const value = JSON.parse(electionData) as Omit<Election, 'date'> & {
+    date: string;
+  };
+  if ('@type' in value) {
+    return safeParseElection(electionData).unsafeUnwrap();
+  }
+  return { ...value, date: new DateWithoutTime(value.date) };
 }
 
 // @coverage-exclude: trivial, tested via consumers.

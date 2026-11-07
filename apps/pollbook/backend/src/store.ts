@@ -5,7 +5,7 @@ import { assert, throwIllegalValue } from '@votingworks/basics';
 import {
   type Election,
   type ElectionDefinition,
-  safeParseElection,
+  parseValidatedElection,
   safeParseJson,
   type ValidStreetInfo,
   ValidStreetInfoSchema,
@@ -524,9 +524,7 @@ export abstract class Store {
     if (!row) {
       return undefined;
     }
-    const election: Election = safeParseElection(
-      row.election_data
-    ).unsafeUnwrap();
+    const election = parseValidatedElection(row.election_data);
     this.election = election;
 
     return this.election;
@@ -559,9 +557,7 @@ export abstract class Store {
         codeVersion: this.codeVersion,
       };
     }
-    const election: Election = safeParseElection(
-      row.election_data
-    ).unsafeUnwrap();
+    const election = parseValidatedElection(row.election_data);
     return {
       electionId: election.id,
       electionTitle: election.title,
