@@ -1,4 +1,4 @@
-import { DateWithoutTime } from '@votingworks/basics';
+import { assertDefined, DateWithoutTime } from '@votingworks/basics';
 import {
   type Contest,
   type BallotStyle,
@@ -200,6 +200,36 @@ export function parseElectionDefinition(
     ballotHash: hashElectionData(electionData),
     election: safeParseElection(electionData).unsafeUnwrap(),
     electionData,
+  };
+}
+
+/**
+ * Builds an election definition whose `electionData` zod changes on parse: the
+ * first precinct has a stray `splits: null` and the election an unknown key.
+ */
+export function createUnnormalizedElectionDefinition(
+  election: Election
+): ElectionDefinition {
+  const [precinct, ...otherPrecincts] = election.precincts;
+  return parseElectionDefinition(
+    JSON.stringify({
+      ...election,
+      unknownField: true,
+      precincts: [
+        { ...assertDefined(precinct), splits: null },
+        ...otherPrecincts,
+      ],
+    })
+  );
+}
+
+/** Returns `electionDefinition` as a store reads it back after import. */
+export function asStoredElectionDefinition(
+  electionDefinition: ElectionDefinition
+): ElectionDefinition {
+  return {
+    ...electionDefinition,
+    electionData: JSON.stringify(electionDefinition.election),
   };
 }
 

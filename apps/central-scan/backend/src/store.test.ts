@@ -19,6 +19,7 @@ import {
 } from '@votingworks/fixtures';
 import { mockBaseLogger } from '@votingworks/logging';
 import { importElectionPackageForTest } from '@votingworks/backend/test-utils';
+import { asStoredElectionDefinition } from '@votingworks/test-utils';
 import { zeroRect } from '../test/fixtures/zero_rect.js';
 import { Store } from './store.js';
 import { configureStore } from '../test/helpers/setup_app.js';
@@ -45,7 +46,7 @@ test('get/set election', async () => {
     electionPackageHash,
   });
   expect(store.getElectionRecord()).toEqual({
-    electionDefinition,
+    electionDefinition: asStoredElectionDefinition(electionDefinition),
     electionPackageHash,
   });
   expect(store.hasElection()).toBeTruthy();

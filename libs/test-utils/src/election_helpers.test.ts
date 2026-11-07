@@ -1,6 +1,8 @@
 import { describe, expect, test } from 'vitest';
 import { assert } from '@votingworks/basics';
 import {
+  asStoredElectionDefinition,
+  createUnnormalizedElectionDefinition,
   createTestElection,
   createElectionDefinition,
   createMockVotes,
@@ -189,6 +191,36 @@ describe('createElectionDefinition', () => {
     expect(parsedElection.id).toEqual(election.id);
     expect(parsedElection.title).toEqual(election.title);
   });
+});
+
+test('asStoredElectionDefinition replaces electionData with the serialized election', () => {
+  const electionDefinition = createElectionDefinition(
+    createTestElection({
+      numCandidateContests: 1,
+      numYesNoContests: 0,
+      candidatesPerContest: 2,
+    })
+  );
+
+  expect(asStoredElectionDefinition(electionDefinition)).toEqual({
+    ...electionDefinition,
+    electionData: JSON.stringify(electionDefinition.election),
+  });
+});
+
+test('createUnnormalizedElectionDefinition builds election data that zod normalizes', () => {
+  const election = createTestElection({
+    numCandidateContests: 1,
+    numYesNoContests: 0,
+    candidatesPerContest: 2,
+  });
+  const electionDefinition = createUnnormalizedElectionDefinition(election);
+  const raw = JSON.parse(electionDefinition.electionData);
+
+  expect(raw.unknownField).toEqual(true);
+  expect(raw.precincts[0].splits).toBeNull();
+  expect(electionDefinition.election).not.toHaveProperty('unknownField');
+  expect(electionDefinition.election.precincts[0]).not.toHaveProperty('splits');
 });
 
 describe('createMockVotes', () => {

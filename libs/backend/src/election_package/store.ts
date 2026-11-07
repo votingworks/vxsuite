@@ -1,12 +1,12 @@
 import { chmodSync, rmSync } from 'node:fs';
 import { Client } from '@votingworks/db';
 import { BaseLogger, LogSource } from '@votingworks/logging';
-import { assertDefined, DateWithoutTime } from '@votingworks/basics';
+import { DateWithoutTime } from '@votingworks/basics';
 import {
-  constructElectionKey,
-  safeParseElection,
+  parseValidatedElection,
   safeParseSystemSettings,
   type ElectionDefinition,
+  type ElectionId,
   type ElectionKey,
   type SystemSettings,
 } from '@votingworks/types';
@@ -175,7 +175,7 @@ export class ElectionPackageStore<
         ? {
             electionDefinition: {
               ballotHash: row.ballotHash,
-              election: safeParseElection(row.electionData).unsafeUnwrap(),
+              election: parseValidatedElection(row.electionData),
               electionData: row.electionData,
             },
             electionPackageHash: row.electionPackageHash,
@@ -198,16 +198,9 @@ export class ElectionPackageStore<
         election_data ->> 'date' as date
       from election
       `
-    ) as { id?: string; date?: string } | undefined;
+    ) as { id: ElectionId; date: string } | undefined;
 
     if (!result) return undefined;
-
-    // A CDF election has neither field at the top level, so parse it instead.
-    if (!(result.id && result.date)) {
-      return constructElectionKey(
-        assertDefined(this.getElectionRecord()).electionDefinition.election
-      );
-    }
 
     return { id: result.id, date: new DateWithoutTime(result.date) };
   }
@@ -300,7 +293,7 @@ async function importInto(
         election_package_hash
       ) values (?, ?, ?, ?)
       `,
-      electionDefinition.electionData,
+      JSON.stringify(election),
       jurisdiction,
       electionDefinition.ballotHash,
       electionPackageHash

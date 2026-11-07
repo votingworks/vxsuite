@@ -31,6 +31,7 @@ import { expect, test, vi } from 'vitest';
 
 import { assertDefined } from '@votingworks/basics';
 import { importElectionPackageForTest } from '@votingworks/backend/test-utils';
+import { asStoredElectionDefinition } from '@votingworks/test-utils';
 import { Store } from './store.js';
 import { configureStore } from '../test/helpers/shared_helpers.js';
 
@@ -120,7 +121,7 @@ test('get/set election', async () => {
 
   const { electionDefinition } = await configureElectionNh(store);
   expect(store.getElectionRecord()).toEqual({
-    electionDefinition,
+    electionDefinition: asStoredElectionDefinition(electionDefinition),
     electionPackageHash,
   });
   expect(store.hasElection()).toBeTruthy();

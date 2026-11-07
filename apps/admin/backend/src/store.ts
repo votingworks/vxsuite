@@ -39,7 +39,7 @@ import {
   type Precinct,
   type PrecinctId,
   safeParse,
-  safeParseElection,
+  parseValidatedElection,
   safeParseJson,
   type Side,
   type SystemSettings,
@@ -49,7 +49,6 @@ import {
   type BallotType,
   type DiagnosticType,
   type ElectionKey,
-  constructElectionKey,
   type BallotStyleGroupId,
   type BallotStyleGroup,
   getContests,
@@ -448,7 +447,7 @@ export class Store implements BaseStore {
           ) values (?, ?, ?, ?, ?, ?)
           `,
             id,
-            electionPackage.electionDefinition.electionData,
+            JSON.stringify(electionPackage.electionDefinition.election),
             electionPackage.electionDefinition.ballotHash,
             JSON.stringify(electionPackage.systemSettings),
             maxSheetsPerBallot,
@@ -510,7 +509,7 @@ export class Store implements BaseStore {
       id: r.id,
       electionDefinition: {
         ballotHash: r.ballotHash,
-        election: safeParseElection(r.electionData).unsafeUnwrap(),
+        election: parseValidatedElection(r.electionData),
         electionData: r.electionData,
       },
       createdAt: convertSqliteTimestampToIso8601(r.createdAt),
@@ -568,7 +567,7 @@ export class Store implements BaseStore {
     ) as { ballotHash: string; electionData: string };
     const electionDefinition: ElectionDefinition = {
       ballotHash,
-      election: safeParseElection(electionData).unsafeUnwrap(),
+      election: parseValidatedElection(electionData),
       electionData,
     };
     this.cachedElection = { id: electionId, electionDefinition };
@@ -602,34 +601,16 @@ export class Store implements BaseStore {
       electionId
     ) as
       | {
-          id: ElectionId | null;
-          title: string | null;
-          date: string | null;
-          jurisdictionName: string | null;
-          state: string | null;
+          id: ElectionId;
+          title: string;
+          date: string;
+          jurisdictionName: string;
+          state: string;
         }
       | undefined;
 
     if (!row) {
       return undefined;
-    }
-
-    // As in {@link getElectionKey}, a CDF election has none of these fields at
-    // the top level, so fall back to parsing it. CDF need not be fast.
-    if (
-      !(row.id && row.title && row.date && row.jurisdictionName && row.state)
-    ) {
-      const { election } = assertDefined(
-        this.getElection(electionId)
-      ).electionDefinition;
-
-      return {
-        id: election.id,
-        title: election.title,
-        date: election.date,
-        jurisdictionName: election.jurisdiction.name,
-        state: election.state,
-      };
     }
 
     return {
@@ -668,22 +649,14 @@ export class Store implements BaseStore {
       electionId
     ) as
       | {
-          title: string | null;
-          jurisdictionName: string | null;
+          title: string;
+          jurisdictionName: string;
           ballotHash: string;
         }
       | undefined;
 
     if (!row) {
       return undefined;
-    }
-
-    if (!(row.title && row.jurisdictionName)) {
-      const { election, ballotHash } = assertDefined(
-        this.getElection(electionId)
-      ).electionDefinition;
-
-      return generateElectionBasedSubfolderName(election, ballotHash);
     }
 
     return generateElectionBasedSubfolderName(
@@ -845,16 +818,7 @@ export class Store implements BaseStore {
       where id = ?
       `,
       electionId
-    ) as { id?: string; date?: string };
-
-    // The election might be in CDF, in which case, we won't get `id` and `date`
-    // fields, so just load and parse it to construct the key. We don't need to
-    // optimize speed for CDF.
-    if (!(result.id && result.date)) {
-      return constructElectionKey(
-        assertDefined(this.getElection(electionId)).electionDefinition.election
-      );
-    }
+    ) as { id: ElectionId; date: string };
 
     return {
       id: result.id,

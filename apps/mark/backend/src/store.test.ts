@@ -10,6 +10,7 @@ import {
 } from '@votingworks/types';
 import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
 import { importElectionPackageForTest } from '@votingworks/backend/test-utils';
+import { asStoredElectionDefinition } from '@votingworks/test-utils';
 import { Store } from './store.js';
 import { configureStore } from '../test/store_helpers.js';
 
@@ -35,7 +36,7 @@ test('get/set/has election', async () => {
 
   await configureStore(store, { electionDefinition });
   expect(store.getElectionRecord()).toEqual({
-    electionDefinition,
+    electionDefinition: asStoredElectionDefinition(electionDefinition),
     electionPackageHash: 'test-election-package-hash',
   });
   expect(store.getElectionKey()).toEqual(

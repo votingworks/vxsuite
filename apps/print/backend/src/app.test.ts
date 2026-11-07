@@ -40,7 +40,11 @@ import {
   getFeatureFlagMock,
   getMockMultiLanguageElectionDefinition,
 } from '@votingworks/utils';
-import { parseElectionDefinition, zipFile } from '@votingworks/test-utils';
+import {
+  asStoredElectionDefinition,
+  parseElectionDefinition,
+  zipFile,
+} from '@votingworks/test-utils';
 import {
   concatenatePdfs,
   HP_4001_PRINTER_CONFIG,
@@ -287,7 +291,7 @@ test('configureElectionPackageFromUsb reads to and writes from store', async () 
   );
 
   expect(await apiClient.getElectionRecord()).toEqual({
-    electionDefinition,
+    electionDefinition: asStoredElectionDefinition(electionDefinition),
     electionPackageHash: expect.any(String),
   });
 

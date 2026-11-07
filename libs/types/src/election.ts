@@ -1116,16 +1116,20 @@ export const OptionalElectionSchema: z.ZodSchema<OptionalElection> =
  */
 export interface ElectionDefinition {
   election: Election;
+  /**
+   * The election file's original bytes, except on a definition read back from
+   * a machine's store, where it is the normalized VXF `Election` JSON.
+   */
   electionData: string;
   /**
-   * A sha256 hash of {@link electionData}. This hash is encoded on ballots and
-   * verified by tabulators to ensure that the ballots and the tabulators have
-   * the same configuration, therefore preventing any tabulation errors due to
-   * mismatched configurations.
+   * A hash of the election file as originally imported. This hash is encoded
+   * on ballots and verified by tabulators to ensure that the ballots and the
+   * tabulators have the same configuration, therefore preventing any
+   * tabulation errors due to mismatched configurations.
    *
-   * Note that the raw {@link electionData} string is hashed instead of the
-   * parsed {@link election} object since canonicalizing the JSON in order to
-   * hash it would be potentially insecure.
+   * Note that the raw election file is hashed instead of the parsed
+   * {@link election} object since canonicalizing the JSON in order to hash it
+   * would be potentially insecure.
    */
   ballotHash: string;
 }

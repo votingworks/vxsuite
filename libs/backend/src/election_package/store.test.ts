@@ -6,12 +6,15 @@ import {
 } from '@votingworks/fixtures';
 import { mockBaseLogger } from '@votingworks/logging';
 import {
+  asStoredElectionDefinition,
   createElectionDefinition,
   createElectionDefinitionCdf,
+  createUnnormalizedElectionDefinition,
 } from '@votingworks/test-utils';
 import {
   DEFAULT_SYSTEM_SETTINGS,
   constructElectionKey,
+  hasSplits,
   type BallotStyle,
   type ContestPosition,
   type Election,
@@ -150,7 +153,7 @@ test('election key and jurisdiction', async () => {
   expect(electionPackageHash).toEqual('package-hash');
   expect(store.hasElection()).toEqual(true);
   expect(store.getElectionRecord()).toEqual({
-    electionDefinition,
+    electionDefinition: asStoredElectionDefinition(electionDefinition),
     electionPackageHash: 'package-hash',
   });
   expect(store.getElectionKey()).toEqual(constructElectionKey(election));
@@ -173,6 +176,20 @@ test('system settings are cached until reset', async () => {
 
   store.reset();
   expect(store.getSystemSettings()).toBeUndefined();
+});
+
+test('getElectionRecord returns the election as zod normalized it on import', async () => {
+  const store = ElectionPackageStore.memoryStore(INCLUDE_ALL);
+  const unnormalized = createUnnormalizedElectionDefinition(baseElection);
+  await importElectionPackageForTest(store, {
+    electionDefinition: unnormalized,
+  });
+
+  const { election: readBack } = assertDefined(
+    store.getElectionRecord()
+  ).electionDefinition;
+  expect(readBack).toEqual(unnormalized.election);
+  expect(hasSplits(assertDefined(readBack.precincts[0]))).toEqual(false);
 });
 
 test('election key for a CDF election', async () => {
@@ -214,7 +231,7 @@ test('importElectionPackage from a single-file election', async () => {
   });
 
   expect(store.getElectionRecord()).toEqual({
-    electionDefinition,
+    electionDefinition: asStoredElectionDefinition(electionDefinition),
     electionPackageHash,
   });
   expect(store.getJurisdiction()).toEqual(jurisdiction);
@@ -480,7 +497,7 @@ test('fileStore persists and reset empties it', async () => {
 
   const reopened = ElectionPackageStore.fileStore(dbPath, INCLUDE_ALL);
   expect(reopened.getElectionRecord()?.electionDefinition).toEqual(
-    electionDefinition
+    asStoredElectionDefinition(electionDefinition)
   );
   expect(reopened.getBallotPositionsStore().hasPositions()).toEqual(true);
 

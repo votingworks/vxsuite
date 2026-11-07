@@ -25,6 +25,7 @@ import {
   makeTemporaryDirectory,
 } from '@votingworks/fixtures';
 import {
+  asStoredElectionDefinition,
   createElectionDefinition,
   createElectionDefinitionCdf,
   suppressingConsoleOutput,
@@ -259,7 +260,7 @@ test('configureElectionPackageFromUsb reads to and writes from store', async () 
   );
   const electionRecord = await apiClient.getElectionRecord();
   expect(electionRecord).toEqual({
-    electionDefinition,
+    electionDefinition: asStoredElectionDefinition(electionDefinition),
     electionPackageHash: expect.any(String),
   });
 });
