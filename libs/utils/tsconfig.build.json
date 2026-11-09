@@ -1,6 +1,6 @@
 {
   "extends": "./tsconfig.json",
-  "include": ["src", "src/**/*.json", "src/data/*.zip"],
+  "include": ["src"],
   "exclude": ["**/*.test.ts"],
   "compilerOptions": {
     "tsBuildInfoFile": "build/tsconfig.build.tsbuildinfo",
