@@ -9,7 +9,8 @@ use deskpro_scanner::driver::{self, Driver};
 use deskpro_scanner::ffi;
 use deskpro_scanner::protocol::{
     Command, CommandBody, DecodeError, ErrorCode, Event, FRAME_HEADER_LENGTH, Hello, ImageHeader,
-    Response, ResponseBody, Status, decode_frame_header, encode_frame, encode_image, frame_type,
+    MAX_FRAME_PAYLOAD, Response, ResponseBody, Status, decode_frame_header, encode_frame,
+    encode_image, frame_type,
 };
 
 #[derive(Debug, Parser)]
@@ -131,7 +132,22 @@ impl Output {
     }
 
     fn image(&self, header: &ImageHeader, data: &[u8]) {
-        self.send_frame(frame_type::IMAGE, &encode_image(header, data));
+        let payload = encode_image(header, data);
+        if u32::try_from(payload.len()).is_ok_and(|length| length <= MAX_FRAME_PAYLOAD) {
+            self.send_frame(frame_type::IMAGE, &payload);
+            return;
+        }
+        tracing::error!(
+            "dropping image seq={} side={}: {} bytes exceeds the frame maximum",
+            header.seq_id,
+            header.scan_side,
+            payload.len()
+        );
+        self.event(&Event::OversizedImage {
+            seq_id: header.seq_id,
+            scan_side: header.scan_side,
+            size: i64::try_from(payload.len()).unwrap_or(i64::MAX),
+        });
     }
 }
 
@@ -378,5 +394,84 @@ fn to_wire_header(image: &driver::Image) -> ImageHeader {
         counters: image.counters(),
         endorser_front_text: image.endorser_front_text().into_owned(),
         endorser_back_text: image.endorser_back_text().into_owned(),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::sync::{Arc, Mutex};
+
+    use super::*;
+
+    #[derive(Clone, Default)]
+    struct SharedBuffer(Arc<Mutex<Vec<u8>>>);
+
+    impl Write for SharedBuffer {
+        fn write(&mut self, bytes: &[u8]) -> std::io::Result<usize> {
+            self.0.lock().expect("buffer lock").extend_from_slice(bytes);
+            Ok(bytes.len())
+        }
+
+        fn flush(&mut self) -> std::io::Result<()> {
+            Ok(())
+        }
+    }
+
+    fn header() -> ImageHeader {
+        ImageHeader {
+            seq_id: 7,
+            stream_id: 0,
+            scan_side: 1,
+            resolution: 600,
+            pixels_per_line: 0,
+            lines: 0,
+            bytes_per_line: 0,
+            bits_per_pixel: 24,
+            file_format: 2,
+            compression: 0,
+            double_feed: 0,
+            blank_page: 0,
+            integrity: 0,
+            counters: [0; 4],
+            endorser_front_text: String::new(),
+            endorser_back_text: String::new(),
+        }
+    }
+
+    /// Sends one image through an [`Output`] and returns the single frame it wrote.
+    fn written_frame(data: &[u8]) -> (u8, Vec<u8>) {
+        let buffer = SharedBuffer::default();
+        let mut output = Output::spawn(buffer.clone());
+        output.image(&header(), data);
+        output.shutdown();
+        let written = buffer.0.lock().expect("buffer lock").clone();
+        let (header, payload) = written.split_at(FRAME_HEADER_LENGTH);
+        let (frame_type, length) =
+            decode_frame_header(header.try_into().expect("whole header")).expect("valid header");
+        assert_eq!(payload.len(), length as usize);
+        (frame_type, payload.to_vec())
+    }
+
+    #[test]
+    fn an_image_within_the_limit_is_sent() {
+        let (frame_type, payload) = written_frame(&[1, 2, 3]);
+        assert_eq!(frame_type, frame_type::IMAGE);
+        assert_eq!(payload, encode_image(&header(), &[1, 2, 3]));
+    }
+
+    #[test]
+    fn an_oversized_image_is_dropped_and_reported() {
+        let data = vec![0; MAX_FRAME_PAYLOAD as usize];
+        let (frame_type, payload) = written_frame(&data);
+        assert_eq!(frame_type, frame_type::EVENT);
+        let size = i64::try_from(encode_image(&header(), &data).len()).expect("fits");
+        assert_eq!(
+            Event::decode(&payload),
+            Ok(Event::OversizedImage {
+                seq_id: 7,
+                scan_side: 1,
+                size,
+            })
+        );
     }
 }

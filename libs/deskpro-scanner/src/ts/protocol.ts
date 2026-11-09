@@ -258,6 +258,7 @@ export const EventKind = {
   Disconnected: 2,
   IncompatibleImage: 3,
   OperationalState: 4,
+  OversizedImage: 5,
 } as const;
 
 /** Something the driver reported that no command asked for. */
@@ -273,7 +274,14 @@ export type DaemonEvent =
   | { readonly kind: 'disconnected'; readonly message: string }
   | { readonly kind: 'incompatibleImage'; readonly size: number }
   /** The scanner's operational state changed; 0 while an error is active. */
-  | { readonly kind: 'operationalState'; readonly state: number };
+  | { readonly kind: 'operationalState'; readonly state: number }
+  /** An image's frame would exceed {@link MAX_FRAME_PAYLOAD}, so the daemon dropped it. */
+  | {
+      readonly kind: 'oversizedImage';
+      readonly seqId: number;
+      readonly scanSide: number;
+      readonly size: number;
+    };
 
 /** Decodes an event frame payload. */
 export function decodeEvent(payload: Buffer): DaemonEvent {
@@ -300,6 +308,14 @@ export function decodeEvent(payload: Buffer): DaemonEvent {
       break;
     case EventKind.OperationalState:
       event = { kind: 'operationalState', state: r.i32() };
+      break;
+    case EventKind.OversizedImage:
+      event = {
+        kind: 'oversizedImage',
+        seqId: r.i64(),
+        scanSide: r.i32(),
+        size: r.i64(),
+      };
       break;
     default:
       throw new ProtocolError(`unknown event discriminant ${kind}`);

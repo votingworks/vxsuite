@@ -166,6 +166,12 @@ export function createMockDaemon(): MockScannerDaemon {
         case 'operationalState':
           w.u8(EventKind.OperationalState).i32(event.state);
           break;
+        case 'oversizedImage':
+          w.u8(EventKind.OversizedImage)
+            .i64(event.seqId)
+            .i32(event.scanSide)
+            .i64(event.size);
+          break;
         default:
           throwIllegalValue(event);
       }

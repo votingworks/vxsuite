@@ -177,11 +177,19 @@ test('events reach listeners', async () => {
   daemon.sendEvent({ kind: 'disconnected', message: 'gone' });
   daemon.sendEvent({ kind: 'incompatibleImage', size: 30_000 });
   daemon.sendEvent({ kind: 'operationalState', state: 0 });
+  const oversized = {
+    kind: 'oversizedImage',
+    seqId: 42,
+    scanSide: 1,
+    size: 70_000_000,
+  } as const;
+  daemon.sendEvent(oversized);
 
-  await vi.waitFor(() => expect(events).toHaveLength(5));
+  await vi.waitFor(() => expect(events).toHaveLength(6));
   expect(events[0]).toEqual({ kind: 'log', message: 'state scanning' });
   expect(events[3]).toEqual({ kind: 'incompatibleImage', size: 30_000 });
   expect(events[4]).toEqual({ kind: 'operationalState', state: 0 });
+  expect(events[5]).toEqual(oversized);
 });
 
 test('an image arrives with its pixels intact', async () => {

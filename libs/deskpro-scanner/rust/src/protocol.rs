@@ -482,6 +482,12 @@ pub enum Event {
     IncompatibleImage { size: i32 },
     /// The scanner's operational state changed; 0 while an error is active.
     OperationalState { state: i32 },
+    /// An image's frame would exceed [`MAX_FRAME_PAYLOAD`], so it was dropped.
+    OversizedImage {
+        seq_id: i64,
+        scan_side: i32,
+        size: i64,
+    },
 }
 
 mod event_kind {
@@ -490,6 +496,7 @@ mod event_kind {
     pub const DISCONNECTED: u8 = 2;
     pub const INCOMPATIBLE_IMAGE: u8 = 3;
     pub const OPERATIONAL_STATE: u8 = 4;
+    pub const OVERSIZED_IMAGE: u8 = 5;
 }
 
 impl Event {
@@ -511,6 +518,15 @@ impl Event {
             E::Disconnected { message } => w.u8(event_kind::DISCONNECTED).str(message),
             E::IncompatibleImage { size } => w.u8(event_kind::INCOMPATIBLE_IMAGE).i32(*size),
             E::OperationalState { state } => w.u8(event_kind::OPERATIONAL_STATE).i32(*state),
+            E::OversizedImage {
+                seq_id,
+                scan_side,
+                size,
+            } => w
+                .u8(event_kind::OVERSIZED_IMAGE)
+                .i64(*seq_id)
+                .i32(*scan_side)
+                .i64(*size),
         };
         w.finish()
     }
@@ -528,6 +544,11 @@ impl Event {
             event_kind::DISCONNECTED => E::Disconnected { message: r.str()? },
             event_kind::INCOMPATIBLE_IMAGE => E::IncompatibleImage { size: r.i32()? },
             event_kind::OPERATIONAL_STATE => E::OperationalState { state: r.i32()? },
+            event_kind::OVERSIZED_IMAGE => E::OversizedImage {
+                seq_id: r.i64()?,
+                scan_side: r.i32()?,
+                size: r.i64()?,
+            },
             value => {
                 return Err(DecodeError::UnknownDiscriminant {
                     kind: "event",
@@ -746,6 +767,11 @@ mod tests {
             },
             Event::IncompatibleImage { size: 30_000 },
             Event::OperationalState { state: 0 },
+            Event::OversizedImage {
+                seq_id: 42,
+                scan_side: 1,
+                size: 70_000_000,
+            },
         ]
     }
 
