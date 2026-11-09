@@ -105,7 +105,10 @@ export interface ScannerClientEvents {
 export class ScannerClient extends EventEmitter<ScannerClientEvents> {
   private buffer = Buffer.alloc(0);
   private nextCommandId = 1;
-  private readonly pending = new Map<number, Deferred<ResponseBody>>();
+  private readonly pending = new Map<
+    number,
+    Deferred<ScannerResult<ResponseBody>>
+  >();
   private closed?: ScannerError;
   private transportClosed = false;
   private started = false;
@@ -244,21 +247,14 @@ export class ScannerClient extends EventEmitter<ScannerClientEvents> {
 
     const id = this.nextCommandId;
     this.nextCommandId += 1;
-    const pending = deferred<ResponseBody>();
+    const pending = deferred<ScannerResult<ResponseBody>>();
     this.pending.set(id, pending);
     debug('command %d: %o', id, command);
     this.transport.outgoing.write(
       encodeFrame(FrameType.Command, encodeCommand(id, command))
     );
 
-    return pending.promise.then(
-      (body) =>
-        body.kind === 'error'
-          ? err({ code: toClientCode(body.code), message: body.message })
-          : ok(body),
-      (error: Error) =>
-        err({ code: 'daemonExited' as const, message: error.message })
-    );
+    return pending.promise;
   }
 
   /** Pulls every complete frame out of the read buffer. */
@@ -294,7 +290,12 @@ export class ScannerClient extends EventEmitter<ScannerClientEvents> {
           );
         }
         this.pending.delete(response.id);
-        pending.resolve(response.body);
+        const { body } = response;
+        pending.resolve(
+          body.kind === 'error'
+            ? err({ code: toClientCode(body.code), message: body.message })
+            : ok(body)
+        );
         return;
       }
 
@@ -316,7 +317,7 @@ export class ScannerClient extends EventEmitter<ScannerClientEvents> {
     if (this.closed) return false;
     this.closed = error;
     for (const pending of this.pending.values()) {
-      pending.reject(new Error(error.message));
+      pending.resolve(err(error));
     }
     this.pending.clear();
     this.helloWaiter?.resolve(err(error));

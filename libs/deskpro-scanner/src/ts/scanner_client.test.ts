@@ -289,6 +289,17 @@ test('an exception from a listener propagates without tearing the connection dow
   expect((await status).unsafeUnwrap()).toEqual(A_STATUS);
 });
 
+test('a command in flight during a protocol error fails with the protocol code', async () => {
+  const [scanner, daemon] = await withMock();
+  const pending = scanner.getStatus();
+  await vi.waitFor(() => expect(daemon.received).toHaveLength(1));
+  daemon.sendRaw(encodeFrame(99, Buffer.alloc(0)));
+  expect((await pending).unsafeUnwrapErr()).toEqual({
+    code: 'protocol',
+    message: 'unknown frame type 99',
+  });
+});
+
 test('an unknown frame type tears the connection down', async () => {
   const [scanner, daemon] = await withMock();
   daemon.sendRaw(encodeFrame(99, Buffer.alloc(0)));
