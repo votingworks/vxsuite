@@ -66,10 +66,10 @@ const StyledButton = styled(Button)`
   flex-wrap: nowrap;
   font-weight: ${(p) => p.theme.sizes.fontWeight.regular};
   justify-content: start;
-  padding-left: ${(p) =>
+  padding-inline-start: ${(p) =>
     // @coverage-exclude
     p.theme.sizeMode === 'touchExtraLarge' && '0.25rem'};
-  text-align: left;
+  text-align: start;
   width: 100%;
 
   /* Increase contrast between selected/unselected options when disabled by

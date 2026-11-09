@@ -33,7 +33,7 @@ const TabLabel = styled.span`
   align-items: center;
   display: flex;
   gap: 0.4rem;
-  text-align: left;
+  text-align: start;
 `;
 
 const TAB_LABELS: Record<SettingsPaneId, JSX.Element> = {
