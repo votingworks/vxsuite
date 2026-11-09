@@ -45,7 +45,7 @@ export const DEFAULT_DAEMON_PATH = join(
 export interface Transport {
   readonly incoming: Readable;
   readonly outgoing: Writable;
-  /** Called with a reason when the far end goes away. */
+  /** Called with a reason when the far end goes away, even if it already has. */
   onClose(listener: (reason: string) => void): void;
   close(): void;
 }
@@ -56,6 +56,20 @@ export const DAEMON_KILL_GRACE_MS = 15_000;
 /** Runs `deskproctl` as a child process and exposes its stdio as a {@link Transport}. */
 export function spawnDaemon(daemonPath = DEFAULT_DAEMON_PATH): Transport {
   const child = spawn(daemonPath, [], { stdio: ['pipe', 'pipe', 'inherit'] });
+  const closeListeners: Array<(reason: string) => void> = [];
+  let closedReason: string | undefined;
+  function notifyClose(reason: string): void {
+    // @coverage-exclude: Node may emit `error` after `exit`, e.g. for a failed kill.
+    if (closedReason !== undefined) return;
+    closedReason = reason;
+    for (const listener of closeListeners) {
+      listener(reason);
+    }
+  }
+  child.on('error', (error) => notifyClose(error.message));
+  child.on('exit', (code, signal) =>
+    notifyClose(`deskproctl exited with code ${code}, signal ${signal}`)
+  );
   child.stdin.on('error', (error) => {
     debug('deskproctl stdin: %s', error.message);
     child.kill('SIGTERM');
@@ -64,13 +78,14 @@ export function spawnDaemon(daemonPath = DEFAULT_DAEMON_PATH): Transport {
     incoming: child.stdout,
     outgoing: child.stdin,
     onClose(listener) {
-      child.on('error', (error) => listener(error.message));
-      child.on('exit', (code, signal) =>
-        listener(`deskproctl exited with code ${code}, signal ${signal}`)
-      );
+      if (closedReason === undefined) {
+        closeListeners.push(listener);
+      } else {
+        listener(closedReason);
+      }
     },
     close() {
-      if (child.exitCode !== null || child.signalCode !== null) return;
+      if (closedReason !== undefined) return;
       child.kill('SIGTERM');
       const escalate = setTimeout(
         () => child.kill('SIGKILL'),

@@ -448,6 +448,15 @@ test('spawning a daemon that is not there fails instead of hanging', async () =>
   expect((await client.start()).unsafeUnwrapErr().code).toEqual('daemonExited');
 });
 
+test('a daemon that fails to spawn before `start` is reported, not thrown', async () => {
+  client = new ScannerClient(spawnDaemon('/nonexistent/deskproctl'));
+  await sleep(100);
+  expect((await client.start()).unsafeUnwrapErr()).toEqual({
+    code: 'daemonExited',
+    message: expect.stringContaining('ENOENT'),
+  });
+});
+
 /** Runs `fn` with the path of an executable shell script standing in for `deskproctl`. */
 async function withStubDaemon(
   script: string,
@@ -474,6 +483,17 @@ test('a daemon that stops reading stdin is stopped instead of crashing the host'
       message: 'deskproctl exited with code null, signal SIGTERM',
     });
     expect((await hello).unsafeUnwrapErr().code).toEqual('daemonExited');
+  });
+});
+
+test('a daemon that exits before `start` is reported instead of hanging', async () => {
+  await withStubDaemon('exit 1', async (daemonPath) => {
+    client = new ScannerClient(spawnDaemon(daemonPath));
+    await sleep(100);
+    expect((await client.start()).unsafeUnwrapErr()).toEqual({
+      code: 'daemonExited',
+      message: 'deskproctl exited with code 1, signal null',
+    });
   });
 });
 
