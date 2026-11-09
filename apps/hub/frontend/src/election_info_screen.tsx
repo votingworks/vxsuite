@@ -15,9 +15,7 @@ import {
 } from './api.js';
 import { ElectionNavScreen, Header } from './nav_screen.js';
 import { routes } from './routes.js';
-import { SealImageInput } from './seal_image_input.js';
 import { useTitle } from './hooks/use_title.js';
-import { SignatureImageInput } from './signature_image_input.js';
 import { ElectionInfoAudioPanel } from './election_info_audio_panel.js';
 
 function DeleteElectionButton({
@@ -119,8 +117,7 @@ export function ElectionInfoScreen(): JSX.Element | null {
       <ElectionInfoEditor
         electionId={electionId}
         isLocked={!!ballotsFinalizedAt}
-        SealInput={SealImageInput}
-        SignatureInput={showSignatureInput ? SignatureImageInput : undefined}
+        showSignatureInput={showSignatureInput}
         AudioPanel={ElectionInfoAudioPanel}
         footerActions={<DeleteElectionButton electionId={electionId} />}
       />

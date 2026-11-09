@@ -32,19 +32,13 @@ import {
   FormFooter,
 } from './form_fixed.js';
 import { FieldName, FixedViewport, InputGroup, Row } from './layout.js';
-
-export interface ElectionImageInputProps {
-  value?: string;
-  onChange: (value?: string) => void;
-  disabled?: boolean;
-  required?: boolean;
-}
+import { SealImageInput } from './seal_image_input.js';
+import { SignatureImageInput } from './signature_image_input.js';
 
 export interface ElectionInfoEditorProps {
   electionId: ElectionId;
   isLocked?: boolean;
-  SealInput?: (props: ElectionImageInputProps) => JSX.Element;
-  SignatureInput?: (props: ElectionImageInputProps) => JSX.Element;
+  showSignatureInput?: boolean;
   AudioPanel?: React.ComponentType;
   footerActions?: React.ReactNode;
 }
@@ -93,8 +87,7 @@ function ElectionInfoForm({
   savedElectionInfo,
   features,
   isLocked,
-  SealInput,
-  SignatureInput,
+  showSignatureInput,
   audioRoutes,
   footerActions,
 }: ElectionInfoFormProps): JSX.Element {
@@ -276,27 +269,25 @@ function ElectionInfoForm({
             required
           />
         </InputGroup>
-        {SealInput && (
-          <div>
-            <FieldName>Seal</FieldName>
-            <div style={{ display: 'inline-flex' }}>
-              <SealInput
-                value={electionInfo.seal}
-                // @coverage-defer
-                onChange={(seal = '') =>
-                  setElectionInfo({ ...electionInfo, seal })
-                }
-                disabled={disabled || hasExternalSource}
-                required
-              />
-            </div>
+        <div>
+          <FieldName>Seal</FieldName>
+          <div style={{ display: 'inline-flex' }}>
+            <SealImageInput
+              value={electionInfo.seal}
+              // @coverage-defer
+              onChange={(seal = '') =>
+                setElectionInfo({ ...electionInfo, seal })
+              }
+              disabled={disabled || hasExternalSource}
+              required
+            />
           </div>
-        )}
-        {SignatureInput && (
+        </div>
+        {showSignatureInput && (
           <React.Fragment>
             <div>
               <FieldName>Signature</FieldName>
-              <SignatureInput
+              <SignatureImageInput
                 value={electionInfo.signatureImage ?? ''}
                 // @coverage-defer
                 onChange={(signatureImage = '') =>

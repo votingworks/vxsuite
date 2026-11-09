@@ -32,6 +32,8 @@ import {
   FormErrorContainer,
   FormFooter,
   InputWithAudio,
+  SealImageInput,
+  SignatureImageInput,
 } from '@votingworks/election-definition-ui';
 import { routes } from './routes.js';
 import { Column } from './layout.js';
@@ -46,8 +48,6 @@ import {
   getElectionInfo,
 } from './api.js';
 import { generateId, replaceAtIndex } from './utils.js';
-import { SealImageInput } from './seal_image_input.js';
-import { SignatureImageInput } from './signature_image_input.js';
 import { FormFixed, FormTitle } from './form_fixed.js';
 
 function createBlankPrecinct(): Precinct {

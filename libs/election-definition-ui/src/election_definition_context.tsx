@@ -2,8 +2,18 @@ import React from 'react';
 import type { Optional } from '@votingworks/basics';
 import type { ElectionDefinitionReactQueryApi } from './api.js';
 
+export interface UnexpectedErrorContext {
+  action: string;
+}
+
+export type ReportUnexpectedError = (
+  error: unknown,
+  context: UnexpectedErrorContext
+) => void;
+
 export interface ElectionDefinitionContextInterface {
   api: ElectionDefinitionReactQueryApi;
+  reportUnexpectedError?: ReportUnexpectedError;
 }
 
 export const ElectionDefinitionContext =
@@ -19,16 +29,17 @@ export function useElectionDefinitionApi(): ElectionDefinitionReactQueryApi {
 
 export interface ElectionDefinitionContextProviderProps {
   api: ElectionDefinitionReactQueryApi;
+  reportUnexpectedError?: ReportUnexpectedError;
   children: React.ReactNode;
 }
 
 export function ElectionDefinitionContextProvider(
   props: ElectionDefinitionContextProviderProps
 ): React.ReactNode {
-  const { api, children } = props;
+  const { api, reportUnexpectedError, children } = props;
 
   return (
-    <ElectionDefinitionContext.Provider value={{ api }}>
+    <ElectionDefinitionContext.Provider value={{ api, reportUnexpectedError }}>
       {children}
     </ElectionDefinitionContext.Provider>
   );

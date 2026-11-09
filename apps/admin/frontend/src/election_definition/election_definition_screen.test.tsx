@@ -145,16 +145,22 @@ test('Create New Election creates an election and opens Election Info', async ()
   );
   expect(getNavItems()).toEqual(['Back', 'Definition']);
   expect(await screen.findByLabelText('Title')).toBeEnabled();
-  expect(screen.queryByText('Seal')).not.toBeInTheDocument();
   expect(screen.queryByText('Ballot Languages')).not.toBeInTheDocument();
+  expect(screen.queryByText('Signature')).not.toBeInTheDocument();
   screen.getButton('Delete Election');
 
   await userEvent.type(screen.getByLabelText('Title'), 'Election');
   await userEvent.type(screen.getByLabelText('Jurisdiction'), 'Demo County');
+  await userEvent.upload(
+    screen.getByLabelText('Upload Seal Image'),
+    new File(['<svg>seal</svg>'], 'seal.svg', { type: 'image/svg+xml' })
+  );
+  await screen.findByAltText('Upload preview');
   const updatedElectionInfo: ElectionInfo = {
     ...blankElectionInfo,
     title: 'Election',
     jurisdictionName: 'Demo County',
+    seal: '<svg>seal</svg>',
   };
   apiMock.apiClient.updateElectionInfo
     .expectCallWith(updatedElectionInfo)

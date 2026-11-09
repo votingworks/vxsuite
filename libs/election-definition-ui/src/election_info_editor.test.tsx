@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { userEvent } from '@testing-library/user-event';
+import { Buffer } from 'node:buffer';
 import { createMemoryHistory } from 'history';
 import { assertDefined, DateWithoutTime, err, ok } from '@votingworks/basics';
 import type {
@@ -13,10 +14,14 @@ import {
   type MockApiClient,
   provideApi,
 } from '../test/api_helpers.js';
-import { render, screen, within } from '../test/react_testing_library.js';
+import {
+  render,
+  screen,
+  waitFor,
+  within,
+} from '../test/react_testing_library.js';
 import { withRoute } from '../test/routing_helpers.js';
 import {
-  type ElectionImageInputProps,
   ElectionInfoEditor,
   type ElectionInfoEditorProps,
 } from './election_info_editor.js';
@@ -41,31 +46,6 @@ const blankElectionInfo: ElectionInfo = {
   jurisdictionName: '',
   seal: '',
 };
-
-function ImageInput({
-  value,
-  onChange,
-  disabled,
-  label,
-}: ElectionImageInputProps & { label: string }): JSX.Element {
-  return (
-    <input
-      aria-label={label}
-      type="text"
-      value={value}
-      disabled={disabled}
-      onChange={(e) => onChange(e.target.value)}
-    />
-  );
-}
-
-function SealInput(props: ElectionImageInputProps): JSX.Element {
-  return <ImageInput {...props} label="Seal Image" />;
-}
-
-function SignatureInput(props: ElectionImageInputProps): JSX.Element {
-  return <ImageInput {...props} label="Signature Image" />;
-}
 
 let apiMock: MockApiClient;
 
@@ -112,7 +92,6 @@ function renderEditor({
 test('newly created election starts in edit mode', async () => {
   renderEditor({
     savedElectionInfo: blankElectionInfo,
-    props: { SealInput },
   });
 
   const titleInput = await screen.findByLabelText('Title');
@@ -129,7 +108,7 @@ test('newly created election starts in edit mode', async () => {
   ).toBeEnabled();
   expect(screen.getByLabelText('State')).toHaveValue('Demo State');
   expect(screen.getByLabelText('Jurisdiction')).toHaveValue('');
-  expect(screen.getByLabelText('Seal Image')).toBeEnabled();
+  expect(screen.getByLabelText('Upload Seal Image')).toBeEnabled();
   expect(screen.queryByText('Signature')).not.toBeInTheDocument();
   expect(screen.queryByText('Ballot Languages')).not.toBeInTheDocument();
 
@@ -141,7 +120,7 @@ test('newly created election starts in edit mode', async () => {
 test('edit and save election info', async () => {
   renderEditor({
     features: { BALLOT_LANGUAGE_CONFIG: true },
-    props: { SealInput, SignatureInput },
+    props: { showSignatureInput: true },
   });
 
   const titleInput = await screen.findByLabelText('Title');
@@ -152,8 +131,8 @@ test('edit and save election info', async () => {
   ).getAllByRole('option')) {
     expect(option).toBeDisabled();
   }
-  expect(screen.getByLabelText('Seal Image')).toBeDisabled();
-  expect(screen.getByLabelText('Signature Image')).toBeDisabled();
+  expect(screen.getByLabelText('Upload Seal Image')).toBeDisabled();
+  expect(screen.getByLabelText('Upload Signature Image')).toBeDisabled();
   expect(screen.getByLabelText('Signature Caption')).toBeDisabled();
 
   await userEvent.click(screen.getButton('Edit'));
@@ -179,12 +158,28 @@ test('edit and save election info', async () => {
   await userEvent.clear(jurisdictionInput);
   await userEvent.type(jurisdictionInput, 'New County');
 
-  const sealInput = screen.getByLabelText('Seal Image');
-  await userEvent.clear(sealInput);
-  await userEvent.type(sealInput, 'new seal');
-
-  const signatureInput = screen.getByLabelText('Signature Image');
-  await userEvent.type(signatureInput, 'signature');
+  await userEvent.upload(
+    screen.getByLabelText('Upload Seal Image'),
+    new File(['<svg>new seal</svg>'], 'seal.svg', { type: 'image/svg+xml' })
+  );
+  await userEvent.upload(
+    screen.getByLabelText('Upload Signature Image'),
+    new File(['<svg>signature</svg>'], 'signature.svg', {
+      type: 'image/svg+xml',
+    })
+  );
+  await waitFor(() =>
+    expect(
+      screen
+        .getAllByAltText('Upload preview')
+        .map((img) => img.getAttribute('src'))
+    ).toEqual(
+      ['<svg>new seal</svg>', '<svg>signature</svg>'].map(
+        (svg) =>
+          `data:image/svg+xml;base64,${Buffer.from(svg).toString('base64')}`
+      )
+    )
+  );
 
   await userEvent.type(
     screen.getByLabelText('Signature Caption'),
@@ -201,8 +196,8 @@ test('edit and save election info', async () => {
     isMiCombinedBallotPrimary: false,
     state: 'New State',
     jurisdictionName: 'New County',
-    seal: 'new seal',
-    signatureImage: 'signature',
+    seal: '<svg>new seal</svg>',
+    signatureImage: '<svg>signature</svg>',
     signatureCaption: 'Clerk of Demo County',
     languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
   };
@@ -246,7 +241,7 @@ test('elections with external source have limited editable fields', async () => 
   renderEditor({
     savedElectionInfo: { ...electionInfo, externalSource: 'ms-sems' },
     features: { BALLOT_LANGUAGE_CONFIG: true },
-    props: { SealInput, SignatureInput },
+    props: { showSignatureInput: true },
   });
   await userEvent.click(await screen.findButton('Edit'));
 
@@ -260,8 +255,8 @@ test('elections with external source have limited editable fields', async () => 
   ).getAllByRole('option')) {
     expect(option).toBeDisabled();
   }
-  expect(screen.getByLabelText('Seal Image')).toBeDisabled();
-  expect(screen.getByLabelText('Signature Image')).toBeDisabled();
+  expect(screen.getByLabelText('Upload Seal Image')).toBeDisabled();
+  expect(screen.getByLabelText('Upload Signature Image')).toBeDisabled();
   expect(screen.getByLabelText('Signature Caption')).toBeDisabled();
   expect(screen.getByRole('checkbox', { name: 'Spanish' })).toBeDisabled();
 });

@@ -27,6 +27,7 @@ import {
   electionDefinitionApi,
   getCurrentInProgressElection,
 } from '../api.js';
+import { reportUnexpectedError } from '../logger.js';
 
 const NAV_ITEMS: readonly NavItem[] = [
   { label: 'Definition', routerPath: routerPaths.electionDefinition },
@@ -149,7 +150,10 @@ function CurrentInProgressElectionRedirect(): JSX.Element | null {
 
 export function ElectionDefinitionScreen(): JSX.Element {
   return (
-    <ElectionDefinitionContextProvider api={electionDefinitionApi}>
+    <ElectionDefinitionContextProvider
+      api={electionDefinitionApi}
+      reportUnexpectedError={reportUnexpectedError}
+    >
       <Switch>
         <Route exact path={routerPaths.electionDefinition}>
           <CurrentInProgressElectionRedirect />

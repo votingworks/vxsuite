@@ -1,4 +1,5 @@
 import './polyfills.js';
+import * as Sentry from '@sentry/browser';
 import {
   AppBase,
   ErrorBoundary,
@@ -8,7 +9,10 @@ import {
 } from '@votingworks/ui';
 import { BrowserRouter, Redirect, Route, Switch } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { ElectionDefinitionContextProvider } from '@votingworks/election-definition-ui';
+import {
+  ElectionDefinitionContextProvider,
+  type UnexpectedErrorContext,
+} from '@votingworks/election-definition-ui';
 import { useState } from 'react';
 import {
   type ApiClient,
@@ -39,6 +43,14 @@ import { PrecinctsScreen } from './precincts_screen.js';
 import { HomeScreen } from './home_screen.js';
 import { DownloadsScreen } from './downloads_screen.js';
 import { PollingPlacesScreen } from './polling_places_screen.js';
+
+// @coverage-defer
+function reportUnexpectedError(
+  error: unknown,
+  { action }: UnexpectedErrorContext
+): void {
+  Sentry.captureException(error, { tags: { action } });
+}
 
 // @coverage-defer
 function ElectionScreens(): JSX.Element {
@@ -141,7 +153,10 @@ export function App({
                 </UnauthenticatedApiClientContext.Provider>
               </Route>
               <ApiClientContext.Provider value={apiClient}>
-                <ElectionDefinitionContextProvider api={electionDefinitionApi}>
+                <ElectionDefinitionContextProvider
+                  api={electionDefinitionApi}
+                  reportUnexpectedError={reportUnexpectedError}
+                >
                   <WaitForUserInfo>
                     <Route path={routes.root.path} exact>
                       <HomeScreen
