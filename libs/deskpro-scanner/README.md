@@ -99,8 +99,11 @@ pnpm build
 pnpm test:run
 ```
 
-`pnpm test:run` runs the Rust tests, then the TypeScript tests. Some TypeScript
-tests spawn the real `deskproctl` to check the two protocol halves against each
-other.
+`pnpm test:run` runs the Rust tests, then the TypeScript tests. Both check
+`fixtures/wire.txt`, frames the Rust encoders produced, so the two protocol
+implementations can't drift apart; after a protocol change, regenerate it with
+`cargo test --manifest-path rust/Cargo.toml regenerate_wire_fixtures -- --ignored`.
+Some TypeScript tests spawn the real `deskproctl` to check the two protocol
+halves against each other.
 
 Rust logging is `RUST_LOG`; TypeScript logging is `DEBUG=deskpro-scanner`.

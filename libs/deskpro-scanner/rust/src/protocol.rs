@@ -258,6 +258,8 @@ mod command_kind {
 }
 
 impl Command {
+    /// The client's half; here only to generate the wire fixtures.
+    #[cfg(test)]
     #[must_use]
     pub fn encode(&self) -> Vec<u8> {
         use CommandBody::{
@@ -353,6 +355,7 @@ impl ErrorCode {
         }
     }
 
+    #[cfg(test)]
     fn from_u16(value: u16) -> Result<Self> {
         Ok(match value {
             1 => ErrorCode::DriverUnavailable,
@@ -421,6 +424,7 @@ impl Response {
         w.finish()
     }
 
+    #[cfg(test)]
     pub fn decode(payload: &[u8]) -> Result<Self> {
         use ResponseBody as B;
         let mut r = Reader::new(payload);
@@ -668,6 +672,7 @@ impl Hello {
         w.finish()
     }
 
+    #[cfg(test)]
     pub fn decode(payload: &[u8]) -> Result<Self> {
         let mut r = Reader::new(payload);
         let hello = Self {
@@ -680,111 +685,216 @@ impl Hello {
 
 #[cfg(test)]
 mod tests {
+    use std::fmt::Write as _;
+
     use super::*;
 
-    fn every_command() -> Vec<CommandBody> {
+    fn every_command() -> Vec<(&'static str, CommandBody)> {
         use CommandBody as C;
         vec![
-            C::Exit,
-            C::Connect {
-                app_id: "VxCentralScan".to_owned(),
-            },
-            C::Disconnect,
-            C::GetStatus,
-            C::GetVersions,
-            C::GetProfile,
-            C::SetProfile {
-                profile: "ProfilePaper_brightness = 200\n".to_owned(),
-            },
-            C::SetReady { ready: true },
-            C::SetReady { ready: false },
-            C::ScanStart,
-            C::ScanStop,
-            C::ScanPause,
-            C::ScanResume,
-            C::SetImprinterText {
-                text: "batch7_%NMC4%%CNT1%".to_owned(),
-            },
-            C::SetCounter {
-                index: 1,
-                value: -9_000_000_000,
-            },
-            C::SetNumberOfSheets { count: 25 },
+            ("exit", C::Exit),
+            (
+                "connect",
+                C::Connect {
+                    app_id: "VxCentralScan".to_owned(),
+                },
+            ),
+            ("disconnect", C::Disconnect),
+            ("getStatus", C::GetStatus),
+            ("getVersions", C::GetVersions),
+            ("getProfile", C::GetProfile),
+            (
+                "setProfile",
+                C::SetProfile {
+                    profile: "ProfilePaper_brightness = 200\n".to_owned(),
+                },
+            ),
+            ("setReady.true", C::SetReady { ready: true }),
+            ("setReady.false", C::SetReady { ready: false }),
+            ("scanStart", C::ScanStart),
+            ("scanStop", C::ScanStop),
+            ("scanPause", C::ScanPause),
+            ("scanResume", C::ScanResume),
+            (
+                "setImprinterText",
+                C::SetImprinterText {
+                    text: "batch7_%NMC4%%CNT1%".to_owned(),
+                },
+            ),
+            (
+                "setCounter",
+                C::SetCounter {
+                    index: 1,
+                    value: -9_000_000_000,
+                },
+            ),
+            ("setNumberOfSheets", C::SetNumberOfSheets { count: 25 }),
         ]
     }
 
-    fn every_response() -> Vec<ResponseBody> {
+    fn every_response() -> Vec<(&'static str, ResponseBody)> {
         use ResponseBody as R;
+        let error = |code, message: &str| R::Error {
+            code,
+            message: message.to_owned(),
+        };
         vec![
-            R::Ok,
-            R::Error {
-                code: ErrorCode::DriverUnavailable,
-                message: "no such file".to_owned(),
-            },
-            R::Error {
-                code: ErrorCode::NotConnected,
-                message: String::new(),
-            },
-            R::Error {
-                code: ErrorCode::AlreadyConnected,
-                message: String::new(),
-            },
-            R::Error {
-                code: ErrorCode::Driver,
-                message: "ScanStart failed".to_owned(),
-            },
-            R::Error {
-                code: ErrorCode::BadRequest,
-                message: String::new(),
-            },
-            R::Error {
-                code: ErrorCode::Other,
-                message: "…unicode ✓".to_owned(),
-            },
-            R::Status(Status {
-                state: 2,
-                operational_state: 1,
-                images_available: 4,
-                feeder_loaded: 1,
-                next_feeder_loaded: 0,
-                feeder_side: 0,
-            }),
-            R::Versions {
-                api: "3.0.0.0".to_owned(),
-                scanner: "DeskPro 631".to_owned(),
-            },
-            R::Profile {
-                profile: String::new(),
-            },
+            ("ok", R::Ok),
+            (
+                "error.driverUnavailable",
+                error(ErrorCode::DriverUnavailable, "no such file"),
+            ),
+            ("error.notConnected", error(ErrorCode::NotConnected, "")),
+            (
+                "error.alreadyConnected",
+                error(ErrorCode::AlreadyConnected, ""),
+            ),
+            ("error.driver", error(ErrorCode::Driver, "ScanStart failed")),
+            ("error.badRequest", error(ErrorCode::BadRequest, "")),
+            ("error.other", error(ErrorCode::Other, "…unicode ✓")),
+            (
+                "status",
+                R::Status(Status {
+                    state: 2,
+                    operational_state: 1,
+                    images_available: 4,
+                    feeder_loaded: 1,
+                    next_feeder_loaded: 0,
+                    feeder_side: 0,
+                }),
+            ),
+            (
+                "versions",
+                R::Versions {
+                    api: "3.0.0.0".to_owned(),
+                    scanner: "DeskPro 631".to_owned(),
+                },
+            ),
+            (
+                "profile",
+                R::Profile {
+                    profile: String::new(),
+                },
+            ),
         ]
     }
 
-    fn every_event() -> Vec<Event> {
+    fn every_event() -> Vec<(&'static str, Event)> {
         vec![
-            Event::Log {
-                message: "state scanning".to_owned(),
-            },
-            Event::Control {
-                control_type: 30,
-                num_data: 1,
-                str_data: "Feeder empty".to_owned(),
-            },
-            Event::Disconnected {
-                message: "ERR_SCANNER_NOTCONNECTED".to_owned(),
-            },
-            Event::IncompatibleImage { size: 30_000 },
-            Event::OperationalState { state: 0 },
-            Event::OversizedImage {
-                seq_id: 42,
-                scan_side: 1,
-                size: 70_000_000,
-            },
+            (
+                "log",
+                Event::Log {
+                    message: "state scanning".to_owned(),
+                },
+            ),
+            (
+                "control",
+                Event::Control {
+                    control_type: 602,
+                    num_data: 14_900,
+                    str_data: "263".to_owned(),
+                },
+            ),
+            (
+                "disconnected",
+                Event::Disconnected {
+                    message: "ERR_SCANNER_NOTCONNECTED".to_owned(),
+                },
+            ),
+            (
+                "incompatibleImage",
+                Event::IncompatibleImage { size: 30_000 },
+            ),
+            ("operationalState", Event::OperationalState { state: 0 }),
+            (
+                "oversizedImage",
+                Event::OversizedImage {
+                    seq_id: 42,
+                    scan_side: 1,
+                    size: 70_000_000,
+                },
+            ),
         ]
+    }
+
+    /// Exercises every byte of the id, so a byte-order mistake changes the fixture.
+    const FIXTURE_ID: u32 = 0x0102_0304;
+
+    const WIRE_FIXTURES_PATH: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../fixtures/wire.txt");
+
+    /// Every frame type, encoded by this crate, as `name hex` lines for the TS tests to check.
+    fn wire_fixtures() -> String {
+        let mut frames = Vec::new();
+        for (name, body) in every_command() {
+            let payload = Command {
+                id: FIXTURE_ID,
+                body,
+            }
+            .encode();
+            frames.push((
+                format!("command.{name}"),
+                encode_frame(frame_type::COMMAND, &payload),
+            ));
+        }
+        for (name, body) in every_response() {
+            let payload = Response {
+                id: FIXTURE_ID,
+                body,
+            }
+            .encode();
+            frames.push((
+                format!("response.{name}"),
+                encode_frame(frame_type::RESPONSE, &payload),
+            ));
+        }
+        for (name, event) in every_event() {
+            frames.push((
+                format!("event.{name}"),
+                encode_frame(frame_type::EVENT, &event.encode()),
+            ));
+        }
+        let hello = Hello {
+            daemon_version: "0.1.0".to_owned(),
+        };
+        frames.push((
+            "hello".to_owned(),
+            encode_frame(frame_type::HELLO, &hello.encode()),
+        ));
+        let mut image = encode_image_frame_prefix(&an_image_header(), 3).expect("within the limit");
+        image.extend_from_slice(&[1, 2, 3]);
+        frames.push(("image".to_owned(), image));
+
+        let mut text = String::from(
+            "# Generated by `cargo test regenerate_wire_fixtures -- --ignored`; checked by both test suites.\n",
+        );
+        for (name, frame) in frames {
+            write!(text, "{name} ").expect("writing to a String");
+            for byte in frame {
+                write!(text, "{byte:02x}").expect("writing to a String");
+            }
+            text.push('\n');
+        }
+        text
+    }
+
+    #[test]
+    fn wire_fixtures_are_current() {
+        let committed = std::fs::read_to_string(WIRE_FIXTURES_PATH).unwrap_or_default();
+        assert!(
+            committed == wire_fixtures(),
+            "{WIRE_FIXTURES_PATH} is stale; run `cargo test regenerate_wire_fixtures -- --ignored`"
+        );
+    }
+
+    #[test]
+    #[ignore = "rewrites the committed wire fixtures"]
+    fn regenerate_wire_fixtures() {
+        std::fs::write(WIRE_FIXTURES_PATH, wire_fixtures()).expect("writable fixtures");
     }
 
     #[test]
     fn commands_round_trip() {
-        for (id, body) in every_command().into_iter().enumerate() {
+        for (id, (_, body)) in every_command().into_iter().enumerate() {
             let command = Command {
                 id: u32::try_from(id).unwrap_or(0),
                 body,
@@ -795,7 +905,7 @@ mod tests {
 
     #[test]
     fn responses_round_trip() {
-        for (id, body) in every_response().into_iter().enumerate() {
+        for (id, (_, body)) in every_response().into_iter().enumerate() {
             let response = Response {
                 id: u32::try_from(id).unwrap_or(0),
                 body,
@@ -806,7 +916,7 @@ mod tests {
 
     #[test]
     fn events_round_trip() {
-        for event in every_event() {
+        for (_, event) in every_event() {
             assert_eq!(Event::decode(&event.encode()), Ok(event));
         }
     }
