@@ -134,23 +134,19 @@ test('getProfile decodes the profile response', async () => {
   );
 });
 
-test.each([
-  [ErrorCode.DriverUnavailable, 'driverUnavailable'],
-  [ErrorCode.NotConnected, 'notConnected'],
-  [ErrorCode.AlreadyConnected, 'alreadyConnected'],
-  [ErrorCode.Driver, 'driver'],
-  [ErrorCode.BadRequest, 'badRequest'],
-  [ErrorCode.Other, 'other'],
-] as const)('error code %d maps to %s', async (wireCode, clientCode) => {
-  const [scanner, daemon] = await withMock();
-  const pending = scanner.scanStart();
-  await vi.waitFor(() => expect(daemon.received).toHaveLength(1));
-  daemon.respondError(wireCode, 'nope');
-  expect((await pending).unsafeUnwrapErr()).toEqual({
-    code: clientCode,
-    message: 'nope',
-  });
-});
+test.each(Object.entries(ErrorCode))(
+  'error code %s (%d) is reported as is',
+  async (clientCode, wireCode) => {
+    const [scanner, daemon] = await withMock();
+    const pending = scanner.scanStart();
+    await vi.waitFor(() => expect(daemon.received).toHaveLength(1));
+    daemon.respondError(wireCode, 'nope');
+    expect((await pending).unsafeUnwrapErr()).toEqual({
+      code: clientCode,
+      message: 'nope',
+    });
+  }
+);
 
 test('a response of the wrong shape is reported as a protocol error', async () => {
   const [scanner, daemon] = await withMock();

@@ -12,7 +12,6 @@ import {
   err,
   extractErrorMessage,
   ok,
-  throwIllegalValue,
 } from '@votingworks/basics';
 import {
   type Command,
@@ -85,15 +84,7 @@ export function spawnDaemon(daemonPath = DEFAULT_DAEMON_PATH): Transport {
 
 /** Why a command failed. */
 export interface ScannerError {
-  readonly code:
-    | 'driverUnavailable'
-    | 'notConnected'
-    | 'alreadyConnected'
-    | 'driver'
-    | 'badRequest'
-    | 'other'
-    | 'daemonExited'
-    | 'protocol';
+  readonly code: ErrorCodeName | 'daemonExited' | 'protocol';
   readonly message: string;
 }
 
@@ -323,7 +314,7 @@ export class ScannerClient extends EventEmitter<ScannerClientEvents> {
         const { body } = response;
         pending.resolve(
           body.kind === 'error'
-            ? err({ code: toClientCode(body.code), message: body.message })
+            ? err({ code: body.code, message: body.message })
             : ok(body)
         );
         return;
@@ -352,25 +343,6 @@ export class ScannerClient extends EventEmitter<ScannerClientEvents> {
     this.pending.clear();
     this.helloWaiter?.resolve(err(error));
     return true;
-  }
-}
-
-function toClientCode(code: ErrorCodeName): ScannerError['code'] {
-  switch (code) {
-    case 'DriverUnavailable':
-      return 'driverUnavailable';
-    case 'NotConnected':
-      return 'notConnected';
-    case 'AlreadyConnected':
-      return 'alreadyConnected';
-    case 'Driver':
-      return 'driver';
-    case 'BadRequest':
-      return 'badRequest';
-    case 'Other':
-      return 'other';
-    default:
-      throwIllegalValue(code);
   }
 }
 

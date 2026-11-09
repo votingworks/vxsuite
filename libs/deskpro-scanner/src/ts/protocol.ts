@@ -154,14 +154,14 @@ export const ResponseKind = {
   Profile: 4,
 } as const;
 
-/** Must match `ErrorCode` in `protocol.rs`. */
+/** Must match `ErrorCode` in `protocol.rs`; the keys are also `ScannerError` codes. */
 export const ErrorCode = {
-  DriverUnavailable: 1,
-  NotConnected: 2,
-  AlreadyConnected: 3,
-  Driver: 4,
-  BadRequest: 5,
-  Other: 6,
+  driverUnavailable: 1,
+  notConnected: 2,
+  alreadyConnected: 3,
+  driver: 4,
+  badRequest: 5,
+  other: 6,
 } as const;
 
 /** The name of an {@link ErrorCode}. */

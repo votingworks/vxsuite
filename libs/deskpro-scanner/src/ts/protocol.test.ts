@@ -125,14 +125,14 @@ test('decodes an error response and names the code', () => {
   const payload = new Writer()
     .u32(4)
     .u8(1)
-    .u16(ErrorCode.DriverUnavailable)
+    .u16(ErrorCode.driverUnavailable)
     .str('no such file')
     .finish();
   expect(decodeResponse(payload)).toEqual({
     id: 4,
     body: {
       kind: 'error',
-      code: 'DriverUnavailable',
+      code: 'driverUnavailable',
       message: 'no such file',
     },
   });
