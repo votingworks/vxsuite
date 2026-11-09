@@ -114,6 +114,10 @@ export interface ScannerClientEvents {
  */
 export class ScannerClient extends EventEmitter<ScannerClientEvents> {
   private buffer = Buffer.alloc(0);
+  private readonly unread: Buffer[] = [];
+  private unreadLength = 0;
+  /** Bytes the read buffer must hold before the next frame can be decoded. */
+  private bytesNeeded = FRAME_HEADER_LENGTH;
   private nextCommandId = 1;
   private readonly pending = new Map<
     number,
@@ -144,7 +148,12 @@ export class ScannerClient extends EventEmitter<ScannerClientEvents> {
 
     this.transport.incoming.on('data', (chunk: Buffer) => {
       if (this.closed) return;
-      this.buffer = Buffer.concat([this.buffer, chunk]);
+      this.unread.push(chunk);
+      this.unreadLength += chunk.length;
+      if (this.buffer.length + this.unreadLength < this.bytesNeeded) return;
+      this.buffer = Buffer.concat([this.buffer, ...this.unread]);
+      this.unread.length = 0;
+      this.unreadLength = 0;
       try {
         this.drainFrames();
       } catch (error) {
@@ -276,15 +285,20 @@ export class ScannerClient extends EventEmitter<ScannerClientEvents> {
   /** Pulls every complete frame out of the read buffer. */
   private drainFrames(): void {
     for (;;) {
-      if (this.buffer.length < FRAME_HEADER_LENGTH) return;
+      if (this.buffer.length < FRAME_HEADER_LENGTH) {
+        this.bytesNeeded = FRAME_HEADER_LENGTH;
+        return;
+      }
       const { length } = decodeFrameHeader(this.buffer);
-      if (this.buffer.length < FRAME_HEADER_LENGTH + length) return;
+      this.bytesNeeded = FRAME_HEADER_LENGTH + length;
+      if (this.buffer.length < this.bytesNeeded) return;
 
-      // Copy the frame so an image's `data` subarray doesn't pin the whole read buffer.
-      const frame = Buffer.from(
-        this.buffer.subarray(0, FRAME_HEADER_LENGTH + length)
-      );
-      this.buffer = this.buffer.subarray(FRAME_HEADER_LENGTH + length);
+      // Copy a frame that shares the buffer so an image's `data` subarray doesn't pin the rest.
+      const frame =
+        this.buffer.length === this.bytesNeeded
+          ? this.buffer
+          : Buffer.from(this.buffer.subarray(0, this.bytesNeeded));
+      this.buffer = this.buffer.subarray(this.bytesNeeded);
       this.handleFrame(frame.readUInt8(0), frame.subarray(FRAME_HEADER_LENGTH));
     }
   }
