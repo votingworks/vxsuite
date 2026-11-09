@@ -325,12 +325,15 @@ fn watch(
         std::fs::create_dir_all(directory)?;
     }
     println!("status after connect {:?}", driver.status());
+    let mut batch = BatchTracker::default();
     if let Some(setup) = scan {
-        let drain = |events: &std::sync::mpsc::Receiver<Event>| {
+        let drain = |batch: &mut BatchTracker| -> color_eyre::Result<()> {
             std::thread::sleep(Duration::from_millis(200));
             while let Ok(event) = events.try_recv() {
-                print_event(&event, None).ok();
+                print_event(&event, save_images)?;
+                batch.observe(&event);
             }
+            Ok(())
         };
         let steps: Vec<(String, Step<'_>)> = vec![
             (
@@ -388,11 +391,11 @@ fn watch(
         ];
         for (name, step) in steps {
             if let Err(error) = step() {
-                drain(&events);
+                drain(&mut batch).ok();
                 return Err(color_eyre::eyre::eyre!("{name} failed: {error}"));
             }
             println!("{name} ok");
-            drain(&events);
+            drain(&mut batch)?;
         }
     }
 
@@ -402,7 +405,12 @@ fn watch(
     } else {
         println!("watching for {seconds}s; feed sheets now");
     }
-    stream(&events, deadline, save_images, scan.is_some())?;
+    stream(
+        &events,
+        deadline,
+        save_images,
+        scan.is_some().then_some(&mut batch),
+    )?;
 
     if scan.is_some() {
         match driver.scan_stop() {
@@ -451,11 +459,10 @@ fn stream(
     events: &std::sync::mpsc::Receiver<Event>,
     deadline: Instant,
     save_images: Option<&str>,
-    stop_at_batch_end: bool,
+    mut batch: Option<&mut BatchTracker>,
 ) -> color_eyre::Result<()> {
-    let mut batch = BatchTracker::default();
     while let Some(remaining) = deadline.checked_duration_since(Instant::now()) {
-        let timeout = if batch.finished() {
+        let timeout = if batch.as_ref().is_some_and(|batch| batch.finished()) {
             remaining.min(BATCH_END_GRACE)
         } else {
             remaining
@@ -464,11 +471,11 @@ fn stream(
             break;
         };
         print_event(&event, save_images)?;
-        if stop_at_batch_end {
+        if let Some(batch) = batch.as_mut() {
             batch.observe(&event);
         }
     }
-    if batch.finished() {
+    if batch.is_some_and(|batch| batch.finished()) {
         println!("feeder empty and scanner ready; batch finished");
     }
     Ok(())
