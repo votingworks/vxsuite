@@ -353,6 +353,20 @@ test('pending commands are rejected when the daemon goes away', async () => {
   expect(closed).toEqual(['it crashed']);
 });
 
+test.each([
+  ['a negative sheet count', (c: ScannerClient) => c.setNumberOfSheets(-1)],
+  ['a counter index over 255', (c: ScannerClient) => c.setCounter(256, 0)],
+  ['an unsafe counter value', (c: ScannerClient) => c.setCounter(0, 2 ** 60)],
+])('%s is refused without reaching the daemon', async (_, command) => {
+  const [scanner, daemon] = await withMock();
+  expect((await command(scanner)).unsafeUnwrapErr().code).toEqual('badRequest');
+
+  const status = scanner.getStatus();
+  await vi.waitFor(() => expect(daemon.received).toHaveLength(1));
+  daemon.respondStatus(A_STATUS);
+  expect((await status).unsafeUnwrap()).toEqual(A_STATUS);
+});
+
 test('concurrent commands are matched to their own responses', async () => {
   const [scanner, daemon] = await withMock();
   const status = scanner.getStatus();

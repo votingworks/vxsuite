@@ -10,6 +10,7 @@ import {
   type Deferred,
   type Result,
   err,
+  extractErrorMessage,
   ok,
   throwIllegalValue,
 } from '@votingworks/basics';
@@ -256,13 +257,19 @@ export class ScannerClient extends EventEmitter<ScannerClientEvents> {
 
     const id = this.nextCommandId;
     this.nextCommandId += 1;
+    let payload: Buffer;
+    try {
+      payload = encodeCommand(id, command);
+    } catch (error) {
+      return Promise.resolve(
+        err({ code: 'badRequest', message: extractErrorMessage(error) })
+      );
+    }
+
     const pending = deferred<ScannerResult<ResponseBody>>();
     this.pending.set(id, pending);
     debug('command %d: %o', id, command);
-    this.transport.outgoing.write(
-      encodeFrame(FrameType.Command, encodeCommand(id, command))
-    );
-
+    this.transport.outgoing.write(encodeFrame(FrameType.Command, payload));
     return pending.promise;
   }
 

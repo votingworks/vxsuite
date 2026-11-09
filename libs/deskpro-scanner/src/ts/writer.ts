@@ -6,7 +6,9 @@ export class Writer {
   private readonly chunks: Buffer[] = [];
 
   u8(value: number): this {
-    this.chunks.push(Buffer.of(value));
+    const buffer = Buffer.allocUnsafe(1);
+    buffer.writeUInt8(value);
+    this.chunks.push(buffer);
     return this;
   }
 
