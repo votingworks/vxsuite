@@ -28,6 +28,9 @@ struct Config {
 /// unbounded channel, so blocking here never stalls them.
 const OUTPUT_QUEUE_DEPTH: usize = 8;
 
+/// Exit status after losing the scanner. The vendor library cannot reconnect in the same process.
+const LOST_SCANNER_EXIT_CODE: i32 = 3;
+
 fn main() -> color_eyre::Result<()> {
     let config = Config::parse();
     color_eyre::install()?;
@@ -53,7 +56,12 @@ fn main() -> color_eyre::Result<()> {
                     break;
                 }
             }
-            Input::DriverEvent(event) => session.handle_driver_event(event),
+            Input::DriverEvent(event) => {
+                if session.handle_driver_event(event) == Flow::LostScanner {
+                    session.abandon();
+                    std::process::exit(LOST_SCANNER_EXIT_CODE);
+                }
+            }
             Input::Malformed(error) => {
                 tracing::error!("malformed frame from client: {error}");
                 break;
@@ -210,6 +218,7 @@ fn spawn_event_forwarder(events: Receiver<driver::Event>, tx: Sender<Input>) {
 enum Flow {
     Continue,
     Exit,
+    LostScanner,
 }
 
 /// Owns the driver connection, if any, and turns commands into calls on it.
@@ -319,13 +328,29 @@ impl Session {
         self.output.respond(id, body);
     }
 
+    /// Flushes output without `ScannerDisconnect`, which blocks for seconds once the scanner is gone.
+    fn abandon(&mut self) {
+        self.output.shutdown();
+    }
+
     /// Disconnects first so no callback can queue a frame after the writer stops.
     fn shutdown(&mut self) {
         self.driver = None;
         self.output.shutdown();
     }
 
-    fn handle_driver_event(&mut self, event: driver::Event) {
+    fn handle_driver_event(&mut self, event: driver::Event) -> Flow {
+        if self.driver.is_none() {
+            return Flow::Continue;
+        }
+        if let driver::Event::Control(control) = &event
+            && is_link_lost(control)
+        {
+            let message = driver::ErrorCode(control.num_data).to_string();
+            tracing::error!("lost the scanner: {message}");
+            self.output.event(&Event::Disconnected { message });
+            return Flow::LostScanner;
+        }
         match event {
             driver::Event::Image(image) => {
                 self.output.image(&to_wire_header(&image), image.data());
@@ -345,7 +370,13 @@ impl Session {
                 self.output.event(&Event::OperationalState { state });
             }
         }
+        Flow::Continue
     }
+}
+
+/// The driver reports a detached scanner only as a stream of these errors.
+fn is_link_lost(control: &driver::ScannerControl) -> bool {
+    control.ctype == ffi::CTYPE_ERROR && control.num_data == ffi::ERR_BEGINDATAXFER
 }
 
 fn ok((): ()) -> ResponseBody {
@@ -450,6 +481,24 @@ mod tests {
             decode_frame_header(header.try_into().expect("whole header")).expect("valid header");
         assert_eq!(payload.len(), length as usize);
         (frame_type, payload.to_vec())
+    }
+
+    #[test]
+    fn only_begin_data_transfer_errors_mean_the_link_is_lost() {
+        let control = |ctype, num_data| driver::ScannerControl {
+            ctype,
+            num_data,
+            str_data: Vec::new(),
+        };
+        assert!(is_link_lost(&control(
+            ffi::CTYPE_ERROR,
+            ffi::ERR_BEGINDATAXFER
+        )));
+        assert!(!is_link_lost(&control(ffi::CTYPE_ERROR, ffi::ERR_TIMEOUT)));
+        assert!(!is_link_lost(&control(
+            ffi::CTYPE_STATUS,
+            ffi::ERR_BEGINDATAXFER
+        )));
     }
 
     #[test]

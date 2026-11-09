@@ -476,7 +476,7 @@ pub enum Event {
         num_data: u32,
         str_data: String,
     },
-    /// The daemon lost the scanner and has torn the connection down. The client should reconnect.
+    /// The daemon lost the scanner and is exiting; start a new daemon to reconnect.
     Disconnected { message: String },
     /// An image's `ImageInfo_t` was smaller than ours, so it was dropped unread.
     IncompatibleImage { size: i32 },

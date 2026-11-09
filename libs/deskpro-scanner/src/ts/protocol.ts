@@ -271,6 +271,7 @@ export type DaemonEvent =
       readonly numData: number;
       readonly strData: string;
     }
+  /** The daemon lost the scanner and is exiting; start a new client to reconnect. */
   | { readonly kind: 'disconnected'; readonly message: string }
   | { readonly kind: 'incompatibleImage'; readonly size: number }
   /** The scanner's operational state changed; 0 while an error is active. */
