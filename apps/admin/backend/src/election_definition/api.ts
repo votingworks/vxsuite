@@ -1,4 +1,3 @@
-import { randomUUID } from 'node:crypto';
 import type { DippedSmartCardAuthApi } from '@votingworks/auth';
 import {
   assert,
@@ -14,6 +13,7 @@ import {
   type ElectionInfoUpdate,
   ElectionInfoUpdateSchema,
   type ElectionInput,
+  generateId,
   type StateCode,
   type StateFeaturesConfig,
 } from '@votingworks/election-definition-backend';
@@ -88,7 +88,7 @@ export function createElectionDefinitionApiMethods({
     },
 
     async createInProgressElection(): Promise<ElectionId> {
-      const electionId = randomUUID();
+      const electionId = generateId();
       try {
         const { stateCode } = assertDefined(getMachineState());
         assert(

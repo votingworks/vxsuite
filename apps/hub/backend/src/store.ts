@@ -75,6 +75,7 @@ import pg, { type DatabaseError } from 'pg';
 import {
   type DuplicateElectionError,
   type ExternalElectionSource,
+  generateId,
   getStateFeaturesConfig,
   type StateCode,
 } from '@votingworks/election-definition-backend';
@@ -93,7 +94,6 @@ import type {
 } from './types.js';
 import { Db } from './db/db.js';
 import type { Bindable, Client } from './db/client.js';
-import { generateId } from './utils.js';
 import { MAX_LIVE_REPORT_ACTIVITY_ITEMS } from './globals.js';
 import { CandidateOrderingsMap } from './candidate_orderings.js';
 

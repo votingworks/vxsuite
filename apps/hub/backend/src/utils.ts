@@ -14,10 +14,12 @@ import {
   type PrecinctId,
   straightPartyNotYetImplemented,
 } from '@votingworks/types';
-import { customAlphabet } from 'nanoid';
 import { Buffer } from 'node:buffer';
 import type { AnyBallotProps, NhStateBallotVariant } from '@votingworks/hmpb';
-import type { StateFeaturesConfig } from '@votingworks/election-definition-backend';
+import {
+  generateId,
+  type StateFeaturesConfig,
+} from '@votingworks/election-definition-backend';
 import { MAX_POSTGRES_INDEX_KEY_BYTES } from './globals.js';
 import type { Jurisdiction, User } from './types.js';
 
@@ -43,16 +45,6 @@ export function getBallotPdfFileName(props: AnyBallotProps): string {
     .filter(Boolean)
     .join('-');
   return `${baseName}.pdf`;
-}
-
-const idGenerator = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz', 12);
-
-/**
- * Generates a URL-friendly and double-click-copy-friendly unique ID using a
- * cryptographically secure RNG.
- */
-export function generateId(): string {
-  return idGenerator();
 }
 
 /**

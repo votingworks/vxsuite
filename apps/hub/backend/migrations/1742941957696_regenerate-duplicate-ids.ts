@@ -13,7 +13,7 @@ interface LegacyYesNoContest {
 }
 
 // node-pg-migrate loads migrations with require(), which forbids top-level
-// await, so up() imports the built helper before regenerateElectionIds (a
+// await, so up() imports the helper before regenerateElectionIds (a
 // module-scope helper) calls it.
 let generateId: () => string;
 
@@ -107,7 +107,7 @@ function regenerateElectionIds(election: Election, precincts: Precinct[]) {
 export const shorthands: ColumnDefinitions | undefined = undefined;
 
 export async function up(pgm: MigrationBuilder): Promise<void> {
-  ({ generateId } = await import('../build/utils.js'));
+  ({ generateId } = await import('@votingworks/election-definition-backend'));
   const allElections = await pgm.db.select({
     text: 'SELECT id, election_data, precinct_data FROM elections',
   });

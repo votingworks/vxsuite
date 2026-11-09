@@ -24,7 +24,7 @@ import {
   iter,
   unique,
 } from '@votingworks/basics';
-import { generateId } from '../utils.js';
+import { generateId } from '@votingworks/election-definition-backend';
 
 const CandidateNameSchema = z.object({
   Name: z.union([z.string(), z.array(z.string())]),
