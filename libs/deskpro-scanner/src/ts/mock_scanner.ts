@@ -73,6 +73,12 @@ export function createMockDaemon(): MockScannerDaemon {
     incoming.write(encodeFrame(frameType, payload));
   }
 
+  function notifyClose(reason: string): void {
+    for (const listener of closeListeners) {
+      listener(reason);
+    }
+  }
+
   function respond(write: (writer: Writer) => void): void {
     const id = unanswered.shift();
     if (id === undefined) {
@@ -91,6 +97,7 @@ export function createMockDaemon(): MockScannerDaemon {
     },
     close() {
       incoming.end();
+      notifyClose('mock daemon stopped');
     },
   };
 
@@ -192,9 +199,7 @@ export function createMockDaemon(): MockScannerDaemon {
     },
 
     close(reason = 'mock daemon closed') {
-      for (const listener of closeListeners) {
-        listener(reason);
-      }
+      notifyClose(reason);
     },
   };
 }

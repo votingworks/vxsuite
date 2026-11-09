@@ -232,14 +232,38 @@ test('an oversized frame header tears the connection down', async () => {
   const [scanner, daemon] = await withMock();
   const header = Buffer.alloc(FRAME_HEADER_LENGTH);
   header.writeUInt32LE(MAX_FRAME_PAYLOAD + 1, 1);
-  daemon.sendRaw(header);
-  daemon.sendRaw(Buffer.alloc(16));
+  daemon.sendRaw(Buffer.concat([header, Buffer.alloc(16)]));
   await vi.waitFor(async () =>
     expect((await scanner.getStatus()).unsafeUnwrapErr()).toEqual({
       code: 'protocol',
       message: expect.stringMatching(/exceeds/),
     })
   );
+});
+
+test('a protocol error stops the daemon and emits close', async () => {
+  const [scanner, daemon] = await withMock();
+  const closed: string[] = [];
+  scanner.on('close', (reason) => closed.push(reason));
+  daemon.sendRaw(encodeFrame(99, Buffer.alloc(0)));
+  await vi.waitFor(() => expect(closed).toEqual(['mock daemon stopped']));
+  expect((await scanner.getStatus()).unsafeUnwrapErr().code).toEqual(
+    'protocol'
+  );
+});
+
+test('frames that arrive after the daemon goes away are ignored', async () => {
+  const [scanner, daemon] = await withMock();
+  const events: unknown[] = [];
+  scanner.on('event', (event) => events.push(event));
+  daemon.close('it crashed');
+  daemon.sendRaw(
+    encodeFrame(FrameType.Event, new Writer().u8(0).str('late').finish())
+  );
+  await new Promise((resolve) => {
+    setImmediate(resolve);
+  });
+  expect(events).toEqual([]);
 });
 
 test('an unknown frame type tears the connection down', async () => {

@@ -104,6 +104,7 @@ export class ScannerClient extends EventEmitter<ScannerClientEvents> {
   private nextCommandId = 1;
   private readonly pending = new Map<number, Deferred<ResponseBody>>();
   private closed?: ScannerError;
+  private transportClosed = false;
   private started = false;
   private helloWaiter?: Deferred<ScannerResult<Hello>>;
   private readonly transport: Transport;
@@ -132,13 +133,15 @@ export class ScannerClient extends EventEmitter<ScannerClientEvents> {
         this.drainFrames();
       } catch (error) {
         this.fail({ code: 'protocol', message: extractErrorMessage(error) });
+        this.transport.close();
       }
     });
 
     this.transport.onClose((reason) => {
-      if (this.fail({ code: 'daemonExited', message: reason })) {
-        this.emit('close', reason);
-      }
+      if (this.transportClosed) return;
+      this.transportClosed = true;
+      this.fail({ code: 'daemonExited', message: reason });
+      this.emit('close', reason);
     });
 
     return helloReceived.promise;
