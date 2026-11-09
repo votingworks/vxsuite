@@ -26,7 +26,13 @@ import {
   TestModeReportBanner,
   useQueryChangeListener,
 } from '@votingworks/ui';
-import { useParams, Switch, Route, useHistory } from 'react-router-dom';
+import {
+  Redirect,
+  Route,
+  Switch,
+  useHistory,
+  useParams,
+} from 'react-router-dom';
 import React, { useState } from 'react';
 import { assert, deepEqual, throwIllegalValue } from '@votingworks/basics';
 import {
@@ -651,8 +657,8 @@ function LiveReportsTabBar({
   if (groupsWithPlaces.length < 2) return null;
   const tabs = [
     {
-      title: 'All Voting Groups',
-      path: routes.election(electionId).reports.root.path,
+      title: routes.election(electionId).reports.allVotingGroups.title,
+      path: routes.election(electionId).reports.allVotingGroups.path,
     },
     ...groupsWithPlaces.map((group) => ({
       title: pollingPlaceTypeName(group),
@@ -1170,9 +1176,14 @@ export function LiveReportsScreen(): JSX.Element | null {
         >
           <LiveReportsGroupScreen electionId={electionId} />
         </Route>
-        <Route path={routes.election(':electionId').reports.root.path}>
+        <Route
+          path={routes.election(':electionId').reports.allVotingGroups.path}
+        >
           <LiveReportsOverviewScreen electionId={electionId} />
         </Route>
+        <Redirect
+          to={routes.election(electionId).reports.allVotingGroups.path}
+        />
       </Switch>
     </ElectionNavScreen>
   );

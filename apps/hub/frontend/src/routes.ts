@@ -159,6 +159,10 @@ export const routes = {
           title: 'Live Reports',
           path: `${root}/reports`,
         },
+        allVotingGroups: {
+          title: 'All Voting Groups',
+          path: `${root}/reports/all`,
+        },
         votingGroup: (votingGroup: string) => ({
           title: 'Voting Group',
           path: `${root}/reports/group/${votingGroup}`,
