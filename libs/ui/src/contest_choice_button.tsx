@@ -57,7 +57,7 @@ const OuterContainer = styled(Button)<StyleProps>`
   justify-content: start;
   min-width: min-content;
   padding: ${(p) => (isCompactMode(p) ? '0.25rem 0.3rem' : '0.5rem')};
-  text-align: left;
+  text-align: start;
   width: 100%;
 
   ${(p) => p.isSelected && selectedChoiceStyles};
