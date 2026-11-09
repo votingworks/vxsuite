@@ -186,7 +186,13 @@ export function createElectionDefinitionCdf(
   election: Election
 ): ElectionDefinition {
   return parseElectionDefinition(
-    JSON.stringify(convertVxfElectionToCdfBallotDefinition(election))
+    JSON.stringify(
+      convertVxfElectionToCdfBallotDefinition(
+        election,
+        (bs) => bs.ballotPositions,
+        (bs) => bs.orderedCandidatesByContest
+      )
+    )
   );
 }
 

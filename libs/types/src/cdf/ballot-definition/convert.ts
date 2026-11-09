@@ -27,7 +27,7 @@ import {
 import {
   ballotPaperDimensions,
   getContests,
-  getOrderedCandidatesForContestInBallotStyle,
+  getOrderedCandidates,
 } from '../../election_utils.js';
 import { type Id, safeParse } from '../../generic.js';
 import { safeParseInt } from '../../numeric.js';
@@ -449,7 +449,9 @@ function getUiString(
 }
 
 export function convertVxfElectionToCdfBallotDefinition(
-  vxfElection: Vxf.Election
+  vxfElection: Vxf.Election,
+  getBallotPositions: Vxf.GetBallotPositionsFn,
+  getCandidateOrderings: Vxf.GetCandidateOrderingsFn
 ): Cdf.BallotDefinition {
   function text(
     content: string,
@@ -536,38 +538,40 @@ export function convertVxfElectionToCdfBallotDefinition(
   }
 
   function orderedContentForBallotStyle(
-    ballotStyle: Vxf.BallotStyle
+    ballotStyle: Vxf.BallotStyle,
+    ballotPositions: Vxf.OptionalBallotPositions,
+    candidateOrderings: Vxf.OptionalCandidateOrderings
   ): Cdf.OrderedContest[] | undefined {
-    if (!ballotStyle.ballotPositions) return undefined;
+    if (!ballotPositions) return undefined;
 
     // CDF represents positions as a flat list keyed by sheet/side/contest, so
     // flatten the hierarchical ballotPositions back into the old flat shape.
     // (CDF carries only bubble centers and write-in areas, not our per-option
     // bounds, so the bounds are dropped here.)
-    const gridPositions = flattenBallotPositions(
-      ballotStyle.ballotPositions
-    ).map(({ sheetNumber, side, contestId, option }) => {
-      const base = {
-        contestId,
-        sheetNumber,
-        side,
-        column: option.bubbleCenter.column,
-        row: option.bubbleCenter.row,
-      } as const;
-      return option.type === 'write-in'
-        ? ({
-            ...base,
-            type: 'write-in',
-            writeInIndex: option.writeInIndex,
-            writeInArea: gridRectToRect(option.writeInArea),
-          } as const)
-        : ({
-            ...base,
-            type: 'option',
-            optionId: option.optionId,
-            partyIds: option.partyIds,
-          } as const);
-    });
+    const gridPositions = flattenBallotPositions(ballotPositions).map(
+      ({ sheetNumber, side, contestId, option }) => {
+        const base = {
+          contestId,
+          sheetNumber,
+          side,
+          column: option.bubbleCenter.column,
+          row: option.bubbleCenter.row,
+        } as const;
+        return option.type === 'write-in'
+          ? ({
+              ...base,
+              type: 'write-in',
+              writeInIndex: option.writeInIndex,
+              writeInArea: gridRectToRect(option.writeInArea),
+            } as const)
+          : ({
+              ...base,
+              type: 'option',
+              optionId: option.optionId,
+              partyIds: option.partyIds,
+            } as const);
+      }
+    );
     const gridLayout = { gridPositions } as const;
     type FlatGridPosition = (typeof gridPositions)[number];
 
@@ -607,11 +611,10 @@ export function convertVxfElectionToCdfBallotDefinition(
       if (contest.type === 'straight-party') {
         return Vxf.straightPartyNotYetImplemented();
       }
-      // For candidate contests, use the ordered candidates from the ballot style
       if (contest.type === 'candidate') {
-        const orderedCandidates = getOrderedCandidatesForContestInBallotStyle({
+        const orderedCandidates = getOrderedCandidates({
           contest,
-          ballotStyle,
+          orderings: candidateOrderings,
         });
         const physicalOptions: Cdf.PhysicalContestOption[] = [];
 
@@ -906,7 +909,11 @@ export function convertVxfElectionToCdfBallotDefinition(
             '@type': 'BallotDefinition.BallotStyle',
             GpUnitIds: precinctsOrSplitsForBallotStyle(ballotStyle),
             PartyIds: ballotStyle.partyId ? [ballotStyle.partyId] : undefined,
-            OrderedContent: orderedContentForBallotStyle(ballotStyle),
+            OrderedContent: orderedContentForBallotStyle(
+              ballotStyle,
+              getBallotPositions(ballotStyle),
+              getCandidateOrderings(ballotStyle)
+            ),
             // In CDF, ballot styles don't have an id field. I think this might be
             // because each ballot style can be uniquely identified by its
             // GpUnitIds + PartyIds. When multiple ballot styles are used within a

@@ -5050,9 +5050,6 @@ importers:
       ajv6:
         specifier: npm:ajv@6
         version: ajv@6.15.0
-      esbuild-runner:
-        specifier: 2.2.2
-        version: 2.2.2(esbuild@0.28.1)
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx

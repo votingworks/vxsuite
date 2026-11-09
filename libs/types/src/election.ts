@@ -484,6 +484,15 @@ export type GetCandidateOrderingsFn = (
   ballotStyle: BallotStyle
 ) => OptionalCandidateOrderings;
 
+export type OptionalBallotPositions =
+  | readonly SheetPositions[]
+  | null
+  | undefined;
+
+export type GetBallotPositionsFn = (
+  ballotStyle: BallotStyle
+) => OptionalBallotPositions;
+
 /**
  * A measurement in timing-mark grid units (relative to the timing mark grid,
  * where 1 unit is the distance between adjacent timing marks).
