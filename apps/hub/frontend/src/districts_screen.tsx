@@ -22,6 +22,7 @@ import {
   FormBody,
   FormFooter,
   InputWithAudio,
+  ListActionsRow,
 } from '@votingworks/election-definition-ui';
 import { ElectionNavScreen, Header } from './nav_screen.js';
 import {
@@ -29,7 +30,6 @@ import {
   electionParamRoutes,
   routes,
 } from './routes.js';
-import { ListActionsRow } from './layout.js';
 import {
   getBallotsFinalizedAt,
   getElectionInfo,
