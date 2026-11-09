@@ -31,17 +31,24 @@ function getStateFeaturesQueryKey(electionId: ElectionId): QueryKey {
   return ['getStateFeatures', electionId];
 }
 
-function invalidateElectionInfo(
+export function listDistrictsQueryKey(electionId: ElectionId): QueryKey {
+  return ['listDistricts', electionId];
+}
+
+async function invalidateElectionDefinitionQueries(
   queryClient: QueryClient,
   electionId: ElectionId
 ): Promise<void> {
-  return queryClient.invalidateQueries(getElectionInfoQueryKey(electionId));
+  await Promise.all([
+    queryClient.invalidateQueries(getElectionInfoQueryKey(electionId)),
+    queryClient.invalidateQueries(listDistrictsQueryKey(electionId)),
+  ]);
 }
 
 function createReactQueryApi(
   getApiClient: () => ElectionDefinitionApiClient,
   {
-    invalidateElectionQueries = invalidateElectionInfo,
+    invalidateElectionQueries = invalidateElectionDefinitionQueries,
     invalidateElectionListQueries,
   }: ElectionDefinitionApiOptions
 ) {
@@ -86,6 +93,28 @@ function createReactQueryApi(
         return useQuery(getStateFeaturesQueryKey(electionId), () =>
           apiClient.getStateFeatures({ electionId })
         );
+      },
+    },
+    listDistricts: {
+      queryKey: listDistrictsQueryKey,
+      useQuery(electionId: ElectionId) {
+        const apiClient = getApiClient();
+        return useQuery(listDistrictsQueryKey(electionId), () =>
+          apiClient.listDistricts({ electionId })
+        );
+      },
+    },
+    updateDistricts: {
+      useMutation() {
+        const apiClient = getApiClient();
+        const queryClient = useQueryClient();
+        return useMutation(apiClient.updateDistricts, {
+          async onSuccess(result, { electionId }) {
+            if (result.isOk()) {
+              await invalidateElectionQueries(queryClient, electionId);
+            }
+          },
+        });
       },
     },
   };
