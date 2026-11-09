@@ -1,3 +1,4 @@
+import { assert, iter } from '@votingworks/basics';
 import type { Client } from '@votingworks/db';
 import type {
   BallotMode,
@@ -10,6 +11,8 @@ import {
   streamElectionPackageBallots,
   type ElectionPackageZip,
 } from './election_package_io.js';
+
+const BALLOT_BATCH_SIZE = 100;
 
 /** Identifies one pre-rendered ballot PDF. */
 export interface EncodedBallotKey {
@@ -68,26 +71,42 @@ export class EncodedBallotStore {
     this.client = client;
   }
 
-  /** Imports every ballot PDF in the package. */
+  /** Imports every ballot PDF in the package, committing in batches. */
   async importBallots(zip: ElectionPackageZip): Promise<void> {
-    for await (const ballot of streamElectionPackageBallots(zip)) {
-      this.client.run(
-        `
-        insert into ballots (
-          ballot_style_id,
-          precinct_id,
-          ballot_type,
-          ballot_mode,
-          encoded_ballot
-        ) values (?, ?, ?, ?, ?)
-        `,
-        ballot.ballotStyleId,
-        ballot.precinctId,
-        ballot.ballotType,
-        ballot.ballotMode,
-        ballot.encodedBallot
-      );
+    assert(
+      !this.client.isInTransaction(),
+      'ballots must not be imported inside a transaction'
+    );
+
+    const batches = iter(streamElectionPackageBallots(zip)).chunks<number>(
+      BALLOT_BATCH_SIZE
+    );
+    for await (const batch of batches) {
+      this.insertBallots(batch);
     }
+  }
+
+  private insertBallots(ballots: readonly EncodedBallotEntry[]): void {
+    this.client.transaction(() => {
+      for (const ballot of ballots) {
+        this.client.run(
+          `
+          insert into ballots (
+            ballot_style_id,
+            precinct_id,
+            ballot_type,
+            ballot_mode,
+            encoded_ballot
+          ) values (?, ?, ?, ?, ?)
+          `,
+          ballot.ballotStyleId,
+          ballot.precinctId,
+          ballot.ballotType,
+          ballot.ballotMode,
+          ballot.encodedBallot
+        );
+      }
+    });
   }
 
   hasBallots(filter: EncodedBallotFilter = {}): boolean {

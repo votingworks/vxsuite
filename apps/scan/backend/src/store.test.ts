@@ -29,7 +29,7 @@ import { getFeatureFlagMock } from '@votingworks/utils';
 import { DateTime } from 'luxon';
 import { expect, test, vi } from 'vitest';
 
-import { assertDefined } from '@votingworks/basics';
+import { assertDefined, iter } from '@votingworks/basics';
 import { importElectionPackageForTest } from '@votingworks/backend/test-utils';
 import { Store } from './store.js';
 import { configureStore } from '../test/helpers/shared_helpers.js';
@@ -359,8 +359,8 @@ test('iterating over sheets', async () => {
   const store = Store.memoryStore(mockBaseLogger({ fn: vi.fn }));
   await configureElectionNh(store);
 
-  expect(Array.from(store.forEachAcceptedSheet())).toEqual([]);
-  expect(Array.from(store.forEachSheet())).toEqual([]);
+  expect(await iter(store.forEachAcceptedSheet()).toArray()).toEqual([]);
+  expect(await iter(store.forEachSheet()).toArray()).toEqual([]);
 
   // Record an accepted sheet
   const batchId = store.addBatch();
@@ -382,8 +382,10 @@ test('iterating over sheets', async () => {
     frontImagePath: '1-front.jpg',
     backImagePath: '1-back.jpg',
   };
-  expect(Array.from(store.forEachAcceptedSheet())).toEqual([expectedSheet1]);
-  expect(Array.from(store.forEachSheet())).toEqual([expectedSheet1]);
+  expect(await iter(store.forEachAcceptedSheet()).toArray()).toEqual([
+    expectedSheet1,
+  ]);
+  expect(await iter(store.forEachSheet()).toArray()).toEqual([expectedSheet1]);
 
   // Record a rejected sheet
   const sheet2Id = uuid();
@@ -402,8 +404,10 @@ test('iterating over sheets', async () => {
     frontImagePath: '2-front.jpg',
     backImagePath: '2-back.jpg',
   };
-  expect(Array.from(store.forEachAcceptedSheet())).toEqual([expectedSheet1]);
-  expect(Array.from(store.forEachSheet())).toEqual(
+  expect(await iter(store.forEachAcceptedSheet()).toArray()).toEqual([
+    expectedSheet1,
+  ]);
+  expect(await iter(store.forEachSheet()).toArray()).toEqual(
     sortSheets([expectedSheet1, expectedSheet2])
   );
 
@@ -443,10 +447,10 @@ test('iterating over sheets', async () => {
     frontImagePath: '3-front.jpg',
     backImagePath: '3-back.jpg',
   };
-  expect(Array.from(store.forEachAcceptedSheet())).toEqual(
+  expect(await iter(store.forEachAcceptedSheet()).toArray()).toEqual(
     sortSheets([expectedSheet1, expectedSheet3])
   );
-  expect(Array.from(store.forEachSheet())).toEqual(
+  expect(await iter(store.forEachSheet()).toArray()).toEqual(
     sortSheets([expectedSheet1, expectedSheet2, expectedSheet3])
   );
 });
@@ -524,7 +528,7 @@ test('resetElectionSession', async () => {
     pages: testSheetWithFiles,
     isAccepted: true,
   });
-  expect(Array.from(store.forEachSheet())).toHaveLength(1);
+  expect(await iter(store.forEachSheet()).toArray()).toHaveLength(1);
 
   store.setExportDirectoryName('export-directory-name');
   store.addPendingContinuousExportOperation(
@@ -545,7 +549,7 @@ test('resetElectionSession', async () => {
 
   // resetElectionSession should clear all batches
   expect(store.getBatches()).toEqual([]);
-  expect(Array.from(store.forEachSheet())).toHaveLength(0);
+  expect(await iter(store.forEachSheet()).toArray()).toHaveLength(0);
 
   // resetElectionSession should reset the autoincrement in the batch label
   store.addBatch();
@@ -771,17 +775,19 @@ test('forEachSheetPendingContinuousExport', async () => {
   store.addPendingContinuousExportOperation(sheet2Id);
   store.addPendingContinuousExportOperation(sheet3Id);
 
-  expect(Array.from(store.forEachSheetPendingContinuousExport())).toEqual(
-    sortSheets([expectedSheet2, expectedSheet3])
-  );
+  expect(
+    await iter(store.forEachSheetPendingContinuousExport()).toArray()
+  ).toEqual(sortSheets([expectedSheet2, expectedSheet3]));
 
   store.deletePendingContinuousExportOperation(sheet2Id);
-  expect(Array.from(store.forEachSheetPendingContinuousExport())).toEqual([
-    expectedSheet3,
-  ]);
+  expect(
+    await iter(store.forEachSheetPendingContinuousExport()).toArray()
+  ).toEqual([expectedSheet3]);
 
   store.deletePendingContinuousExportOperation(sheet3Id);
-  expect(Array.from(store.forEachSheetPendingContinuousExport())).toEqual([]);
+  expect(
+    await iter(store.forEachSheetPendingContinuousExport()).toArray()
+  ).toEqual([]);
 });
 
 test('getCastVoteRecordRootHash, updateCastVoteRecordHashes, and clearCastVoteRecordHashes', () => {

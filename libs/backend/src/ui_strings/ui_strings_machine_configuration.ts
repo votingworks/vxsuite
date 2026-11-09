@@ -1,6 +1,6 @@
 // @coverage-exclude-file: tested via VxSuite apps
 import type { BaseLogger } from '@votingworks/logging';
-import { assert } from '@votingworks/basics';
+import { assert, iter } from '@votingworks/basics';
 import {
   type ElectionPackageZip,
   type ParsedElectionPackage,
@@ -55,6 +55,8 @@ export function configureUiStrings(input: ElectionPackageProcessorInput): void {
   loadAudioIds(input);
 }
 
+const AUDIO_CLIP_BATCH_SIZE = 100;
+
 /**
  * Streams the audio clips in the given election package zip into the provided
  * store, one at a time, so that the full set (potentially GBs) is never held in
@@ -66,14 +68,17 @@ export async function configureUiStringAudioClipsStreaming(p: {
   store: UiStringsStore;
 }): Promise<void> {
   assert(
-    p.store.inTransaction(),
-    'transaction required when importing audio clips'
+    !p.store.inTransaction(),
+    'audio clips must not be imported inside a transaction: the stream awaits ' +
+      'between clips, which would hold the transaction open'
   );
 
   const configuredLanguages = new Set(p.store.getLanguages());
 
-  for await (const clip of streamElectionPackageAudioClips(p.zip)) {
-    if (!configuredLanguages.has(clip.languageCode)) continue;
-    p.store.setAudioClip(clip);
+  const batches = iter(streamElectionPackageAudioClips(p.zip))
+    .filter((clip) => configuredLanguages.has(clip.languageCode))
+    .chunks<number>(AUDIO_CLIP_BATCH_SIZE);
+  for await (const batch of batches) {
+    p.store.setAudioClips(batch);
   }
 }

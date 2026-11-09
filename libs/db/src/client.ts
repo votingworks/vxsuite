@@ -1,4 +1,10 @@
-import { assert, err, ok, type Result } from '@votingworks/basics';
+import {
+  assert,
+  err,
+  ok,
+  type Result,
+  type NotPromise,
+} from '@votingworks/basics';
 import { BaseLogger, LogEventId, LogSource } from '@votingworks/logging';
 import {
   isIntegrationTest,
@@ -34,6 +40,21 @@ export type BackupError = { type: 'write-in-progress' } | { type: 'cancelled' };
  * copied, moved, or restored from a backup.
  */
 const SCHEMA_DIGEST_TABLE = 'vx_schema_digest';
+
+/** How long to wait for another process's write lock. */
+const BUSY_TIMEOUT_MS = 5_000;
+
+const EACH_ASYNC_CHUNK_SIZE = 500;
+
+const WAL_SIDECAR_SUFFIXES = ['-wal', '-shm'] as const;
+
+/** Renames a closed database to `to`, removing any WAL sidecars left at `to`. */
+function renameDatabase(from: string, to: string): void {
+  for (const suffix of WAL_SIDECAR_SUFFIXES) {
+    fs.rmSync(`${to}${suffix}`, { force: true });
+  }
+  fs.renameSync(from, to);
+}
 
 function shouldResetOnSchemaDigestMismatch(): boolean {
   return (
@@ -256,7 +277,8 @@ export class Client {
       .toISOString()
       .replace(/[^\d]+/g, '-')
       .replace(/-+$/, '')}`;
-    fs.renameSync(dbPath, backupPath);
+    client.disconnect();
+    renameDatabase(dbPath, backupPath);
     debug('backed up database to be reset to %s', backupPath);
 
     debug('resetting database to updated schema');
@@ -327,6 +349,11 @@ export class Client {
     return this.getDatabase().inTransaction;
   }
 
+  /** Counts rows changed through this connection since it opened. */
+  totalChanges(): number {
+    return (this.one('select total_changes() as n') as { n: number }).n;
+  }
+
   /**
    * Run {@link fn} within a transaction and roll back the transaction if an
    * exception occurs.
@@ -334,46 +361,39 @@ export class Client {
    * If {@link shouldCommit} is specified, the transaction
    * will be committed only if {@link shouldCommit} returns true for the result
    * of {@link fn}.
+   *
+   * {@link fn} must be synchronous; do async work before or after it.
    */
-  transaction<T>(fn: () => T, shouldCommit?: (result: T) => boolean): T;
   transaction<T>(
-    fn: () => Promise<T>,
+    fn: () => NotPromise<T>,
     shouldCommit?: (result: T) => boolean
-  ): Promise<T>;
-  transaction<T>(
-    fn: () => T | Promise<T>,
-    shouldCommit?: (result: T) => boolean
-  ): T | Promise<T> {
+  ): T {
     this.run('begin transaction');
 
-    const concludeTransaction = (result: T): void => {
-      if (!shouldCommit || shouldCommit(result)) {
-        this.run('commit transaction');
-      } else {
-        this.run('rollback transaction');
-      }
-    };
-
+    let result: T;
     try {
-      const resultOrPromise = fn();
-
-      if (typeof (resultOrPromise as PromiseLike<T>)?.then === 'function') {
-        void (resultOrPromise as PromiseLike<T>).then(
-          concludeTransaction,
-          (error) => {
-            this.run('rollback transaction');
-            return error;
-          }
-        );
-      } else {
-        concludeTransaction(resultOrPromise as T);
-      }
-
-      return resultOrPromise;
+      result = fn();
     } catch (error) {
       this.run('rollback transaction');
       throw error;
     }
+
+    if (typeof (result as PromiseLike<T> | undefined)?.then === 'function') {
+      this.run('rollback transaction');
+      throw new TypeError(
+        'transaction() requires a synchronous function; its result is a ' +
+          'promise, which would leave the transaction open across awaits. ' +
+          'Move the asynchronous work outside the transaction.'
+      );
+    }
+
+    if (!shouldCommit || shouldCommit(result)) {
+      this.run('commit transaction');
+    } else {
+      this.run('rollback transaction');
+    }
+
+    return result;
   }
 
   /**
@@ -494,13 +514,61 @@ export class Client {
 
   /**
    * Runs `statement` to iterate over rows.
+   *
+   * Only SQL text iterates on a separate connection; a {@link Statement} blocks the main one.
    */
   each<P extends Bindable[] = []>(
     statement: Statement<P> | string,
     ...params: P
   ): IterableIterator<unknown> {
-    const stmt = this.asStatement(statement);
-    return stmt.iterate(...params);
+    // Reads inside a transaction must see its uncommitted writes.
+    if (typeof statement !== 'string' || this.isInTransaction()) {
+      return this.asStatement(statement).iterate(...params);
+    }
+    return this.iterateOnReader(statement, params);
+  }
+
+  private *iterateOnReader(
+    sql: string,
+    params: Bindable[]
+  ): IterableIterator<unknown> {
+    if (this.isMemoryDatabase()) {
+      yield* this.asStatement(sql).iterate(...params);
+      return;
+    }
+
+    // Creates the file and enables WAL before a reader opens it.
+    this.getDatabase();
+    const reader = new Database(this.getDatabasePath(), { readonly: true });
+    reader.pragma(`busy_timeout = ${BUSY_TIMEOUT_MS}`);
+    try {
+      yield* reader.prepare(sql).iterate(...params);
+    } finally {
+      reader.close();
+    }
+  }
+
+  /** Like {@link each}, but periodically yields to the event loop. */
+  async *eachAsync(
+    sql: string,
+    params: Bindable[] = []
+  ): AsyncGenerator<unknown, void, undefined> {
+    assert(
+      !this.isInTransaction(),
+      'eachAsync cannot be used inside a transaction: yielding to the event ' +
+        'loop would hold the transaction open across awaits'
+    );
+    let sinceYield = 0;
+    for (const row of this.iterateOnReader(sql, params)) {
+      yield row;
+      sinceYield += 1;
+      if (sinceYield >= EACH_ASYNC_CHUNK_SIZE) {
+        sinceYield = 0;
+        await new Promise<void>((resolve) => {
+          setImmediate(resolve);
+        });
+      }
+    }
   }
 
   /**
@@ -569,6 +637,10 @@ export class Client {
 
     if (this.connectionOptions?.queryOnly) {
       this.run('pragma query_only = 1');
+    } else if (!this.isMemoryDatabase()) {
+      this.run('pragma journal_mode = wal');
+      this.run('pragma synchronous = full');
+      this.run(`pragma busy_timeout = ${BUSY_TIMEOUT_MS}`);
     }
 
     if (this.connectionOptions?.registerRegexpFn) {
@@ -805,7 +877,8 @@ export class Client {
   /**
    * Swaps the database file at `sourcePath` in for this client's and
    * reconnects to it. The rename is atomic, so the file is either the old
-   * database or the new one at every point.
+   * database or the new one at every point. `sourcePath` must already be
+   * closed.
    */
   replaceDatabaseFile(sourcePath: string): void {
     assert(
@@ -813,7 +886,7 @@ export class Client {
       'cannot replace the file of an in-memory database'
     );
     this.disconnect();
-    fs.renameSync(sourcePath, this.getDatabasePath());
+    renameDatabase(sourcePath, this.getDatabasePath());
     this.connect();
   }
 
@@ -822,5 +895,11 @@ export class Client {
    */
   vacuum(): void {
     this.run('vacuum');
+    this.checkpoint();
+  }
+
+  /** Writes the write-ahead log back into the database file. */
+  checkpoint(): void {
+    this.getDatabase().pragma('wal_checkpoint(truncate)');
   }
 }

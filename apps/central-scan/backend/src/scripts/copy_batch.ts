@@ -72,10 +72,10 @@ function copySheet(store: Store, sheet: AcceptedSheet, newBatchId: Id): void {
   ]);
 }
 
-function getAcceptedSheetsInBatch(
+async function getAcceptedSheetsInBatch(
   store: Store,
   batchName: string
-): AcceptedSheet[] {
+): Promise<AcceptedSheet[]> {
   const batches = store.getBatches();
   const batchId = assertDefined(
     batches.find((batch) => batch.label === batchName),
@@ -84,7 +84,7 @@ function getAcceptedSheetsInBatch(
 
   const sheetGenerator = store.forEachAcceptedSheet();
   const sheets: AcceptedSheet[] = [];
-  for (const sheet of sheetGenerator) {
+  for await (const sheet of sheetGenerator) {
     if (sheet.batchId === batchId) {
       sheets.push(sheet);
     }
@@ -92,13 +92,16 @@ function getAcceptedSheetsInBatch(
   return sheets;
 }
 
-function copyBatch({ batchName, numCopies }: CopyBatchInput): void {
+async function copyBatch({
+  batchName,
+  numCopies,
+}: CopyBatchInput): Promise<void> {
   const { store } = createWorkspace(
     assertDefined(getScanWorkspace()),
     new BaseLogger(LogSource.VxDevelopmentScript)
   );
 
-  const sheets = getAcceptedSheetsInBatch(store, batchName);
+  const sheets = await getAcceptedSheetsInBatch(store, batchName);
 
   for (let i = 0; i < numCopies; i += 1) {
     const newBatchId = store.addBatch();
@@ -115,10 +118,10 @@ function copyBatch({ batchName, numCopies }: CopyBatchInput): void {
 /**
  * A script for copying a scanner store's sheet records to facilitate scale testing
  */
-export function main(args: readonly string[]): void {
+export async function main(args: readonly string[]): Promise<void> {
   try {
     checkEnvironment();
-    copyBatch(parseCommandLineArgs(args));
+    await copyBatch(parseCommandLineArgs(args));
   } catch (error) {
     console.error(`❌ ${extractErrorMessage(error)}`);
     process.exit(1);

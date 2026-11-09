@@ -52,11 +52,11 @@ export async function encryptBallotAuditId(
 function encryptBallotAuditIds(
   store: Store,
   systemSettings: SystemSettings,
-  sheets: Iterable<Sheet>
+  sheets: AsyncIterable<Sheet>
 ): AsyncIterable<Sheet> {
-  return iter(sheets)
-    .async()
-    .map((sheet) => encryptBallotAuditId(store, systemSettings, sheet));
+  return iter(sheets).map((sheet) =>
+    encryptBallotAuditId(store, systemSettings, sheet)
+  );
 }
 
 export type ExportCastVoteRecordsToUsbDriveResult = Result<

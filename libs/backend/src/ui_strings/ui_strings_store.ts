@@ -35,6 +35,9 @@ export interface UiStringsStore {
 
   setAudioClip(input: UiStringAudioClip): void;
 
+  /** Writes `clips` in a single transaction. */
+  setAudioClips(clips: UiStringAudioClip[]): void;
+
   setUiStringAudioIds(input: {
     languageCode: string;
     data: UiStringAudioIds;
@@ -160,6 +163,14 @@ export function createUiStringStore(dbClient: DbClient): UiStringsStore {
 
     inTransaction() {
       return dbClient.isInTransaction();
+    },
+
+    setAudioClips(clips) {
+      dbClient.transaction(() => {
+        for (const clip of clips) {
+          this.setAudioClip(clip);
+        }
+      });
     },
 
     setAudioClip(input) {

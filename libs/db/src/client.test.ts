@@ -3,7 +3,7 @@ import { Buffer } from 'node:buffer';
 import { SqliteError } from 'better-sqlite3';
 import * as fs from 'node:fs';
 import { basename, dirname, join } from 'node:path';
-import { err, ok, typedAs } from '@votingworks/basics';
+import { err, iter, ok, range, typedAs } from '@votingworks/basics';
 import {
   makeTemporaryDirectory,
   makeTemporaryFile,
@@ -292,6 +292,25 @@ test('reset file database client', () => {
   ).toEqual(0);
 });
 
+test('an iteration spanning a reset finishes on the old database', () => {
+  const client = Client.fileClient(
+    makeTemporaryFile(),
+    mockBaseLogger({ fn: vi.fn }),
+    join(import.meta.dirname, '../test/fixtures/schema.sql')
+  );
+  client.run(`
+    INSERT INTO users (id, name, email, password_hash) VALUES
+      ('user1', 'Alice', 'alice@example.com', 'hash1')
+  `);
+
+  const iterator = client.each('SELECT id FROM users');
+  expect(iterator.next().value).toEqual({ id: 'user1' });
+  client.reset();
+  expect(iterator.next().done).toEqual(true);
+
+  expect([...client.each('SELECT id FROM users')]).toEqual([]);
+});
+
 test('reset file database client that has not connected yet', () => {
   const dbFile = makeTemporaryFile();
   const client = Client.fileClient(dbFile, mockBaseLogger({ fn: vi.fn }));
@@ -401,7 +420,7 @@ test('isInTransaction', () => {
   expect(client.isInTransaction()).toEqual(false);
 });
 
-test('transactions', async () => {
+test('transactions', () => {
   const client = Client.memoryClient();
 
   client.exec(
@@ -423,20 +442,6 @@ test('transactions', async () => {
       throw new Error('rollback');
     })
   ).toThrow('rollback');
-  expect(client.one('select count(*) as count from muppets')).toEqual({
-    count: 1,
-  });
-
-  // Should roll back on async exception:
-  await expect(() =>
-    client.transaction(() => {
-      client.run('insert into muppets (name) values (?)', 'Fozzie');
-      expect(client.one('select count(*) as count from muppets')).toEqual({
-        count: 2,
-      });
-      return Promise.reject(new Error('rollback'));
-    })
-  ).rejects.toThrow('rollback');
   expect(client.one('select count(*) as count from muppets')).toEqual({
     count: 1,
   });
@@ -470,18 +475,18 @@ test('transactions', async () => {
   });
 
   // Should commit if `shouldCommit` test returns true:
-  await expect(
+  expect(
     client.transaction(
       () => {
         client.run('insert into muppets (name) values (?)', 'Gonzo');
-        return Promise.resolve('another result');
+        return 'another result';
       },
       (result) => {
         expect(result).toEqual('another result');
         return true;
       }
     )
-  ).resolves.toEqual('another result');
+  ).toEqual('another result');
   expect(client.one('select count(*) as count from muppets')).toEqual({
     count: 3,
   });
@@ -767,6 +772,18 @@ test('creates the schema in an empty database file', () => {
   expect(fs.existsSync(`${dbFile}.digest`)).toEqual(false);
 });
 
+test('file databases use write-ahead logging with full sync', () => {
+  const dbFile = makeTemporaryFile();
+  const logger = mockBaseLogger({ fn: vi.fn });
+  Client.fileClient(dbFile, logger).run('create table t (x)');
+  const client = Client.fileClient(dbFile, logger);
+  expect(client.one('pragma journal_mode')).toEqual({ journal_mode: 'wal' });
+  expect(client.one('pragma synchronous')).toEqual({ synchronous: 2 });
+  expect(Client.memoryClient().one('pragma journal_mode')).toEqual({
+    journal_mode: 'memory',
+  });
+});
+
 test('vacuuming reduces file size', () => {
   const dbFile = makeTemporaryFile();
   const schemaFile = join(import.meta.dirname, '../test/fixtures/schema.sql');
@@ -780,6 +797,7 @@ test('vacuuming reduces file size', () => {
     count: 0,
   });
 
+  client.checkpoint();
   const preInsertSize = fs.statSync(dbFile).size;
 
   client.transaction(() => {
@@ -803,8 +821,10 @@ test('vacuuming reduces file size', () => {
     }
   });
 
+  client.checkpoint();
   const postInsertSize = fs.statSync(dbFile).size;
   client.run('delete from users');
+  client.checkpoint();
   const postDeleteSize = fs.statSync(dbFile).size;
   client.vacuum();
   const postVacuumSize = fs.statSync(dbFile).size;
@@ -931,4 +951,94 @@ test('backup surfaces a failure that is not a refusal or a cancellation', async 
   await expect(
     client.backup(join(makeTemporaryDirectory(), 'no-such-dir', 'snapshot.db'))
   ).rejects.toThrow('directory does not exist');
+});
+
+test('transaction rejects an async function', () => {
+  const client = Client.memoryClient();
+  client.run('create table t (id integer primary key)');
+
+  expect(() =>
+    client.transaction(
+      // @ts-expect-error - async bodies are rejected
+      async () => {
+        await Promise.resolve();
+      }
+    )
+  ).toThrowError(/synchronous/);
+
+  expect(client.isInTransaction()).toEqual(false);
+  client.run('insert into t (id) values (1)');
+  expect(client.one('select count(*) as count from t')).toEqual({ count: 1 });
+});
+
+function fileClientWithUsers(count: number): Client {
+  const client = Client.fileClient(
+    makeTemporaryFile(),
+    mockBaseLogger({ fn: vi.fn }),
+    join(import.meta.dirname, '../test/fixtures/schema.sql')
+  );
+  client.transaction(() => {
+    for (const i of range(0, count)) {
+      client.run(
+        `INSERT INTO users (id, name, email, password_hash) VALUES (?, ?, ?, ?)`,
+        `user${i}`,
+        `User ${i}`,
+        `user${i}@example.com`,
+        'hash'
+      );
+    }
+  });
+  return client;
+}
+
+test('eachAsync reads a snapshot without blocking writes', async () => {
+  const client = fileClientWithUsers(501);
+
+  const ids: unknown[] = [];
+  for await (const row of client.eachAsync('SELECT id FROM users')) {
+    ids.push((row as { id: string }).id);
+    if (ids.length === 1) {
+      client.run('DELETE FROM users');
+    }
+  }
+
+  expect(ids).toHaveLength(501);
+  expect(
+    await iter(client.eachAsync('SELECT id FROM users')).toArray()
+  ).toEqual([]);
+  client.close();
+});
+
+test('eachAsync cannot be used inside a transaction', async () => {
+  const client = fileClientWithUsers(1);
+
+  let next: Promise<unknown> | undefined;
+  client.transaction(() => {
+    next = client.eachAsync('SELECT id FROM users').next();
+  });
+
+  await expect(next).rejects.toThrow(/inside a transaction/);
+});
+
+test('each does not block queries on the main connection', () => {
+  const client = fileClientWithUsers(2);
+
+  const ids: unknown[] = [];
+  for (const row of client.each('SELECT id FROM users ORDER BY id')) {
+    ids.push((row as { id: string }).id);
+    client.run('DELETE FROM users');
+  }
+
+  expect(ids).toEqual(['user0', 'user1']);
+  expect(client.all('SELECT id FROM users')).toEqual([]);
+  client.close();
+});
+
+test('totalChanges counts rows changed through the main connection', () => {
+  const client = fileClientWithUsers(3);
+  const before = client.totalChanges();
+
+  client.run('DELETE FROM users');
+  expect(client.totalChanges() - before).toEqual(3);
+  client.close();
 });

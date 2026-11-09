@@ -31,11 +31,13 @@ export function tabulateCastVoteRecords({
   store,
   filter = {},
   groupBy = {},
+  blocking = false,
 }: {
   electionId: Id;
   store: Store;
   filter?: Tabulation.Filter;
   groupBy?: Tabulation.GroupBy;
+  blocking?: boolean;
 }): Promise<Tabulation.ElectionResultsGroupMap> {
   assertIsBackendFilter(filter);
   const {
@@ -54,16 +56,20 @@ export function tabulateCastVoteRecords({
     : undefined;
 
   debug('tabulating filtered cast vote records from the store');
+  const cvrQuery: Parameters<Store['getCastVoteRecords']>[0] = {
+    electionId,
+    election,
+    filter,
+    excludeWithheldBallots: true,
+  };
   return tabulateFilteredCastVoteRecords({
-    cvrs: store.getCastVoteRecords({
-      electionId,
-      election,
-      filter,
-      excludeWithheldBallots: true,
-    }),
+    cvrs: blocking
+      ? store.getCastVoteRecordsSync(cvrQuery)
+      : store.getCastVoteRecords(cvrQuery),
     election,
     groupBy,
     expectedGroups,
+    yieldPeriodically: !blocking,
   });
 }
 
@@ -90,16 +96,35 @@ const tabulateCastVoteRecordsMemoized = memoize(
     )
 );
 
+const MAX_TABULATION_ATTEMPTS = 3;
+
 /**
  * Tabulate election results including all scanned and adjudicated information.
+ * Retries if the database changes partway, blocking on the last attempt, so a
+ * report reflects one state.
  */
-export async function tabulateElectionResults({
+export async function tabulateElectionResults(
+  params: Omit<Parameters<typeof tabulateElectionResultsOnce>[0], 'blocking'>
+): Promise<Tabulation.ElectionResultsGroupMap> {
+  for (let attempt = 1; attempt < MAX_TABULATION_ATTEMPTS; attempt += 1) {
+    const changesBefore = params.store.getTotalChanges();
+    const results = await tabulateElectionResultsOnce(params);
+    if (params.store.getTotalChanges() === changesBefore) {
+      return results;
+    }
+    debug('database changed during tabulation, retrying');
+  }
+  return tabulateElectionResultsOnce({ ...params, blocking: true });
+}
+
+async function tabulateElectionResultsOnce({
   electionId,
   store,
   filter = {},
   groupBy = {},
   includeWriteInAdjudicationResults,
   includeManualResults,
+  blocking,
 }: {
   electionId: Id;
   store: Store;
@@ -107,6 +132,7 @@ export async function tabulateElectionResults({
   groupBy?: Tabulation.GroupBy;
   includeWriteInAdjudicationResults?: boolean;
   includeManualResults?: boolean;
+  blocking?: boolean;
 }): Promise<Tabulation.ElectionResultsGroupMap> {
   debug('tabulating election results');
   const {
@@ -119,6 +145,7 @@ export async function tabulateElectionResults({
     store,
     filter,
     groupBy,
+    blocking,
   });
 
   // replace bucketed write-in counts with write-in adjudication data

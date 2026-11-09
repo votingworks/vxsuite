@@ -12,6 +12,7 @@ import {
   type BallotStyle,
   type BallotStyleGroupId,
 } from '@votingworks/types';
+import { iter } from '@votingworks/basics';
 import type { Client } from '@votingworks/db';
 import z from 'zod';
 import {
@@ -49,30 +50,9 @@ export class BallotPositionsStore {
     return Boolean(this.client.one(`select 1 from ballot_positions limit 1`));
   }
 
-  /**
-   * Imports ballot positions from an election package into the store.
-   */
-  async importPositions(
-    zip: ElectionPackageZip,
-    election: Election,
-    settings: SystemSettings
-  ): Promise<void> {
-    if (!settings.splitElectionDefinition) {
-      for (const bs of election.ballotStyles) {
-        if (!bs.ballotPositions) continue; // Not a scannable ballot.
-
-        addPositions(this.client, {
-          ballotStyleId: bs.id,
-          positions: bs.ballotPositions,
-        });
-      }
-
-      return;
-    }
-
-    for await (const bp of streamBallotPositions(zip)) {
-      addPositions(this.client, bp);
-    }
+  /** Inserts ballot positions read by {@link readBallotPositions}. */
+  addPositions(positions: readonly BallotPositions[]): void {
+    for (const p of positions) addPositions(this.client, p);
   }
 }
 
@@ -100,36 +80,58 @@ export class CandidateOrderingsStore {
     return unsafeParseJson(row.orderings, CandidateOrderingsSchema);
   }
 
-  /**
-   * Imports candidate orderings from an election package.
-   */
-  async importCandidateOrderings(
-    zip: ElectionPackageZip,
-    election: Election,
-    settings: SystemSettings
-  ): Promise<void> {
-    if (!settings.splitElectionDefinition) {
-      const seenGroupIds = new Set<BallotStyleGroupId>();
-
-      for (const bs of election.ballotStyles) {
-        if (seenGroupIds.has(bs.groupId)) continue;
-        seenGroupIds.add(bs.groupId);
-
-        if (!bs.orderedCandidatesByContest) continue;
-
-        addCandidateOrderings(this.client, {
-          ballotStyleGroupId: bs.groupId,
-          orderings: bs.orderedCandidatesByContest,
-        });
-      }
-
-      return;
-    }
-
-    for await (const co of streamCandidateOrderings(zip)) {
-      addCandidateOrderings(this.client, co);
-    }
+  /** Inserts candidate orderings read by {@link readCandidateOrderings}. */
+  addCandidateOrderings(orderings: readonly BallotCandidateOrderings[]): void {
+    for (const o of orderings) addCandidateOrderings(this.client, o);
   }
+}
+
+/** Reads the candidate orderings of every ballot style group in a package. */
+export async function readCandidateOrderings(
+  zip: ElectionPackageZip,
+  election: Election,
+  settings: SystemSettings
+): Promise<BallotCandidateOrderings[]> {
+  if (settings.splitElectionDefinition) {
+    return await iter(streamCandidateOrderings(zip)).toArray();
+  }
+
+  const orderings: BallotCandidateOrderings[] = [];
+  const seenGroupIds = new Set<BallotStyleGroupId>();
+  for (const bs of election.ballotStyles) {
+    if (seenGroupIds.has(bs.groupId)) continue;
+    seenGroupIds.add(bs.groupId);
+
+    if (!bs.orderedCandidatesByContest) continue;
+
+    orderings.push({
+      ballotStyleGroupId: bs.groupId,
+      orderings: bs.orderedCandidatesByContest,
+    });
+  }
+  return orderings;
+}
+
+/** Reads the bubble positions of every scannable ballot style in a package. */
+export async function readBallotPositions(
+  zip: ElectionPackageZip,
+  election: Election,
+  settings: SystemSettings
+): Promise<BallotPositions[]> {
+  if (settings.splitElectionDefinition) {
+    return await iter(streamBallotPositions(zip)).toArray();
+  }
+
+  const positions: BallotPositions[] = [];
+  for (const bs of election.ballotStyles) {
+    if (!bs.ballotPositions) continue; // Not a scannable ballot.
+
+    positions.push({
+      ballotStyleId: bs.id,
+      positions: bs.ballotPositions,
+    });
+  }
+  return positions;
 }
 
 function addCandidateOrderings(c: Client, b: BallotCandidateOrderings): void {

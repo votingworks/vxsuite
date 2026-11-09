@@ -62,7 +62,7 @@ test('setContestAdjudicatedVotes and getAdjudicatedVotes', async () => {
 
   function expectVotes(votes: Tabulation.Votes) {
     const [cvr] = [
-      ...store.getCastVoteRecords({
+      ...store.getCastVoteRecordsSync({
         electionId,
         election,
         filter: {},
@@ -497,7 +497,7 @@ test('adjudicateCvr adjudicates contest and resolves tags', async () => {
 
   function expectVotes(votes: string[]) {
     const [cvr] = [
-      ...store.getCastVoteRecords({
+      ...store.getCastVoteRecordsSync({
         electionId,
         election,
         filter: {},
@@ -948,7 +948,7 @@ test('adjudicateCvr applies multiple contests in a single transaction and marks 
 
   // Both contests' adjudicated_votes are written.
   const [cvr] = [
-    ...store.getCastVoteRecords({
+    ...store.getCastVoteRecordsSync({
       electionId,
       election,
       filter: {},

@@ -91,7 +91,7 @@ async function sendBatchToAdmin({
       store.getCandidateOrderingsStore().getCandidateOrderings(bs),
   };
 
-  const sheets: AcceptedSheet[] = iter(store.forEachAcceptedSheet())
+  const sheets: AcceptedSheet[] = await iter(store.forEachAcceptedSheet())
     .filter((sheet) => sheet.batchId === batch.id)
     .toArray();
 

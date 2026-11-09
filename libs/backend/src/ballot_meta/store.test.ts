@@ -18,7 +18,12 @@ import {
 import { assertDefined } from '@votingworks/basics';
 import { zipFile } from '@votingworks/test-utils';
 import { withElectionPackageZip } from '../election_package/election_package_io.js';
-import { BallotPositionsStore, CandidateOrderingsStore } from './store.js';
+import {
+  BallotPositionsStore,
+  CandidateOrderingsStore,
+  readBallotPositions,
+  readCandidateOrderings,
+} from './store.js';
 
 const baseElection = electionGeneralFixtures.readElection();
 
@@ -92,7 +97,7 @@ test('non-split election definition - imports positions from parsed election', a
 
   const pkgFile = makeTemporaryFile({ content: await zipFile({}) });
   await withElectionPackageZip(pkgFile, async (zip) => {
-    await store.importPositions(zip, election, settings);
+    store.addPositions(await readBallotPositions(zip, election, settings));
   });
 
   expect(store.hasPositions()).toBeTruthy();
@@ -125,7 +130,7 @@ test('split election definition - imports positions from ballotPositions.jsonl',
 
   const pkgFile = makeTemporaryFile({ content: pkgData });
   await withElectionPackageZip(pkgFile, async (zip) => {
-    await store.importPositions(zip, election, settings);
+    store.addPositions(await readBallotPositions(zip, election, settings));
   });
 
   expect(store.hasPositions()).toBeTruthy();
@@ -159,7 +164,9 @@ test('single-file election - imports candidate orderings from parsed election', 
 
   const pkgFile = makeTemporaryFile({ content: await zipFile({}) });
   await withElectionPackageZip(pkgFile, async (zip) => {
-    await store.importCandidateOrderings(zip, election, settings);
+    store.addCandidateOrderings(
+      await readCandidateOrderings(zip, election, settings)
+    );
   });
 
   expect(store.getCandidateOrderings(style1)).toEqual(
@@ -196,7 +203,9 @@ test('split-file election - imports orderings from candidateOrderings.jsonl', as
 
   const pkgFile = makeTemporaryFile({ content: pkgData });
   await withElectionPackageZip(pkgFile, async (zip) => {
-    await store.importCandidateOrderings(zip, election, settings);
+    store.addCandidateOrderings(
+      await readCandidateOrderings(zip, election, settings)
+    );
   });
 
   expect(store.getCandidateOrderings(style1)).toEqual(

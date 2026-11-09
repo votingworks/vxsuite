@@ -95,7 +95,7 @@ function handleEnteredWriteInCandidateData({
  * any write-in references with zero votes. Edits the `ManualElectionResults` in place.
  * After this transformation, the method writes to the manual_results table in the store.
  */
-export async function transformWriteInsAndSetManualResults({
+export function transformWriteInsAndSetManualResults({
   manualResults,
   electionId,
   store,
@@ -109,8 +109,8 @@ export async function transformWriteInsAndSetManualResults({
   precinctId: string;
   ballotStyleGroupId: BallotStyleGroupId;
   votingMethod: ManualResultsVotingMethod;
-}): Promise<void> {
-  await store.withTransaction(() => {
+}): void {
+  store.withTransaction(() => {
     const writeInAdjustedManualResults = handleEnteredWriteInCandidateData({
       manualResults,
       electionId,
@@ -124,7 +124,6 @@ export async function transformWriteInsAndSetManualResults({
       votingMethod,
       manualResults: writeInAdjustedManualResults,
     });
-    return Promise.resolve();
   });
 }
 
