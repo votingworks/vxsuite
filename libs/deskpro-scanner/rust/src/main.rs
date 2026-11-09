@@ -61,8 +61,8 @@ fn main() -> color_eyre::Result<()> {
                     break;
                 }
             }
-            Input::DriverEvent(event) => {
-                if session.handle_driver_event(event) == Flow::LostScanner {
+            Input::DriverEvent { connection, event } => {
+                if session.handle_driver_event(connection, event) == Flow::LostScanner {
                     session.output.shutdown();
                     // SAFETY: output is flushed. After a lost link the vendor library's threads
                     // outlive even `ScannerDisconnect`, so `exit` aborts in its C++ destructors.
@@ -191,7 +191,11 @@ impl Output {
 
 enum Input {
     Command(Command),
-    DriverEvent(driver::Event),
+    /// Tagged with the connection that produced it, so a late event can't reach a newer one.
+    DriverEvent {
+        connection: u64,
+        event: driver::Event,
+    },
     Malformed(DecodeError),
     Closed,
     /// SIGINT or SIGTERM; disconnect cleanly so the scanner accepts the next connection at once.
@@ -236,10 +240,10 @@ fn spawn_input_reader<R: Read + Send + 'static>(mut reader: R, tx: Sender<Input>
 }
 
 /// Moves driver events onto the main loop's channel until the driver is dropped.
-fn spawn_event_forwarder(events: Receiver<driver::Event>, tx: Sender<Input>) {
+fn spawn_event_forwarder(events: Receiver<driver::Event>, connection: u64, tx: Sender<Input>) {
     std::thread::spawn(move || {
         for event in events {
-            if tx.send(Input::DriverEvent(event)).is_err() {
+            if tx.send(Input::DriverEvent { connection, event }).is_err() {
                 return;
             }
         }
@@ -259,6 +263,8 @@ struct Session {
     output: Output,
     inputs: Sender<Input>,
     driver: Option<Driver>,
+    /// Counts successful connects; identifies the current connection's events.
+    connection: u64,
 }
 
 impl Session {
@@ -268,6 +274,7 @@ impl Session {
             output,
             inputs,
             driver: None,
+            connection: 0,
         }
     }
 
@@ -333,7 +340,8 @@ impl Session {
 
         match Driver::connect(&self.library, app_id) {
             Ok((driver, events)) => {
-                spawn_event_forwarder(events, self.inputs.clone());
+                self.connection += 1;
+                spawn_event_forwarder(events, self.connection, self.inputs.clone());
                 self.driver = Some(driver);
                 ResponseBody::Ok
             }
@@ -360,8 +368,8 @@ impl Session {
         self.output.shutdown();
     }
 
-    fn handle_driver_event(&mut self, event: driver::Event) -> Flow {
-        if self.driver.is_none() {
+    fn handle_driver_event(&mut self, connection: u64, event: driver::Event) -> Flow {
+        if self.driver.is_none() || connection != self.connection {
             return Flow::Continue;
         }
         if let driver::Event::Control(control) = &event
