@@ -63,7 +63,9 @@ fn main() -> color_eyre::Result<()> {
             Input::DriverEvent(event) => {
                 if session.handle_driver_event(event) == Flow::LostScanner {
                     session.abandon();
-                    std::process::exit(LOST_SCANNER_EXIT_CODE);
+                    // SAFETY: output is flushed. `exit` would run the vendor library's C++ static
+                    // destructors under its live threads, which aborts.
+                    unsafe { libc::_exit(LOST_SCANNER_EXIT_CODE) };
                 }
             }
             Input::Malformed(error) => {
