@@ -7,6 +7,7 @@
 create table election (
   -- enforce singleton table
   id integer primary key check (id = 1),
+  -- normalized VXF `Election` JSON, not the package's original bytes
   election_data text not null,
   ballot_hash text not null,
   election_package_hash text not null,

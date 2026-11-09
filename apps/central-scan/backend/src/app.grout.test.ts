@@ -9,6 +9,7 @@ import {
 import { vxFamousNamesFixtures } from '@votingworks/hmpb';
 import { LogEventId } from '@votingworks/logging';
 import {
+  asStoredElectionDefinition,
   createElectionDefinition,
   createElectionDefinitionCdf,
   suppressingConsoleOutput,
@@ -151,7 +152,7 @@ test('getElectionDefinition', async () => {
     });
 
     expect(await apiClient.getElectionRecord()).toEqual({
-      electionDefinition,
+      electionDefinition: asStoredElectionDefinition(electionDefinition),
       electionPackageHash,
     });
 

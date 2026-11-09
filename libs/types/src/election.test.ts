@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import * as fc from 'fast-check';
-import { assert, find, ok } from '@votingworks/basics';
+import { assert, DateWithoutTime, find, ok } from '@votingworks/basics';
 import {
   ballotPaperDimensions,
   getBallotStyle,
@@ -60,7 +60,10 @@ import {
   testCdfBallotDefinition,
   testVxfElection,
 } from './cdf/ballot-definition/fixtures.js';
-import { safeParseElection } from './election_parsing.js';
+import {
+  parseValidatedElection,
+  safeParseElection,
+} from './election_parsing.js';
 import { normalizeVxfAfterCdfConversion } from '../test/cdf_conversion_helpers.js';
 
 test('can build votes from a candidate ID', () => {
@@ -663,6 +666,21 @@ test('formatElectionHashes', () => {
   expect(
     formatElectionHashes('00000000000000000000', '11111111111111111111')
   ).toEqual('0000000-1111111');
+});
+
+test('parseValidatedElection round-trips a validated election', () => {
+  for (const value of [
+    election,
+    primaryElection,
+    electionTwoPartyPrimary,
+    testVxfElection,
+    testCdfBallotDefinition,
+  ]) {
+    const validated = safeParseElection(value).unsafeUnwrap();
+    const parsed = parseValidatedElection(JSON.stringify(validated));
+    expect(parsed).toEqual(validated);
+    expect(parsed.date).toBeInstanceOf(DateWithoutTime);
+  }
 });
 
 test('safeParseElection converts CDF to VXF', () => {

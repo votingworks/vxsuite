@@ -23,6 +23,7 @@ import {
   type BallotPositions,
   type CandidateOrderings,
   getContests,
+  hasSplits,
   type SheetPositions,
   type ContestPosition,
 } from '@votingworks/types';
@@ -30,7 +31,9 @@ import { assert, assertDefined, find, typedAs } from '@votingworks/basics';
 import { join } from 'node:path';
 import { createHash } from 'node:crypto';
 import {
+  asStoredElectionDefinition,
   createElectionDefinitionCdf,
+  createUnnormalizedElectionDefinition,
   toSplitFileElection,
 } from '@votingworks/test-utils';
 import { mockBaseLogger } from '@votingworks/logging';
@@ -152,7 +155,7 @@ test('import an election package', async () => {
 
   expect(store.getElection(electionId)).toEqual({
     createdAt: expect.anything(),
-    electionDefinition,
+    electionDefinition: asStoredElectionDefinition(electionDefinition),
     id: electionId,
     isOfficialResults: false,
     electionPackageHash,
@@ -472,6 +475,27 @@ test('reads election metadata without parsing the election definition', async ()
   );
 });
 
+test('getElection returns the election as zod normalized it on import', async () => {
+  const unnormalized = createUnnormalizedElectionDefinition(
+    electionTwoPartyPrimaryFixtures.readElection()
+  );
+  const store = Store.memoryStore(makeTemporaryDirectory());
+  const { electionId } = (
+    await store.importElectionPackage({
+      packagePath: await writeTempElectionZip({
+        electionDefinition: unnormalized,
+        systemSettings,
+      }),
+    })
+  ).unsafeUnwrap();
+
+  const { election: readBack } = assertDefined(
+    store.getElection(electionId)
+  ).electionDefinition;
+  expect(readBack).toEqual(unnormalized.election);
+  expect(hasSplits(assertDefined(readBack.precincts[0]))).toEqual(false);
+});
+
 test('reads election metadata from a CDF election definition', async () => {
   const { election: vxfElection } =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
@@ -485,8 +509,6 @@ test('reads election metadata from a CDF election definition', async () => {
   });
   const { electionId } = importResult.unsafeUnwrap();
 
-  // CDF has none of these fields where the fast path looks for them, so both
-  // methods have to fall back to parsing the election definition.
   const { election } = cdfElectionDefinition;
   expect(store.getElectionMetadata(electionId)).toEqual({
     id: election.id,

@@ -5,7 +5,8 @@ import { assert, throwIllegalValue } from '@votingworks/basics';
 import {
   type Election,
   type ElectionDefinition,
-  safeParseElection,
+  type ElectionId,
+  parseValidatedElection,
   safeParseJson,
   type ValidStreetInfo,
   ValidStreetInfoSchema,
@@ -524,9 +525,7 @@ export abstract class Store {
     if (!row) {
       return undefined;
     }
-    const election: Election = safeParseElection(
-      row.election_data
-    ).unsafeUnwrap();
+    const election = parseValidatedElection(row.election_data);
     this.election = election;
 
     return this.election;
@@ -542,13 +541,19 @@ export abstract class Store {
   getPollbookConfigurationInformation(): PollbookConfigurationInformation {
     const row = this.client.one(
       `
-          select election_data, ballot_hash, package_hash, configured_precinct_id
+          select
+            election_data ->> '$.id' as election_id,
+            election_data ->> '$.title' as election_title,
+            ballot_hash,
+            package_hash,
+            configured_precinct_id
           from elections
           order by rowid desc
           limit 1
         `
     ) as {
-      election_data: string;
+      election_id: ElectionId;
+      election_title: string;
       ballot_hash: string;
       package_hash: string;
       configured_precinct_id: string;
@@ -559,12 +564,9 @@ export abstract class Store {
         codeVersion: this.codeVersion,
       };
     }
-    const election: Election = safeParseElection(
-      row.election_data
-    ).unsafeUnwrap();
     return {
-      electionId: election.id,
-      electionTitle: election.title,
+      electionId: row.election_id,
+      electionTitle: row.election_title,
       electionBallotHash: row.ballot_hash,
       pollbookPackageHash: row.package_hash,
       machineId: this.machineId,

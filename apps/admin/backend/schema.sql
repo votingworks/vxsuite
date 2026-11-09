@@ -1,5 +1,6 @@
 create table elections (
   id text primary key,
+  -- normalized VXF `Election` JSON, not the package's original bytes
   election_data text not null,
   ballot_hash text not null,
   system_settings_data text not null,

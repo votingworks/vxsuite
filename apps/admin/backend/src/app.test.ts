@@ -23,6 +23,7 @@ import {
   type ElectionDefinition,
 } from '@votingworks/types';
 import {
+  asStoredElectionDefinition,
   createElectionDefinitionCdf,
   suppressingConsoleOutput,
   toSplitFileElection,
@@ -320,7 +321,7 @@ test('managing the current election', async () => {
   expect(await apiClient.getCurrentElectionMetadata()).toMatchObject({
     isOfficialResults: false,
     id: electionId,
-    electionDefinition,
+    electionDefinition: asStoredElectionDefinition(electionDefinition),
   });
 
   // mark results as official as election manager
@@ -338,7 +339,7 @@ test('managing the current election', async () => {
   expect(await apiClient.getCurrentElectionMetadata()).toMatchObject({
     isOfficialResults: true,
     id: electionId,
-    electionDefinition,
+    electionDefinition: asStoredElectionDefinition(electionDefinition),
   });
 
   // revert results to unofficial as system administrator
@@ -356,7 +357,7 @@ test('managing the current election', async () => {
   expect(await apiClient.getCurrentElectionMetadata()).toMatchObject({
     isOfficialResults: false,
     id: electionId,
-    electionDefinition,
+    electionDefinition: asStoredElectionDefinition(electionDefinition),
   });
 
   // unconfigure as system administrator
@@ -376,7 +377,7 @@ test('managing the current election', async () => {
   await configureMachine(apiClient, auth, electionDefinition);
   expect(await apiClient.getCurrentElectionMetadata()).toMatchObject({
     isOfficialResults: false,
-    electionDefinition,
+    electionDefinition: asStoredElectionDefinition(electionDefinition),
   });
 });
 
@@ -409,8 +410,8 @@ test('configuring with a CDF election', async () => {
 
   mockSystemAdministratorAuth(auth);
 
-  const { electionData, ballotHash } =
-    createElectionDefinitionCdf(electionGeneral);
+  const cdfElectionDefinition = createElectionDefinitionCdf(electionGeneral);
+  const { electionData, ballotHash } = cdfElectionDefinition;
   const electionPackage = await zipFile({
     [ElectionPackageFileName.ELECTION]: electionData,
     [ElectionPackageFileName.METADATA]: JSON.stringify(LATEST_METADATA),
@@ -437,11 +438,8 @@ test('configuring with a CDF election', async () => {
   );
 
   const currentElectionMetadata = await apiClient.getCurrentElectionMetadata();
-  expect(currentElectionMetadata?.electionDefinition.electionData).toEqual(
-    electionData
-  );
-  expect(currentElectionMetadata?.electionDefinition.ballotHash).toEqual(
-    ballotHash
+  expect(currentElectionMetadata?.electionDefinition).toEqual(
+    asStoredElectionDefinition(cdfElectionDefinition)
   );
 
   // Ensure loading auth election key from db works
