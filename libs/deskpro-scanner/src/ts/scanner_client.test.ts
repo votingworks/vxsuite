@@ -1,5 +1,9 @@
 import { afterEach, expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
+import { sleep } from '@votingworks/basics';
+import { chmodSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { createMockDaemon, type MockScannerDaemon } from './mock_scanner.js';
 import {
   DEFAULT_DAEMON_PATH,
@@ -393,6 +397,25 @@ test('the real daemon exits cleanly on request', async () => {
 test('spawning a daemon that is not there fails instead of hanging', async () => {
   client = new ScannerClient(spawnDaemon('/nonexistent/deskproctl'));
   expect((await client.start()).unsafeUnwrapErr().code).toEqual('daemonExited');
+});
+
+test('a daemon that stops reading stdin is stopped instead of crashing the host', async () => {
+  const directory = mkdtempSync(join(tmpdir(), 'deskproctl-'));
+  const daemonPath = join(directory, 'deskproctl');
+  writeFileSync(daemonPath, '#!/bin/sh\nexec 0<&-\nsleep 10\n');
+  chmodSync(daemonPath, 0o755);
+  try {
+    client = new ScannerClient(spawnDaemon(daemonPath));
+    const hello = client.start();
+    await sleep(100);
+    expect((await client.getStatus()).unsafeUnwrapErr()).toEqual({
+      code: 'daemonExited',
+      message: 'deskproctl exited with code null, signal SIGTERM',
+    });
+    expect((await hello).unsafeUnwrapErr().code).toEqual('daemonExited');
+  } finally {
+    rmSync(directory, { recursive: true });
+  }
 });
 
 test('the mock reassembles a command split across writes', async () => {

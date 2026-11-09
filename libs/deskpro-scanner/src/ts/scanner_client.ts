@@ -55,6 +55,10 @@ export interface Transport {
 /** Runs `deskproctl` as a child process and exposes its stdio as a {@link Transport}. */
 export function spawnDaemon(daemonPath = DEFAULT_DAEMON_PATH): Transport {
   const child = spawn(daemonPath, [], { stdio: ['pipe', 'pipe', 'inherit'] });
+  child.stdin.on('error', (error) => {
+    debug('deskproctl stdin: %s', error.message);
+    child.kill('SIGTERM');
+  });
   return {
     incoming: child.stdout,
     outgoing: child.stdin,
