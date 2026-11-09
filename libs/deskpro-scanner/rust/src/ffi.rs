@@ -569,7 +569,7 @@ pub mod ui_shim {
     /// What [`install`] did.
     #[derive(Debug, Clone, Copy, PartialEq, Eq)]
     pub enum Outcome {
-        /// The slot was null and now points at the given handler.
+        /// The slot now points at the given handler (it may already have, from an earlier connect).
         Patched,
         /// The slot was already set — the GUI module is loaded, or the driver has been fixed.
         AlreadySet,
@@ -616,10 +616,11 @@ pub mod ui_shim {
         // SAFETY: `slot` is the library's own `.bss` variable, writable and 8-aligned, and the
         // caller guarantees nothing reads it concurrently.
         unsafe {
-            if slot.read().is_some() {
-                return Ok(Outcome::AlreadySet);
+            match slot.read() {
+                None => slot.write(Some(handler)),
+                Some(current) if current as usize == handler as usize => {}
+                Some(_) => return Ok(Outcome::AlreadySet),
             }
-            slot.write(Some(handler));
         }
         Ok(Outcome::Patched)
     }
