@@ -10,7 +10,9 @@ use std::borrow::Cow;
 use std::ffi::{CStr, CString, c_char, c_int, c_void};
 use std::fmt;
 use std::marker::PhantomData;
+use std::os::unix::ffi::OsStrExt;
 use std::panic::{AssertUnwindSafe, catch_unwind};
+use std::path::Path;
 use std::ptr::{self, NonNull};
 use std::sync::Mutex;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -660,13 +662,13 @@ impl ProfileSchema {
 
 impl Driver {
     /// Loads the driver and connects with [`ProfileSchema::CURRENT`].
-    pub fn connect(library_path: &str, app_id: &str) -> Result<(Self, Receiver<Event>), Error> {
+    pub fn connect(library_path: &Path, app_id: &str) -> Result<(Self, Receiver<Event>), Error> {
         Self::connect_with_schema(library_path, app_id, ProfileSchema::CURRENT)
     }
 
     /// Loads the driver, registers the callbacks and connects to the scanner.
     pub fn connect_with_schema(
-        library_path: &str,
+        library_path: &Path,
         app_id: &str,
         schema: ProfileSchema,
     ) -> Result<(Self, Receiver<Event>), Error> {
@@ -684,7 +686,7 @@ impl Driver {
     }
 
     fn connect_inner(
-        library_path: &str,
+        library_path: &Path,
         app_id: &str,
         schema: ProfileSchema,
     ) -> Result<(Self, Receiver<Event>), Error> {
@@ -823,8 +825,9 @@ impl Driver {
 
     /// Writes the scanner's log files into `directory`, asynchronously; progress arrives as
     /// `CTYPE_INOUI_TRANSFER*` control messages. Undocumented export.
-    pub fn fetch_logs(&self, directory: &str, all: bool) -> Result<(), Error> {
-        let directory = CString::new(directory).map_err(|_| Error::InteriorNul)?;
+    pub fn fetch_logs(&self, directory: &Path, all: bool) -> Result<(), Error> {
+        let directory =
+            CString::new(directory.as_os_str().as_bytes()).map_err(|_| Error::InteriorNul)?;
         // SAFETY: the driver copies the path into a `std::string` during the call.
         unsafe {
             if all {

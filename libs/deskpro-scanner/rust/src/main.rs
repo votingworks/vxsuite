@@ -2,6 +2,7 @@
 //! backend. Speaks [`deskpro_scanner::protocol`] over stdin/stdout and logs to stderr.
 
 use std::io::{Read, Write};
+use std::path::PathBuf;
 use std::sync::mpsc::{Receiver, Sender, SyncSender, sync_channel};
 
 use clap::Parser;
@@ -18,7 +19,7 @@ use deskpro_scanner::protocol::{
 struct Config {
     /// Path to the vendor `libinoapi.so`.
     #[clap(long, env = ffi::LIBRARY_PATH_ENV, default_value = ffi::DEFAULT_LIBRARY_PATH)]
-    library: String,
+    library: PathBuf,
 
     #[clap(long, env = "LOG_LEVEL", default_value = "warn")]
     log_level: tracing::Level,
@@ -235,14 +236,14 @@ enum Flow {
 
 /// Owns the driver connection, if any, and turns commands into calls on it.
 struct Session {
-    library: String,
+    library: PathBuf,
     output: Output,
     inputs: Sender<Input>,
     driver: Option<Driver>,
 }
 
 impl Session {
-    fn new(library: String, output: Output, inputs: Sender<Input>) -> Self {
+    fn new(library: PathBuf, output: Output, inputs: Sender<Input>) -> Self {
         Self {
             library,
             output,

@@ -9,7 +9,7 @@
 //! ```
 
 use std::io::Write;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::time::{Duration, Instant};
 
 use clap::{Parser, Subcommand};
@@ -24,7 +24,7 @@ use deskpro_scanner::ffi;
 struct Args {
     /// Path to the vendor `libinoapi.so`.
     #[clap(long, env = ffi::LIBRARY_PATH_ENV, default_value = ffi::DEFAULT_LIBRARY_PATH)]
-    library: String,
+    library: PathBuf,
 
     /// Identification string passed to `ScannerConnect`.
     #[clap(long, default_value = "deskpro-diag")]
@@ -56,10 +56,10 @@ enum DiagCommand {
     Profile {
         /// Write to this file instead of stdout.
         #[clap(long)]
-        out: Option<String>,
+        out: Option<PathBuf>,
     },
 
-    /// Stream control messages, log lines and image metadata until interrupted.
+    /// Stream control messages, log lines and image metadata for `--seconds`.
     Watch {
         /// Stop after this many seconds.
         #[clap(long, default_value = "60")]
@@ -67,7 +67,7 @@ enum DiagCommand {
 
         /// Write each image's bytes to this directory as `<seqId>-<side>.bin`.
         #[clap(long)]
-        save_images: Option<String>,
+        save_images: Option<PathBuf>,
     },
 
     /// `SetReady(1)`, `ScanStart`, then stream like `watch` until the batch ends; `ScanStop` at the end.
@@ -78,11 +78,11 @@ enum DiagCommand {
 
         /// Write each image's bytes to this directory as `<seqId>-<side>.bin`.
         #[clap(long)]
-        save_images: Option<String>,
+        save_images: Option<PathBuf>,
 
         /// Send this profile file with `SetScannerSetup` first.
         #[clap(long)]
-        profile_file: Option<String>,
+        profile_file: Option<PathBuf>,
 
         /// Activate this stored profile with `SelectScannerSetup` first.
         #[clap(long)]
@@ -113,20 +113,20 @@ enum DiagCommand {
     DefaultProfile {
         /// Write to this file instead of stdout.
         #[clap(long)]
-        out: Option<String>,
+        out: Option<PathBuf>,
     },
 
     /// Activate a stored profile by name (`SelectScannerSetup`).
     Select { name: String },
 
     /// Send a profile file to the scanner (`SetScannerSetup`).
-    SetProfile { file: String },
+    SetProfile { file: PathBuf },
 
     /// Pull the scanner's log files into a directory (`GetLastLogs` / `GetAllLogs`).
     Logs {
         /// Directory to write into.
         #[clap(long, default_value = "./scanner-logs")]
-        out: String,
+        out: PathBuf,
 
         /// Every log file, not just the latest.
         #[clap(long)]
@@ -190,7 +190,7 @@ fn main() -> color_eyre::Result<()> {
         DiagCommand::SetProfile { file } => {
             let (driver, _events) = connect(&args)?;
             driver.set_profile(&std::fs::read_to_string(file)?)?;
-            println!("SetScannerSetup({file}) ok");
+            println!("SetScannerSetup({}) ok", file.display());
             Ok(())
         }
         DiagCommand::Logs { out, all, timeout } => logs(&args, out, *all, *timeout),
@@ -206,9 +206,8 @@ const RUNTIME_DEPENDENCIES: &[(&str, &str)] = &[
     ),
 ];
 
-fn probe(library: &str) -> color_eyre::Result<()> {
-    println!("library path: {library}");
-    let path = Path::new(library);
+fn probe(path: &Path) -> color_eyre::Result<()> {
+    println!("library path: {}", path.display());
     if path.exists() {
         println!("  exists:     yes");
     } else {
@@ -239,7 +238,7 @@ fn probe(library: &str) -> color_eyre::Result<()> {
     print!("loading...    ");
     std::io::stdout().flush()?;
     // SAFETY: `Symbols` mirrors the driver's own headers.
-    match unsafe { ffi::Symbols::load(library) } {
+    match unsafe { ffi::Symbols::load(path) } {
         Ok(_) => println!("ok, all entry points resolved"),
         Err(error) => {
             println!("FAILED");
@@ -287,16 +286,16 @@ fn info(args: &Args) -> color_eyre::Result<()> {
     Ok(())
 }
 
-fn profile(args: &Args, out: Option<&str>) -> color_eyre::Result<()> {
+fn profile(args: &Args, out: Option<&Path>) -> color_eyre::Result<()> {
     let (driver, _events) = connect(args)?;
     write_profile(&driver.profile()?, out)
 }
 
-fn write_profile(profile: &str, out: Option<&str>) -> color_eyre::Result<()> {
+fn write_profile(profile: &str, out: Option<&Path>) -> color_eyre::Result<()> {
     match out {
         Some(path) => {
             std::fs::write(path, profile)?;
-            println!("wrote {} bytes to {path}", profile.len());
+            println!("wrote {} bytes to {}", profile.len(), path.display());
         }
         None => println!("{profile}"),
     }
@@ -306,7 +305,7 @@ fn write_profile(profile: &str, out: Option<&str>) -> color_eyre::Result<()> {
 type Step<'a> = Box<dyn Fn() -> Result<(), deskpro_scanner::driver::Error> + 'a>;
 
 struct ScanSetup<'a> {
-    profile_file: Option<&'a str>,
+    profile_file: Option<&'a Path>,
     select: Option<&'a str>,
     sheets: Option<u32>,
     start_delay: Duration,
@@ -317,7 +316,7 @@ struct ScanSetup<'a> {
 fn watch(
     args: &Args,
     seconds: u64,
-    save_images: Option<&str>,
+    save_images: Option<&Path>,
     scan: Option<&ScanSetup<'_>>,
 ) -> color_eyre::Result<()> {
     let (driver, events) = connect(args)?;
@@ -422,15 +421,15 @@ fn watch(
     Ok(())
 }
 
-fn logs(args: &Args, out: &str, all: bool, seconds: u64) -> color_eyre::Result<()> {
+fn logs(args: &Args, out: &Path, all: bool, seconds: u64) -> color_eyre::Result<()> {
     let (driver, events) = connect(args)?;
     std::fs::create_dir_all(out)?;
     let out = std::fs::canonicalize(out)?;
-    let out = out.to_string_lossy();
     driver.fetch_logs(&out, all)?;
     println!(
-        "requested {} logs into {out}",
-        if all { "all" } else { "last" }
+        "requested {} logs into {}",
+        if all { "all" } else { "last" },
+        out.display()
     );
 
     let deadline = Instant::now() + Duration::from_secs(seconds);
@@ -443,7 +442,7 @@ fn logs(args: &Args, out: &str, all: bool, seconds: u64) -> color_eyre::Result<(
             break;
         }
     }
-    for entry in std::fs::read_dir(&*out)? {
+    for entry in std::fs::read_dir(&out)? {
         let entry = entry?;
         println!(
             "  {} ({} bytes)",
@@ -458,7 +457,7 @@ fn logs(args: &Args, out: &str, all: bool, seconds: u64) -> color_eyre::Result<(
 fn stream(
     events: &std::sync::mpsc::Receiver<Event>,
     deadline: Instant,
-    save_images: Option<&str>,
+    save_images: Option<&Path>,
     mut batch: Option<&mut BatchTracker>,
 ) -> color_eyre::Result<()> {
     while let Some(remaining) = deadline.checked_duration_since(Instant::now()) {
@@ -516,7 +515,7 @@ impl BatchTracker {
     }
 }
 
-fn print_event(event: &Event, save_images: Option<&str>) -> color_eyre::Result<()> {
+fn print_event(event: &Event, save_images: Option<&Path>) -> color_eyre::Result<()> {
     match event {
         Event::Log(message) => println!("log      {message}"),
         Event::Control(control) => println!(
@@ -545,9 +544,10 @@ fn print_event(event: &Event, save_images: Option<&str>) -> color_eyre::Result<(
                 image.endorser_front_text()
             );
             if let Some(directory) = save_images {
-                let name = format!("{directory}/{}-{:?}.bin", image.seq_id(), image.scan_side());
+                let name =
+                    directory.join(format!("{}-{:?}.bin", image.seq_id(), image.scan_side()));
                 std::fs::write(&name, image.data())?;
-                println!("         saved {name}");
+                println!("         saved {}", name.display());
             }
         }
     }

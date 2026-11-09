@@ -4,6 +4,7 @@
 #![allow(non_camel_case_types, non_snake_case, dead_code)]
 
 use std::ffi::{c_char, c_void};
+use std::path::{Path, PathBuf};
 
 pub const CTYPE_ERROR: u32 = 1; // CType - Errors
 
@@ -345,16 +346,16 @@ pub struct Symbols {
 /// Why the driver could not be opened.
 #[derive(Debug, thiserror::Error)]
 pub enum LoadError {
-    #[error("could not open {path}: {source}")]
+    #[error("could not open {}: {source}", path.display())]
     Open {
-        path: String,
+        path: PathBuf,
         #[source]
         source: libloading::Error,
     },
 
-    #[error("{path} is missing the symbol `{symbol}`: {source}")]
+    #[error("{} is missing the symbol `{symbol}`: {source}", path.display())]
     Symbol {
-        path: String,
+        path: PathBuf,
         symbol: &'static str,
         #[source]
         source: libloading::Error,
@@ -407,7 +408,7 @@ impl Symbols {
     ///
     /// # Errors
     /// If the library cannot be opened or is missing an entry point.
-    pub unsafe fn load(path: &str) -> Result<Self, LoadError> {
+    pub unsafe fn load(path: &Path) -> Result<Self, LoadError> {
         // SAFETY: caller's contract.
         let library: &'static libloading::Library = Box::leak(Box::new(
             unsafe { libloading::Library::new(path) }.map_err(|source| LoadError::Open {
