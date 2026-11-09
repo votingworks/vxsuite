@@ -8,7 +8,6 @@ import type {
   StateFeaturesConfig,
 } from '@votingworks/election-definition-backend';
 import { LanguageCode } from '@votingworks/types';
-import { Button } from '@votingworks/ui';
 import {
   createMockApiClient,
   type MockApiClient,
@@ -80,10 +79,17 @@ function renderEditor({
   render(
     provideApi(
       apiMock,
-      withRoute(<ElectionInfoEditor electionId={electionId} {...props} />, {
-        paramPath: '/elections/:electionId/info',
-        history,
-      })
+      withRoute(
+        <ElectionInfoEditor
+          electionId={electionId}
+          onElectionDeleted={vi.fn()}
+          {...props}
+        />,
+        {
+          paramPath: '/elections/:electionId/info',
+          history,
+        }
+      )
     )
   );
   return history;
@@ -315,14 +321,14 @@ test('election type selector with combined ballot primaries', async () => {
   await screen.findByRole('option', { name: 'Closed Primary', selected: true });
 });
 
-test('renders footer actions', async () => {
-  const onPress = vi.fn();
-  renderEditor({
-    props: { footerActions: <Button onPress={onPress}>Footer Action</Button> },
-  });
+test('deletes the election', async () => {
+  const onElectionDeleted = vi.fn();
+  renderEditor({ props: { onElectionDeleted } });
 
-  await userEvent.click(await screen.findButton('Footer Action'));
-  expect(onPress).toHaveBeenCalled();
+  apiMock.deleteElection.expectCallWith({ electionId }).resolves();
+  await userEvent.click(await screen.findButton('Delete Election'));
+  await userEvent.click(screen.getButton('Delete'));
+  await waitFor(() => expect(onElectionDeleted).toHaveBeenCalled());
 });
 
 function AudioPanel(): JSX.Element {

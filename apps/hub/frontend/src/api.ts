@@ -467,8 +467,19 @@ export const cloneElection = {
   },
 } as const;
 
+async function invalidateElectionListQueries(
+  queryClient: QueryClient
+): Promise<void> {
+  await queryClient.invalidateQueries(listElections.queryKey(), {
+    // Ensure list of elections is refetched in the background so it's
+    // fresh when we redirect to elections list
+    refetchType: 'all',
+  });
+}
+
 export const electionDefinitionApi = createElectionDefinitionApi(useApiClient, {
   invalidateElectionQueries,
+  invalidateElectionListQueries,
 });
 
 export const updateDistricts = {
@@ -643,22 +654,6 @@ export const updateSystemSettings = {
         await queryClient.invalidateQueries(
           getSystemSettings.queryKey(electionId)
         );
-      },
-    });
-  },
-} as const;
-
-export const deleteElection = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.deleteElection, {
-      async onSuccess() {
-        await queryClient.invalidateQueries(listElections.queryKey(), {
-          // Ensure list of elections is refetched in the background so it's
-          // fresh when we redirect to elections list
-          refetchType: 'all',
-        });
       },
     });
   },

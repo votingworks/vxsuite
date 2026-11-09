@@ -116,13 +116,19 @@ export function createElectionDefinitionApiMethods({
       return electionId;
     },
 
-    async discardInProgressElection(): Promise<void> {
-      const electionInfo = store.getInProgressElection();
-      store.deleteInProgressElection();
+    async deleteElection(input: ElectionInput): Promise<void> {
+      try {
+        loadInProgressElectionInfo(input);
+        store.deleteInProgressElection();
+      } catch (error) {
+        await logger.logAsCurrentRole(LogEventId.ElectionDefinitionDiscarded, {
+          message: `Error discarding election definition ${input.electionId}: ${extractErrorMessage(error)}`,
+          disposition: 'failure',
+        });
+        throw error;
+      }
       await logger.logAsCurrentRole(LogEventId.ElectionDefinitionDiscarded, {
-        message: electionInfo
-          ? `Discarded election definition ${electionInfo.electionId}.`
-          : 'No election definition to discard.',
+        message: `Discarded election definition ${input.electionId}.`,
         disposition: 'success',
       });
     },

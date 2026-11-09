@@ -221,7 +221,7 @@ test('Delete Election discards the election definition', async () => {
   within(modal).getByText(
     'Are you sure you want to delete this election? This action cannot be undone.'
   );
-  apiMock.apiClient.discardInProgressElection.expectCallWith().resolves();
+  apiMock.apiClient.deleteElection.expectCallWith({ electionId }).resolves();
   apiMock.expectListPotentialElectionPackagesOnUsbDrive([]);
   apiMock.apiClient.getCurrentInProgressElection
     .expectCallWith()

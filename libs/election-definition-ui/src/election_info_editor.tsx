@@ -24,6 +24,7 @@ import {
   SegmentedButton,
 } from '@votingworks/ui';
 import { InputWithAudio } from './ballot_audio/input_with_audio.js';
+import { DeleteElectionButton } from './delete_election_button.js';
 import { useElectionDefinitionApi } from './election_definition_context.js';
 import {
   FormBody,
@@ -40,7 +41,7 @@ export interface ElectionInfoEditorProps {
   isLocked?: boolean;
   showSignatureInput?: boolean;
   AudioPanel?: React.ComponentType;
-  footerActions?: React.ReactNode;
+  onElectionDeleted: () => void;
 }
 
 interface AudioPanelRoutes {
@@ -89,7 +90,7 @@ function ElectionInfoForm({
   isLocked,
   showSignatureInput,
   audioRoutes,
-  footerActions,
+  onElectionDeleted,
 }: ElectionInfoFormProps): JSX.Element {
   const api = useElectionDefinitionApi();
   const history = useHistory();
@@ -366,7 +367,10 @@ function ElectionInfoForm({
             Edit
           </Button>
         )}
-        {footerActions}
+        <DeleteElectionButton
+          electionId={savedElectionInfo.electionId}
+          onDeleted={onElectionDeleted}
+        />
       </FormFooter>
     </Form>
   );

@@ -20,6 +20,7 @@ export interface ElectionDefinitionApiOptions {
     queryClient: QueryClient,
     electionId: ElectionId
   ) => Promise<void>;
+  invalidateElectionListQueries?: (queryClient: QueryClient) => Promise<void>;
 }
 
 export function getElectionInfoQueryKey(electionId: ElectionId): QueryKey {
@@ -41,6 +42,7 @@ function createReactQueryApi(
   getApiClient: () => ElectionDefinitionApiClient,
   {
     invalidateElectionQueries = invalidateElectionInfo,
+    invalidateElectionListQueries,
   }: ElectionDefinitionApiOptions
 ) {
   return {
@@ -62,6 +64,17 @@ function createReactQueryApi(
             if (result.isOk()) {
               await invalidateElectionQueries(queryClient, electionId);
             }
+          },
+        });
+      },
+    },
+    deleteElection: {
+      useMutation() {
+        const apiClient = getApiClient();
+        const queryClient = useQueryClient();
+        return useMutation(apiClient.deleteElection, {
+          async onSuccess() {
+            await invalidateElectionListQueries?.(queryClient);
           },
         });
       },

@@ -157,7 +157,7 @@ test('create, edit and discard an election definition', async () => {
     title: 'Primary Election',
   });
 
-  await api.discardInProgressElection();
+  await api.deleteElection({ electionId });
   expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
     LogEventId.ElectionDefinitionDiscarded,
     {
@@ -168,16 +168,21 @@ test('create, edit and discard an election definition', async () => {
   expect(await api.getCurrentInProgressElection()).toEqual(null);
 });
 
-test('discarding with no election definition is a no-op', async () => {
+test('deleting an unknown election definition fails', async () => {
   const { apiClient: api, auth, logger } = buildTestEnvironment();
   mockSystemAdministratorAuth(auth);
 
-  await api.discardInProgressElection();
-  expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+  await suppressingConsoleOutput(() =>
+    expect(api.deleteElection({ electionId: 'unknown' })).rejects.toThrow(
+      'Election definition not found'
+    )
+  );
+  expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
     LogEventId.ElectionDefinitionDiscarded,
     {
-      message: 'No election definition to discard.',
-      disposition: 'success',
+      message:
+        'Error discarding election definition unknown: Election definition not found',
+      disposition: 'failure',
     }
   );
 });

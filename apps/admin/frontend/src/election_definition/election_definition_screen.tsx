@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import {
   Redirect,
   Route,
@@ -12,21 +11,11 @@ import {
   ElectionInfoEditor,
 } from '@votingworks/election-definition-ui';
 import type { ElectionId } from '@votingworks/types';
-import {
-  Button,
-  DesktopPalette,
-  Modal,
-  P,
-  RouterTabBar,
-} from '@votingworks/ui';
+import { DesktopPalette, RouterTabBar } from '@votingworks/ui';
 import { NavScreenLite } from '../components/navigation_screen.js';
 import type { NavItem } from '../components/sidebar.js';
 import { routerPaths } from '../router_paths.js';
-import {
-  discardInProgressElection,
-  electionDefinitionApi,
-  getCurrentInProgressElection,
-} from '../api.js';
+import { electionDefinitionApi, getCurrentInProgressElection } from '../api.js';
 import { reportUnexpectedError } from '../logger.js';
 
 const NAV_ITEMS: readonly NavItem[] = [
@@ -46,60 +35,9 @@ const TabBar = styled(RouterTabBar)`
   padding: 1rem 1rem 0;
 `;
 
-function DeleteElectionButton(): JSX.Element {
-  const history = useHistory();
-  const [isConfirming, setIsConfirming] = useState(false);
-  const discardInProgressElectionMutation =
-    discardInProgressElection.useMutation();
-
-  function closeModal() {
-    setIsConfirming(false);
-  }
-
-  return (
-    <React.Fragment>
-      <Button
-        icon="Delete"
-        variant="danger"
-        fill="outlined"
-        onPress={() => setIsConfirming(true)}
-      >
-        Delete Election
-      </Button>
-      {isConfirming && (
-        <Modal
-          title="Delete Election"
-          content={
-            <P>
-              Are you sure you want to delete this election? This action cannot
-              be undone.
-            </P>
-          }
-          actions={
-            <React.Fragment>
-              <Button
-                variant="danger"
-                disabled={discardInProgressElectionMutation.isLoading}
-                onPress={() =>
-                  discardInProgressElectionMutation.mutate(undefined, {
-                    onSuccess: () => history.push(routerPaths.election),
-                  })
-                }
-              >
-                Delete
-              </Button>
-              <Button onPress={closeModal}>Cancel</Button>
-            </React.Fragment>
-          }
-          onOverlayClick={closeModal}
-        />
-      )}
-    </React.Fragment>
-  );
-}
-
 function DefinitionScreen(): JSX.Element | null {
   const { electionId } = useParams<{ electionId: ElectionId }>();
+  const history = useHistory();
   const getCurrentInProgressElectionQuery =
     getCurrentInProgressElection.useQuery();
   const infoPath = routerPaths.electionDefinitionInfo(electionId);
@@ -119,7 +57,7 @@ function DefinitionScreen(): JSX.Element | null {
           <Route exact path={routerPaths.electionDefinitionInfo(':electionId')}>
             <ElectionInfoEditor
               electionId={electionId}
-              footerActions={<DeleteElectionButton />}
+              onElectionDeleted={() => history.push(routerPaths.election)}
             />
           </Route>
           <Redirect to={infoPath} />

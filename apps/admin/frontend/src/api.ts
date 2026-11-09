@@ -1315,8 +1315,15 @@ async function invalidateElectionQueries(
   ]);
 }
 
+async function invalidateElectionListQueries(
+  queryClient: QueryClient
+): Promise<void> {
+  await queryClient.invalidateQueries(getCurrentInProgressElection.queryKey());
+}
+
 export const electionDefinitionApi = createElectionDefinitionApi(useApiClient, {
   invalidateElectionQueries,
+  invalidateElectionListQueries,
 });
 
 export const createInProgressElection = {
@@ -1324,20 +1331,6 @@ export const createInProgressElection = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.createInProgressElection, {
-      async onSuccess() {
-        await queryClient.invalidateQueries(
-          getCurrentInProgressElection.queryKey()
-        );
-      },
-    });
-  },
-} as const;
-
-export const discardInProgressElection = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.discardInProgressElection, {
       async onSuccess() {
         await queryClient.invalidateQueries(
           getCurrentInProgressElection.queryKey()

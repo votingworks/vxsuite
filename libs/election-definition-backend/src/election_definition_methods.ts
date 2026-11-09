@@ -17,4 +17,5 @@ export interface ElectionDefinitionMethods {
     input: ElectionInfoUpdate
   ): MaybePromise<Result<void, DuplicateElectionError>>;
   getStateFeatures(input: ElectionInput): MaybePromise<StateFeaturesConfig>;
+  deleteElection(input: ElectionInput): MaybePromise<void>;
 }

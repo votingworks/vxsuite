@@ -132,6 +132,14 @@ export function describeElectionDefinitionMethods(
     );
   });
 
+  test('deleteElection deletes the election', async () => {
+    const { methods, createElection } = await setUp();
+    const electionId = await createElection();
+
+    await methods.deleteElection({ electionId });
+    await expectRejection(methods.getElectionInfo({ electionId }));
+  });
+
   test('getElectionInfo rejects an unknown election', async () => {
     const { methods } = await setUp();
 
