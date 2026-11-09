@@ -484,6 +484,25 @@ test('using CDF', async () => {
     name: 'Format election using CDF',
     checked: false,
   });
+
+  expect(
+    screen.queryByText(/CDF exports are unavailable/)
+  ).not.toBeInTheDocument();
+});
+
+test('CDF option is disabled when splitElectionDefinition setting is on', async () => {
+  apiMock.getSystemSettings.reset();
+  apiMock.getSystemSettings
+    .expectCallWith({ electionId })
+    .resolves({ ...DEFAULT_SYSTEM_SETTINGS, splitElectionDefinition: true });
+
+  renderScreen();
+  await screen.findAllByRole('heading', { name: 'Export' });
+
+  expect(
+    screen.getByRole('checkbox', { name: 'Format election using CDF' })
+  ).toBeDisabled();
+  screen.getByText(/CDF exports are unavailable/);
 });
 
 test('export ballots with audit ballot IDs', async () => {

@@ -9,6 +9,8 @@ import {
   H2,
   FileInputButton,
   Callout,
+  Icons,
+  Caption,
 } from '@votingworks/ui';
 import { Buffer } from 'node:buffer';
 import { useParams } from 'react-router-dom';
@@ -27,6 +29,7 @@ import {
   getBallotTemplate,
   decryptCvrBallotAuditIds,
   getStateFeatures,
+  getSystemSettings,
 } from './api.js';
 import { ElectionNavScreen, Header } from './nav_screen.js';
 import { type ElectionIdParams, routes } from './routes.js';
@@ -63,6 +66,7 @@ export function ExportScreen(): JSX.Element | null {
   const setBallotTemplateMutation = setBallotTemplate.useMutation();
   const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
   const getBallotTemplateQuery = getBallotTemplate.useQuery(electionId);
+  const systemSettingsQuery = getSystemSettings.useQuery(electionId);
   const decryptCvrBallotAuditIdsMutation =
     decryptCvrBallotAuditIds.useMutation();
 
@@ -113,6 +117,7 @@ export function ExportScreen(): JSX.Element | null {
       getBallotTemplateQuery.isSuccess &&
       getStateFeaturesQuery.isSuccess &&
       getElectionInfoQuery.isSuccess &&
+      systemSettingsQuery.isSuccess &&
       getUserFeaturesQuery.isSuccess
     )
   ) {
@@ -126,6 +131,7 @@ export function ExportScreen(): JSX.Element | null {
   const ballotTemplateId = getBallotTemplateQuery.data;
   const features = getUserFeaturesQuery.data;
   const stateFeatures = getStateFeaturesQuery.data;
+  const systemSettings = systemSettingsQuery.data;
 
   const canExportTestDecks =
     features.EXPORT_TEST_DECKS &&
@@ -268,12 +274,19 @@ export function ExportScreen(): JSX.Element | null {
             />
 
             <CheckboxButton
+              disabled={systemSettings.splitElectionDefinition}
               label="Format election using CDF"
               isChecked={electionSerializationFormat === 'cdf'}
               onChange={(isChecked) =>
                 setElectionSerializationFormat(isChecked ? 'cdf' : 'vxf')
               }
             />
+            {systemSettings.splitElectionDefinition && (
+              <Caption>
+                <Icons.Info /> CDF exports are unavailable when the &quot;Split
+                Election Definition&quot; setting is on.
+              </Caption>
+            )}
 
             <CheckboxButton
               label="Generate audit IDs for ballots"
