@@ -36,8 +36,6 @@ export const routes = {
           title: 'Election Info',
           path: `${root}/info`,
         },
-        audio: (p: { stringKey: ':stringKey' | ElectionStringKey }) =>
-          `${root}/info/audio/${p.stringKey}`,
       },
       districts: {
         root: {

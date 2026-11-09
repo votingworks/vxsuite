@@ -1,4 +1,10 @@
 import React, { useState } from 'react';
+import {
+  generatePath,
+  Route,
+  useHistory,
+  useRouteMatch,
+} from 'react-router-dom';
 import styled from 'styled-components';
 import { DateWithoutTime, throwIllegalValue } from '@votingworks/basics';
 import type {
@@ -34,19 +40,33 @@ export interface ElectionImageInputProps {
   required?: boolean;
 }
 
-export interface ElectionInfoAudioRoutes {
-  audioScreenUrl: (stringKey: ElectionStringKey) => string;
-}
-
 export interface ElectionInfoEditorProps {
   electionId: ElectionId;
   isLocked?: boolean;
   SealInput?: (props: ElectionImageInputProps) => JSX.Element;
   SignatureInput?: (props: ElectionImageInputProps) => JSX.Element;
-  audioRoutes?: ElectionInfoAudioRoutes;
-  onEditingChange?: (isEditing: boolean) => void;
+  AudioPanel?: React.ComponentType;
   footerActions?: React.ReactNode;
-  children?: React.ReactNode;
+}
+
+interface AudioPanelRoutes {
+  panelPath: string;
+  isPanelOpen: boolean;
+  closeUrl: string;
+  screenUrl: (stringKey: ElectionStringKey) => string;
+}
+
+function useAudioPanelRoutes(): AudioPanelRoutes {
+  const { path, params } = useRouteMatch();
+  const panelPath = `${path}/audio/:stringKey`;
+  const isPanelOpen = useRouteMatch(panelPath) !== null;
+  return {
+    panelPath,
+    isPanelOpen,
+    closeUrl: generatePath(path, params),
+    screenUrl: (stringKey: ElectionStringKey) =>
+      generatePath(panelPath, { ...params, stringKey }),
+  };
 }
 
 function hasBlankElectionInfo(electionInfo: ElectionInfo): boolean {
@@ -62,10 +82,11 @@ const Form = styled(FormFixed)`
 
 type ElectionInfoFormProps = Omit<
   ElectionInfoEditorProps,
-  'electionId' | 'children'
+  'electionId' | 'AudioPanel'
 > & {
   savedElectionInfo: ElectionInfo;
   features: StateFeaturesConfig;
+  audioRoutes?: AudioPanelRoutes;
 };
 
 function ElectionInfoForm({
@@ -75,10 +96,10 @@ function ElectionInfoForm({
   SealInput,
   SignatureInput,
   audioRoutes,
-  onEditingChange,
   footerActions,
 }: ElectionInfoFormProps): JSX.Element {
   const api = useElectionDefinitionApi();
+  const history = useHistory();
   const [isEditing, setIsEditing] = useState(
     // Default to editing for newly created elections
     hasBlankElectionInfo(savedElectionInfo)
@@ -92,7 +113,6 @@ function ElectionInfoForm({
       onSuccess: (result) => {
         if (result.isOk()) {
           setIsEditing(false);
-          onEditingChange?.(false);
         }
       },
     });
@@ -102,7 +122,9 @@ function ElectionInfoForm({
     setElectionInfo(savedElectionInfo);
     setIsEditing(!isEditing);
     updateElectionInfoMutation.reset();
-    onEditingChange?.(!isEditing);
+    if (audioRoutes?.isPanelOpen) {
+      history.push(audioRoutes.closeUrl);
+    }
   }
 
   type TextProperties = Exclude<keyof ElectionInfo, 'date' | 'electionId'>;
@@ -159,7 +181,7 @@ function ElectionInfoForm({
       <FormBody>
         <InputGroup label="Title">
           <InputWithAudio
-            audioScreenUrl={audioRoutes?.audioScreenUrl(
+            audioScreenUrl={audioRoutes?.screenUrl(
               ElectionStringKey.ELECTION_TITLE
             )}
             editing={isEditing}
@@ -226,7 +248,7 @@ function ElectionInfoForm({
         />
         <InputGroup label="State">
           <InputWithAudio
-            audioScreenUrl={audioRoutes?.audioScreenUrl(
+            audioScreenUrl={audioRoutes?.screenUrl(
               ElectionStringKey.STATE_NAME
             )}
             editing={isEditing}
@@ -241,7 +263,7 @@ function ElectionInfoForm({
         </InputGroup>
         <InputGroup label="Jurisdiction">
           <InputWithAudio
-            audioScreenUrl={audioRoutes?.audioScreenUrl(
+            audioScreenUrl={audioRoutes?.screenUrl(
               ElectionStringKey.JURISDICTION_NAME
             )}
             editing={isEditing}
@@ -384,12 +406,13 @@ const Viewport = styled(FixedViewport)`
 
 export function ElectionInfoEditor({
   electionId,
-  children,
+  AudioPanel,
   ...formProps
 }: ElectionInfoEditorProps): JSX.Element | null {
   const api = useElectionDefinitionApi();
   const getElectionInfoQuery = api.getElectionInfo.useQuery(electionId);
   const getStateFeaturesQuery = api.getStateFeatures.useQuery(electionId);
+  const audioRoutes = useAudioPanelRoutes();
 
   if (!getElectionInfoQuery.isSuccess || !getStateFeaturesQuery.isSuccess) {
     return null;
@@ -401,8 +424,13 @@ export function ElectionInfoEditor({
         {...formProps}
         savedElectionInfo={getElectionInfoQuery.data}
         features={getStateFeaturesQuery.data}
+        audioRoutes={AudioPanel ? audioRoutes : undefined}
       />
-      {children}
+      {AudioPanel && (
+        <Route path={audioRoutes.panelPath}>
+          <AudioPanel />
+        </Route>
+      )}
     </Viewport>
   );
 }

@@ -6,7 +6,7 @@ import {
 } from '@votingworks/types';
 import { Button, H1, Modal, P } from '@votingworks/ui';
 import { ElectionInfoEditor } from '@votingworks/election-definition-ui';
-import { Route, Switch, useHistory, useParams } from 'react-router-dom';
+import { useHistory, useParams } from 'react-router-dom';
 import { z } from 'zod/v4';
 import {
   deleteElection,
@@ -98,10 +98,7 @@ export function ElectionInfoScreen(): JSX.Element | null {
   );
   const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
   const ballotTemplateIdQuery = getBallotTemplate.useQuery(electionId);
-  const history = useHistory();
   useTitle(routes.election(electionId).electionInfo.root.title);
-  const infoRoutes = routes.election(electionId).electionInfo;
-  const infoParamRoutes = routes.election(':electionId').electionInfo;
 
   if (
     !getBallotsFinalizedAtQuery.isSuccess ||
@@ -124,18 +121,9 @@ export function ElectionInfoScreen(): JSX.Element | null {
         isLocked={!!ballotsFinalizedAt}
         SealInput={SealImageInput}
         SignatureInput={showSignatureInput ? SignatureImageInput : undefined}
-        audioRoutes={{
-          audioScreenUrl: (stringKey) => infoRoutes.audio({ stringKey }),
-        }}
-        onEditingChange={() => history.push(infoRoutes.root.path)}
+        AudioPanel={ElectionInfoAudioPanel}
         footerActions={<DeleteElectionButton electionId={electionId} />}
-      >
-        <Switch>
-          <Route path={infoParamRoutes.audio({ stringKey: ':stringKey' })}>
-            <ElectionInfoAudioPanel />
-          </Route>
-        </Switch>
-      </ElectionInfoEditor>
+      />
     </ElectionNavScreen>
   );
 }
