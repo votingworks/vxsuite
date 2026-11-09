@@ -10,8 +10,8 @@ use deskpro_scanner::driver::{self, Driver};
 use deskpro_scanner::ffi;
 use deskpro_scanner::protocol::{
     Command, CommandBody, DecodeError, ErrorCode, Event, FRAME_HEADER_LENGTH, Hello, ImageHeader,
-    MAX_FRAME_PAYLOAD, Response, ResponseBody, Status, decode_frame_header, encode_frame,
-    encode_image, frame_type,
+    Response, ResponseBody, decode_frame_header, encode_frame, encode_image_frame_prefix,
+    frame_type,
 };
 
 #[derive(Debug, Parser)]
@@ -63,7 +63,7 @@ fn main() -> color_eyre::Result<()> {
             }
             Input::DriverEvent(event) => {
                 if session.handle_driver_event(event) == Flow::LostScanner {
-                    session.abandon();
+                    session.output.shutdown();
                     // SAFETY: output is flushed. After a lost link the vendor library's threads
                     // outlive even `ScannerDisconnect`, so `exit` aborts in its C++ destructors.
                     unsafe { libc::_exit(LOST_SCANNER_EXIT_CODE) };
@@ -105,18 +105,33 @@ fn setup_logging(config: &Config) -> color_eyre::Result<()> {
         .map_err(|error| color_eyre::eyre::eyre!("{error}"))
 }
 
+enum Outgoing {
+    Frame(Vec<u8>),
+    /// An image frame's prefix, then its pixels, written without copying them into one buffer.
+    Image {
+        prefix: Vec<u8>,
+        data: Box<dyn AsRef<[u8]> + Send>,
+    },
+}
+
 /// Writes frames to stdout from a dedicated thread so a slow client never stalls the main loop.
 struct Output {
-    frames: Option<SyncSender<Vec<u8>>>,
+    frames: Option<SyncSender<Outgoing>>,
     writer: Option<std::thread::JoinHandle<()>>,
 }
 
 impl Output {
     fn spawn<W: Write + Send + 'static>(mut writer: W) -> Self {
-        let (tx, rx) = sync_channel::<Vec<u8>>(OUTPUT_QUEUE_DEPTH);
+        let (tx, rx) = sync_channel::<Outgoing>(OUTPUT_QUEUE_DEPTH);
         let handle = std::thread::spawn(move || {
-            for frame in rx {
-                if let Err(error) = writer.write_all(&frame).and_then(|()| writer.flush()) {
+            for outgoing in rx {
+                let written = match &outgoing {
+                    Outgoing::Frame(frame) => writer.write_all(frame),
+                    Outgoing::Image { prefix, data } => writer
+                        .write_all(prefix)
+                        .and_then(|()| writer.write_all((**data).as_ref())),
+                };
+                if let Err(error) = written.and_then(|()| writer.flush()) {
                     tracing::error!("failed to write frame: {error}");
                     break;
                 }
@@ -138,7 +153,7 @@ impl Output {
 
     fn send_frame(&self, frame_type: u8, payload: &[u8]) {
         if let Some(frames) = self.frames.as_ref() {
-            let _ = frames.send(encode_frame(frame_type, payload));
+            let _ = frames.send(Outgoing::Frame(encode_frame(frame_type, payload)));
         }
     }
 
@@ -150,23 +165,27 @@ impl Output {
         self.send_frame(frame_type::EVENT, &event.encode());
     }
 
-    fn image(&self, header: &ImageHeader, data: &[u8]) {
-        let payload = encode_image(header, data);
-        if u32::try_from(payload.len()).is_ok_and(|length| length <= MAX_FRAME_PAYLOAD) {
-            self.send_frame(frame_type::IMAGE, &payload);
-            return;
+    fn image(&self, header: &ImageHeader, data: impl AsRef<[u8]> + Send + 'static) {
+        match encode_image_frame_prefix(header, data.as_ref().len()) {
+            Ok(prefix) => {
+                if let Some(frames) = self.frames.as_ref() {
+                    let data = Box::new(data);
+                    let _ = frames.send(Outgoing::Image { prefix, data });
+                }
+            }
+            Err(size) => {
+                tracing::error!(
+                    "dropping image seq={} side={}: {size} bytes exceeds the frame maximum",
+                    header.seq_id,
+                    header.scan_side,
+                );
+                self.event(&Event::OversizedImage {
+                    seq_id: header.seq_id,
+                    scan_side: header.scan_side,
+                    size: i64::try_from(size).unwrap_or(i64::MAX),
+                });
+            }
         }
-        tracing::error!(
-            "dropping image seq={} side={}: {} bytes exceeds the frame maximum",
-            header.seq_id,
-            header.scan_side,
-            payload.len()
-        );
-        self.event(&Event::OversizedImage {
-            seq_id: header.seq_id,
-            scan_side: header.scan_side,
-            size: i64::try_from(payload.len()).unwrap_or(i64::MAX),
-        });
     }
 }
 
@@ -256,94 +275,83 @@ impl Session {
         let id = command.id;
         tracing::debug!("command {id}: {:?}", command.body);
 
-        match &command.body {
+        let body = match &command.body {
             CommandBody::Exit => {
                 self.driver = None;
                 self.output.respond(id, ResponseBody::Ok);
                 return Flow::Exit;
             }
-            CommandBody::Connect { app_id } => self.connect(id, app_id),
+            CommandBody::Connect { app_id } => self.connect(app_id),
             CommandBody::Disconnect => {
                 self.driver = None;
-                self.output.respond(id, ResponseBody::Ok);
+                ResponseBody::Ok
             }
-            body => self.with_driver(id, body),
-        }
-
+            CommandBody::GetStatus => {
+                self.with_driver(|driver| Ok(ResponseBody::Status(driver.status())))
+            }
+            CommandBody::GetVersions => self.with_driver(|driver| {
+                let api = driver.api_version()?;
+                let scanner = driver.scanner_version()?;
+                Ok(ResponseBody::Versions { api, scanner })
+            }),
+            CommandBody::GetProfile => self.with_driver(|driver| {
+                driver
+                    .profile()
+                    .map(|profile| ResponseBody::Profile { profile })
+            }),
+            CommandBody::SetProfile { profile } => {
+                self.with_driver(|driver| driver.set_profile(profile).map(ok))
+            }
+            CommandBody::SetReady { ready } => {
+                self.with_driver(|driver| driver.set_ready(*ready).map(ok))
+            }
+            CommandBody::ScanStart => self.with_driver(|driver| driver.scan_start().map(ok)),
+            CommandBody::ScanStop => self.with_driver(|driver| driver.scan_stop().map(ok)),
+            CommandBody::ScanPause => self.with_driver(|driver| driver.scan_break().map(ok)),
+            CommandBody::ScanResume => self.with_driver(|driver| driver.scan_continue().map(ok)),
+            CommandBody::SetImprinterText { text } => {
+                self.with_driver(|driver| driver.set_printer_string(text).map(ok))
+            }
+            CommandBody::SetCounter { index, value } => {
+                self.with_driver(|driver| driver.set_counter(u32::from(*index), *value).map(ok))
+            }
+            CommandBody::SetNumberOfSheets { count } => {
+                self.with_driver(|driver| driver.set_number_of_sheets(*count).map(ok))
+            }
+        };
+        self.output.respond(id, body);
         Flow::Continue
     }
 
-    fn connect(&mut self, id: u32, app_id: &str) {
+    fn connect(&mut self, app_id: &str) -> ResponseBody {
         if self.driver.is_some() {
-            self.output.respond(
-                id,
-                ResponseBody::Error {
-                    code: ErrorCode::AlreadyConnected,
-                    message: String::new(),
-                },
-            );
-            return;
+            return ResponseBody::Error {
+                code: ErrorCode::AlreadyConnected,
+                message: String::new(),
+            };
         }
 
         match Driver::connect(&self.library, app_id) {
             Ok((driver, events)) => {
                 spawn_event_forwarder(events, self.inputs.clone());
                 self.driver = Some(driver);
-                self.output.respond(id, ResponseBody::Ok);
+                ResponseBody::Ok
             }
-            Err(error) => self.output.respond(id, error_response(&error)),
+            Err(error) => error_response(&error),
         }
     }
 
-    /// Runs a command that needs a live connection.
-    fn with_driver(&mut self, id: u32, body: &CommandBody) {
+    fn with_driver(
+        &self,
+        run: impl FnOnce(&Driver) -> Result<ResponseBody, driver::Error>,
+    ) -> ResponseBody {
         let Some(driver) = self.driver.as_ref() else {
-            self.output.respond(
-                id,
-                ResponseBody::Error {
-                    code: ErrorCode::NotConnected,
-                    message: String::new(),
-                },
-            );
-            return;
+            return ResponseBody::Error {
+                code: ErrorCode::NotConnected,
+                message: String::new(),
+            };
         };
-
-        let result = match body {
-            CommandBody::GetStatus => Ok(ResponseBody::Status(to_wire_status(&driver.status()))),
-            CommandBody::GetVersions => driver.api_version().and_then(|api| {
-                driver
-                    .scanner_version()
-                    .map(|scanner| ResponseBody::Versions { api, scanner })
-            }),
-            CommandBody::GetProfile => driver
-                .profile()
-                .map(|profile| ResponseBody::Profile { profile }),
-            CommandBody::SetProfile { profile } => driver.set_profile(profile).map(ok),
-            CommandBody::SetReady { ready } => driver.set_ready(*ready).map(ok),
-            CommandBody::ScanStart => driver.scan_start().map(ok),
-            CommandBody::ScanStop => driver.scan_stop().map(ok),
-            CommandBody::ScanPause => driver.scan_break().map(ok),
-            CommandBody::ScanResume => driver.scan_continue().map(ok),
-            CommandBody::SetImprinterText { text } => driver.set_printer_string(text).map(ok),
-            CommandBody::SetCounter { index, value } => {
-                driver.set_counter(u32::from(*index), *value).map(ok)
-            }
-            CommandBody::SetNumberOfSheets { count } => driver.set_number_of_sheets(*count).map(ok),
-            CommandBody::Exit | CommandBody::Connect { .. } | CommandBody::Disconnect => {
-                Ok(ResponseBody::Error {
-                    code: ErrorCode::BadRequest,
-                    message: "command is not routed to the driver".to_owned(),
-                })
-            }
-        };
-
-        let body = result.unwrap_or_else(|error| error_response(&error));
-        self.output.respond(id, body);
-    }
-
-    /// Flushes output without `ScannerDisconnect`, which blocks for seconds once the scanner is gone.
-    fn abandon(&mut self) {
-        self.output.shutdown();
+        run(driver).unwrap_or_else(|error| error_response(&error))
     }
 
     /// Disconnects first so no callback can queue a frame after the writer stops.
@@ -366,7 +374,7 @@ impl Session {
         }
         match event {
             driver::Event::Image(image) => {
-                self.output.image(&to_wire_header(&image), image.data());
+                self.output.image(&to_wire_header(&image), image);
             }
             driver::Event::Control(control) => self.output.event(&Event::Control {
                 control_type: control.ctype,
@@ -374,10 +382,8 @@ impl Session {
                 str_data: control.str_data_lossy().into_owned(),
             }),
             driver::Event::Log(message) => self.output.event(&Event::Log { message }),
-            driver::Event::IncompatibleImage(incompatible) => {
-                self.output.event(&Event::IncompatibleImage {
-                    size: incompatible.size,
-                });
+            driver::Event::IncompatibleImage(size) => {
+                self.output.event(&Event::IncompatibleImage { size });
             }
             driver::Event::OperationalState(state) => {
                 self.output.event(&Event::OperationalState { state });
@@ -409,17 +415,6 @@ fn error_response(error: &driver::Error) -> ResponseBody {
     }
 }
 
-fn to_wire_status(status: &driver::Status) -> Status {
-    Status {
-        state: status.state,
-        operational_state: status.operational_state,
-        images_available: status.images_available,
-        feeder_loaded: status.feeder_loaded,
-        next_feeder_loaded: status.next_feeder_loaded,
-        feeder_side: status.feeder_side,
-    }
-}
-
 fn to_wire_header(image: &driver::Image) -> ImageHeader {
     ImageHeader {
         seq_id: image.seq_id(),
@@ -444,6 +439,8 @@ fn to_wire_header(image: &driver::Image) -> ImageHeader {
 #[cfg(test)]
 mod tests {
     use std::sync::{Arc, Mutex};
+
+    use deskpro_scanner::protocol::{MAX_FRAME_PAYLOAD, decode_image};
 
     use super::*;
 
@@ -483,7 +480,7 @@ mod tests {
     }
 
     /// Sends one image through an [`Output`] and returns the single frame it wrote.
-    fn written_frame(data: &[u8]) -> (u8, Vec<u8>) {
+    fn written_frame(data: Vec<u8>) -> (u8, Vec<u8>) {
         let buffer = SharedBuffer::default();
         let mut output = Output::spawn(buffer.clone());
         output.image(&header(), data);
@@ -516,17 +513,18 @@ mod tests {
 
     #[test]
     fn an_image_within_the_limit_is_sent() {
-        let (frame_type, payload) = written_frame(&[1, 2, 3]);
+        let (frame_type, payload) = written_frame(vec![1, 2, 3]);
         assert_eq!(frame_type, frame_type::IMAGE);
-        assert_eq!(payload, encode_image(&header(), &[1, 2, 3]));
+        assert_eq!(decode_image(&payload), Ok((header(), [1, 2, 3].as_slice())));
     }
 
     #[test]
     fn an_oversized_image_is_dropped_and_reported() {
         let data = vec![0; MAX_FRAME_PAYLOAD as usize];
-        let (frame_type, payload) = written_frame(&data);
+        let (frame_type, payload) = written_frame(data.clone());
         assert_eq!(frame_type, frame_type::EVENT);
-        let size = i64::try_from(encode_image(&header(), &data).len()).expect("fits");
+        let size = encode_image_frame_prefix(&header(), data.len()).expect_err("over the limit");
+        let size = i64::try_from(size).expect("fits");
         assert_eq!(
             Event::decode(&payload),
             Ok(Event::OversizedImage {

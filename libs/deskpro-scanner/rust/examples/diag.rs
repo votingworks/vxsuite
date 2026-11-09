@@ -13,7 +13,7 @@ use std::path::{Path, PathBuf};
 use std::time::{Duration, Instant};
 
 use clap::{Parser, Subcommand};
-use deskpro_scanner::driver::{Driver, Event, ProfileSchema};
+use deskpro_scanner::driver::{self, Driver, Event, ProfileSchema};
 use deskpro_scanner::ffi;
 
 #[derive(Debug, Parser)]
@@ -32,11 +32,11 @@ struct Args {
 
     /// Profile schema version to declare to `ScannerConnect` (its undocumented second argument).
     /// 0 is the header-documented "lite" mode, in which `SetScannerSetup` is refused.
-    #[clap(long, default_value = "210")]
+    #[clap(long, default_value_t = ProfileSchema::CURRENT.version)]
     schema: i32,
 
     /// Oldest profile schema version to accept (`ScannerConnect`'s third argument).
-    #[clap(long, default_value = "69")]
+    #[clap(long, default_value_t = ProfileSchema::CURRENT.minimum)]
     schema_min: i32,
 
     #[command(subcommand)]
@@ -302,8 +302,6 @@ fn write_profile(profile: &str, out: Option<&Path>) -> color_eyre::Result<()> {
     Ok(())
 }
 
-type Step<'a> = Box<dyn Fn() -> Result<(), deskpro_scanner::driver::Error> + 'a>;
-
 struct ScanSetup<'a> {
     profile_file: Option<&'a Path>,
     select: Option<&'a str>,
@@ -334,68 +332,59 @@ fn watch(
             }
             Ok(())
         };
-        let steps: Vec<(String, Step<'_>)> = vec![
-            (
-                format!("SetScannerSetup({:?})", setup.profile_file),
-                Box::new(|| match setup.profile_file {
-                    Some(file) => driver.set_profile(
-                        &std::fs::read_to_string(file).expect("readable profile file"),
-                    ),
-                    None => Ok(()),
-                }),
-            ),
-            (
-                format!("SelectScannerSetup({:?})", setup.select),
-                Box::new(|| {
-                    setup
-                        .select
-                        .map_or(Ok(()), |name| driver.select_profile(name))
-                }),
-            ),
-            (
-                format!("SetNumberOfSheets({:?})", setup.sheets),
-                Box::new(|| {
-                    setup
-                        .sheets
-                        .map_or(Ok(()), |n| driver.set_number_of_sheets(n))
-                }),
-            ),
-            (
-                format!(
-                    "SetReady(1) [{}]",
-                    if setup.ready { "on" } else { "skipped" }
-                ),
-                Box::new(|| {
-                    if setup.ready {
-                        driver.set_ready(true)
-                    } else {
-                        Ok(())
-                    }
-                }),
-            ),
-            (
-                format!(
-                    "ScanStart after {:?} [{}]",
-                    setup.start_delay,
-                    if setup.start { "on" } else { "skipped" }
-                ),
-                Box::new(|| {
-                    if !setup.start {
-                        return Ok(());
-                    }
-                    std::thread::sleep(setup.start_delay);
-                    driver.scan_start()
-                }),
-            ),
-        ];
-        for (name, step) in steps {
-            if let Err(error) = step() {
+        let mut run = |name: String, result: Result<(), driver::Error>| {
+            if let Err(error) = result {
                 drain(&mut batch).ok();
                 return Err(color_eyre::eyre::eyre!("{name} failed: {error}"));
             }
             println!("{name} ok");
-            drain(&mut batch)?;
-        }
+            drain(&mut batch)
+        };
+        let profile = setup
+            .profile_file
+            .map(std::fs::read_to_string)
+            .transpose()?;
+        run(
+            format!("SetScannerSetup({:?})", setup.profile_file),
+            profile.map_or(Ok(()), |profile| driver.set_profile(&profile)),
+        )?;
+        run(
+            format!("SelectScannerSetup({:?})", setup.select),
+            setup
+                .select
+                .map_or(Ok(()), |name| driver.select_profile(name)),
+        )?;
+        run(
+            format!("SetNumberOfSheets({:?})", setup.sheets),
+            setup
+                .sheets
+                .map_or(Ok(()), |n| driver.set_number_of_sheets(n)),
+        )?;
+        run(
+            format!(
+                "SetReady(1) [{}]",
+                if setup.ready { "on" } else { "skipped" }
+            ),
+            if setup.ready {
+                driver.set_ready(true)
+            } else {
+                Ok(())
+            },
+        )?;
+        let start = if setup.start {
+            std::thread::sleep(setup.start_delay);
+            driver.scan_start()
+        } else {
+            Ok(())
+        };
+        run(
+            format!(
+                "ScanStart after {:?} [{}]",
+                setup.start_delay,
+                if setup.start { "on" } else { "skipped" }
+            ),
+            start,
+        )?;
     }
 
     let deadline = Instant::now() + Duration::from_secs(seconds);
@@ -453,7 +442,7 @@ fn logs(args: &Args, out: &Path, all: bool, seconds: u64) -> color_eyre::Result<
     Ok(())
 }
 
-/// Prints one event the way `watch` does, saving the image when `save_images` is set.
+/// Prints events until `deadline`, or shortly after `batch` finishes.
 fn stream(
     events: &std::sync::mpsc::Receiver<Event>,
     deadline: Instant,
@@ -525,9 +514,8 @@ fn print_event(event: &Event, save_images: Option<&Path>) -> color_eyre::Result<
             control.str_data_lossy()
         ),
         Event::OperationalState(state) => println!("opstate  {state}"),
-        Event::IncompatibleImage(incompatible) => println!(
-            "image    INCOMPATIBLE: driver sent {} bytes of ImageInfo_t, we expect {}",
-            incompatible.size,
+        Event::IncompatibleImage(size) => println!(
+            "image    INCOMPATIBLE: driver sent {size} bytes of ImageInfo_t, we expect {}",
             size_of::<ffi::ImageInfo_t>()
         ),
         Event::Image(image) => {

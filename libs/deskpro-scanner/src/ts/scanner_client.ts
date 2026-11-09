@@ -5,7 +5,6 @@ import { join } from 'node:path';
 import type { Readable, Writable } from 'node:stream';
 import makeDebug from 'debug';
 import {
-  assertDefined,
   deferred,
   type Deferred,
   type Result,
@@ -21,7 +20,6 @@ import {
   FrameType,
   type Hello,
   ProtocolError,
-  type Response,
   type ResponseBody,
   type ScannedImage,
   type Status,
@@ -33,13 +31,14 @@ import {
   encodeCommand,
   encodeFrame,
 } from './protocol.js';
+import { PACKAGE_ROOT } from './package_root.js';
 
 const debug = makeDebug('deskpro-scanner');
 
 /** Where `build:self` puts `deskproctl`; turbo hides `CARGO_TARGET_DIR`, so this never follows it. */
 export const DEFAULT_DAEMON_PATH = join(
-  assertDefined(import.meta.dirname.split('libs')[0]),
-  'libs/deskpro-scanner/target/release/deskproctl'
+  PACKAGE_ROOT,
+  'target/release/deskproctl'
 );
 
 /** A byte pipe to a `deskproctl` process or to {@link createMockDaemon}. */
@@ -284,12 +283,15 @@ export class ScannerClient extends EventEmitter<ScannerClientEvents> {
       this.bytesNeeded = FRAME_HEADER_LENGTH + length;
       if (this.buffer.length < this.bytesNeeded) return;
 
-      // Copy a frame that shares the buffer so an image's `data` subarray doesn't pin the rest.
-      const frame =
-        this.buffer.length === this.bytesNeeded
-          ? this.buffer
-          : Buffer.from(this.buffer.subarray(0, this.bytesNeeded));
-      this.buffer = this.buffer.subarray(this.bytesNeeded);
+      // Copy the smaller side so neither the next frame nor a large image pins the other.
+      let frame = this.buffer.subarray(0, this.bytesNeeded);
+      const rest = this.buffer.subarray(this.bytesNeeded);
+      if (rest.length < frame.length) {
+        this.buffer = Buffer.from(rest);
+      } else {
+        frame = Buffer.from(frame);
+        this.buffer = rest;
+      }
       this.handleFrame(frame.readUInt8(0), frame.subarray(FRAME_HEADER_LENGTH));
     }
   }
@@ -303,7 +305,7 @@ export class ScannerClient extends EventEmitter<ScannerClientEvents> {
       }
 
       case FrameType.Response: {
-        const response: Response = decodeResponse(payload);
+        const response = decodeResponse(payload);
         const pending = this.pending.get(response.id);
         if (!pending) {
           throw new ProtocolError(
@@ -333,16 +335,15 @@ export class ScannerClient extends EventEmitter<ScannerClientEvents> {
     }
   }
 
-  /** Rejects everything outstanding and refuses anything new. Returns false if already failed. */
-  private fail(error: ScannerError): boolean {
-    if (this.closed) return false;
+  /** Rejects everything outstanding and refuses anything new. */
+  private fail(error: ScannerError): void {
+    if (this.closed) return;
     this.closed = error;
     for (const pending of this.pending.values()) {
       pending.resolve(err(error));
     }
     this.pending.clear();
     this.helloWaiter?.resolve(err(error));
-    return true;
   }
 }
 

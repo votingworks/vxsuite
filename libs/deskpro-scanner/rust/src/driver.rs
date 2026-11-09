@@ -338,29 +338,22 @@ macro_rules! prop {
 
 impl Image {
     /// Takes ownership of the two buffers passed to the image callback. A struct smaller than
-    /// ours is rejected (and both buffers freed); a larger one is accepted.
+    /// ours is rejected with its size (and both buffers freed); a larger one is accepted.
     ///
     /// # Safety
     /// `info` must be a live `ImageInfo_t` from the library and `data` its image buffer (or
     /// null); the caller must not touch either afterwards.
-    pub unsafe fn from_raw(
-        info: *mut ffi::ImageInfo_t,
-        data: *mut u8,
-    ) -> Result<Self, IncompatibleImageInfo> {
+    pub unsafe fn from_raw(info: *mut ffi::ImageInfo_t, data: *mut u8) -> Result<Self, i32> {
         unsafe {
             let Some(info_nn) = NonNull::new(info) else {
                 vendor_heap::free(data.cast());
-                return Err(IncompatibleImageInfo {
-                    version: 0,
-                    size: 0,
-                });
+                return Err(0);
             };
-            let version = ptr::addr_of!((*info).version).read_unaligned();
             let size = ptr::addr_of!((*info).size).read_unaligned();
             if size < 0 || usize::try_from(size).unwrap_or(0) < size_of::<ffi::ImageInfo_t>() {
                 vendor_heap::free(data.cast());
                 vendor_heap::free(info.cast());
-                return Err(IncompatibleImageInfo { version, size });
+                return Err(size);
             }
             Ok(Image {
                 info: info_nn,
@@ -478,6 +471,12 @@ impl Image {
     }
 }
 
+impl AsRef<[u8]> for Image {
+    fn as_ref(&self) -> &[u8] {
+        self.data()
+    }
+}
+
 impl Drop for Image {
     fn drop(&mut self) {
         // SAFETY: both buffers came from the library, are owned by us, and are freed once.
@@ -503,13 +502,6 @@ impl fmt::Debug for Image {
             .field("endorser_front_text", &self.endorser_front_text())
             .finish_non_exhaustive()
     }
-}
-
-/// An `ImageInfo_t` smaller than ours; both buffers have already been freed.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct IncompatibleImageInfo {
-    pub version: i32,
-    pub size: i32,
 }
 
 /// An owned copy of a `ScannerControl_t`.
@@ -563,7 +555,8 @@ pub enum Event {
     Image(Image),
     Control(ScannerControl),
     Log(String),
-    IncompatibleImage(IncompatibleImageInfo),
+    /// The driver sent an `ImageInfo_t` of this size, smaller than ours; it was dropped.
+    IncompatibleImage(i32),
     /// The scanner's operational state changed; 0 while an error is active.
     OperationalState(i32),
 }
@@ -1062,13 +1055,7 @@ mod tests {
     fn image_rejects_a_struct_smaller_than_ours() {
         let (info, data) = fake_image(12);
         let err = unsafe { Image::from_raw(info, data) }.expect_err("incompatible");
-        assert_eq!(
-            err,
-            IncompatibleImageInfo {
-                version: 1,
-                size: 12
-            }
-        );
+        assert_eq!(err, 12);
     }
 
     #[test]

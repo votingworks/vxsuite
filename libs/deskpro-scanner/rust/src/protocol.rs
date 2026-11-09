@@ -371,16 +371,7 @@ impl ErrorCode {
     }
 }
 
-/// The scanner state words, passed through raw. See [`crate::driver::Status`].
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct Status {
-    pub state: u32,
-    pub operational_state: u32,
-    pub images_available: u32,
-    pub feeder_loaded: u32,
-    pub next_feeder_loaded: u32,
-    pub feeder_side: u32,
-}
+pub use crate::driver::Status;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Response {
@@ -629,13 +620,29 @@ impl ImageHeader {
     }
 }
 
-/// Encodes an image frame payload, copying `data` once.
-#[must_use]
-pub fn encode_image(header: &ImageHeader, data: &[u8]) -> Vec<u8> {
-    let mut w = Writer::with_capacity(256 + data.len());
+/// Encodes an image frame up to its pixels, which the caller writes right after it. Fails with
+/// the payload size if the frame would exceed [`MAX_FRAME_PAYLOAD`].
+pub fn encode_image_frame_prefix(
+    header: &ImageHeader,
+    data_len: usize,
+) -> std::result::Result<Vec<u8>, usize> {
+    let mut w = Writer::default();
     header.write(&mut w);
-    w.bytes(data);
-    w.finish()
+    let header_bytes = w.finish();
+    let payload_len = header_bytes.len() + 4 + data_len;
+    let (Ok(length), Ok(data_length)) = (u32::try_from(payload_len), u32::try_from(data_len))
+    else {
+        return Err(payload_len);
+    };
+    if length > MAX_FRAME_PAYLOAD {
+        return Err(payload_len);
+    }
+    let mut prefix = Vec::with_capacity(FRAME_HEADER_LENGTH + header_bytes.len() + 4);
+    prefix.push(frame_type::IMAGE);
+    prefix.extend_from_slice(&length.to_le_bytes());
+    prefix.extend_from_slice(&header_bytes);
+    prefix.extend_from_slice(&data_length.to_le_bytes());
+    Ok(prefix)
 }
 
 /// Decodes an image frame payload, borrowing the pixels from it.
@@ -837,8 +844,16 @@ mod tests {
     fn images_round_trip_without_touching_the_pixels() {
         let header = an_image_header();
         let pixels: Vec<u8> = (0..=255).cycle().take(10_000).collect();
-        let payload = encode_image(&header, &pixels);
-        let (decoded_header, decoded_pixels) = decode_image(&payload).expect("image should decode");
+        let mut frame = encode_image_frame_prefix(&header, pixels.len()).expect("within the limit");
+        frame.extend_from_slice(&pixels);
+        let (frame_header, payload) = frame.split_at(FRAME_HEADER_LENGTH);
+        let (frame_type, length) =
+            decode_frame_header(frame_header.try_into().expect("whole header")).expect("valid");
+        assert_eq!(
+            (frame_type, length as usize),
+            (frame_type::IMAGE, payload.len())
+        );
+        let (decoded_header, decoded_pixels) = decode_image(payload).expect("image should decode");
         assert_eq!(decoded_header, header);
         assert_eq!(decoded_pixels, pixels.as_slice());
     }
@@ -846,8 +861,8 @@ mod tests {
     #[test]
     fn an_empty_image_is_still_a_valid_frame() {
         let header = an_image_header();
-        let payload = encode_image(&header, &[]);
-        let (_, pixels) = decode_image(&payload).expect("image should decode");
+        let frame = encode_image_frame_prefix(&header, 0).expect("within the limit");
+        let (_, pixels) = decode_image(&frame[FRAME_HEADER_LENGTH..]).expect("image should decode");
         assert!(pixels.is_empty());
     }
 

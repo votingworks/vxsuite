@@ -471,14 +471,6 @@ pub mod vendor_heap {
         free: FreeFn,
     }
 
-    mod libc {
-        use std::ffi::c_void;
-        unsafe extern "C" {
-            pub fn malloc(size: usize) -> *mut c_void;
-            pub fn free(ptr: *mut c_void);
-        }
-    }
-
     unsafe extern "C" fn fallback_alloc(size: i32) -> *mut c_void {
         match usize::try_from(size) {
             // SAFETY: plain allocation.

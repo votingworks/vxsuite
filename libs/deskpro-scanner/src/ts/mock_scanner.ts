@@ -11,6 +11,7 @@ import {
   ResponseKind,
   type Status,
   Writer,
+  decodeFrameHeader,
   encodeFrame,
 } from './protocol.js';
 import type { Transport } from './scanner_client.js';
@@ -55,7 +56,7 @@ export function createMockDaemon(): MockScannerDaemon {
     buffer = Buffer.concat([buffer, chunk]);
     for (;;) {
       if (buffer.length < FRAME_HEADER_LENGTH) return;
-      const length = buffer.readUInt32LE(1);
+      const { length } = decodeFrameHeader(buffer);
       if (buffer.length < FRAME_HEADER_LENGTH + length) return;
       const payload = buffer.subarray(
         FRAME_HEADER_LENGTH,
