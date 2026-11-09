@@ -656,12 +656,8 @@ export async function createElectionDefinition<P extends BaseBallotProps>(p: {
   const getBallotPositions: GetBallotPositionsFn = (bs) =>
     p.ballotPositions.get(bs.id);
 
-  const isSplitElectionDef =
-    p.serializationOptions.format === 'vxf' &&
-    p.systemSettings.splitElectionDefinition;
-
   // [TODO] Replace with a software version check when setting is on by default.
-  if (!isSplitElectionDef) {
+  if (!p.systemSettings.splitElectionDefinition) {
     const electionDefinition = electionWithBallotMeta(
       { ...p.baseElection, contests },
       p.getCandidateOrderings,
@@ -671,6 +667,11 @@ export async function createElectionDefinition<P extends BaseBallotProps>(p: {
 
     return { electionDefinition };
   }
+
+  assert(
+    p.serializationOptions.format === 'vxf',
+    'CDF export not currently supported for split-file elections'
+  );
 
   const election: Election = {
     ...p.baseElection,

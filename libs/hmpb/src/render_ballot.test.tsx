@@ -759,6 +759,28 @@ test('omits ballot positions for non-scannable documents - single-file elections
   expect(ballotStyles[1]?.ballotPositions).not.toBeUndefined();
 });
 
+test('fails for CDF exports when `splitElectionDefinition` setting is on', async () => {
+  const fixtures = nhGeneralElectionFixtures;
+  const allProps = fixtures.fixtureSpecs[0]!.allBallotProps;
+  const settings: SystemSettings = {
+    ...DEFAULT_SYSTEM_SETTINGS,
+    splitElectionDefinition: true,
+  };
+
+  const res = renderAllBallotPdfsAndCreateElectionDefinition(
+    rendererPool,
+    vxDefaultBallotTemplate,
+    allProps.slice(0, 1),
+    (bs) => bs.orderedCandidatesByContest,
+    { compact: true, format: 'cdf', version: LATEST_SOFTWARE_VERSION },
+    settings,
+    makeScratchDir()
+  );
+  await expect(res).rejects.toThrow(
+    'CDF export not currently supported for split-file elections'
+  );
+});
+
 function makeScratchDir(): ScratchDir {
   return { path: makeTemporaryDirectory() };
 }
