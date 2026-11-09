@@ -39,6 +39,10 @@ fn main() -> color_eyre::Result<()> {
     let output = Output::spawn(std::io::stdout());
     let (inputs_tx, inputs) = std::sync::mpsc::channel();
     spawn_input_reader(std::io::stdin(), inputs_tx.clone());
+    let terminate = inputs_tx.clone();
+    ctrlc::set_handler(move || {
+        let _ = terminate.send(Input::Terminate);
+    })?;
 
     output.send_frame(
         frame_type::HELLO,
@@ -67,6 +71,10 @@ fn main() -> color_eyre::Result<()> {
                 break;
             }
             Input::Closed => break,
+            Input::Terminate => {
+                tracing::info!("terminated by signal");
+                break;
+            }
         }
     }
 
@@ -164,6 +172,8 @@ enum Input {
     DriverEvent(driver::Event),
     Malformed(DecodeError),
     Closed,
+    /// SIGINT or SIGTERM; disconnect cleanly so the scanner accepts the next connection at once.
+    Terminate,
 }
 
 /// Reads command frames from stdin and hands them to the main loop.

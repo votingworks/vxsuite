@@ -6,6 +6,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createMockDaemon, type MockScannerDaemon } from './mock_scanner.js';
 import {
+  DAEMON_KILL_GRACE_MS,
   DEFAULT_DAEMON_PATH,
   ScannerClient,
   spawnDaemon,
@@ -437,12 +438,24 @@ test('spawning a daemon that is not there fails instead of hanging', async () =>
   expect((await client.start()).unsafeUnwrapErr().code).toEqual('daemonExited');
 });
 
-test('a daemon that stops reading stdin is stopped instead of crashing the host', async () => {
+/** Runs `fn` with the path of an executable shell script standing in for `deskproctl`. */
+async function withStubDaemon(
+  script: string,
+  fn: (daemonPath: string) => Promise<void>
+): Promise<void> {
   const directory = mkdtempSync(join(tmpdir(), 'deskproctl-'));
   const daemonPath = join(directory, 'deskproctl');
-  writeFileSync(daemonPath, '#!/bin/sh\nexec 0<&-\nsleep 10\n');
+  writeFileSync(daemonPath, `#!/bin/sh\n${script}\n`);
   chmodSync(daemonPath, 0o755);
   try {
+    await fn(daemonPath);
+  } finally {
+    rmSync(directory, { recursive: true });
+  }
+}
+
+test('a daemon that stops reading stdin is stopped instead of crashing the host', async () => {
+  await withStubDaemon('exec 0<&-\nsleep 10', async (daemonPath) => {
     client = new ScannerClient(spawnDaemon(daemonPath));
     const hello = client.start();
     await sleep(100);
@@ -451,9 +464,28 @@ test('a daemon that stops reading stdin is stopped instead of crashing the host'
       message: 'deskproctl exited with code null, signal SIGTERM',
     });
     expect((await hello).unsafeUnwrapErr().code).toEqual('daemonExited');
-  } finally {
-    rmSync(directory, { recursive: true });
-  }
+  });
+});
+
+test('a daemon that ignores SIGTERM is killed after the grace period', async () => {
+  await withStubDaemon("trap '' TERM\nexec sleep 30", async (daemonPath) => {
+    const transport = spawnDaemon(daemonPath);
+    const exited = new Promise<string>((resolve) => {
+      transport.onClose(resolve);
+    });
+    await sleep(100);
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    try {
+      transport.close();
+      vi.advanceTimersByTime(DAEMON_KILL_GRACE_MS);
+    } finally {
+      vi.useRealTimers();
+    }
+    expect(await exited).toEqual(
+      'deskproctl exited with code null, signal SIGKILL'
+    );
+    transport.close();
+  });
 });
 
 test('the mock reassembles a command split across writes', async () => {

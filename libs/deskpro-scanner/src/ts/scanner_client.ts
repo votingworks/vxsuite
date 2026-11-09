@@ -51,6 +51,9 @@ export interface Transport {
   close(): void;
 }
 
+/** How long `deskproctl` gets to disconnect from the scanner after SIGTERM before SIGKILL. */
+export const DAEMON_KILL_GRACE_MS = 15_000;
+
 /** Runs `deskproctl` as a child process and exposes its stdio as a {@link Transport}. */
 export function spawnDaemon(daemonPath = DEFAULT_DAEMON_PATH): Transport {
   const child = spawn(daemonPath, [], { stdio: ['pipe', 'pipe', 'inherit'] });
@@ -68,7 +71,13 @@ export function spawnDaemon(daemonPath = DEFAULT_DAEMON_PATH): Transport {
       );
     },
     close() {
+      if (child.exitCode !== null || child.signalCode !== null) return;
       child.kill('SIGTERM');
+      const escalate = setTimeout(
+        () => child.kill('SIGKILL'),
+        DAEMON_KILL_GRACE_MS
+      );
+      child.once('exit', () => clearTimeout(escalate));
     },
   };
 }
@@ -154,7 +163,7 @@ export class ScannerClient extends EventEmitter<ScannerClientEvents> {
     return helloReceived.promise;
   }
 
-  /** Stops the daemon. Safe to call more than once. */
+  /** Stops the daemon, which disconnects from the scanner first. Safe to call more than once. */
   stop(): void {
     this.transport.close();
   }
