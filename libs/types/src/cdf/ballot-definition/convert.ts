@@ -611,7 +611,6 @@ export function convertVxfElectionToCdfBallotDefinition(
       if (contest.type === 'straight-party') {
         return Vxf.straightPartyNotYetImplemented();
       }
-      // For candidate contests, use the ordered candidates from the ballot style
       if (contest.type === 'candidate') {
         const orderedCandidates = getOrderedCandidates({
           contest,
