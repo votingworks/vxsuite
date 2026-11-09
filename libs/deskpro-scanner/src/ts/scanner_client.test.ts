@@ -270,6 +270,25 @@ test('frames that arrive after the daemon goes away are ignored', async () => {
   expect(events).toEqual([]);
 });
 
+test('an exception from a listener propagates without tearing the connection down', async () => {
+  const [scanner, daemon] = await withMock();
+  scanner.on('event', () => {
+    throw new Error('listener bug');
+  });
+  const frame = encodeFrame(
+    FrameType.Event,
+    new Writer().u8(0).str('one').finish()
+  );
+  expect(() => daemon.transport.incoming.emit('data', frame)).toThrow(
+    'listener bug'
+  );
+
+  const status = scanner.getStatus();
+  await vi.waitFor(() => expect(daemon.received).toHaveLength(1));
+  daemon.respondStatus(A_STATUS);
+  expect((await status).unsafeUnwrap()).toEqual(A_STATUS);
+});
+
 test('an unknown frame type tears the connection down', async () => {
   const [scanner, daemon] = await withMock();
   daemon.sendRaw(encodeFrame(99, Buffer.alloc(0)));

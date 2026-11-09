@@ -10,7 +10,6 @@ import {
   type Deferred,
   type Result,
   err,
-  extractErrorMessage,
   ok,
   throwIllegalValue,
 } from '@votingworks/basics';
@@ -136,7 +135,8 @@ export class ScannerClient extends EventEmitter<ScannerClientEvents> {
       try {
         this.drainFrames();
       } catch (error) {
-        this.fail({ code: 'protocol', message: extractErrorMessage(error) });
+        if (!(error instanceof ProtocolError)) throw error;
+        this.fail({ code: 'protocol', message: error.message });
         this.transport.close();
       }
     });
