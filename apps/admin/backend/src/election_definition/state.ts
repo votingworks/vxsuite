@@ -1,4 +1,3 @@
-import { assertDefined } from '@votingworks/basics';
 import {
   getStateFeaturesConfig,
   type StateCode,
@@ -9,9 +8,7 @@ import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
-import { getMachineJurisdiction } from '../machine_config.js';
-
-const VOTINGWORKS_STATE = 'vx';
+import { getMachineStateSetting } from '../machine_config.js';
 
 const SUPPORTED_STATE_CODES: readonly StateCode[] = ['DEMO'];
 
@@ -21,22 +18,15 @@ export interface MachineState {
   features: StateFeaturesConfig;
 }
 
-/** Derives a state code from a `{state}.{county}` jurisdiction. */
-export function stateCodeForJurisdiction(
-  jurisdiction: string
-): StateCode | undefined {
-  const state = assertDefined(jurisdiction.split('.')[0]);
-  if (state === VOTINGWORKS_STATE) {
-    return 'DEMO';
-  }
-  return StateCodes.find(
-    (stateCode) => stateCode !== 'DEMO' && stateCode === state.toUpperCase()
-  );
+/** Parses a configured state setting, e.g. `DEMO` or `mi`, as a state code. */
+export function parseStateCode(setting: string): StateCode | undefined {
+  return StateCodes.find((stateCode) => stateCode === setting.toUpperCase());
 }
 
 /** Returns the machine's state if election definition supports it. */
 export function getMachineState(): MachineState | undefined {
-  const stateCode = stateCodeForJurisdiction(getMachineJurisdiction());
+  const setting = getMachineStateSetting();
+  const stateCode = setting === undefined ? undefined : parseStateCode(setting);
   if (!stateCode || !SUPPORTED_STATE_CODES.includes(stateCode)) {
     return undefined;
   }

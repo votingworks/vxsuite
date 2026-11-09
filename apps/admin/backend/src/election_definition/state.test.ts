@@ -7,7 +7,7 @@ import {
 import {
   getMachineState,
   isElectionDefinitionEnabled,
-  stateCodeForJurisdiction,
+  parseStateCode,
 } from './state.js';
 
 const featureFlagMock = getFeatureFlagMock();
@@ -22,17 +22,17 @@ afterEach(() => {
   featureFlagMock.resetFeatureFlags();
 });
 
-test('stateCodeForJurisdiction', () => {
-  expect(stateCodeForJurisdiction('vx.test')).toEqual('DEMO');
-  expect(stateCodeForJurisdiction('mi.kent')).toEqual('MI');
-  expect(stateCodeForJurisdiction('nh.concord')).toEqual('NH');
-  expect(stateCodeForJurisdiction('demo.county')).toEqual(undefined);
-  expect(stateCodeForJurisdiction('st.somewhere')).toEqual(undefined);
-  expect(stateCodeForJurisdiction('jurisdiction')).toEqual(undefined);
+test('parseStateCode', () => {
+  expect(parseStateCode('DEMO')).toEqual('DEMO');
+  expect(parseStateCode('demo')).toEqual('DEMO');
+  expect(parseStateCode('mi')).toEqual('MI');
+  expect(parseStateCode('NH')).toEqual('NH');
+  expect(parseStateCode('vx')).toEqual(undefined);
+  expect(parseStateCode('')).toEqual(undefined);
 });
 
 test('getMachineState', () => {
-  vi.stubEnv('VX_MACHINE_JURISDICTION', 'vx.test');
+  vi.stubEnv('VX_MACHINE_STATE', 'demo');
   expect(getMachineState()).toEqual({
     stateCode: 'DEMO',
     features: {
@@ -42,15 +42,25 @@ test('getMachineState', () => {
     },
   });
 
-  vi.stubEnv('VX_MACHINE_JURISDICTION', 'mi.kent');
+  vi.stubEnv('VX_MACHINE_STATE', 'MI');
   expect(getMachineState()).toEqual(undefined);
 
-  vi.stubEnv('VX_MACHINE_JURISDICTION', 'st.somewhere');
+  vi.stubEnv('VX_MACHINE_STATE', 'somewhere');
   expect(getMachineState()).toEqual(undefined);
 });
 
+test('getMachineState defaults to the demo state outside of production', () => {
+  expect(getMachineState()?.stateCode).toEqual('DEMO');
+
+  vi.stubEnv('NODE_ENV', 'production');
+  expect(getMachineState()).toEqual(undefined);
+
+  vi.stubEnv('VX_MACHINE_STATE', 'DEMO');
+  expect(getMachineState()?.stateCode).toEqual('DEMO');
+});
+
 test('isElectionDefinitionEnabled', () => {
-  vi.stubEnv('VX_MACHINE_JURISDICTION', 'vx.test');
+  vi.stubEnv('VX_MACHINE_STATE', 'DEMO');
   expect(isElectionDefinitionEnabled()).toEqual(false);
 
   featureFlagMock.enableFeatureFlag(
@@ -58,6 +68,6 @@ test('isElectionDefinitionEnabled', () => {
   );
   expect(isElectionDefinitionEnabled()).toEqual(true);
 
-  vi.stubEnv('VX_MACHINE_JURISDICTION', 'mi.kent');
+  vi.stubEnv('VX_MACHINE_STATE', 'MI');
   expect(isElectionDefinitionEnabled()).toEqual(false);
 });
