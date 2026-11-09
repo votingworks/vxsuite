@@ -63,8 +63,8 @@ fn main() -> color_eyre::Result<()> {
             Input::DriverEvent(event) => {
                 if session.handle_driver_event(event) == Flow::LostScanner {
                     session.abandon();
-                    // SAFETY: output is flushed. `exit` would run the vendor library's C++ static
-                    // destructors under its live threads, which aborts.
+                    // SAFETY: output is flushed. After a lost link the vendor library's threads
+                    // outlive even `ScannerDisconnect`, so `exit` aborts in its C++ destructors.
                     unsafe { libc::_exit(LOST_SCANNER_EXIT_CODE) };
                 }
             }
