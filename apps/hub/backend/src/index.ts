@@ -45,9 +45,8 @@ export type {
 export type {
   StateFeature,
   StateFeaturesConfig,
-  UserFeature,
-  UserFeaturesConfig,
-} from './features.js';
+} from '@votingworks/election-definition-backend';
+export type { UserFeature, UserFeaturesConfig } from './features.js';
 export type { Api, AuthErrorCode, UnauthenticatedApi } from './app.js';
 export type { ConvertMsResultsError } from './convert_ms_results.js';
 

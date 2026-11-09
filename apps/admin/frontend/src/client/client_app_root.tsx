@@ -119,6 +119,7 @@ export function ClientAppRoot(): JSX.Element | null {
             isOfficialResults: false,
             usbDriveStatus,
             machineMode: 'client',
+            isElectionDefinitionEnabled: false,
           }}
         >
           <ClientMachineLockedScreen />
@@ -160,6 +161,7 @@ export function ClientAppRoot(): JSX.Element | null {
     isOfficialResults: electionRecord?.isOfficialResults ?? false,
     usbDriveStatus,
     machineMode: 'client',
+    isElectionDefinitionEnabled: false,
   };
 
   if (isSystemAdministratorAuth(auth)) {

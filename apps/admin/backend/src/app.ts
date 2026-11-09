@@ -103,6 +103,11 @@ import type {
   BallotImages,
 } from './types.js';
 import { setRestoreState, type Workspace } from './util/workspace.js';
+import { isElectionDefinitionEnabled } from './election_definition/state.js';
+import {
+  createElectionDefinitionAccessMiddleware,
+  createElectionDefinitionApiMethods,
+} from './election_definition/api.js';
 import { getMachineConfig } from './machine_config.js';
 import { isMultiStationAdjudicationEnabled } from './multi_station_config.js';
 import type { MachineModeController } from './machine_mode.js';
@@ -297,7 +302,12 @@ function buildApi({
     });
   }
 
-  return grout.createApi({
+  const electionDefinitionMethods = createElectionDefinitionApiMethods({
+    workspace,
+    logger,
+  });
+
+  const methods = {
     getMachineConfig,
 
     getAppMode(): AppMode {
@@ -1733,6 +1743,9 @@ function buildApi({
       });
     },
 
+    isElectionDefinitionEnabled,
+    ...electionDefinitionMethods,
+
     ...createSystemCallApi({
       usbDrive: usbDriveAdapter,
       logger,
@@ -1743,6 +1756,16 @@ function buildApi({
       getAuthStatus: () =>
         auth.getAuthStatus(constructAuthMachineState(workspace.store)),
     }),
+  } as const;
+
+  return grout.createApi(methods, {
+    before: [
+      createElectionDefinitionAccessMiddleware({
+        auth,
+        workspace,
+        methods: electionDefinitionMethods,
+      }),
+    ],
   });
 }
 

@@ -4,10 +4,13 @@ import { resolve } from 'node:path';
 import { BaseLogger, LogSource } from '@votingworks/logging';
 import { assertDefined } from '@votingworks/basics';
 import { safeParse, SoftwareVersionSchema } from '@votingworks/types';
+import {
+  generateId,
+  StateCodeSchema,
+} from '@votingworks/election-definition-backend';
 import { createWorkspace } from '../workspace.js';
 import { WORKSPACE } from '../globals.js';
-import { generateId } from '../utils.js';
-import { type Jurisdiction, StateCodeSchema } from '../types.js';
+import type { Jurisdiction } from '../types.js';
 
 const USAGE = `Usage: pnpm create-jurisdiction --organizationId=<organizationId> --stateCode=<stateCode> --softwareVersion=<softwareVersion> "<name>"`;
 

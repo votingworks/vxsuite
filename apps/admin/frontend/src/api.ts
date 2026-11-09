@@ -13,7 +13,12 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query';
+import {
+  createElectionDefinitionApi,
+  getElectionInfoQueryKey,
+} from '@votingworks/election-definition-ui';
 import * as grout from '@votingworks/grout';
+import type { ElectionId } from '@votingworks/types';
 import type {
   UsbDriveStatus,
   UsbPartitionMountpoint,
@@ -1269,5 +1274,68 @@ export const getMaxSheetsPerBallot = {
   useQuery() {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(), () => apiClient.getMaxSheetsPerBallot());
+  },
+} as const;
+
+export const isElectionDefinitionEnabled = {
+  queryKey(): QueryKey {
+    return ['isElectionDefinitionEnabled'];
+  },
+  useQuery(options: { enabled: boolean }) {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(),
+      () => apiClient.isElectionDefinitionEnabled(),
+      options
+    );
+  },
+} as const;
+
+export const getCurrentInProgressElection = {
+  queryKey(): QueryKey {
+    return ['getCurrentInProgressElection'];
+  },
+  useQuery(options: { enabled?: boolean } = {}) {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(),
+      () => apiClient.getCurrentInProgressElection(),
+      options
+    );
+  },
+} as const;
+
+async function invalidateElectionQueries(
+  queryClient: QueryClient,
+  electionId: ElectionId
+): Promise<void> {
+  await Promise.all([
+    queryClient.invalidateQueries(getCurrentInProgressElection.queryKey()),
+    queryClient.invalidateQueries(getElectionInfoQueryKey(electionId)),
+  ]);
+}
+
+async function invalidateElectionListQueries(
+  queryClient: QueryClient
+): Promise<void> {
+  await queryClient.invalidateQueries(getCurrentInProgressElection.queryKey());
+}
+
+export const electionDefinitionApi = createElectionDefinitionApi(useApiClient, {
+  invalidateElectionQueries,
+  invalidateElectionListQueries,
+});
+
+export const createInProgressElection = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.createInProgressElection, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(
+          getCurrentInProgressElection.queryKey()
+        );
+      },
+    });
   },
 } as const;

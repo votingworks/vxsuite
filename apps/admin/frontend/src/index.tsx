@@ -14,7 +14,6 @@ import {
   SystemCallContextProvider,
 } from '@votingworks/ui';
 import { assert, throwIllegalValue } from '@votingworks/basics';
-import { LogSource, BaseLogger } from '@votingworks/logging';
 import { App as HostApp } from './app.js';
 import { ClientApp } from './client/client_app.js';
 import { RestoreApp } from './restore/restore_app.js';
@@ -25,6 +24,7 @@ import {
   getAppMode,
   systemCallApi,
 } from './shared_api.js';
+import { logger } from './logger.js';
 
 function PrimaryApp(): JSX.Element | null {
   const appModeQuery = getAppMode.useQuery();
@@ -49,7 +49,6 @@ const queryClient = createSharedQueryClient();
 const rootElement = document.getElementById('root');
 assert(rootElement);
 const root = createRoot(rootElement);
-const logger = new BaseLogger(LogSource.VxAdminFrontend, window.kiosk);
 
 root.render(
   <React.StrictMode>

@@ -116,7 +116,9 @@ function renderPanel(
   ttsString: { stringKey: ElectionStringKey }
 ) {
   const history = createMemoryHistory({
-    initialEntries: [electionInfoRoutes.audio({ ...ttsString })],
+    initialEntries: [
+      `/elections/${electionId}/info/audio/${ttsString.stringKey}`,
+    ],
   });
 
   const mockApi = createMockApiClient();
@@ -137,7 +139,7 @@ function renderPanel(
         <Switch>
           <Route
             exact
-            path={electionInfoParamRoutes.audio({ stringKey: ':stringKey' })}
+            path={`${electionInfoParamRoutes.root.path}/audio/:stringKey`}
             component={ElectionInfoAudioPanel}
           />
           <Route exact path={electionInfoParamRoutes.root.path} />

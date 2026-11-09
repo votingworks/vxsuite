@@ -7,6 +7,9 @@ import {
   screen,
   waitFor,
 } from '../test/react_testing_library.js';
+import { createMockApiClient } from '../test/api_helpers.js';
+import { createElectionDefinitionApi } from './api.js';
+import { ElectionDefinitionContextProvider } from './election_definition_context.js';
 import { ImageInput } from './image_input.js';
 import {
   normalizeImageToSvg,
@@ -279,14 +282,20 @@ describe('ImageInput', () => {
     });
 
     test('handles unexpected errors when loading images', async () => {
+      const reportUnexpectedError = vi.fn();
       render(
-        <ImageInput
-          value={undefined}
-          onChange={vi.fn()}
-          buttonLabel="Upload"
-          removeButtonLabel="Remove"
-          normalizeParams={{ maxWidthPx: 300 }}
-        />
+        <ElectionDefinitionContextProvider
+          api={createElectionDefinitionApi(() => createMockApiClient())}
+          reportUnexpectedError={reportUnexpectedError}
+        >
+          <ImageInput
+            value={undefined}
+            onChange={vi.fn()}
+            buttonLabel="Upload"
+            removeButtonLabel="Remove"
+            normalizeParams={{ maxWidthPx: 300 }}
+          />
+        </ElectionDefinitionContextProvider>
       );
 
       Object.defineProperty(HTMLImageElement.prototype, 'src', {
@@ -305,6 +314,9 @@ describe('ImageInput', () => {
         expect(input.validationMessage).toEqual(
           'Something went wrong. Please refresh the page and try again.'
         );
+      });
+      expect(reportUnexpectedError).toHaveBeenCalledWith(expect.anything(), {
+        action: 'normalizeToSvg',
       });
     });
   });

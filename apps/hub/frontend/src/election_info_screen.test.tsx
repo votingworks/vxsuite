@@ -8,7 +8,7 @@ import {
 } from '@votingworks/types';
 import { Buffer } from 'node:buffer';
 import { createMemoryHistory } from 'history';
-import { assertDefined, DateWithoutTime, err, ok } from '@votingworks/basics';
+import { assertDefined, DateWithoutTime, ok } from '@votingworks/basics';
 import type { ElectionInfo } from '@votingworks/hub-backend';
 import {
   type MockApiClient,
@@ -336,34 +336,6 @@ test('shows signature input for NhStateBallot template', async () => {
   screen.getByLabelText('Signature Caption');
 });
 
-test('cancel update', async () => {
-  const electionRecord = generalElectionRecord(jurisdiction.id);
-  const electionId = electionRecord.election.id;
-  mockStateFeatures(apiMock, electionId);
-  apiMock.getSystemSettings
-    .expectCallWith({ electionId })
-    .resolves(DEFAULT_SYSTEM_SETTINGS);
-  apiMock.getElectionInfo
-    .expectCallWith({ electionId })
-    .resolves(electionInfoFromElection(electionRecord.election));
-  apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
-  apiMock.getBallotTemplate
-    .expectCallWith({ electionId })
-    .resolves('VxDefaultBallot');
-  renderScreen(electionId);
-  await screen.findByRole('heading', { name: 'Election Info' });
-
-  await userEvent.click(screen.getByRole('button', { name: 'Edit' }));
-
-  const titleInput = screen.getByLabelText('Title');
-  await userEvent.clear(titleInput);
-  await userEvent.type(titleInput, 'New Title');
-
-  await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
-
-  expect(titleInput).toHaveValue(electionRecord.election.title);
-});
-
 test('delete election', async () => {
   const electionRecord = generalElectionRecord(jurisdiction.id);
   const electionId = electionRecord.election.id;
@@ -422,143 +394,6 @@ test('edit election disabled when ballots are finalized', async () => {
   expect(editButton).toBeDisabled();
 });
 
-test('elections with external source have limited editable fields', async () => {
-  const electionRecord = generalElectionRecord(jurisdiction.id);
-  electionRecord.ballotTemplateId = 'MsBallot';
-  const { election } = electionRecord;
-  const electionId = election.id;
-  mockStateFeatures(apiMock, electionId, { BALLOT_LANGUAGE_CONFIG: true });
-  apiMock.getSystemSettings
-    .expectCallWith({ electionId })
-    .resolves(DEFAULT_SYSTEM_SETTINGS);
-  apiMock.getElectionInfo.expectCallWith({ electionId }).resolves({
-    ...electionInfoFromRecord(electionRecord),
-    externalSource: 'ms-sems',
-  });
-  apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
-  apiMock.getBallotTemplate.expectCallWith({ electionId }).resolves('MsBallot');
-  renderScreen(electionId);
-  await screen.findByRole('heading', { name: 'Election Info' });
-
-  await userEvent.click(screen.getByRole('button', { name: 'Edit' }));
-
-  // Title, State, and Jurisdiction should be editable
-  const titleInput = screen.getByLabelText('Title');
-  expect(titleInput).toBeEnabled();
-
-  const stateInput = screen.getByLabelText('State');
-  expect(stateInput).toBeEnabled();
-
-  const jurisdictionInput = screen.getByLabelText('Jurisdiction');
-  expect(jurisdictionInput).toBeEnabled();
-
-  // Remaining fields (Date, Type, and Seal for MS template) should be disabled
-  const dateInput = screen.getByLabelText('Date');
-  expect(dateInput).toBeDisabled();
-
-  const typeInput = screen.getByRole('listbox', { name: 'Type' });
-  for (const option of within(typeInput).getAllByRole('option')) {
-    expect(option).toBeDisabled();
-  }
-
-  const sealInput = screen.getByText('Seal').parentElement!;
-  expect(within(sealInput).getByLabelText('Upload Seal Image')).toBeDisabled();
-});
-
-test('handles duplicate title+date error', async () => {
-  const electionRecord = generalElectionRecord(jurisdiction.id);
-  const electionId = electionRecord.election.id;
-  mockStateFeatures(apiMock, electionId);
-  apiMock.getSystemSettings
-    .expectCallWith({ electionId })
-    .resolves(DEFAULT_SYSTEM_SETTINGS);
-  apiMock.getElectionInfo
-    .expectCallWith({ electionId })
-    .resolves(electionInfoFromElection(electionRecord.election));
-  apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
-  apiMock.getBallotTemplate
-    .expectCallWith({ electionId })
-    .resolves('VxDefaultBallot');
-  renderScreen(electionId);
-  await screen.findByRole('heading', { name: 'Election Info' });
-
-  await userEvent.click(screen.getByRole('button', { name: 'Edit' }));
-
-  apiMock.updateElectionInfo
-    .expectCallWith(electionInfoFromElection(electionRecord.election))
-    .resolves(err('duplicate-title-and-date'));
-  await userEvent.click(screen.getByRole('button', { name: 'Save' }));
-  const expectedMessage =
-    'There is already an election with the same title and date.';
-  await screen.findByText(expectedMessage);
-
-  await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
-  expect(screen.queryByText(expectedMessage)).not.toBeInTheDocument();
-  await userEvent.click(screen.getByRole('button', { name: 'Edit' }));
-  expect(screen.queryByText(expectedMessage)).not.toBeInTheDocument();
-});
-
-test('election type selector with features.COMBINED_BALLOT_PRIMARIES enabled', async () => {
-  const electionRecord = generalElectionRecord(jurisdiction.id);
-  const { election } = electionRecord;
-  const electionId = election.id;
-  mockStateFeatures(apiMock, electionId, { COMBINED_BALLOT_PRIMARIES: true });
-  apiMock.getSystemSettings
-    .expectCallWith({ electionId })
-    .resolves(DEFAULT_SYSTEM_SETTINGS);
-  apiMock.getElectionInfo
-    .expectCallWith({ electionId })
-    .resolves(electionInfoFromRecord(electionRecord));
-  apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
-  apiMock.getBallotTemplate
-    .expectCallWith({ electionId })
-    .resolves('VxDefaultBallot');
-  renderScreen(electionId);
-  await screen.findByRole('heading', { name: 'Election Info' });
-
-  const typeInput = screen.getByRole('listbox', { name: 'Type' });
-  within(typeInput).getByRole('option', { name: 'General', selected: true });
-  within(typeInput).getByRole('option', { name: 'Closed Primary' });
-  within(typeInput).getByRole('option', { name: 'Open Primary' });
-
-  await userEvent.click(screen.getByRole('button', { name: 'Edit' }));
-
-  // Select Open Primary
-  await userEvent.click(
-    within(typeInput).getByRole('option', { name: 'Open Primary' })
-  );
-  const combinedBallotPrimaryInfo: ElectionInfo = {
-    ...electionInfoFromRecord(electionRecord),
-    type: 'primary',
-    isMiCombinedBallotPrimary: true,
-  };
-  apiMock.updateElectionInfo
-    .expectCallWith(combinedBallotPrimaryInfo)
-    .resolves(ok());
-  apiMock.getElectionInfo
-    .expectCallWith({ electionId })
-    .resolves(combinedBallotPrimaryInfo);
-  await userEvent.click(screen.getByRole('button', { name: 'Save' }));
-  await screen.findByRole('option', { name: 'Open Primary', selected: true });
-
-  // Select Closed Primary
-  await userEvent.click(screen.getByRole('button', { name: 'Edit' }));
-  await userEvent.click(
-    within(typeInput).getByRole('option', { name: 'Closed Primary' })
-  );
-  const closedPrimaryInfo: ElectionInfo = {
-    ...combinedBallotPrimaryInfo,
-    type: 'primary',
-    isMiCombinedBallotPrimary: false,
-  };
-  apiMock.updateElectionInfo.expectCallWith(closedPrimaryInfo).resolves(ok());
-  apiMock.getElectionInfo
-    .expectCallWith({ electionId })
-    .resolves(closedPrimaryInfo);
-  await userEvent.click(screen.getByRole('button', { name: 'Save' }));
-  await screen.findByRole('option', { name: 'Closed Primary', selected: true });
-});
-
 describe('audio editing', () => {
   const { election } = generalElectionRecord(jurisdiction.id);
   const electionId = election.id;
@@ -606,10 +441,37 @@ describe('audio editing', () => {
 
       await screen.findByTestId(MOCK_AUDIO_PANEL_ID);
       expect(history.location.pathname).toEqual(
-        routes.election(electionId).electionInfo.audio({
-          stringKey: spec.stringKey,
-        })
+        `/elections/${electionId}/info/audio/${spec.stringKey}`
       );
     });
   }
+
+  test('editing closes the audio panel', async () => {
+    mockStateFeatures(apiMock, electionId, { AUDIO_ENABLED: true });
+    apiMock.getSystemSettings
+      .expectCallWith({ electionId })
+      .resolves(DEFAULT_SYSTEM_SETTINGS);
+    apiMock.getElectionInfo
+      .expectCallWith({ electionId })
+      .resolves(electionInfoFromElection(election));
+    apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
+    apiMock.getBallotTemplate
+      .expectCallWith({ electionId })
+      .resolves('VxDefaultBallot');
+    const history = renderScreen(electionId);
+
+    const input = await screen.findByDisplayValue(election.title);
+    await userEvent.click(
+      within(assertDefined(input.closest('label'))).getButton(
+        /preview or edit audio/i
+      )
+    );
+    await screen.findByTestId(MOCK_AUDIO_PANEL_ID);
+
+    await userEvent.click(screen.getButton('Edit'));
+    expect(history.location.pathname).toEqual(
+      routes.election(electionId).electionInfo.root.path
+    );
+    expect(screen.queryByTestId(MOCK_AUDIO_PANEL_ID)).not.toBeInTheDocument();
+  });
 });

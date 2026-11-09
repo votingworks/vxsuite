@@ -75,6 +75,7 @@ export function renderInClientContext(
                   isOfficialResults,
                   usbDriveStatus,
                   machineMode: 'client',
+                  isElectionDefinitionEnabled: false,
                   electionDefinition,
                   electionPackageHash,
                 }}

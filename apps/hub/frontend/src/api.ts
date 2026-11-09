@@ -5,6 +5,7 @@ import type {
   ElectionUpload,
 } from '@votingworks/hub-backend';
 import type { NhStateBallotVariant } from '@votingworks/hmpb';
+import { createElectionDefinitionApi } from '@votingworks/election-definition-ui';
 import * as grout from '@votingworks/grout';
 import {
   QueryClient,
@@ -466,19 +467,20 @@ export const cloneElection = {
   },
 } as const;
 
-export const updateElectionInfo = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.updateElectionInfo, {
-      async onSuccess(result, { electionId }) {
-        if (result.isOk()) {
-          await invalidateElectionQueries(queryClient, electionId);
-        }
-      },
-    });
-  },
-} as const;
+async function invalidateElectionListQueries(
+  queryClient: QueryClient
+): Promise<void> {
+  await queryClient.invalidateQueries(listElections.queryKey(), {
+    // Ensure list of elections is refetched in the background so it's
+    // fresh when we redirect to elections list
+    refetchType: 'all',
+  });
+}
+
+export const electionDefinitionApi = createElectionDefinitionApi(useApiClient, {
+  invalidateElectionQueries,
+  invalidateElectionListQueries,
+});
 
 export const updateDistricts = {
   useMutation() {
@@ -652,22 +654,6 @@ export const updateSystemSettings = {
         await queryClient.invalidateQueries(
           getSystemSettings.queryKey(electionId)
         );
-      },
-    });
-  },
-} as const;
-
-export const deleteElection = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.deleteElection, {
-      async onSuccess() {
-        await queryClient.invalidateQueries(listElections.queryKey(), {
-          // Ensure list of elections is refetched in the background so it's
-          // fresh when we redirect to elections list
-          refetchType: 'all',
-        });
       },
     });
   },

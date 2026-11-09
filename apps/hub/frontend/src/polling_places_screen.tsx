@@ -10,6 +10,7 @@ import {
 
 import { H1, LinkButton } from '@votingworks/ui';
 
+import { FixedViewport } from '@votingworks/election-definition-ui';
 import * as api from './api.js';
 import { ElectionNavScreen, Header } from './nav_screen.js';
 import {
@@ -20,7 +21,7 @@ import {
 import { useTitle } from './hooks/use_title.js';
 import { PollingPlaceForm } from './polling_place_form.js';
 import { PollingPlaceList } from './polling_place_list.js';
-import { FixedViewport, ListActionsRow } from './layout.js';
+import { ListActionsRow } from './layout.js';
 import { PollingPlaceAudioPanel } from './polling_place_audio_panel.js';
 
 export function PollingPlacesScreen(): JSX.Element {

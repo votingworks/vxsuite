@@ -762,3 +762,15 @@ IDs are logged with each log to identify the log being written.
 **Type:** [system-status](#system-status)
 **Description:** VxAdmin started in restore mode, as arranged on the previous boot. It serves no election data until it is rebooted.
 **Machines:** vx-admin
+### election-definition-created
+**Type:** [user-action](#user-action)
+**Description:** A user created a new election definition to design, or failed to. Success or failure indicated by disposition.
+**Machines:** vx-admin
+### election-definition-info-updated
+**Type:** [user-action](#user-action)
+**Description:** A user edited the election info (title, date, type, state, jurisdiction, seal, signature or languages) of the election definition being designed, or failed to. Success or failure indicated by disposition.
+**Machines:** vx-admin
+### election-definition-discarded
+**Type:** [user-action](#user-action)
+**Description:** A user discarded the election definition being designed.
+**Machines:** vx-admin

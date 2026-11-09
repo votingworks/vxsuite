@@ -1,13 +1,19 @@
 import { expect, test, vi } from 'vitest';
 import { sleep } from '@votingworks/basics';
-import { fireEvent, render, screen } from '../../test/react_testing_library.js';
-import { RichTextEditorWithAudio } from './rich_text_editor_with_audio.js';
 import {
   type AudioLinkButtonProps,
   AudioLinkButton,
-} from './audio_link_button.js';
+} from '@votingworks/election-definition-ui';
+import { fireEvent, render, screen } from '../../test/react_testing_library.js';
+import { RichTextEditorWithAudio } from './rich_text_editor_with_audio.js';
 
-vi.mock('./audio_link_button.js');
+vi.mock(
+  import('@votingworks/election-definition-ui'),
+  async (importActual) => ({
+    ...(await importActual()),
+    AudioLinkButton: vi.fn(),
+  })
+);
 
 test('passes through editor props', async () => {
   const onChange = vi.fn((content: string) => {

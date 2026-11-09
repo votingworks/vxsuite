@@ -22,7 +22,7 @@ import {
 import { assert, find, throwIllegalValue } from '@votingworks/basics';
 import { createHash } from 'node:crypto';
 import { ballotStyleHasPrecinctOrSplit } from '@votingworks/utils';
-import { getStateFeaturesConfig } from './features.js';
+import { getStateFeaturesConfig } from '@votingworks/election-definition-backend';
 import type { Jurisdiction } from './types.js';
 
 export function defaultBallotTemplate(

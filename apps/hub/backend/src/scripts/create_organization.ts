@@ -3,9 +3,9 @@ import util from 'node:util';
 import { resolve } from 'node:path';
 import { BaseLogger, LogSource } from '@votingworks/logging';
 import { assertDefined } from '@votingworks/basics';
+import { generateId } from '@votingworks/election-definition-backend';
 import { createWorkspace } from '../workspace.js';
 import { WORKSPACE } from '../globals.js';
-import { generateId } from '../utils.js';
 import type { Organization } from '../types.js';
 
 const USAGE = `Usage: pnpm create-organization "<name>"`;
