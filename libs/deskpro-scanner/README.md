@@ -81,8 +81,12 @@ reports itself as not idle to `ScannerConnect` while `service` is logged in.
   reports each change as an `operationalState` event (0 while an error is
   active).
 - While the profile's Interfacing `ifError` flag is set (as in every stock
-  profile), the scanner handles errors (jams, paper left inside) on its own
-  display and reports them to the host only as operational state 0.
+  profile), the scanner reports errors (jams, paper left inside) to the host
+  only as operational state 0. With it cleared, an error during a scan also
+  arrives as a `CTYPE_SCANERROR_*` control message with the scanner's error code
+  in `strData`. Either way the error stays on the scanner's display, and
+  `ScannerConnect` fails with `ERR_SCANNER_ERRORACTIVE` until it is cleared
+  there. `VX_PROFILE_PATH` (`profiles/vx-gray200.ino`) has it cleared.
 - A process that loaded the driver may abort at exit with
   `terminate called without an active exception`, from a joinable `std::thread`
   in the driver's static destructors.
