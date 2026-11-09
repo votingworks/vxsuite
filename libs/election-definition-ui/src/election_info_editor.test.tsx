@@ -6,7 +6,7 @@ import type {
   ElectionInfo,
   StateFeaturesConfig,
 } from '@votingworks/election-definition-backend';
-import { ElectionStringKey, LanguageCode } from '@votingworks/types';
+import { LanguageCode } from '@votingworks/types';
 import { Button } from '@votingworks/ui';
 import {
   createMockApiClient,
@@ -81,10 +81,12 @@ function renderEditor({
   savedElectionInfo = electionInfo,
   features = {},
   props = {},
+  path = `/elections/${electionId}/info`,
 }: {
   savedElectionInfo?: ElectionInfo;
   features?: StateFeaturesConfig;
   props?: Partial<ElectionInfoEditorProps>;
+  path?: string;
 } = {}) {
   apiMock.getElectionInfo
     .expectCallWith({ electionId })
@@ -93,7 +95,7 @@ function renderEditor({
     .expectRepeatedCallsWith({ electionId })
     .resolves(features);
   const history = createMemoryHistory({
-    initialEntries: [`/elections/${electionId}/info`],
+    initialEntries: [path],
   });
   render(
     provideApi(
@@ -318,57 +320,100 @@ test('election type selector with combined ballot primaries', async () => {
   await screen.findByRole('option', { name: 'Closed Primary', selected: true });
 });
 
-test('renders footer actions and children', async () => {
+test('renders footer actions', async () => {
   const onPress = vi.fn();
   renderEditor({
-    props: {
-      footerActions: <Button onPress={onPress}>Footer Action</Button>,
-      children: <div>Side Panel</div>,
-    },
+    props: { footerActions: <Button onPress={onPress}>Footer Action</Button> },
   });
 
   await userEvent.click(await screen.findButton('Footer Action'));
   expect(onPress).toHaveBeenCalled();
-  screen.getByText('Side Panel');
 });
 
-test('links to audio screens', async () => {
+function AudioPanel(): JSX.Element {
+  return <div>Audio Panel</div>;
+}
+
+function getAudioButton(inputValue: string) {
+  return within(
+    assertDefined(screen.getByDisplayValue(inputValue).closest('label'))
+  ).getButton('Preview or Edit Audio');
+}
+
+test('links to audio screens and shows the audio panel', async () => {
   const history = renderEditor({
     features: { AUDIO_ENABLED: true },
-    props: {
-      audioRoutes: {
-        audioScreenUrl: (stringKey) =>
-          `/elections/${electionId}/info/audio/${stringKey}`,
-      },
-    },
+    props: { AudioPanel },
   });
 
-  const titleInput = await screen.findByDisplayValue('General Election');
-  await userEvent.click(
-    within(assertDefined(titleInput.closest('label'))).getButton(
-      'Preview or Edit Audio'
-    )
-  );
+  await screen.findByDisplayValue('General Election');
+  expect(screen.queryByText('Audio Panel')).not.toBeInTheDocument();
+
+  await userEvent.click(getAudioButton('General Election'));
   expect(history.location.pathname).toEqual(
-    `/elections/${electionId}/info/audio/${ElectionStringKey.ELECTION_TITLE}`
+    '/elections/election-1/info/audio/electionTitle'
   );
+  screen.getByText('Audio Panel');
+
+  await userEvent.click(getAudioButton('Demo State'));
+  expect(history.location.pathname).toEqual(
+    '/elections/election-1/info/audio/stateName'
+  );
+
+  await userEvent.click(getAudioButton('Demo County'));
+  expect(history.location.pathname).toEqual(
+    '/elections/election-1/info/audio/jurisdictionName'
+  );
+  screen.getByText('Audio Panel');
 });
 
-test('reports editing changes', async () => {
-  const onEditingChange = vi.fn();
-  renderEditor({ props: { onEditingChange } });
+test('edit closes the audio panel and save does not navigate', async () => {
+  const history = renderEditor({
+    features: { AUDIO_ENABLED: true },
+    props: { AudioPanel },
+  });
 
-  await userEvent.click(await screen.findButton('Edit'));
-  expect(onEditingChange).toHaveBeenLastCalledWith(true);
-
-  await userEvent.click(screen.getButton('Cancel'));
-  expect(onEditingChange).toHaveBeenLastCalledWith(false);
+  await screen.findByDisplayValue('General Election');
+  await userEvent.click(getAudioButton('General Election'));
+  screen.getByText('Audio Panel');
+  expect(history.length).toEqual(2);
 
   await userEvent.click(screen.getButton('Edit'));
+  expect(history.location.pathname).toEqual('/elections/election-1/info');
+  expect(history.length).toEqual(3);
+  expect(screen.queryByText('Audio Panel')).not.toBeInTheDocument();
+
   apiMock.updateElectionInfo.expectCallWith(electionInfo).resolves(ok());
   apiMock.getElectionInfo.expectCallWith({ electionId }).resolves(electionInfo);
   await userEvent.click(screen.getButton('Save'));
   await screen.findButton('Edit');
-  expect(onEditingChange).toHaveBeenLastCalledWith(false);
-  expect(onEditingChange).toHaveBeenCalledTimes(4);
+  expect(history.location.pathname).toEqual('/elections/election-1/info');
+  expect(history.length).toEqual(3);
+});
+
+test('cancel closes the audio panel', async () => {
+  const history = renderEditor({
+    savedElectionInfo: blankElectionInfo,
+    features: { AUDIO_ENABLED: true },
+    props: { AudioPanel },
+    path: '/elections/election-1/info/audio/electionTitle',
+  });
+
+  await screen.findByText('Audio Panel');
+  await userEvent.click(screen.getButton('Cancel'));
+  expect(history.location.pathname).toEqual('/elections/election-1/info');
+  expect(history.length).toEqual(2);
+  expect(screen.queryByText('Audio Panel')).not.toBeInTheDocument();
+
+  await userEvent.click(screen.getButton('Edit'));
+  expect(history.length).toEqual(2);
+});
+
+test('does not link to audio screens without an audio panel', async () => {
+  renderEditor({ features: { AUDIO_ENABLED: true } });
+
+  await screen.findByDisplayValue('General Election');
+  expect(
+    screen.queryByRole('button', { name: 'Preview or Edit Audio' })
+  ).not.toBeInTheDocument();
 });

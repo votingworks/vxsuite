@@ -441,9 +441,7 @@ describe('audio editing', () => {
 
       await screen.findByTestId(MOCK_AUDIO_PANEL_ID);
       expect(history.location.pathname).toEqual(
-        routes.election(electionId).electionInfo.audio({
-          stringKey: spec.stringKey,
-        })
+        `/elections/${electionId}/info/audio/${spec.stringKey}`
       );
     });
   }
