@@ -404,8 +404,9 @@ fn.assertComplete(); // verify all expected calls were made (usually in afterEac
   known external conditions should be handled with `Result<T, E>` from
   `@votingworks/basics` to present actionable error messages to the user.
   Expected errors should always be logged.
-- **Logging** — all user actions, and errors should be logged. Use
-  `@votingworks/logging` for structured log events.
+- **Logging** — all user actions and expected errors should be logged. Don't
+  catch unexpected errors just to log them. Use `@votingworks/logging` for
+  structured log events.
 - **Domain types over primitives** — use domain types like `ContestId`,
   `PrecinctId`, etc. instead of plain `string`
 - **Prefer existing utilities** — use utility functions from

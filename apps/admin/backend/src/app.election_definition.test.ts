@@ -169,7 +169,7 @@ test('create, edit and discard an election definition', async () => {
 });
 
 test('deleting an unknown election definition fails', async () => {
-  const { apiClient: api, auth, logger } = buildTestEnvironment();
+  const { apiClient: api, auth } = buildTestEnvironment();
   mockSystemAdministratorAuth(auth);
 
   await suppressingConsoleOutput(() =>
@@ -177,18 +177,10 @@ test('deleting an unknown election definition fails', async () => {
       'Election definition not found'
     )
   );
-  expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
-    LogEventId.ElectionDefinitionDiscarded,
-    {
-      message:
-        'Error discarding election definition unknown: Election definition not found',
-      disposition: 'failure',
-    }
-  );
 });
 
 test('only one election definition at a time', async () => {
-  const { apiClient: api, auth, logger } = buildTestEnvironment();
+  const { apiClient: api, auth } = buildTestEnvironment();
   mockSystemAdministratorAuth(auth);
 
   await api.createInProgressElection();
@@ -196,14 +188,6 @@ test('only one election definition at a time', async () => {
     expect(api.createInProgressElection()).rejects.toThrow(
       'An election definition already exists.'
     )
-  );
-  expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
-    LogEventId.ElectionDefinitionCreated,
-    {
-      message:
-        'Error creating election definition: An election definition already exists.',
-      disposition: 'failure',
-    }
   );
 });
 
@@ -258,7 +242,7 @@ test('unsupported machine state', async () => {
 });
 
 test('rejects combined ballot primaries', async () => {
-  const { apiClient: api, auth, logger } = buildTestEnvironment();
+  const { apiClient: api, auth } = buildTestEnvironment();
   mockSystemAdministratorAuth(auth);
   const electionId = await api.createInProgressElection();
   const electionInfo = await api.getElectionInfo({ electionId });
@@ -273,12 +257,5 @@ test('rejects combined ballot primaries', async () => {
         isMiCombinedBallotPrimary: true,
       })
     ).rejects.toThrow('Combined ballot primaries are not supported.')
-  );
-  expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
-    LogEventId.ElectionDefinitionInfoUpdated,
-    {
-      message: `Error updating election info for election definition ${electionId}: Combined ballot primaries are not supported.`,
-      disposition: 'failure',
-    }
   );
 });

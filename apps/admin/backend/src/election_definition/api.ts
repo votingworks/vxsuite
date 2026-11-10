@@ -3,7 +3,6 @@ import {
   assert,
   assertDefined,
   DateWithoutTime,
-  extractErrorMessage,
   ok,
   type Result,
 } from '@votingworks/basics';
@@ -89,26 +88,16 @@ export function createElectionDefinitionApiMethods({
 
     async createInProgressElection(): Promise<ElectionId> {
       const electionId = generateId();
-      try {
-        const { stateCode } = assertDefined(getMachineState());
-        assert(
-          store.getCurrentElectionId() === undefined,
-          'Cannot create an election definition while an election is configured.'
-        );
-        assert(
-          store.getInProgressElection() === undefined,
-          'An election definition already exists.'
-        );
-        store.createInProgressElection(
-          blankElectionInfo(electionId, stateCode)
-        );
-      } catch (error) {
-        await logger.logAsCurrentRole(LogEventId.ElectionDefinitionCreated, {
-          message: `Error creating election definition: ${extractErrorMessage(error)}`,
-          disposition: 'failure',
-        });
-        throw error;
-      }
+      const { stateCode } = assertDefined(getMachineState());
+      assert(
+        store.getCurrentElectionId() === undefined,
+        'Cannot create an election definition while an election is configured.'
+      );
+      assert(
+        store.getInProgressElection() === undefined,
+        'An election definition already exists.'
+      );
+      store.createInProgressElection(blankElectionInfo(electionId, stateCode));
       await logger.logAsCurrentRole(LogEventId.ElectionDefinitionCreated, {
         message: `Created election definition ${electionId}.`,
         disposition: 'success',
@@ -117,16 +106,8 @@ export function createElectionDefinitionApiMethods({
     },
 
     async deleteElection(input: ElectionInput): Promise<void> {
-      try {
-        loadInProgressElectionInfo(input);
-        store.deleteInProgressElection();
-      } catch (error) {
-        await logger.logAsCurrentRole(LogEventId.ElectionDefinitionDiscarded, {
-          message: `Error discarding election definition ${input.electionId}: ${extractErrorMessage(error)}`,
-          disposition: 'failure',
-        });
-        throw error;
-      }
+      loadInProgressElectionInfo(input);
+      store.deleteInProgressElection();
       await logger.logAsCurrentRole(LogEventId.ElectionDefinitionDiscarded, {
         message: `Discarded election definition ${input.electionId}.`,
         disposition: 'success',
@@ -140,24 +121,13 @@ export function createElectionDefinitionApiMethods({
     async updateElectionInfo(
       input: ElectionInfoUpdate
     ): Promise<Result<void, never>> {
-      try {
-        const electionInfoUpdate = unsafeParse(ElectionInfoUpdateSchema, input);
-        assert(
-          !electionInfoUpdate.isMiCombinedBallotPrimary,
-          'Combined ballot primaries are not supported.'
-        );
-        loadInProgressElectionInfo(electionInfoUpdate);
-        store.updateInProgressElectionInfo(electionInfoUpdate);
-      } catch (error) {
-        await logger.logAsCurrentRole(
-          LogEventId.ElectionDefinitionInfoUpdated,
-          {
-            message: `Error updating election info for election definition ${input.electionId}: ${extractErrorMessage(error)}`,
-            disposition: 'failure',
-          }
-        );
-        throw error;
-      }
+      const electionInfoUpdate = unsafeParse(ElectionInfoUpdateSchema, input);
+      assert(
+        !electionInfoUpdate.isMiCombinedBallotPrimary,
+        'Combined ballot primaries are not supported.'
+      );
+      loadInProgressElectionInfo(electionInfoUpdate);
+      store.updateInProgressElectionInfo(electionInfoUpdate);
       await logger.logAsCurrentRole(LogEventId.ElectionDefinitionInfoUpdated, {
         message: `Updated election info for election definition ${input.electionId}.`,
         disposition: 'success',
