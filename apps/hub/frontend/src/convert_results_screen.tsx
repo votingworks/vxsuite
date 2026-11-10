@@ -11,11 +11,11 @@ import {
 } from '@votingworks/ui';
 import fileDownload from 'js-file-download';
 import { assertDefined, throwIllegalValue } from '@votingworks/basics';
+import { Column } from '@votingworks/election-definition-ui';
 import { type ElectionIdParams, routes } from './routes.js';
 import { useTitle } from './hooks/use_title.js';
 import { ElectionNavScreen, Header } from './nav_screen.js';
 import { convertMsResults } from './api.js';
-import { Column } from './layout.js';
 
 export function ConvertResultsScreen(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();

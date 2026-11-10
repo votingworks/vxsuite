@@ -5,14 +5,13 @@ import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { format } from '@votingworks/utils';
 import type { ElectionListing } from '@votingworks/hub-backend';
-import { Row } from '@votingworks/election-definition-ui';
+import { Row, Column } from '@votingworks/election-definition-ui';
 import {
   listElections,
   createElection,
   loadElection,
   cloneElection,
 } from './api.js';
-import { Column } from './layout.js';
 import { Header, NavScreen } from './nav_screen.js';
 import { CreateElectionButton } from './create_election_button.js';
 import { useTitle } from './hooks/use_title.js';

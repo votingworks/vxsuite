@@ -1,4 +1,4 @@
-import { cssThemedScrollbars, DesktopPalette } from '@votingworks/ui';
+import { cssThemedScrollbars, DesktopPalette, H2 } from '@votingworks/ui';
 import styled, { css } from 'styled-components';
 
 export const FormBody = styled.div`

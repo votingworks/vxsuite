@@ -23,6 +23,7 @@ import { useState } from 'react';
 import styled from 'styled-components';
 import { ballotStyleHasPrecinctOrSplit } from '@votingworks/utils';
 import type { BallotTemplateId } from '@votingworks/hub-backend';
+import { Column } from '@votingworks/election-definition-ui';
 import {
   getBallotsFinalizedAt,
   getBallotLayoutSettings,
@@ -34,7 +35,7 @@ import {
   listParties,
   getStateFeatures,
 } from './api.js';
-import { Column, Form, FormActionsRow, NestedTr } from './layout.js';
+import { Form, FormActionsRow, NestedTr } from './layout.js';
 import { ElectionNavScreen, Header } from './nav_screen.js';
 import {
   type ElectionIdParams,

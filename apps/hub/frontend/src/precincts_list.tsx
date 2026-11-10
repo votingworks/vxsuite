@@ -6,9 +6,8 @@ import { Icons, DesktopPalette, Callout } from '@votingworks/ui';
 import { hasSplits } from '@votingworks/types';
 
 import { type ElectionIdParams, routes } from './routes.js';
-import { Column } from './layout.js';
 import * as api from './api.js';
-import { EntityList } from './entity_list.js';
+import { Column, EntityList } from '@votingworks/election-definition-ui';
 
 const NoPrecincts = styled.div`
   padding: 1rem;

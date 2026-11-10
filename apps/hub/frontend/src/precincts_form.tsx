@@ -34,9 +34,11 @@ import {
   InputWithAudio,
   SealImageInput,
   SignatureImageInput,
+  Column,
+  FormTitle,
+  replaceAtIndex,
 } from '@votingworks/election-definition-ui';
 import { routes } from './routes.js';
-import { Column } from './layout.js';
 import {
   listDistricts,
   getStateFeatures,
@@ -47,8 +49,8 @@ import {
   getBallotsFinalizedAt,
   getElectionInfo,
 } from './api.js';
-import { generateId, replaceAtIndex } from './utils.js';
-import { FormFixed, FormTitle } from './form_fixed.js';
+import { generateId } from './utils.js';
+import { FormFixed } from './form_fixed.js';
 
 function createBlankPrecinct(): Precinct {
   return {

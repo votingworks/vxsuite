@@ -1,4 +1,3 @@
-import { H2 } from '@votingworks/ui';
 import {
   cssFormViewMode,
   FormFixed as BaseFormFixed,
