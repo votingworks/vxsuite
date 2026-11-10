@@ -38,7 +38,7 @@
     "@votingworks/types": "workspace:*",
     "@votingworks/ui": "workspace:*",
     "react-router-dom": "^5.3.4",
-    "sanitize-html": "^2.17.7"
+    "sanitize-html": "^2.18.1"
   },
   "devDependencies": {
     "@tanstack/react-query": "4.32.1",
