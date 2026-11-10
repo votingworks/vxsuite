@@ -47,6 +47,7 @@ import {
   listCastVoteRecordExportsInDirectory,
 } from './cast_vote_records.js';
 import type { CastVoteRecordFileMetadata, CvrFileImportInfo } from './types.js';
+import { getCardCounts } from './reports/report_data.js';
 
 const electionTwoPartyPrimaryDefinition =
   electionTwoPartyPrimaryFixtures.readElectionDefinition();
@@ -318,7 +319,7 @@ test('adding a file with BMD cast vote records', async () => {
 });
 
 test('adding multi-page BMD cast vote records', async () => {
-  const { apiClient, auth } = buildTestEnvironment();
+  const { apiClient, auth, workspace } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionTwoPartyPrimaryDefinition);
   mockElectionManagerAuth(auth, electionTwoPartyPrimaryDefinition.election);
 
@@ -371,7 +372,7 @@ test('adding multi-page BMD cast vote records', async () => {
   expect(await apiClient.getTotalBallotCount()).toEqual(1);
 
   // Card counts should reflect multi-page BMD: one record per page
-  const [cardCounts] = await apiClient.getCardCounts({
+  const [cardCounts] = getCardCounts(workspace.store, {
     filter: {},
     groupBy: {},
   });

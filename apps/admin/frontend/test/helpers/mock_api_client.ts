@@ -38,7 +38,6 @@ import {
   mockVendorUser,
 } from '@votingworks/test-utils';
 import {
-  type Admin,
   type BallotPageLayout,
   BallotType,
   type ContestId,
@@ -765,31 +764,6 @@ export function createApiMock(
       apiClient.getDiskSpaceSummary.mockResolvedValue(
         summary ?? { total: 3, used: 2, available: 1 }
       );
-    },
-
-    expectGetResultsForTallyReports(
-      input: {
-        filter: Admin.FrontendReportingFilter;
-        groupBy: Tabulation.GroupBy;
-      },
-      results: Tabulation.GroupList<Admin.TallyReportResults>,
-      deferResult = false
-    ) {
-      const { promise, resolve } =
-        deferred<Tabulation.GroupList<Admin.TallyReportResults>>();
-      apiClient.getResultsForTallyReports
-        .expectCallWith(input)
-        .returns(promise);
-
-      if (!deferResult) {
-        resolve(results);
-      }
-
-      return {
-        resolve: () => {
-          resolve(results);
-        },
-      };
     },
 
     expectGetTallyReportPreview({

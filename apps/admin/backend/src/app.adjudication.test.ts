@@ -50,6 +50,10 @@ import type {
   ContestAdjudicationData,
 } from './types.js';
 import { getCurrentTime } from './get_current_time.js';
+import {
+  getElectionWriteInSummary,
+  getTallyReportResults,
+} from './reports/report_data.js';
 
 vi.mock('./get_current_time');
 
@@ -936,7 +940,7 @@ test('claim and release are no-ops when multi-station is disabled', async () => 
 });
 
 test('handling unmarked write-ins', async () => {
-  const { apiClient, auth } = buildTestEnvironment();
+  const { apiClient, auth, workspace } = buildTestEnvironment();
   const electionDefinition =
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
   const { castVoteRecordExport } =
@@ -999,23 +1003,27 @@ test('handling unmarked write-ins', async () => {
       includeGenericWriteIn: false,
     });
     expect(
-      (await apiClient.getResultsForTallyReports())[0]?.scannedResults
-        .contestResults[WRITE_IN_CONTEST_ID]
+      (
+        await getTallyReportResults(workspace.store, {
+          filter: {},
+          groupBy: {},
+        })
+      )[0]?.scannedResults.contestResults[WRITE_IN_CONTEST_ID]
     ).toEqual(expectedResults.contestResults[WRITE_IN_CONTEST_ID]);
   }
 
-  async function expectWriteInSummary(
+  function expectWriteInSummary(
     summary: Partial<Tabulation.ContestWriteInSummary>
-  ): Promise<void> {
+  ): void {
     expect(
-      (await apiClient.getElectionWriteInSummary()).contestWriteInSummaries[
+      getElectionWriteInSummary(workspace.store).contestWriteInSummaries[
         WRITE_IN_CONTEST_ID
       ]
     ).toMatchObject(summary);
   }
 
   // UWIs should appear in the write-in summary, but not in the tally results
-  await expectWriteInSummary({
+  expectWriteInSummary({
     pendingTally: 2,
     invalidTally: 0,
     totalTally: 2,
@@ -1090,7 +1098,7 @@ test('handling unmarked write-ins', async () => {
     })
   ).toEqual(ok());
 
-  await expectWriteInSummary({
+  expectWriteInSummary({
     pendingTally: 1,
     invalidTally: 0,
     totalTally: 2,
@@ -1132,7 +1140,7 @@ test('handling unmarked write-ins', async () => {
     })
   ).toEqual(ok());
 
-  await expectWriteInSummary({
+  expectWriteInSummary({
     pendingTally: 1,
     invalidTally: 1,
     totalTally: 2,
@@ -1257,16 +1265,20 @@ test('adjudicating write-ins changes their status and is reflected in tallies', 
       includeGenericWriteIn: false,
     });
     expect(
-      (await apiClient.getResultsForTallyReports())[0]?.scannedResults
-        .contestResults[contestId]
+      (
+        await getTallyReportResults(workspace.store, {
+          filter: {},
+          groupBy: {},
+        })
+      )[0]?.scannedResults.contestResults[contestId]
     ).toEqual(expectedResults.contestResults[contestId]);
   }
 
-  async function expectWriteInSummary(
+  function expectWriteInSummary(
     summary: Tabulation.ContestWriteInSummary
-  ): Promise<void> {
+  ): void {
     expect(
-      (await apiClient.getElectionWriteInSummary()).contestWriteInSummaries[
+      getElectionWriteInSummary(workspace.store).contestWriteInSummaries[
         contestId
       ]
     ).toEqual(summary);
@@ -1296,7 +1308,7 @@ test('adjudicating write-ins changes their status and is reflected in tallies', 
       },
     },
   });
-  await expectWriteInSummary({
+  expectWriteInSummary({
     candidateTallies: {},
     contestId: 'Governor-061a401b',
     invalidTally: 0,
@@ -1375,7 +1387,7 @@ test('adjudicating write-ins changes their status and is reflected in tallies', 
     },
   });
   expect(
-    (await apiClient.getElectionWriteInSummary()).contestWriteInSummaries[
+    getElectionWriteInSummary(workspace.store).contestWriteInSummaries[
       contestId
     ]
   ).toEqual({
@@ -1436,7 +1448,7 @@ test('adjudicating write-ins changes their status and is reflected in tallies', 
       },
     },
   });
-  await expectWriteInSummary({
+  expectWriteInSummary({
     contestId: 'Governor-061a401b',
     invalidTally: 0,
     pendingTally: 1,
@@ -1509,7 +1521,7 @@ test('adjudicating write-ins changes their status and is reflected in tallies', 
       },
     },
   });
-  await expectWriteInSummary({
+  expectWriteInSummary({
     contestId: 'Governor-061a401b',
     invalidTally: 0,
     pendingTally: 1,
@@ -1575,7 +1587,7 @@ test('adjudicating write-ins changes their status and is reflected in tallies', 
     },
   });
   expect(
-    (await apiClient.getElectionWriteInSummary()).contestWriteInSummaries[
+    getElectionWriteInSummary(workspace.store).contestWriteInSummaries[
       contestId
     ]
   ).toEqual({
@@ -1717,7 +1729,7 @@ test('peer API: claim, adjudicate, and resolve a ballot with real CVR fixtures',
 });
 
 test('qualified write-in candidate management', async () => {
-  const { auth, apiClient } = buildTestEnvironment();
+  const { auth, apiClient, workspace } = buildTestEnvironment();
   const electionDefinition =
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
   const { manualCastVoteRecordExport } =
@@ -1762,7 +1774,7 @@ test('qualified write-in candidate management', async () => {
   expect(candidates.every((c) => !c.hasAdjudicatedVotes)).toEqual(true);
 
   // Qualified candidates should appear in write-in summary with 0 tally
-  const summary = await apiClient.getElectionWriteInSummary();
+  const summary = getElectionWriteInSummary(workspace.store);
   const contestSummary = summary.contestWriteInSummaries[contestId];
   assert(contestSummary !== undefined);
   for (const candidate of candidates) {
@@ -1858,7 +1870,7 @@ test('qualified write-in mode: full flow with adjudication, tally reports, and c
   });
 
   // Before adjudication: qualified candidates appear with 0 tally in write-in summary
-  const summaryBefore = await apiClient.getElectionWriteInSummary();
+  const summaryBefore = getElectionWriteInSummary(workspace.store);
   const contestSummaryBefore = summaryBefore.contestWriteInSummaries[contestId];
   assert(contestSummaryBefore !== undefined);
   expect(contestSummaryBefore.candidateTallies[alice.id]).toEqual({
@@ -1876,8 +1888,9 @@ test('qualified write-in mode: full flow with adjudication, tally reports, and c
   expect(contestSummaryBefore.pendingTally).toBeGreaterThan(0);
 
   // Qualified candidates appear with 0 tally in tally report
-  const tallyBefore = (await apiClient.getResultsForTallyReports())[0]
-    ?.scannedResults.contestResults[contestId];
+  const tallyBefore = (
+    await getTallyReportResults(workspace.store, { filter: {}, groupBy: {} })
+  )[0]?.scannedResults.contestResults[contestId];
   assert(tallyBefore !== undefined && tallyBefore.contestType === 'candidate');
   expect(tallyBefore.tallies[alice.id]).toEqual({
     id: alice.id,
@@ -1929,8 +1942,9 @@ test('qualified write-in mode: full flow with adjudication, tally reports, and c
   ).toEqual(ok());
 
   // After adjudication: Alice has votes, Bob still at 0
-  const tallyAfter = (await apiClient.getResultsForTallyReports())[0]
-    ?.scannedResults.contestResults[contestId];
+  const tallyAfter = (
+    await getTallyReportResults(workspace.store, { filter: {}, groupBy: {} })
+  )[0]?.scannedResults.contestResults[contestId];
   assert(tallyAfter !== undefined && tallyAfter.contestType === 'candidate');
   expect(tallyAfter.tallies[alice.id]).toEqual({
     id: alice.id,
@@ -1952,7 +1966,7 @@ test('qualified write-in mode: full flow with adjudication, tally reports, and c
   });
 
   // Write-in summary also shows Alice with votes and Bob with 0
-  const summaryAfter = await apiClient.getElectionWriteInSummary();
+  const summaryAfter = getElectionWriteInSummary(workspace.store);
   const contestSummaryAfter = summaryAfter.contestWriteInSummaries[contestId];
   assert(contestSummaryAfter !== undefined);
   expect(contestSummaryAfter.candidateTallies[alice.id]?.tally).toEqual(1);
@@ -1977,7 +1991,7 @@ test('qualified write-in mode: full flow with adjudication, tally reports, and c
   expect(deleteResult.affectedBallotCount).toEqual(1);
 
   // Alice's ballot should be back in the queue as not adjudicated
-  const summaryAfterDelete = await apiClient.getElectionWriteInSummary();
+  const summaryAfterDelete = getElectionWriteInSummary(workspace.store);
   const contestSummaryAfterDelete =
     summaryAfterDelete.contestWriteInSummaries[contestId];
   assert(contestSummaryAfterDelete !== undefined);

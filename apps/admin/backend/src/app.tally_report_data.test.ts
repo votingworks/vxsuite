@@ -31,6 +31,10 @@ import {
   seedCombinedBallotPrimaryWriteIns,
 } from '../test/combined_ballot_primary_fixture.js';
 import type { AdjudicatedContestOption } from './types.js';
+import {
+  getElectionWriteInSummary,
+  getTallyReportResults,
+} from './reports/report_data.js';
 
 vi.setConfig({
   testTimeout: 60_000,
@@ -75,7 +79,7 @@ test('general, full election, write in adjudication', async () => {
   const { castVoteRecordExport } =
     electionGridLayoutNewHampshireTestBallotFixtures;
 
-  const { apiClient, auth } = buildTestEnvironment();
+  const { apiClient, auth, workspace } = buildTestEnvironment();
   await configureMachineWithEarlyVoting(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
@@ -89,8 +93,10 @@ test('general, full election, write in adjudication', async () => {
   const officialCandidateId = 'Obadiah-Carrigan-5c95145a';
 
   // check results before any write-in adjudication
-  const fullElectionTallyReportList =
-    await apiClient.getResultsForTallyReports();
+  const fullElectionTallyReportList = await getTallyReportResults(
+    workspace.store,
+    { filter: {}, groupBy: {} }
+  );
   expect(fullElectionTallyReportList).toHaveLength(1);
   const [fullElectionTallyReport] = fullElectionTallyReportList;
   assert(fullElectionTallyReport);
@@ -194,8 +200,10 @@ test('general, full election, write in adjudication', async () => {
     ).toEqual(ok());
   }
 
-  const wiaFullElectionTallyReportList =
-    await apiClient.getResultsForTallyReports();
+  const wiaFullElectionTallyReportList = await getTallyReportResults(
+    workspace.store,
+    { filter: {}, groupBy: {} }
+  );
   expect(wiaFullElectionTallyReportList).toHaveLength(1);
   const [wiaFullElectionTallyReport] = wiaFullElectionTallyReportList;
   assert(wiaFullElectionTallyReport);
@@ -234,7 +242,7 @@ test('general, reports by voting method, manual data', async () => {
     electionGridLayoutNewHampshireTestBallotFixtures;
   const { election } = electionDefinition;
 
-  const { apiClient, auth } = buildTestEnvironment();
+  const { apiClient, auth, workspace } = buildTestEnvironment();
   await configureMachineWithEarlyVoting(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
@@ -277,7 +285,8 @@ test('general, reports by voting method, manual data', async () => {
   });
 
   // Case 1: incorporating manual results alongside scanned results
-  const votingMethodTallyReportList = await apiClient.getResultsForTallyReports(
+  const votingMethodTallyReportList = await getTallyReportResults(
+    workspace.store,
     {
       filter: {},
       groupBy: { groupByVotingMethod: true },
@@ -322,11 +331,13 @@ test('general, reports by voting method, manual data', async () => {
   expect(receivedAbsenteeManualResults).toMatchObject(absenteeManualResults);
 
   // Case 2: ignoring manual results due to filter
-  const scannerFilteredTallyReportResult =
-    await apiClient.getResultsForTallyReports({
+  const scannerFilteredTallyReportResult = await getTallyReportResults(
+    workspace.store,
+    {
       filter: { scannerIds: [DEV_MACHINE_ID] },
       groupBy: { groupByVotingMethod: true },
-    });
+    }
+  );
   expect(scannerFilteredTallyReportResult).toHaveLength(3);
   const scannerAbsenteeTallyReport = find(
     scannerFilteredTallyReportResult,
@@ -339,11 +350,13 @@ test('general, reports by voting method, manual data', async () => {
   expect(scannerAbsenteeTallyReport.manualResults).toBeUndefined();
 
   // Case 3: incorporating manual results as separate reports due to grouping
-  const batchGroupedTallyReportResult =
-    await apiClient.getResultsForTallyReports({
+  const batchGroupedTallyReportResult = await getTallyReportResults(
+    workspace.store,
+    {
       filter: {},
       groupBy: { groupByBatch: true, groupByVotingMethod: true },
-    });
+    }
+  );
   expect(batchGroupedTallyReportResult).toMatchObject(
     expect.arrayContaining([
       expect.objectContaining({
@@ -369,7 +382,7 @@ test('primary, full election', async () => {
   const { castVoteRecordExport } = electionTwoPartyPrimaryFixtures;
   const { election } = electionDefinition;
 
-  const { apiClient, auth } = buildTestEnvironment();
+  const { apiClient, auth, workspace } = buildTestEnvironment();
   await configureMachineWithEarlyVoting(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
@@ -378,8 +391,10 @@ test('primary, full election', async () => {
   });
   loadFileResult.assertOk('load file failed');
 
-  const fullElectionTallyReportList =
-    await apiClient.getResultsForTallyReports();
+  const fullElectionTallyReportList = await getTallyReportResults(
+    workspace.store,
+    { filter: {}, groupBy: {} }
+  );
   expect(fullElectionTallyReportList).toHaveLength(1);
   const [fullElectionTallyReport] = fullElectionTallyReportList;
   assert(fullElectionTallyReport);
@@ -434,7 +449,7 @@ test('primary, full election, with manual results', async () => {
   const { castVoteRecordExport } = electionTwoPartyPrimaryFixtures;
   const { election } = electionDefinition;
 
-  const { apiClient, auth } = buildTestEnvironment();
+  const { apiClient, auth, workspace } = buildTestEnvironment();
   await configureMachineWithEarlyVoting(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
@@ -455,8 +470,10 @@ test('primary, full election, with manual results', async () => {
     }),
   });
 
-  const fullElectionTallyReportList =
-    await apiClient.getResultsForTallyReports();
+  const fullElectionTallyReportList = await getTallyReportResults(
+    workspace.store,
+    { filter: {}, groupBy: {} }
+  );
   expect(fullElectionTallyReportList).toHaveLength(1);
   const [fullElectionTallyReport] = fullElectionTallyReportList;
   assert(fullElectionTallyReport);
@@ -489,7 +506,7 @@ test('single language primary, reports by ballot style', async () => {
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const { castVoteRecordExport } = electionTwoPartyPrimaryFixtures;
 
-  const { apiClient, auth } = buildTestEnvironment();
+  const { apiClient, auth, workspace } = buildTestEnvironment();
   await configureMachineWithEarlyVoting(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
@@ -498,10 +515,13 @@ test('single language primary, reports by ballot style', async () => {
   });
   loadFileResult.assertOk('load file failed');
 
-  const ballotStyleTallyReportList = await apiClient.getResultsForTallyReports({
-    filter: {},
-    groupBy: { groupByBallotStyle: true },
-  });
+  const ballotStyleTallyReportList = await getTallyReportResults(
+    workspace.store,
+    {
+      filter: {},
+      groupBy: { groupByBallotStyle: true },
+    }
+  );
   expect(ballotStyleTallyReportList).toHaveLength(2);
   const mammalBallotStyleTallyReport = find(
     ballotStyleTallyReportList,
@@ -550,7 +570,7 @@ test('multi language, filtered by ballot style - grouped by precinct', async () 
     electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
   const { castVoteRecordExport } = electionPrimaryPrecinctSplitsFixtures;
 
-  const { apiClient, auth } = buildTestEnvironment();
+  const { apiClient, auth, workspace } = buildTestEnvironment();
   await configureMachineWithEarlyVoting(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
@@ -559,7 +579,7 @@ test('multi language, filtered by ballot style - grouped by precinct', async () 
   });
   loadFileResult.assertOk('load file failed');
 
-  const precinctTallyReportList = await apiClient.getResultsForTallyReports({
+  const precinctTallyReportList = await getTallyReportResults(workspace.store, {
     filter: {
       ballotStyleGroupIds: ['1-Ma', '4-F'] as BallotStyleGroupId[],
     },
@@ -610,7 +630,7 @@ test('multi language, filtered by party - grouped by ballot style', async () => 
     electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
   const { castVoteRecordExport } = electionPrimaryPrecinctSplitsFixtures;
 
-  const { apiClient, auth } = buildTestEnvironment();
+  const { apiClient, auth, workspace } = buildTestEnvironment();
   await configureMachineWithEarlyVoting(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
@@ -619,7 +639,7 @@ test('multi language, filtered by party - grouped by ballot style', async () => 
   });
   loadFileResult.assertOk('load file failed');
 
-  const precinctTallyReportList = await apiClient.getResultsForTallyReports({
+  const precinctTallyReportList = await getTallyReportResults(workspace.store, {
     filter: { partyIds: ['0'] },
     groupBy: { groupByBallotStyle: true },
   });
@@ -644,7 +664,7 @@ test('multi language, reports by ballot style - agnostic to language specific ba
     electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
   const { castVoteRecordExport } = electionPrimaryPrecinctSplitsFixtures;
 
-  const { apiClient, auth } = buildTestEnvironment();
+  const { apiClient, auth, workspace } = buildTestEnvironment();
   await configureMachineWithEarlyVoting(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
@@ -653,10 +673,13 @@ test('multi language, reports by ballot style - agnostic to language specific ba
   });
   loadFileResult.assertOk('load file failed');
 
-  const ballotStyleTallyReportList = await apiClient.getResultsForTallyReports({
-    filter: {},
-    groupBy: { groupByBallotStyle: true },
-  });
+  const ballotStyleTallyReportList = await getTallyReportResults(
+    workspace.store,
+    {
+      filter: {},
+      groupBy: { groupByBallotStyle: true },
+    }
+  );
   expect(electionDefinition.election.ballotStyles).toHaveLength(8 * 4);
   expect(ballotStyleTallyReportList).toHaveLength(8);
 
@@ -761,7 +784,7 @@ test('general, reports grouped by voting method with early voting data', async (
     pollingPlaceId: 'polling-place-1',
   });
 
-  const tallyReportList = await apiClient.getResultsForTallyReports({
+  const tallyReportList = await getTallyReportResults(workspace.store, {
     filter: {},
     groupBy: { groupByVotingMethod: true },
   });
@@ -853,7 +876,7 @@ test('primary, reports grouped by voting method, filtered by precinct', async ()
     pollingPlaceId: 'polling-place-1',
   });
 
-  const tallyReportList = await apiClient.getResultsForTallyReports({
+  const tallyReportList = await getTallyReportResults(workspace.store, {
     groupBy: { groupByVotingMethod: true },
     filter: { precinctIds: ['precinct-1'] },
   });
@@ -1007,7 +1030,10 @@ test('primary, partial write-in adjudication uses correct unadjudicated label', 
   }
 
   // Get tally report results
-  const tallyReportList = await apiClient.getResultsForTallyReports();
+  const tallyReportList = await getTallyReportResults(workspace.store, {
+    filter: {},
+    groupBy: {},
+  });
   expect(tallyReportList).toHaveLength(1);
   const [tallyReport] = tallyReportList;
   assert(tallyReport);
@@ -1043,7 +1069,10 @@ test('combined ballot primary, full election with crossover and adjudications', 
     store: workspace.store,
   });
 
-  const tallyReports = await apiClient.getResultsForTallyReports();
+  const tallyReports = await getTallyReportResults(workspace.store, {
+    filter: {},
+    groupBy: {},
+  });
   expect(tallyReports).toHaveLength(1);
   const [report] = tallyReports;
   assert(report);
@@ -1214,7 +1243,7 @@ test('combined ballot primary, grouped by precinct', async () => {
     pollingPlaceId: 'polling-place-1',
   });
 
-  const tallyReports = await apiClient.getResultsForTallyReports({
+  const tallyReports = await getTallyReportResults(workspace.store, {
     filter: {},
     groupBy: { groupByPrecinct: true },
   });
@@ -1290,7 +1319,10 @@ test('combined ballot primary, crossover ballots write-ins excluded from partisa
       store: workspace.store,
     });
 
-  const tallyReports = await apiClient.getResultsForTallyReports();
+  const tallyReports = await getTallyReportResults(workspace.store, {
+    filter: {},
+    groupBy: {},
+  });
   const [report] = tallyReports;
   assert(report);
   assert(report.hasPartySplits);
@@ -1360,7 +1392,7 @@ test('primary, filtered by polling place', async () => {
     pollingPlaceId: 'precinct-c1-w1-1-polling-place',
   });
 
-  const [report] = await apiClient.getResultsForTallyReports({
+  const [report] = await getTallyReportResults(workspace.store, {
     filter: { pollingPlaceIds: ['precinct-c1-w1-1-polling-place'] },
     groupBy: {},
   });
@@ -1460,9 +1492,7 @@ test('withholding unadjudicated central scan ballots from tallies', async () => 
   const withheldCvrIds = cvrIds.slice(4, 7);
 
   function getFishTallyReport(
-    tallyReportList: Awaited<
-      ReturnType<typeof apiClient.getResultsForTallyReports>
-    >
+    tallyReportList: Awaited<ReturnType<typeof getTallyReportResults>>
   ) {
     expect(tallyReportList).toHaveLength(1);
     const [tallyReport] = tallyReportList;
@@ -1475,7 +1505,7 @@ test('withholding unadjudicated central scan ballots from tallies', async () => 
   }
 
   const { tallyReport, contestResults } = getFishTallyReport(
-    await apiClient.getResultsForTallyReports()
+    await getTallyReportResults(workspace.store, { filter: {}, groupBy: {} })
   );
 
   // withheld ballots are excluded from the tally report's card counts and
@@ -1498,7 +1528,7 @@ test('withholding unadjudicated central scan ballots from tallies', async () => 
 
   // the write-in adjudication summary still includes the withheld ballots'
   // pending write-ins
-  const writeInSummary = await apiClient.getElectionWriteInSummary();
+  const writeInSummary = getElectionWriteInSummary(workspace.store);
   expect(
     writeInSummary.contestWriteInSummaries[contestId]?.pendingTally
   ).toEqual(6);
@@ -1531,7 +1561,7 @@ test('withholding unadjudicated central scan ballots from tallies', async () => 
   }
 
   const afterAdjudication = getFishTallyReport(
-    await apiClient.getResultsForTallyReports()
+    await getTallyReportResults(workspace.store, { filter: {}, groupBy: {} })
   );
   expect(afterAdjudication.tallyReport.cardCountsByParty[fishPartyId]).toEqual({
     bmd: [10],
@@ -1585,7 +1615,10 @@ test('withholding setting disabled: unadjudicated central scan ballots count imm
     pollingPlaceId: 'polling-place-1',
   });
 
-  const tallyReportList = await apiClient.getResultsForTallyReports();
+  const tallyReportList = await getTallyReportResults(workspace.store, {
+    filter: {},
+    groupBy: {},
+  });
   expect(tallyReportList).toHaveLength(1);
   const [tallyReport] = tallyReportList;
   assert(tallyReport);
