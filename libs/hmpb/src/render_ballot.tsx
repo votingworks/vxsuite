@@ -19,6 +19,7 @@ import {
   type BaseBallotProps,
   type Election,
   type ElectionDefinition,
+  type ElectionDefinitionWithData,
   type ElectionSerializationFormat,
   type GridPosition,
   type HmpbBallotPageMetadata,
@@ -440,7 +441,7 @@ export interface ElectionAndBallotLayouts {
    */
   layoutPaths: string[];
 
-  electionDefinition: ElectionDefinition;
+  electionDefinition: ElectionDefinitionWithData;
 }
 
 /**
@@ -602,7 +603,7 @@ export async function createElectionDefinition<P extends BaseBallotProps>(p: {
 }): Promise<{
   ballotPositionsPath?: string;
   candidateOrderingsPath?: string;
-  electionDefinition: ElectionDefinition;
+  electionDefinition: ElectionDefinitionWithData;
 }> {
   const contests = p.baseElection.contests
     // Temporary workaround for candidate rotation to ensure that VxMark's voting
@@ -744,7 +745,7 @@ function electionWithBallotMeta(
   getCandidateOrderings: GetCandidateOrderingsFn,
   getBallotPositions: GetBallotPositionsFn,
   opts: ElectionSerializationOptions
-): ElectionDefinition {
+): ElectionDefinitionWithData {
   const ballotStyles = baseElection.ballotStyles.map((bs) => ({
     ...bs,
     ballotPositions: getBallotPositions(bs) ?? undefined,
@@ -780,7 +781,7 @@ export async function renderAllBallotPdfsAndCreateElectionDefinition<
   ballotPaths: string[];
   ballotPositionsPath?: string;
   candidateOrderingsPath?: string;
-  electionDefinition: ElectionDefinition;
+  electionDefinition: ElectionDefinitionWithData;
 }> {
   const res = await layOutBallotsAndCreateElectionDefinition(
     rendererPool,
@@ -869,7 +870,7 @@ export async function layOutMinimalBallotsToCreateElectionDefinition<
   electionSerializationOptions: ElectionSerializationOptions,
   systemSettings: SystemSettings,
   scratchDir: ScratchDir
-): Promise<ElectionDefinition> {
+): Promise<ElectionDefinitionWithData> {
   const minimalBallotProps = groupBy(
     allBallotProps,
     (props) => props.ballotStyle.id

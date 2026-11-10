@@ -1,6 +1,6 @@
 import { type Result, err, ok } from '@votingworks/basics';
 import {
-  type ElectionDefinition,
+  type ElectionDefinitionWithData,
   hashElectionData,
   safeParseElection,
 } from '@votingworks/types';
@@ -28,7 +28,7 @@ export type ReadElectionError =
  */
 export async function readElection(
   electionPath: string
-): Promise<Result<ElectionDefinition, ReadElectionError>> {
+): Promise<Result<ElectionDefinitionWithData, ReadElectionError>> {
   const readFileResult = await readFile(electionPath, {
     maxSize: MAX_ELECTION_DEFINITION_SIZE,
     encoding: 'utf-8',
