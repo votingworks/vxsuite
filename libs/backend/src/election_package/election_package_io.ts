@@ -45,7 +45,6 @@ import {
   ElectionPackageMetadataSchema,
   mergeUiStrings,
   type UiStringAudioIdsPackage,
-  decodeElectionData,
   safeParseElection,
   constructElectionKey,
   type EncodedBallotEntry,
@@ -694,14 +693,7 @@ export async function parseAndHashElection(
   const Entry = ElectionPackageFileName;
 
   const electionBytes = await zip.readEntryBytes(Entry.ELECTION);
-  const decodeResult = decodeElectionData(electionBytes);
-  if (decodeResult.isErr()) {
-    const { message } = decodeResult.err();
-    return err({ type: 'invalid-election', message });
-  }
-
-  const electionData = decodeResult.ok();
-  const electionResult = safeParseElection(electionData);
+  const electionResult = safeParseElection(electionBytes);
 
   if (electionResult.isErr()) {
     const { message } = electionResult.err();

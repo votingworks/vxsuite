@@ -1,7 +1,6 @@
 import { type Result, err, ok } from '@votingworks/basics';
 import {
   type ElectionDefinitionWithData,
-  decodeElectionData,
   hashElectionData,
   safeParseElection,
 } from '@votingworks/types';
@@ -39,12 +38,7 @@ export async function readElection(
   }
 
   const electionData = readFileResult.ok();
-  const decodeResult = decodeElectionData(electionData);
-  if (decodeResult.isErr()) {
-    return err({ type: 'ParseError', error: decodeResult.err() });
-  }
-
-  const parseResult = safeParseElection(decodeResult.ok());
+  const parseResult = safeParseElection(electionData);
 
   if (parseResult.isErr()) {
     return err({ type: 'ParseError', error: parseResult.err() });

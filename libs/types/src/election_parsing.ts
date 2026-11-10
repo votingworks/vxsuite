@@ -1,4 +1,3 @@
-import { Buffer } from 'node:buffer';
 import { createHash } from 'node:crypto';
 import { type Result, DateWithoutTime, err, ok } from '@votingworks/basics';
 import type { z } from 'zod/v4';
@@ -23,8 +22,9 @@ function prettyZodError(error: z.ZodError): string {
 }
 
 /**
- * Parses `value` as an `Election` object. Supports both VXF and CDF. If given a
- * string, will attempt to parse it as JSON first.
+ * Parses `value` as an `Election` object. Supports both VXF and CDF. If given
+ * bytes, decodes them with {@link decodeElectionData}; if given a string, will
+ * attempt to parse it as JSON first.
  */
 function safeParseElectionExtended(value: unknown): Result<
   {
@@ -41,8 +41,15 @@ function safeParseElectionExtended(value: unknown): Result<
     return safeParseElectionExtended(parsed.ok());
   }
 
-  if (Buffer.isBuffer(value)) {
-    return safeParseElectionExtended(value.toString('utf-8'));
+  // `ArrayBuffer.isView` also matches bytes from another realm (e.g. jsdom).
+  if (ArrayBuffer.isView(value)) {
+    const decoded = decodeElectionData(
+      new Uint8Array(value.buffer, value.byteOffset, value.byteLength)
+    );
+    if (decoded.isErr()) {
+      return decoded;
+    }
+    return safeParseElectionExtended(decoded.ok());
   }
 
   const vxfResult = safeParseVxfElection(value);
@@ -67,8 +74,9 @@ function safeParseElectionExtended(value: unknown): Result<
 }
 
 /**
- * Parses `value` as an `Election` object. Supports both VXF and CDF. If given a
- * string, will attempt to parse it as JSON first.
+ * Parses `value` as an `Election` object. Supports both VXF and CDF. If given
+ * bytes, decodes them with {@link decodeElectionData}; if given a string, will
+ * attempt to parse it as JSON first.
  */
 export function safeParseElection(
   value: unknown

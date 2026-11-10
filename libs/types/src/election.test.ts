@@ -569,6 +569,19 @@ test('decodeElectionData keeps a byte order mark so the JSON fails to parse', ()
   expect(safeParseElection(text).err()).toBeInstanceOf(SyntaxError);
 });
 
+test('safeParseElection decodes bytes strictly', () => {
+  const bytes = new TextEncoder().encode(JSON.stringify(election));
+  expect(safeParseElection(bytes).unsafeUnwrap()).toEqual(
+    safeParseElection(election).unsafeUnwrap()
+  );
+  expect(
+    safeParseElection(new Uint8Array([0x7b, 0xff, 0x7d])).err()
+  ).toBeInstanceOf(TypeError);
+  expect(
+    safeParseElection(new Uint8Array([0xef, 0xbb, 0xbf, ...bytes])).err()
+  ).toBeInstanceOf(SyntaxError);
+});
+
 test('safeParseElection converts CDF to VXF', () => {
   expect(safeParseElection(testCdfBallotDefinition).unsafeUnwrap()).toEqual(
     normalizeVxfAfterCdfConversion(testVxfElection)
