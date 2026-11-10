@@ -1,9 +1,13 @@
+import React from 'react';
 import { expect, test, vi } from 'vitest';
 import { userEvent } from '@testing-library/user-event';
 import { DateWithoutTime, err, ok } from '@votingworks/basics';
 import type {
   DistrictsUpdate,
   ElectionInfoUpdate,
+  PrecinctCreate,
+  PrecinctDelete,
+  PrecinctUpdate,
 } from '@votingworks/election-definition-backend';
 import { LanguageCode } from '@votingworks/types';
 import { createMockApiClient, provideApi } from '../test/api_helpers.js';
@@ -106,6 +110,96 @@ test('updateDistricts calls invalidateElectionQueries on success', async () => {
       expect.anything(),
       'election-1'
     )
+  );
+  apiMock.assertComplete();
+});
+
+const precinctCreate: PrecinctCreate = {
+  electionId: 'election-1',
+  newPrecinct: { id: 'precinct-1', name: 'Precinct 1', districtIds: [] },
+};
+const precinctUpdate: PrecinctUpdate = {
+  electionId: 'election-1',
+  updatedPrecinct: { id: 'precinct-1', name: 'Precinct 1', districtIds: [] },
+  registeredVoterCounts: 10,
+};
+const precinctDelete: PrecinctDelete = {
+  electionId: 'election-1',
+  precinctId: 'precinct-1',
+};
+
+function PrecinctButtons(): JSX.Element {
+  const api = useElectionDefinitionApi();
+  const createPrecinct = api.createPrecinct.useMutation();
+  const updatePrecinct = api.updatePrecinct.useMutation();
+  const deletePrecinct = api.deletePrecinct.useMutation();
+  return (
+    <React.Fragment>
+      <button
+        type="button"
+        onClick={() => createPrecinct.mutate(precinctCreate)}
+      >
+        Create Precinct
+      </button>
+      <button
+        type="button"
+        onClick={() => updatePrecinct.mutate(precinctUpdate)}
+      >
+        Update Precinct
+      </button>
+      <button
+        type="button"
+        onClick={() => deletePrecinct.mutate(precinctDelete)}
+      >
+        Delete Precinct
+      </button>
+    </React.Fragment>
+  );
+}
+
+test('precinct mutations call invalidateElectionQueries on success', async () => {
+  const apiMock = createMockApiClient();
+  const invalidateElectionQueries = vi.fn().mockResolvedValue(undefined);
+  render(
+    provideApi(apiMock, <PrecinctButtons />, {
+      options: { invalidateElectionQueries },
+    })
+  );
+
+  apiMock.createPrecinct
+    .expectCallWith(precinctCreate)
+    .resolves(err('duplicate-precinct-name'));
+  await userEvent.click(screen.getButton('Create Precinct'));
+  apiMock.updatePrecinct
+    .expectCallWith(precinctUpdate)
+    .resolves(err('duplicate-split-name'));
+  await userEvent.click(screen.getButton('Update Precinct'));
+  apiMock.assertComplete();
+  expect(invalidateElectionQueries).not.toHaveBeenCalled();
+
+  apiMock.createPrecinct.expectCallWith(precinctCreate).resolves(ok());
+  await userEvent.click(screen.getButton('Create Precinct'));
+  await waitFor(() =>
+    expect(invalidateElectionQueries).toHaveBeenCalledTimes(1)
+  );
+  apiMock.assertComplete();
+
+  apiMock.updatePrecinct.expectCallWith(precinctUpdate).resolves(ok());
+  await userEvent.click(screen.getButton('Update Precinct'));
+  await waitFor(() =>
+    expect(invalidateElectionQueries).toHaveBeenCalledTimes(2)
+  );
+  apiMock.assertComplete();
+
+  apiMock.deletePrecinct.expectCallWith(precinctDelete).resolves();
+  await userEvent.click(screen.getButton('Delete Precinct'));
+  await waitFor(() =>
+    expect(invalidateElectionQueries).toHaveBeenCalledTimes(3)
+  );
+  expect(invalidateElectionQueries).toHaveBeenNthCalledWith(
+    3,
+    expect.anything(),
+    'election-1'
   );
   apiMock.assertComplete();
 });

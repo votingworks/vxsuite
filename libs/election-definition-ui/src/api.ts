@@ -35,6 +35,16 @@ export function listDistrictsQueryKey(electionId: ElectionId): QueryKey {
   return ['listDistricts', electionId];
 }
 
+export function listPrecinctsQueryKey(electionId: ElectionId): QueryKey {
+  return ['listPrecincts', electionId];
+}
+
+export function getRegisteredVoterCountsQueryKey(
+  electionId: ElectionId
+): QueryKey {
+  return ['getRegisteredVoterCounts', electionId];
+}
+
 async function invalidateElectionDefinitionQueries(
   queryClient: QueryClient,
   electionId: ElectionId
@@ -42,6 +52,8 @@ async function invalidateElectionDefinitionQueries(
   await Promise.all([
     queryClient.invalidateQueries(getElectionInfoQueryKey(electionId)),
     queryClient.invalidateQueries(listDistrictsQueryKey(electionId)),
+    queryClient.invalidateQueries(listPrecinctsQueryKey(electionId)),
+    queryClient.invalidateQueries(getRegisteredVoterCountsQueryKey(electionId)),
   ]);
 }
 
@@ -113,6 +125,64 @@ function createReactQueryApi(
             if (result.isOk()) {
               await invalidateElectionQueries(queryClient, electionId);
             }
+          },
+        });
+      },
+    },
+    listPrecincts: {
+      queryKey: listPrecinctsQueryKey,
+      useQuery(electionId: ElectionId) {
+        const apiClient = getApiClient();
+        return useQuery(listPrecinctsQueryKey(electionId), () =>
+          apiClient.listPrecincts({ electionId })
+        );
+      },
+    },
+    getRegisteredVoterCounts: {
+      queryKey: getRegisteredVoterCountsQueryKey,
+      useQuery(electionId: ElectionId) {
+        const apiClient = getApiClient();
+        return useQuery(getRegisteredVoterCountsQueryKey(electionId), () =>
+          apiClient.getRegisteredVoterCounts({ electionId })
+        );
+      },
+    },
+    createPrecinct: {
+      useMutation() {
+        const apiClient = getApiClient();
+        const queryClient = useQueryClient();
+        return useMutation(apiClient.createPrecinct, {
+          async onSuccess(result, { electionId }) {
+            if (result.isOk()) {
+              await invalidateElectionQueries(queryClient, electionId);
+              await queryClient.refetchQueries(
+                listPrecinctsQueryKey(electionId)
+              );
+            }
+          },
+        });
+      },
+    },
+    updatePrecinct: {
+      useMutation() {
+        const apiClient = getApiClient();
+        const queryClient = useQueryClient();
+        return useMutation(apiClient.updatePrecinct, {
+          async onSuccess(result, { electionId }) {
+            if (result.isOk()) {
+              await invalidateElectionQueries(queryClient, electionId);
+            }
+          },
+        });
+      },
+    },
+    deletePrecinct: {
+      useMutation() {
+        const apiClient = getApiClient();
+        const queryClient = useQueryClient();
+        return useMutation(apiClient.deletePrecinct, {
+          async onSuccess(_, { electionId }) {
+            await invalidateElectionQueries(queryClient, electionId);
           },
         });
       },
