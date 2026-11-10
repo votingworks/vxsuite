@@ -11,7 +11,7 @@ import { mockBaseLogger, LogEventId } from '@votingworks/logging';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import {
   DEV_MACHINE_ID,
-  type ElectionDefinition,
+  type ElectionDefinitionWithData,
   TEST_JURISDICTION,
   anyPollingPlace,
 } from '@votingworks/types';
@@ -60,7 +60,7 @@ function createMockHostApiClient(): MockHostApiClient {
 
 async function configureElection(
   store: Store,
-  electionDefinition: ElectionDefinition
+  electionDefinition: ElectionDefinitionWithData
 ): Promise<void> {
   await configureStore(store, {
     electionDefinition,

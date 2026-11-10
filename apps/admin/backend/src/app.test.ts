@@ -20,7 +20,7 @@ import {
   testElectionReportUnsupportedContestType,
   Admin,
   type Tabulation,
-  type ElectionDefinition,
+  type ElectionDefinitionWithData,
 } from '@votingworks/types';
 import {
   asStoredElectionDefinition,
@@ -907,7 +907,7 @@ describe('getCandidateOrderings', () => {
   const baseElection = fixtures.readElection();
   const splitElection = toSplitFileElection(baseElection);
 
-  const electionDef: ElectionDefinition = {
+  const electionDef: ElectionDefinitionWithData = {
     ballotHash: 'unused',
     election: splitElection.election,
     electionData: JSON.stringify(splitElection.election),

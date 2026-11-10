@@ -33,6 +33,7 @@ import {
   type SystemSettings,
   SystemSettingsSchema,
   type ElectionDefinition,
+  type ElectionDefinitionWithData,
   type PrinterStatus,
   type UiStringsPackage,
   constructElectionKey,
@@ -557,7 +558,7 @@ async function expectElectionState(expected: Partial<ElectionState>) {
 
 async function configureMachine(
   usbDrive: MockUsbDrive,
-  electionDefinition: ElectionDefinition,
+  electionDefinition: ElectionDefinitionWithData,
   uiStrings?: UiStringsPackage,
   systemSettingsOverrides: Partial<SystemSettings> = {}
 ) {

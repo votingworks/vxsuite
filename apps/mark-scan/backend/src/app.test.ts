@@ -50,7 +50,7 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   DEV_MACHINE_ID,
   type Election,
-  type ElectionDefinition,
+  type ElectionDefinitionWithData,
   ElectionStringKey,
   ElectionPackageFileName,
   HmpbBallotPaperSize,
@@ -173,7 +173,7 @@ async function waitForStatus(status: SimpleServerStatus): Promise<void> {
 }
 
 async function setUpUsbAndConfigureElection(
-  electionDefinition: ElectionDefinition,
+  electionDefinition: ElectionDefinitionWithData,
   uiStrings?: UiStringsPackage
 ) {
   mockElectionManagerAuth(mockAuth, electionDefinition);
@@ -195,7 +195,7 @@ async function setUpUsbAndConfigureElection(
 }
 
 async function configureForTestElection(
-  electionDefinition: ElectionDefinition,
+  electionDefinition: ElectionDefinitionWithData,
   uiStrings?: UiStringsPackage
 ) {
   await setUpUsbAndConfigureElection(electionDefinition, uiStrings);

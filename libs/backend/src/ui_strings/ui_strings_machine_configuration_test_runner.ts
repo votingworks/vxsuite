@@ -1,6 +1,6 @@
 import type * as vitest from 'vitest';
 import type {
-  ElectionDefinition,
+  ElectionDefinitionWithData,
   UiStringAudioClips,
   UiStringAudioIdsPackage,
   UiStringsPackage,
@@ -17,7 +17,7 @@ type MockUsbDriveLike = Pick<MockUsbDrive, 'insertUsbDrive'>;
 
 /** Test context for {@link runUiStringMachineConfigurationTests}. */
 export interface UiStringConfigTestContext {
-  electionDefinition: ElectionDefinition;
+  electionDefinition: ElectionDefinitionWithData;
   getMockUsbDrive(): MockUsbDriveLike;
   runConfigureMachine(): Promise<Result<unknown, unknown>>;
   store: UiStringsStore;

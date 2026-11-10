@@ -6,6 +6,7 @@ import {
   BallotTypeSchema,
   type ContestId,
   type ElectionDefinition,
+  type ElectionDefinitionWithData,
   type PrecinctId,
   PrecinctIdSchema,
 } from './election.js';
@@ -40,6 +41,11 @@ export interface ElectionPackage {
   systemSettings: SystemSettings;
   uiStringAudioIds: UiStringAudioIdsPackage;
   uiStrings: UiStringsPackage;
+}
+
+/** An election package whose election definition carries its original bytes. */
+export interface ElectionPackageWithData extends ElectionPackage {
+  electionDefinition: ElectionDefinitionWithData;
 }
 
 export interface BallotStyleData {

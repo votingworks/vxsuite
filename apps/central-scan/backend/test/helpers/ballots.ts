@@ -11,6 +11,7 @@ import { writeImageData } from '@votingworks/image-utils';
 import { pdfToImages } from '@votingworks/image-utils/pdf';
 import {
   type ElectionDefinition,
+  type ElectionDefinitionWithData,
   type SheetOf,
   asSheet,
 } from '@votingworks/types';
@@ -36,7 +37,7 @@ async function generateSheetFromPdf(
 }
 
 export async function generateBmdBallotFixture(): Promise<{
-  electionDefinition: ElectionDefinition;
+  electionDefinition: ElectionDefinitionWithData;
   sheet: SheetOf<string>;
 }> {
   const { electionDefinition } = vxFamousNamesFixtures;

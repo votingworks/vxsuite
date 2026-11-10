@@ -7,7 +7,7 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import type { Server } from 'node:http';
 import {
   constructElectionKey,
-  type ElectionDefinition,
+  type ElectionDefinitionWithData,
   safeParseJson,
   SystemSettingsSchema,
 } from '@votingworks/types';
@@ -78,7 +78,7 @@ afterEach(() => {
 });
 
 async function configureMachine(
-  electionDefinition: ElectionDefinition
+  electionDefinition: ElectionDefinitionWithData
 ): Promise<void> {
   vi.mocked(mockAuth.getAuthStatus).mockImplementation(() =>
     Promise.resolve({

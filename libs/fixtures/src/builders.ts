@@ -2,7 +2,7 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   type Election,
   type ElectionDefinitionWithData,
-  type ElectionPackage,
+  type ElectionPackageWithData,
   hashElectionData,
   LATEST_METADATA,
   type RgbaImageData,
@@ -63,7 +63,7 @@ export interface ElectionFixture extends FileFixture {
   /**
    * Converts the election file to an election package.
    */
-  toElectionPackage(systemSettings?: SystemSettings): ElectionPackage;
+  toElectionPackage(systemSettings?: SystemSettings): ElectionPackageWithData;
 }
 
 /**
