@@ -1,6 +1,6 @@
+import { createHash } from 'node:crypto';
 import { type Result, DateWithoutTime, err, ok } from '@votingworks/basics';
 import type { z } from 'zod/v4';
-import { sha256 } from './sha256.js';
 import { safeParseCdfBallotDefinition } from './cdf/ballot-definition/convert.js';
 import type * as Cdf from './cdf/ballot-definition/index.js';
 import { type Election, ElectionSchema } from './election.js';
@@ -84,7 +84,7 @@ export function parseValidatedElection(json: string): Election {
 }
 
 export function hashElectionData(data: string | Uint8Array): string {
-  return sha256(data);
+  return createHash('sha256').update(data).digest('hex');
 }
 
 const STRICT_TEXT_DECODER = new TextDecoder('utf-8', {
