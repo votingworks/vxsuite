@@ -1,6 +1,10 @@
 import { expect, test, vi } from 'vitest';
 import { DateWithoutTime, err, ok } from '@votingworks/basics';
-import { type ElectionId, LanguageCode } from '@votingworks/types';
+import {
+  type ElectionId,
+  LanguageCode,
+  type Precinct,
+} from '@votingworks/types';
 import type { ElectionDefinitionMethods } from './election_definition_methods.js';
 import type { StateFeaturesConfig } from './state_features.js';
 import type { ElectionInfoUpdate } from './types.js';
@@ -260,6 +264,245 @@ export function describeElectionDefinitionMethods(
       methods.updateDistricts({
         electionId: 'unknown',
         newDistricts: [{ id: 'district-1', name: 'District 1' }],
+      })
+    );
+  });
+
+  async function createElectionWithDistricts(
+    harness: ElectionDefinitionMethodsHarness
+  ): Promise<ElectionId> {
+    const electionId = await harness.createElection();
+    expect(
+      await harness.methods.updateDistricts({
+        electionId,
+        newDistricts: [
+          { id: 'district-1', name: 'District 1' },
+          { id: 'district-2', name: 'District 2' },
+        ],
+      })
+    ).toEqual(ok());
+    return electionId;
+  }
+
+  test('precincts can be created, updated and deleted', async () => {
+    const harness = await setUp();
+    const { methods } = harness;
+    const electionId = await createElectionWithDistricts(harness);
+    expect(await methods.listPrecincts({ electionId })).toEqual([]);
+    expect(await methods.getRegisteredVoterCounts({ electionId })).toEqual({});
+
+    const precinct10: Precinct = {
+      id: 'precinct-10',
+      name: 'Precinct 10',
+      districtIds: ['district-2', 'district-1'],
+    };
+    const precinct2: Precinct = {
+      id: 'precinct-2',
+      name: 'Precinct 2',
+      splits: [
+        { id: 'split-b', name: 'Split B', districtIds: ['district-2'] },
+        {
+          id: 'split-a',
+          name: 'Split A',
+          districtIds: ['district-1'],
+          electionTitleOverride: 'Title Override',
+          clerkSignatureCaption: 'Caption',
+        },
+      ],
+    };
+    expect(
+      await methods.createPrecinct({
+        electionId,
+        newPrecinct: precinct10,
+        registeredVoterCounts: 100,
+      })
+    ).toEqual(ok());
+    expect(
+      await methods.createPrecinct({
+        electionId,
+        newPrecinct: precinct2,
+        registeredVoterCounts: { splits: { 'split-a': 20 } },
+      })
+    ).toEqual(ok());
+    expect(await methods.listPrecincts({ electionId })).toEqual([
+      {
+        id: 'precinct-2',
+        name: 'Precinct 2',
+        splits: [
+          {
+            id: 'split-a',
+            name: 'Split A',
+            districtIds: ['district-1'],
+            electionTitleOverride: 'Title Override',
+            clerkSignatureCaption: 'Caption',
+          },
+          { id: 'split-b', name: 'Split B', districtIds: ['district-2'] },
+        ],
+      },
+      { ...precinct10, districtIds: ['district-1', 'district-2'] },
+    ]);
+    expect(await methods.getRegisteredVoterCounts({ electionId })).toEqual({
+      'precinct-10': 100,
+      'precinct-2': { splits: { 'split-a': 20 } },
+    });
+
+    const updatedPrecinct2: Precinct = {
+      id: 'precinct-2',
+      name: 'Precinct 2A',
+      districtIds: ['district-2'],
+    };
+    expect(
+      await methods.updatePrecinct({
+        electionId,
+        updatedPrecinct: updatedPrecinct2,
+        registeredVoterCounts: 50,
+      })
+    ).toEqual(ok());
+    expect(
+      await methods.updatePrecinct({
+        electionId,
+        updatedPrecinct: precinct10,
+      })
+    ).toEqual(ok());
+    expect(await methods.listPrecincts({ electionId })).toEqual([
+      updatedPrecinct2,
+      { ...precinct10, districtIds: ['district-1', 'district-2'] },
+    ]);
+    expect(await methods.getRegisteredVoterCounts({ electionId })).toEqual({
+      'precinct-2': 50,
+    });
+
+    await methods.deletePrecinct({ electionId, precinctId: 'precinct-2' });
+    expect(await methods.listPrecincts({ electionId })).toEqual([
+      { ...precinct10, districtIds: ['district-1', 'district-2'] },
+    ]);
+    expect(await methods.getRegisteredVoterCounts({ electionId })).toEqual({});
+  });
+
+  test('precinct edits with duplicate names or split districts are not saved', async () => {
+    const harness = await setUp();
+    const { methods } = harness;
+    const electionId = await createElectionWithDistricts(harness);
+    const precinct1: Precinct = {
+      id: 'precinct-1',
+      name: 'Precinct 1',
+      districtIds: ['district-1'],
+    };
+    const precinct2: Precinct = {
+      id: 'precinct-2',
+      name: 'Precinct 2',
+      districtIds: [],
+    };
+    for (const newPrecinct of [precinct1, precinct2]) {
+      expect(await methods.createPrecinct({ electionId, newPrecinct })).toEqual(
+        ok()
+      );
+    }
+
+    expect(
+      await methods.createPrecinct({
+        electionId,
+        newPrecinct: { id: 'precinct-3', name: 'Precinct 1', districtIds: [] },
+      })
+    ).toEqual(err('duplicate-precinct-name'));
+    expect(
+      await methods.updatePrecinct({
+        electionId,
+        updatedPrecinct: { ...precinct2, name: 'Precinct 1' },
+        registeredVoterCounts: 10,
+      })
+    ).toEqual(err('duplicate-precinct-name'));
+    expect(
+      await methods.updatePrecinct({
+        electionId,
+        updatedPrecinct: {
+          id: 'precinct-2',
+          name: 'Precinct 2',
+          splits: [
+            { id: 'split-1', name: 'Split', districtIds: ['district-1'] },
+            { id: 'split-2', name: 'Split', districtIds: ['district-2'] },
+          ],
+        },
+      })
+    ).toEqual(err('duplicate-split-name'));
+    expect(
+      await methods.createPrecinct({
+        electionId,
+        newPrecinct: {
+          id: 'precinct-3',
+          name: 'Precinct 3',
+          splits: [
+            {
+              id: 'split-1',
+              name: 'Split 1',
+              districtIds: ['district-1', 'district-2'],
+            },
+            {
+              id: 'split-2',
+              name: 'Split 2',
+              districtIds: ['district-2', 'district-1'],
+            },
+          ],
+        },
+      })
+    ).toEqual(err('duplicate-split-districts'));
+
+    expect(await methods.listPrecincts({ electionId })).toEqual([
+      precinct1,
+      precinct2,
+    ]);
+    expect(await methods.getRegisteredVoterCounts({ electionId })).toEqual({});
+  });
+
+  test('createPrecinct rejects a blank name', async () => {
+    const { methods, createElection } = await setUp();
+    const electionId = await createElection();
+
+    await expectRejection(
+      methods.createPrecinct({
+        electionId,
+        newPrecinct: { id: 'precinct-1', name: '', districtIds: [] },
+      })
+    );
+  });
+
+  test('updatePrecinct and deletePrecinct reject an unknown precinct', async () => {
+    const { methods, createElection } = await setUp();
+    const electionId = await createElection();
+
+    await expectRejection(
+      methods.updatePrecinct({
+        electionId,
+        updatedPrecinct: { id: 'unknown', name: 'Precinct 1', districtIds: [] },
+      })
+    );
+    await expectRejection(
+      methods.deletePrecinct({ electionId, precinctId: 'unknown' })
+    );
+  });
+
+  test('precinct methods reject an unknown election', async () => {
+    const { methods } = await setUp();
+    const precinct: Precinct = {
+      id: 'precinct-1',
+      name: 'Precinct 1',
+      districtIds: [],
+    };
+
+    await expectRejection(methods.listPrecincts({ electionId: 'unknown' }));
+    await expectRejection(
+      methods.createPrecinct({ electionId: 'unknown', newPrecinct: precinct })
+    );
+    await expectRejection(
+      methods.updatePrecinct({
+        electionId: 'unknown',
+        updatedPrecinct: precinct,
+      })
+    );
+    await expectRejection(
+      methods.deletePrecinct({
+        electionId: 'unknown',
+        precinctId: 'precinct-1',
       })
     );
   });
