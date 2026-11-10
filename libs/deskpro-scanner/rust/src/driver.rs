@@ -42,131 +42,81 @@ impl ErrorCode {
         let base = self.0.wrapping_sub(ffi::ERR_SECOND_ENDPOINT_OFFSET);
         (ffi::ERR_CYAPI..=ffi::ERR_ENDPOINT_HALTED).contains(&base)
     }
+}
 
-    #[allow(clippy::wildcard_imports, clippy::too_many_lines)]
-    fn describe(code: u32) -> Option<(&'static str, &'static str)> {
-        use ffi::*;
-        let entry = match code {
-            ERR_NOERROR => ("ERR_NOERROR", "No Error"),
-            ERR_CYAPI => (
-                "ERR_CYAPI",
-                "Cypress API not found, maybe CyUSB3.dll missing in the system",
-            ),
-            ERR_FX3 => (
-                "ERR_FX3",
-                "No FX3 USB device found attached to the CyUsb driver",
-            ),
-            ERR_VID_PID => ("ERR_VID_PID", "Product and/or vendor ID didn't match"),
-            ERR_EP => ("ERR_EP", "EP BulkIn and BulkOut expected but missing"),
-            ERR_DEVICE_CLOSED => (
-                "ERR_DEVICE_CLOSED",
-                "USB device was closed - no IO operation possible",
-            ),
-            ERR_XFERIN_THREAD => (
-                "ERR_XFERIN_THREAD",
-                "Thread for Data Transfer In could not be started",
-            ),
-            ERR_WRONG_OBJ_PTR => ("ERR_WRONG_OBJ_PTR", "DataObject's pointer is invalid"),
-            ERR_WRONG_OBJ_INOSID => (
-                "ERR_WRONG_OBJ_INOSID",
-                "DataObject doesn't have the correct inoSID at beginning",
-            ),
-            ERR_WRONG_OBJ_LEN => ("ERR_WRONG_OBJ_LEN", "DataObject's inoLEN is invalid"),
-            ERR_XFEROUT_TIMEOUT => (
-                "ERR_XFEROUT_TIMEOUT",
-                "TimeOut occured while transfer to Scanner",
-            ),
-            ERR_WRONG_CB_PTR => (
-                "ERR_WRONG_CB_PTR",
-                "SetCB_DataInUsb got invalid function pointer",
-            ),
-            ERR_BEGINDATAXFER => ("ERR_BEGINDATAXFER", "Error BeginDataTransfer"),
-            ERR_DO_MORE_DATA_THAN_INOLEN => (
-                "ERR_DO_MORE_DATA_THAN_INOLEN",
-                "There were more bytes received than expected by the Data Objects inoLEN",
-            ),
-            ERR_DO_WRONG_INOLEN => (
-                "ERR_DO_WRONG_INOLEN",
-                "inoLEN of the received Data Object to small or not a multiple of 4",
-            ),
-            ERR_DO_WRONG_INOSID => (
-                "ERR_DO_WRONG_INOSID",
-                "inoSID of the received Data Object didn't match",
-            ),
-            ERR_DO_TIMEOUT => (
-                "ERR_DO_TIMEOUT",
-                "A timeout occured for the received Data Objects inoTIM",
-            ),
-            ERR_PACKET_LARGER_THAN_INOLEN => (
-                "ERR_PACKET_LARGER_THAN_INOLEN",
-                "A single USB packet was larger than inoLEN",
-            ),
-            ERR_UNEXPECTED_SHORT_PACKET => (
-                "ERR_UNEXPECTED_SHORT_PACKET",
-                "A short packet was detected and the DataObject will be finished but inoLEN bytes not reached",
-            ),
-            ERR_CRC_MISMATCH => (
-                "ERR_CRC_MISMATCH",
-                "The received Data Objects inoCRC mismatches the calculated CRC",
-            ),
-            ERR_ENDPOINT_HALTED => (
-                "ERR_ENDPOINT_HALTED",
-                "Error BeginDataTransfer, Status Endpoint Halted",
-            ),
-            ERR_INOUSB => ("ERR_INOUSB", "InoUsb module not found"),
-            ERR_INOUSB_FUNC_MISS => ("ERR_INOUSB_FUNC_MISS", "InoUsb module function missing"),
-            ERR_INOUI => ("ERR_INOUI", "InoUI module not found"),
-            ERR_INOUI_FUNC_MISS => ("ERR_INOUI_FUNC_MISS", "InoUI module function missing"),
-            ERR_CB_THREAD => (
-                "ERR_CB_THREAD",
-                "InoApi Thread for Callback function could not be started",
-            ),
-            ERR_NOT_CONNECTED => ("ERR_NOT_CONNECTED", "Scanner not connected"),
-            ERR_WRONG_STATE => (
-                "ERR_WRONG_STATE",
-                "Previous Function called in wrong state, see Error Text CStrData for more information",
-            ),
-            ERR_SEQUENCE_ERROR => ("ERR_SEQUENCE_ERROR", "Function called at wrong time"),
-            ERR_TIMEOUT => ("ERR_TIMEOUT", "A Timeout in response from scanner occurred"),
-            ERR_ANSWER => ("ERR_ANSWER", "Wrong answer from scanner"),
-            ERR_VERSION_MISMATCH => (
-                "ERR_VERSION_MISMATCH",
-                "Version of API does not match to Application or Scanner",
-            ),
-            ERR_NOT_ALLOWED => ("ERR_NOT_ALLOWED", "Function call not allowed"),
-            ERR_WRONG_PARAM => ("ERR_WRONG_PARAM", "Wrong parameter for function call"),
-            ERR_INTERNAL_ERROR => ("ERR_INTERNAL_ERROR", "Internal API error"),
-            ERR_UI_CREATION => ("ERR_UI_CREATION", "UI / dialog cannot be created"),
-            ERR_INOAPI => ("ERR_INOAPI", "InoApi module not found"),
-            ERR_INOAPI_FUNC_MIS => ("ERR_INOAPI_FUNC_MIS", "InoApi module function missing"),
-            ERR_INOUI_PATH_MIS => (
-                "ERR_INOUI_PATH_MIS",
-                "Folder for local profiles not accessible",
-            ),
-            ERR_SCANNER_NOTCONNECTED => ("ERR_SCANNER_NOTCONNECTED", "Scanner not connected"),
-            ERR_SCANNER_NOCONFIG => ("ERR_SCANNER_NOCONFIG", "Scanner has no config/profile"),
-            ERR_SCANNER_NOTREADY => ("ERR_SCANNER_NOTREADY", "Scanner not ready"),
-            ERR_SCANNER_CONNECTED => ("ERR_SCANNER_CONNECTED", "Scanner already connected"),
-            ERR_SCANNER_INVALIDCONFIG => ("ERR_SCANNER_INVALIDCONFIG", "config/profile is invalid"),
-            ERR_SCANNER_OUTDATEDPC => ("ERR_SCANNER_OUTDATEDPC", "PC is outdated"),
-            ERR_SCANNER_OUTDATEDSCANNER => ("ERR_SCANNER_OUTDATEDSCANNER", "Scanner is outdated"),
-            ERR_SCANNER_NOSCHEMA => ("ERR_SCANNER_NOSCHEMA", "PC submitted schema version"),
-            ERR_SCANNER_NOTIDLE => ("ERR_SCANNER_NOTIDLE", "Scanner is not idle"),
-            ERR_SCANNER_ISSCANNING => ("ERR_SCANNER_ISSCANNING", "Scanner is scanning"),
-            ERR_SCANNER_NOTSCANNING => ("ERR_SCANNER_NOTSCANNING", "Scanner is not scanning"),
-            ERR_SCANNER_ERRORACTIVE => ("ERR_SCANNER_ERRORACTIVE", "Error active on scanner"),
-            ERR_SCANNER_EDITING => ("ERR_SCANNER_EDITING", "User editing"),
-            ERR_SCANNER_UNSUPPORTEDFEATURE => (
-                "ERR_SCANNER_UNSUPPORTEDFEATURE",
-                "Feature not supported by scanner",
-            ),
-            other if ErrorCode(other).is_second_endpoint() => {
-                return Self::describe(other - ERR_SECOND_ENDPOINT_OFFSET);
+/// Generates [`ErrorCode::describe`] from the header's `ERR_*` names and comments.
+macro_rules! error_codes {
+    ($($name:ident => $description:literal,)*) => {
+        impl ErrorCode {
+            #[allow(clippy::wildcard_imports)]
+            fn describe(code: u32) -> Option<(&'static str, &'static str)> {
+                use ffi::*;
+                match code {
+                    $($name => Some((stringify!($name), $description)),)*
+                    other if ErrorCode(other).is_second_endpoint() => {
+                        Self::describe(other - ERR_SECOND_ENDPOINT_OFFSET)
+                    }
+                    _ => None,
+                }
             }
-            _ => return None,
-        };
-        Some(entry)
-    }
+        }
+    };
+}
+
+error_codes! {
+    ERR_NOERROR => "No Error",
+    ERR_CYAPI => "Cypress API not found, maybe CyUSB3.dll missing in the system",
+    ERR_FX3 => "No FX3 USB device found attached to the CyUsb driver",
+    ERR_VID_PID => "Product and/or vendor ID didn't match",
+    ERR_EP => "EP BulkIn and BulkOut expected but missing",
+    ERR_DEVICE_CLOSED => "USB device was closed - no IO operation possible",
+    ERR_XFERIN_THREAD => "Thread for Data Transfer In could not be started",
+    ERR_WRONG_OBJ_PTR => "DataObject's pointer is invalid",
+    ERR_WRONG_OBJ_INOSID => "DataObject doesn't have the correct inoSID at beginning",
+    ERR_WRONG_OBJ_LEN => "DataObject's inoLEN is invalid",
+    ERR_XFEROUT_TIMEOUT => "TimeOut occured while transfer to Scanner",
+    ERR_WRONG_CB_PTR => "SetCB_DataInUsb got invalid function pointer",
+    ERR_BEGINDATAXFER => "Error BeginDataTransfer",
+    ERR_DO_MORE_DATA_THAN_INOLEN => "There were more bytes received than expected by the Data Objects inoLEN",
+    ERR_DO_WRONG_INOLEN => "inoLEN of the received Data Object to small or not a multiple of 4",
+    ERR_DO_WRONG_INOSID => "inoSID of the received Data Object didn't match",
+    ERR_DO_TIMEOUT => "A timeout occured for the received Data Objects inoTIM",
+    ERR_PACKET_LARGER_THAN_INOLEN => "A single USB packet was larger than inoLEN",
+    ERR_UNEXPECTED_SHORT_PACKET => "A short packet was detected and the DataObject will be finished but inoLEN bytes not reached",
+    ERR_CRC_MISMATCH => "The received Data Objects inoCRC mismatches the calculated CRC",
+    ERR_ENDPOINT_HALTED => "Error BeginDataTransfer, Status Endpoint Halted",
+    ERR_INOUSB => "InoUsb module not found",
+    ERR_INOUSB_FUNC_MISS => "InoUsb module function missing",
+    ERR_INOUI => "InoUI module not found",
+    ERR_INOUI_FUNC_MISS => "InoUI module function missing",
+    ERR_CB_THREAD => "InoApi Thread for Callback function could not be started",
+    ERR_NOT_CONNECTED => "Scanner not connected",
+    ERR_WRONG_STATE => "Previous Function called in wrong state, see Error Text CStrData for more information",
+    ERR_SEQUENCE_ERROR => "Function called at wrong time",
+    ERR_TIMEOUT => "A Timeout in response from scanner occurred",
+    ERR_ANSWER => "Wrong answer from scanner",
+    ERR_VERSION_MISMATCH => "Version of API does not match to Application or Scanner",
+    ERR_NOT_ALLOWED => "Function call not allowed",
+    ERR_WRONG_PARAM => "Wrong parameter for function call",
+    ERR_INTERNAL_ERROR => "Internal API error",
+    ERR_UI_CREATION => "UI / dialog cannot be created",
+    ERR_INOAPI => "InoApi module not found",
+    ERR_INOAPI_FUNC_MIS => "InoApi module function missing",
+    ERR_INOUI_PATH_MIS => "Folder for local profiles not accessible",
+    ERR_SCANNER_NOTCONNECTED => "Scanner not connected",
+    ERR_SCANNER_NOCONFIG => "Scanner has no config/profile",
+    ERR_SCANNER_NOTREADY => "Scanner not ready",
+    ERR_SCANNER_CONNECTED => "Scanner already connected",
+    ERR_SCANNER_INVALIDCONFIG => "config/profile is invalid",
+    ERR_SCANNER_OUTDATEDPC => "PC is outdated",
+    ERR_SCANNER_OUTDATEDSCANNER => "Scanner is outdated",
+    ERR_SCANNER_NOSCHEMA => "PC submitted schema version",
+    ERR_SCANNER_NOTIDLE => "Scanner is not idle",
+    ERR_SCANNER_ISSCANNING => "Scanner is scanning",
+    ERR_SCANNER_NOTSCANNING => "Scanner is not scanning",
+    ERR_SCANNER_ERRORACTIVE => "Error active on scanner",
+    ERR_SCANNER_EDITING => "User editing",
+    ERR_SCANNER_UNSUPPORTEDFEATURE => "Feature not supported by scanner",
 }
 
 impl fmt::Debug for ErrorCode {
@@ -187,16 +137,16 @@ impl fmt::Debug for ErrorCode {
 
 impl fmt::Display for ErrorCode {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match (self.name(), self.description()) {
-            (Some(name), Some(description)) if self.is_second_endpoint() => {
+        match Self::describe(self.0) {
+            Some((name, description)) if self.is_second_endpoint() => {
                 write!(
                     f,
                     "{name} (second endpoint, code {}): {description}",
                     self.0
                 )
             }
-            (Some(name), Some(description)) => write!(f, "{name} ({}): {description}", self.0),
-            _ => write!(f, "unknown InoTec error code {}", self.0),
+            Some((name, description)) => write!(f, "{name} ({}): {description}", self.0),
+            None => write!(f, "unknown InoTec error code {}", self.0),
         }
     }
 }
