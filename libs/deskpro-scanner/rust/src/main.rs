@@ -414,7 +414,7 @@ fn error_response(error: &driver::Error) -> ResponseBody {
     let code = match error {
         driver::Error::Load(_) => ErrorCode::DriverUnavailable,
         driver::Error::AlreadyConnected => ErrorCode::AlreadyConnected,
-        driver::Error::InteriorNul => ErrorCode::BadRequest,
+        driver::Error::InteriorNul(_) => ErrorCode::BadRequest,
         driver::Error::Api { .. } => ErrorCode::Driver,
     };
     ResponseBody::Error {

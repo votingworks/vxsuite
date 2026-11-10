@@ -7,7 +7,7 @@
 #![allow(clippy::missing_errors_doc)]
 
 use std::borrow::Cow;
-use std::ffi::{CStr, CString, c_char, c_int, c_void};
+use std::ffi::{CStr, CString, NulError, c_char, c_int, c_void};
 use std::fmt;
 use std::marker::PhantomData;
 use std::os::unix::ffi::OsStrExt;
@@ -163,10 +163,10 @@ pub enum Error {
     AlreadyConnected,
 
     #[error("string contains an interior NUL byte")]
-    InteriorNul,
+    InteriorNul(#[from] NulError),
 
-    #[error("{0}")]
-    Load(#[source] LoadError),
+    #[error(transparent)]
+    Load(#[from] LoadError),
 }
 
 fn check(function: &'static str, code: u32) -> Result<(), Error> {
@@ -638,7 +638,7 @@ impl Driver {
         schema: ProfileSchema,
     ) -> Result<(Self, Receiver<Event>), Error> {
         // SAFETY: the signatures in `Symbols` mirror the driver's own headers.
-        let symbols = unsafe { Symbols::load(library_path) }.map_err(Error::Load)?;
+        let symbols = unsafe { Symbols::load(library_path) }?;
 
         // SAFETY: `ScannerConnect` is an export of the library just loaded, not yet called.
         match unsafe {
@@ -660,7 +660,7 @@ impl Driver {
             ),
         }
 
-        let app_id = CString::new(app_id).map_err(|_| Error::InteriorNul)?;
+        let app_id = CString::new(app_id)?;
         let (tx, rx) = mpsc::channel();
         *EVENTS
             .lock()
@@ -763,7 +763,7 @@ impl Driver {
 
     /// Activates a stored profile by name. Undocumented export.
     pub fn select_profile(&self, name: &str) -> Result<(), Error> {
-        let name = CString::new(name).map_err(|_| Error::InteriorNul)?;
+        let name = CString::new(name)?;
         // SAFETY: the driver copies the name into a `std::string` during the call.
         check("SelectScannerSetup", unsafe {
             (self.symbols.SelectScannerSetup)(name.as_ptr())
@@ -773,8 +773,7 @@ impl Driver {
     /// Writes the scanner's log files into `directory`, asynchronously; progress arrives as
     /// `CTYPE_INOUI_TRANSFER*` control messages. Undocumented export.
     pub fn fetch_logs(&self, directory: &Path, all: bool) -> Result<(), Error> {
-        let directory =
-            CString::new(directory.as_os_str().as_bytes()).map_err(|_| Error::InteriorNul)?;
+        let directory = CString::new(directory.as_os_str().as_bytes())?;
         // SAFETY: the driver copies the path into a `std::string` during the call.
         unsafe {
             if all {
@@ -790,9 +789,7 @@ impl Driver {
 
     /// Replaces the active profile.
     pub fn set_profile(&self, profile: &str) -> Result<(), Error> {
-        if profile.as_bytes().contains(&0) {
-            return Err(Error::InteriorNul);
-        }
+        let profile = CString::new(profile)?;
         let owned = vendor_heap::new_c_string(profile.as_bytes());
         // SAFETY: `SetScannerSetup` takes ownership and frees the buffer on every path, so it must
         // come from `AllocBuffer` and must not be freed here.
@@ -835,7 +832,7 @@ impl Driver {
 
     /// Sets the imprinter template (with `%CNT1%`-style variables). Undocumented export.
     pub fn set_printer_string(&self, text: &str) -> Result<(), Error> {
-        let text = CString::new(text).map_err(|_| Error::InteriorNul)?;
+        let text = CString::new(text)?;
         // SAFETY: the driver only reads the string during the call.
         check("SetPrinterstring", unsafe {
             (self.symbols.SetPrinterstring)(text.as_ptr())
