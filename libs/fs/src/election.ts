@@ -1,6 +1,7 @@
 import { type Result, err, ok } from '@votingworks/basics';
 import {
   type ElectionDefinitionWithData,
+  decodeElectionData,
   hashElectionData,
   safeParseElection,
 } from '@votingworks/types';
@@ -19,7 +20,7 @@ export const MAX_ELECTION_DEFINITION_SIZE = 100 * 1024 * 1024; // 100 MB
  */
 export type ReadElectionError =
   | { type: 'ReadFileError'; error: ReadFileError }
-  | { type: 'ParseError'; error: ZodError | SyntaxError };
+  | { type: 'ParseError'; error: ZodError | SyntaxError | TypeError };
 
 /**
  * Reads an election from a file path.
@@ -31,14 +32,19 @@ export async function readElection(
 ): Promise<Result<ElectionDefinitionWithData, ReadElectionError>> {
   const readFileResult = await readFile(electionPath, {
     maxSize: MAX_ELECTION_DEFINITION_SIZE,
-    encoding: 'utf-8',
   });
 
   if (readFileResult.isErr()) {
     return err({ type: 'ReadFileError', error: readFileResult.err() });
   }
 
-  const electionData = readFileResult.ok();
+  const electionBytes = readFileResult.ok();
+  const decodeResult = decodeElectionData(electionBytes);
+  if (decodeResult.isErr()) {
+    return err({ type: 'ParseError', error: decodeResult.err() });
+  }
+
+  const electionData = decodeResult.ok();
   const parseResult = safeParseElection(electionData);
 
   if (parseResult.isErr()) {
@@ -46,7 +52,7 @@ export async function readElection(
   }
 
   const election = parseResult.ok();
-  const ballotHash = hashElectionData(electionData);
+  const ballotHash = hashElectionData(electionBytes);
 
   return ok({ ballotHash, election, electionData });
 }
