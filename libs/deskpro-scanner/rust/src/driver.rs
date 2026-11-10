@@ -768,17 +768,13 @@ impl Driver {
     /// `CTYPE_INOUI_TRANSFER*` control messages. Undocumented export.
     pub fn fetch_logs(&self, directory: &Path, all: bool) -> Result<(), Error> {
         let directory = CString::new(directory.as_os_str().as_bytes())?;
+        let (function, fetch) = if all {
+            ("GetAllLogs", self.symbols.GetAllLogs)
+        } else {
+            ("GetLastLogs", self.symbols.GetLastLogs)
+        };
         // SAFETY: the driver copies the path into a `std::string` during the call.
-        unsafe {
-            if all {
-                check("GetAllLogs", (self.symbols.GetAllLogs)(directory.as_ptr()))
-            } else {
-                check(
-                    "GetLastLogs",
-                    (self.symbols.GetLastLogs)(directory.as_ptr()),
-                )
-            }
-        }
+        check(function, unsafe { fetch(directory.as_ptr()) })
     }
 
     /// Replaces the active profile.
