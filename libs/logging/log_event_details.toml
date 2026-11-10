@@ -1207,13 +1207,19 @@ restrictInDocumentationToApps = ["vx-admin"]
 [Events.ElectionDefinitionCreated]
 eventId = "election-definition-created"
 eventType = "user-action"
-documentationMessage = "A user created a new election definition to design, or failed to. Success or failure indicated by disposition."
+documentationMessage = "A user created a new election definition to design."
 restrictInDocumentationToApps = ["vx-admin"]
 
 [Events.ElectionDefinitionInfoUpdated]
 eventId = "election-definition-info-updated"
 eventType = "user-action"
-documentationMessage = "A user edited the election info (title, date, type, state, jurisdiction, seal, signature or languages) of the election definition being designed, or failed to. Success or failure indicated by disposition."
+documentationMessage = "A user edited the election info (title, date, type, state, jurisdiction, seal, signature or languages) of the election definition being designed."
+restrictInDocumentationToApps = ["vx-admin"]
+
+[Events.ElectionDefinitionDistrictsUpdated]
+eventId = "election-definition-districts-updated"
+eventType = "user-action"
+documentationMessage = "A user added, renamed or deleted districts in the election definition being designed, or failed to. Success or failure indicated by disposition."
 restrictInDocumentationToApps = ["vx-admin"]
 
 [Events.ElectionDefinitionDiscarded]

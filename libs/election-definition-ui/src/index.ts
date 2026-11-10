@@ -2,6 +2,7 @@ export * from './api.js';
 export * from './ballot_audio/audio_link_button.js';
 export * from './ballot_audio/input_with_audio.js';
 export * from './delete_election_button.js';
+export * from './districts_editor.js';
 export * from './election_definition_context.js';
 export * from './election_info_editor.js';
 export * from './form_fixed.js';

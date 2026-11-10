@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
-import { DateWithoutTime, ok } from '@votingworks/basics';
+import { DateWithoutTime, err, ok } from '@votingworks/basics';
 import {
   type ElectionInfoUpdate,
   stateFeatureConfigs,
@@ -169,7 +169,7 @@ test('create, edit and discard an election definition', async () => {
 });
 
 test('deleting an unknown election definition fails', async () => {
-  const { apiClient: api, auth, logger } = buildTestEnvironment();
+  const { apiClient: api, auth } = buildTestEnvironment();
   mockSystemAdministratorAuth(auth);
 
   await suppressingConsoleOutput(() =>
@@ -177,18 +177,10 @@ test('deleting an unknown election definition fails', async () => {
       'Election definition not found'
     )
   );
-  expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
-    LogEventId.ElectionDefinitionDiscarded,
-    {
-      message:
-        'Error discarding election definition unknown: Election definition not found',
-      disposition: 'failure',
-    }
-  );
 });
 
 test('only one election definition at a time', async () => {
-  const { apiClient: api, auth, logger } = buildTestEnvironment();
+  const { apiClient: api, auth } = buildTestEnvironment();
   mockSystemAdministratorAuth(auth);
 
   await api.createInProgressElection();
@@ -196,14 +188,6 @@ test('only one election definition at a time', async () => {
     expect(api.createInProgressElection()).rejects.toThrow(
       'An election definition already exists.'
     )
-  );
-  expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
-    LogEventId.ElectionDefinitionCreated,
-    {
-      message:
-        'Error creating election definition: An election definition already exists.',
-      disposition: 'failure',
-    }
   );
 });
 
@@ -258,7 +242,7 @@ test('unsupported machine state', async () => {
 });
 
 test('rejects combined ballot primaries', async () => {
-  const { apiClient: api, auth, logger } = buildTestEnvironment();
+  const { apiClient: api, auth } = buildTestEnvironment();
   mockSystemAdministratorAuth(auth);
   const electionId = await api.createInProgressElection();
   const electionInfo = await api.getElectionInfo({ electionId });
@@ -274,11 +258,98 @@ test('rejects combined ballot primaries', async () => {
       })
     ).rejects.toThrow('Combined ballot primaries are not supported.')
   );
+});
+
+test('edit districts', async () => {
+  const { apiClient: api, auth, logger } = buildTestEnvironment();
+  mockSystemAdministratorAuth(auth);
+  const electionId = await api.createInProgressElection();
+  expect(await api.listDistricts({ electionId })).toEqual([]);
+
+  expect(
+    await api.updateDistricts({
+      electionId,
+      newDistricts: [
+        { id: 'district-1', name: 'District 1' },
+        { id: 'district-2', name: 'District 2' },
+      ],
+    })
+  ).toEqual(ok());
   expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
-    LogEventId.ElectionDefinitionInfoUpdated,
+    LogEventId.ElectionDefinitionDistrictsUpdated,
     {
-      message: `Error updating election info for election definition ${electionId}: Combined ballot primaries are not supported.`,
+      message: `Updated districts for election definition ${electionId}.`,
+      disposition: 'success',
+    }
+  );
+
+  expect(
+    await api.updateDistricts({
+      electionId,
+      deletedDistrictIds: ['district-1'],
+      updatedDistricts: [{ id: 'district-2', name: 'District 1' }],
+    })
+  ).toEqual(ok());
+  expect(await api.listDistricts({ electionId })).toEqual([
+    { id: 'district-2', name: 'District 1' },
+  ]);
+});
+
+test('rejects duplicate district names', async () => {
+  const { apiClient: api, auth, logger } = buildTestEnvironment();
+  mockSystemAdministratorAuth(auth);
+  const electionId = await api.createInProgressElection();
+  (
+    await api.updateDistricts({
+      electionId,
+      newDistricts: [{ id: 'district-1', name: 'District 1' }],
+    })
+  ).unsafeUnwrap();
+
+  expect(
+    await api.updateDistricts({
+      electionId,
+      newDistricts: [{ id: 'district-2', name: 'District 1' }],
+    })
+  ).toEqual(err({ code: 'duplicate-name', districtId: 'district-2' }));
+  expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
+    LogEventId.ElectionDefinitionDistrictsUpdated,
+    {
+      message: `Error updating districts for election definition ${electionId}: district district-2 has a duplicate name.`,
       disposition: 'failure',
     }
   );
+  expect(await api.listDistricts({ electionId })).toEqual([
+    { id: 'district-1', name: 'District 1' },
+  ]);
+});
+
+test('rejects invalid districts', async () => {
+  const { apiClient: api, auth } = buildTestEnvironment();
+  mockSystemAdministratorAuth(auth);
+  const electionId = await api.createInProgressElection();
+
+  await suppressingConsoleOutput(() =>
+    expect(
+      api.updateDistricts({
+        electionId,
+        newDistricts: [{ id: 'district-1', name: '' }],
+      })
+    ).rejects.toThrow()
+  );
+
+  await suppressingConsoleOutput(() =>
+    expect(
+      api.updateDistricts({
+        electionId: 'missing',
+        newDistricts: [{ id: 'district-1', name: 'District 1' }],
+      })
+    ).rejects.toThrow('Election definition not found')
+  );
+  await suppressingConsoleOutput(() =>
+    expect(api.listDistricts({ electionId: 'missing' })).rejects.toThrow(
+      'Election definition not found'
+    )
+  );
+  expect(await api.listDistricts({ electionId })).toEqual([]);
 });

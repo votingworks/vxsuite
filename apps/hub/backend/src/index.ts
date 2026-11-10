@@ -17,7 +17,6 @@ import {
 export type { TtsStringDefault } from './tts_strings.js';
 export type {
   BackgroundTask,
-  DuplicateDistrictError,
   DuplicatePartyError,
   MainExportTaskMetadata,
   SetPollingPlaceError,

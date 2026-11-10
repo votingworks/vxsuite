@@ -3,11 +3,12 @@ import {
   assert,
   assertDefined,
   DateWithoutTime,
-  extractErrorMessage,
   ok,
   type Result,
 } from '@votingworks/basics';
 import {
+  type DistrictsUpdate,
+  type DuplicateDistrictError,
   type ElectionDefinitionMethods,
   type ElectionInfo,
   type ElectionInfoUpdate,
@@ -19,7 +20,12 @@ import {
 } from '@votingworks/election-definition-backend';
 import * as grout from '@votingworks/grout';
 import { LogEventId, type Logger } from '@votingworks/logging';
-import { type ElectionId, LanguageCode, unsafeParse } from '@votingworks/types';
+import {
+  type District,
+  type ElectionId,
+  LanguageCode,
+  unsafeParse,
+} from '@votingworks/types';
 import { isSystemAdministratorAuth } from '@votingworks/utils';
 import { constructAuthMachineState } from '../util/auth.js';
 import type { Workspace } from '../util/workspace.js';
@@ -89,26 +95,16 @@ export function createElectionDefinitionApiMethods({
 
     async createInProgressElection(): Promise<ElectionId> {
       const electionId = generateId();
-      try {
-        const { stateCode } = assertDefined(getMachineState());
-        assert(
-          store.getCurrentElectionId() === undefined,
-          'Cannot create an election definition while an election is configured.'
-        );
-        assert(
-          store.getInProgressElection() === undefined,
-          'An election definition already exists.'
-        );
-        store.createInProgressElection(
-          blankElectionInfo(electionId, stateCode)
-        );
-      } catch (error) {
-        await logger.logAsCurrentRole(LogEventId.ElectionDefinitionCreated, {
-          message: `Error creating election definition: ${extractErrorMessage(error)}`,
-          disposition: 'failure',
-        });
-        throw error;
-      }
+      const { stateCode } = assertDefined(getMachineState());
+      assert(
+        store.getCurrentElectionId() === undefined,
+        'Cannot create an election definition while an election is configured.'
+      );
+      assert(
+        store.getInProgressElection() === undefined,
+        'An election definition already exists.'
+      );
+      store.createInProgressElection(blankElectionInfo(electionId, stateCode));
       await logger.logAsCurrentRole(LogEventId.ElectionDefinitionCreated, {
         message: `Created election definition ${electionId}.`,
         disposition: 'success',
@@ -117,16 +113,8 @@ export function createElectionDefinitionApiMethods({
     },
 
     async deleteElection(input: ElectionInput): Promise<void> {
-      try {
-        loadInProgressElectionInfo(input);
-        store.deleteInProgressElection();
-      } catch (error) {
-        await logger.logAsCurrentRole(LogEventId.ElectionDefinitionDiscarded, {
-          message: `Error discarding election definition ${input.electionId}: ${extractErrorMessage(error)}`,
-          disposition: 'failure',
-        });
-        throw error;
-      }
+      loadInProgressElectionInfo(input);
+      store.deleteInProgressElection();
       await logger.logAsCurrentRole(LogEventId.ElectionDefinitionDiscarded, {
         message: `Discarded election definition ${input.electionId}.`,
         disposition: 'success',
@@ -140,24 +128,13 @@ export function createElectionDefinitionApiMethods({
     async updateElectionInfo(
       input: ElectionInfoUpdate
     ): Promise<Result<void, never>> {
-      try {
-        const electionInfoUpdate = unsafeParse(ElectionInfoUpdateSchema, input);
-        assert(
-          !electionInfoUpdate.isMiCombinedBallotPrimary,
-          'Combined ballot primaries are not supported.'
-        );
-        loadInProgressElectionInfo(electionInfoUpdate);
-        store.updateInProgressElectionInfo(electionInfoUpdate);
-      } catch (error) {
-        await logger.logAsCurrentRole(
-          LogEventId.ElectionDefinitionInfoUpdated,
-          {
-            message: `Error updating election info for election definition ${input.electionId}: ${extractErrorMessage(error)}`,
-            disposition: 'failure',
-          }
-        );
-        throw error;
-      }
+      const electionInfoUpdate = unsafeParse(ElectionInfoUpdateSchema, input);
+      assert(
+        !electionInfoUpdate.isMiCombinedBallotPrimary,
+        'Combined ballot primaries are not supported.'
+      );
+      loadInProgressElectionInfo(electionInfoUpdate);
+      store.updateInProgressElectionInfo(electionInfoUpdate);
       await logger.logAsCurrentRole(LogEventId.ElectionDefinitionInfoUpdated, {
         message: `Updated election info for election definition ${input.electionId}.`,
         disposition: 'success',
@@ -168,6 +145,36 @@ export function createElectionDefinitionApiMethods({
     getStateFeatures(input: ElectionInput): StateFeaturesConfig {
       loadInProgressElectionInfo(input);
       return assertDefined(getMachineState()).features;
+    },
+
+    listDistricts(input: ElectionInput): District[] {
+      loadInProgressElectionInfo(input);
+      return store.listDistricts(input.electionId);
+    },
+
+    async updateDistricts(
+      input: DistrictsUpdate
+    ): Promise<Result<void, DuplicateDistrictError>> {
+      loadInProgressElectionInfo(input);
+      const result = store.updateDistricts(input);
+      if (result.isErr()) {
+        await logger.logAsCurrentRole(
+          LogEventId.ElectionDefinitionDistrictsUpdated,
+          {
+            message: `Error updating districts for election definition ${input.electionId}: district ${result.err().districtId} has a duplicate name.`,
+            disposition: 'failure',
+          }
+        );
+        return result;
+      }
+      await logger.logAsCurrentRole(
+        LogEventId.ElectionDefinitionDistrictsUpdated,
+        {
+          message: `Updated districts for election definition ${input.electionId}.`,
+          disposition: 'success',
+        }
+      );
+      return result;
     },
   } as const;
 

@@ -262,6 +262,7 @@ export const LogEventId = {
   AdminRestoreModeEntered: 'admin-restore-mode-entered',
   ElectionDefinitionCreated: 'election-definition-created',
   ElectionDefinitionInfoUpdated: 'election-definition-info-updated',
+  ElectionDefinitionDistrictsUpdated: 'election-definition-districts-updated',
   ElectionDefinitionDiscarded: 'election-definition-discarded',
 } as const;
 export type LogEventId = (typeof LogEventId)[keyof typeof LogEventId];
@@ -1657,8 +1658,7 @@ const AdminRestoreModeEntered: LogDetails = {
 const ElectionDefinitionCreated: LogDetails = {
   eventId: LogEventId.ElectionDefinitionCreated,
   eventType: LogEventType.UserAction,
-  documentationMessage:
-    'A user created a new election definition to design, or failed to. Success or failure indicated by disposition.',
+  documentationMessage: 'A user created a new election definition to design.',
   restrictInDocumentationToApps: [AppName.VxAdmin],
 };
 
@@ -1666,7 +1666,15 @@ const ElectionDefinitionInfoUpdated: LogDetails = {
   eventId: LogEventId.ElectionDefinitionInfoUpdated,
   eventType: LogEventType.UserAction,
   documentationMessage:
-    'A user edited the election info (title, date, type, state, jurisdiction, seal, signature or languages) of the election definition being designed, or failed to. Success or failure indicated by disposition.',
+    'A user edited the election info (title, date, type, state, jurisdiction, seal, signature or languages) of the election definition being designed.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
+const ElectionDefinitionDistrictsUpdated: LogDetails = {
+  eventId: LogEventId.ElectionDefinitionDistrictsUpdated,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'A user added, renamed or deleted districts in the election definition being designed, or failed to. Success or failure indicated by disposition.',
   restrictInDocumentationToApps: [AppName.VxAdmin],
 };
 
@@ -2058,6 +2066,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return ElectionDefinitionCreated;
     case LogEventId.ElectionDefinitionInfoUpdated:
       return ElectionDefinitionInfoUpdated;
+    case LogEventId.ElectionDefinitionDistrictsUpdated:
+      return ElectionDefinitionDistrictsUpdated;
     case LogEventId.ElectionDefinitionDiscarded:
       return ElectionDefinitionDiscarded;
     default:

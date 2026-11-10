@@ -1,5 +1,5 @@
 import { expect, test, vi } from 'vitest';
-import { DateWithoutTime, ok } from '@votingworks/basics';
+import { DateWithoutTime, err, ok } from '@votingworks/basics';
 import { type ElectionId, LanguageCode } from '@votingworks/types';
 import type { ElectionDefinitionMethods } from './election_definition_methods.js';
 import type { StateFeaturesConfig } from './state_features.js';
@@ -158,5 +158,109 @@ export function describeElectionDefinitionMethods(
     const { methods } = await setUp();
 
     await expectRejection(methods.getStateFeatures({ electionId: 'unknown' }));
+  });
+
+  test('updateDistricts adds, renames and deletes districts', async () => {
+    const { methods, createElection } = await setUp();
+    const electionId = await createElection();
+    expect(await methods.listDistricts({ electionId })).toEqual([]);
+
+    expect(
+      await methods.updateDistricts({
+        electionId,
+        newDistricts: [
+          { id: 'district-10', name: 'District 10' },
+          { id: 'district-2', name: 'District 2' },
+          { id: 'district-1', name: 'District 1' },
+        ],
+      })
+    ).toEqual(ok());
+    expect(await methods.listDistricts({ electionId })).toEqual([
+      { id: 'district-1', name: 'District 1' },
+      { id: 'district-2', name: 'District 2' },
+      { id: 'district-10', name: 'District 10' },
+    ]);
+
+    expect(
+      await methods.updateDistricts({
+        electionId,
+        deletedDistrictIds: ['district-1'],
+        updatedDistricts: [{ id: 'district-2', name: 'District 1' }],
+        newDistricts: [{ id: 'district-3', name: 'District 3' }],
+      })
+    ).toEqual(ok());
+    expect(await methods.listDistricts({ electionId })).toEqual([
+      { id: 'district-2', name: 'District 1' },
+      { id: 'district-3', name: 'District 3' },
+      { id: 'district-10', name: 'District 10' },
+    ]);
+  });
+
+  test('updateDistricts rejects duplicate names without saving', async () => {
+    const { methods, createElection } = await setUp();
+    const electionId = await createElection();
+    const districts = [
+      { id: 'district-1', name: 'District 1' },
+      { id: 'district-2', name: 'District 2' },
+    ];
+    expect(
+      await methods.updateDistricts({ electionId, newDistricts: districts })
+    ).toEqual(ok());
+
+    expect(
+      await methods.updateDistricts({
+        electionId,
+        deletedDistrictIds: ['district-2'],
+        newDistricts: [{ id: 'district-3', name: 'District 1' }],
+      })
+    ).toEqual(err({ code: 'duplicate-name', districtId: 'district-3' }));
+    expect(
+      await methods.updateDistricts({
+        electionId,
+        updatedDistricts: [{ id: 'district-2', name: 'District 1' }],
+      })
+    ).toEqual(err({ code: 'duplicate-name', districtId: 'district-2' }));
+    expect(await methods.listDistricts({ electionId })).toEqual(districts);
+  });
+
+  test('updateDistricts rejects a blank name', async () => {
+    const { methods, createElection } = await setUp();
+    const electionId = await createElection();
+
+    await expectRejection(
+      methods.updateDistricts({
+        electionId,
+        newDistricts: [{ id: 'district-1', name: '' }],
+      })
+    );
+  });
+
+  test('updateDistricts rejects an unknown district', async () => {
+    const { methods, createElection } = await setUp();
+    const electionId = await createElection();
+
+    await expectRejection(
+      methods.updateDistricts({
+        electionId,
+        updatedDistricts: [{ id: 'unknown', name: 'District 1' }],
+      })
+    );
+  });
+
+  test('listDistricts rejects an unknown election', async () => {
+    const { methods } = await setUp();
+
+    await expectRejection(methods.listDistricts({ electionId: 'unknown' }));
+  });
+
+  test('updateDistricts rejects an unknown election', async () => {
+    const { methods } = await setUp();
+
+    await expectRejection(
+      methods.updateDistricts({
+        electionId: 'unknown',
+        newDistricts: [{ id: 'district-1', name: 'District 1' }],
+      })
+    );
   });
 }

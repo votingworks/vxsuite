@@ -463,12 +463,15 @@ describe('Voting group cards', () => {
       .resolves(ok(pollsStatus));
     mockEmptyActivityLogForAllTabs(electionId);
 
-    renderScreen();
+    const history = renderScreen();
 
     await screen.findByRole('heading', { name: 'Live Reports' });
+    expect(history.location.pathname).toEqual(
+      routes.election(electionId).reports.allVotingGroups.path
+    );
 
     // All four tabs should be visible
-    screen.getByRole('tab', { name: 'All Voting Groups' });
+    screen.getByRole('tab', { name: 'All Voting Groups', selected: true });
     screen.getByRole('tab', { name: 'Early Voting' });
     screen.getByRole('tab', { name: 'Election Day' });
     screen.getByRole('tab', { name: 'Absentee Voting' });
@@ -793,6 +796,8 @@ describe('Voting group cards', () => {
     await waitFor(() => {
       expect(screen.getByTestId('polls-open-count')).toHaveTextContent('0');
     });
+    screen.getByRole('tab', { name: 'Election Day', selected: true });
+    screen.getByRole('tab', { name: 'All Voting Groups', selected: false });
     expect(screen.getByTestId('polls-closed-count')).toHaveTextContent('3');
     expect(screen.getByTestId('no-reports-sent-count')).toHaveTextContent('0');
 

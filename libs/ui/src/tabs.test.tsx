@@ -34,3 +34,33 @@ test('RouterTabBar navigates on click and shows active tab', async () => {
   expect(tab1).toHaveStyle({ backgroundColor: theme.colors.container });
   expect(tab2).toHaveStyle({ backgroundColor: theme.colors.primaryContainer });
 });
+
+test('RouterTabBar shows a tab as active on nested paths', () => {
+  const history = createMemoryHistory({ initialEntries: ['/tab1/edit'] });
+  const tabs = [
+    { title: 'Tab 1', path: '/tab1' },
+    { title: 'Tab 2', path: '/tab2' },
+  ];
+  render(
+    <Router history={history}>
+      <RouterTabBar tabs={tabs} />
+    </Router>
+  );
+  screen.getByRole('tab', { name: 'Tab 1', selected: true });
+  screen.getByRole('tab', { name: 'Tab 2', selected: false });
+});
+
+test('RouterTabBar does not show a tab as active on a longer sibling path', () => {
+  const history = createMemoryHistory({ initialEntries: ['/tab10'] });
+  const tabs = [
+    { title: 'Tab 1', path: '/tab1' },
+    { title: 'Tab 10', path: '/tab10' },
+  ];
+  render(
+    <Router history={history}>
+      <RouterTabBar tabs={tabs} />
+    </Router>
+  );
+  screen.getByRole('tab', { name: 'Tab 1', selected: false });
+  screen.getByRole('tab', { name: 'Tab 10', selected: true });
+});

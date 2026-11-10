@@ -1,10 +1,5 @@
 import React, { useState } from 'react';
-import {
-  generatePath,
-  Route,
-  useHistory,
-  useRouteMatch,
-} from 'react-router-dom';
+import { Route, useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { DateWithoutTime, throwIllegalValue } from '@votingworks/basics';
 import type {
@@ -23,6 +18,10 @@ import {
   DesktopPalette,
   SegmentedButton,
 } from '@votingworks/ui';
+import {
+  type AudioPanelRoutes,
+  useAudioPanelRoutes,
+} from './audio_panel_routes.js';
 import { InputWithAudio } from './ballot_audio/input_with_audio.js';
 import { DeleteElectionButton } from './delete_election_button.js';
 import { useElectionDefinitionApi } from './election_definition_context.js';
@@ -42,26 +41,6 @@ export interface ElectionInfoEditorProps {
   showSignatureInput?: boolean;
   AudioPanel?: React.ComponentType;
   onElectionDeleted: () => void;
-}
-
-interface AudioPanelRoutes {
-  panelPath: string;
-  isPanelOpen: boolean;
-  closeUrl: string;
-  screenUrl: (stringKey: ElectionStringKey) => string;
-}
-
-function useAudioPanelRoutes(): AudioPanelRoutes {
-  const { path, params } = useRouteMatch();
-  const panelPath = `${path}/audio/:stringKey`;
-  const isPanelOpen = useRouteMatch(panelPath) !== null;
-  return {
-    panelPath,
-    isPanelOpen,
-    closeUrl: generatePath(path, params),
-    screenUrl: (stringKey: ElectionStringKey) =>
-      generatePath(panelPath, { ...params, stringKey }),
-  };
 }
 
 function hasBlankElectionInfo(electionInfo: ElectionInfo): boolean {
@@ -175,9 +154,9 @@ function ElectionInfoForm({
       <FormBody>
         <InputGroup label="Title">
           <InputWithAudio
-            audioScreenUrl={audioRoutes?.screenUrl(
-              ElectionStringKey.ELECTION_TITLE
-            )}
+            audioScreenUrl={audioRoutes?.screenUrl({
+              stringKey: ElectionStringKey.ELECTION_TITLE,
+            })}
             editing={isEditing}
             tooltipPlacement="bottom"
             type="text"
@@ -242,9 +221,9 @@ function ElectionInfoForm({
         />
         <InputGroup label="State">
           <InputWithAudio
-            audioScreenUrl={audioRoutes?.screenUrl(
-              ElectionStringKey.STATE_NAME
-            )}
+            audioScreenUrl={audioRoutes?.screenUrl({
+              stringKey: ElectionStringKey.STATE_NAME,
+            })}
             editing={isEditing}
             type="text"
             value={electionInfo.state}
@@ -257,9 +236,9 @@ function ElectionInfoForm({
         </InputGroup>
         <InputGroup label="Jurisdiction">
           <InputWithAudio
-            audioScreenUrl={audioRoutes?.screenUrl(
-              ElectionStringKey.JURISDICTION_NAME
-            )}
+            audioScreenUrl={audioRoutes?.screenUrl({
+              stringKey: ElectionStringKey.JURISDICTION_NAME,
+            })}
             editing={isEditing}
             type="text"
             value={electionInfo.jurisdictionName}
@@ -407,7 +386,7 @@ export function ElectionInfoEditor({
   const api = useElectionDefinitionApi();
   const getElectionInfoQuery = api.getElectionInfo.useQuery(electionId);
   const getStateFeaturesQuery = api.getStateFeatures.useQuery(electionId);
-  const audioRoutes = useAudioPanelRoutes();
+  const audioRoutes = useAudioPanelRoutes(':stringKey');
 
   if (!getElectionInfoQuery.isSuccess || !getStateFeaturesQuery.isSuccess) {
     return null;
