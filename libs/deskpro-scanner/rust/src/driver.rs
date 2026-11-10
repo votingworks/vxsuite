@@ -561,7 +561,7 @@ unsafe extern "C" fn image_trampoline(info: *mut ffi::ImageInfo_t, data: *mut u8
     }
 }
 
-/// Driver-maintained scanner state. The headers define none of these values, so they are raw.
+/// Driver-maintained scanner state, raw; see [`ApiState`] and [`OperationalState`].
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Status {
     pub state: u32,
@@ -570,6 +570,73 @@ pub struct Status {
     pub feeder_loaded: u32,
     pub next_feeder_loaded: u32,
     pub feeder_side: u32,
+}
+
+/// [`Status::state`] and a `CTYPE_STATUS` control's `num_data`, as the driver's
+/// `readableApiState` names them.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ApiState {
+    Offline,
+    Ready,
+    NotReady,
+    Scanning,
+    Unknown(u32),
+}
+
+impl From<u32> for ApiState {
+    fn from(value: u32) -> Self {
+        match value {
+            0 => Self::Offline,
+            1 => Self::Ready,
+            2 => Self::NotReady,
+            4 => Self::Scanning,
+            other => Self::Unknown(other),
+        }
+    }
+}
+
+impl fmt::Display for ApiState {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Offline => f.write_str("offline"),
+            Self::Ready => f.write_str("ready for scan"),
+            Self::NotReady => f.write_str("not ready for scan"),
+            Self::Scanning => f.write_str("scanning"),
+            Self::Unknown(value) => write!(f, "unknown ({value})"),
+        }
+    }
+}
+
+/// [`Status::operational_state`], in the order of the scanner display's `OperationalState`
+/// enum: errors make it not operational, crucial warnings partially operational.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum OperationalState {
+    NotOperational,
+    PartiallyOperational,
+    Operational,
+    Unknown(i64),
+}
+
+impl From<i64> for OperationalState {
+    fn from(value: i64) -> Self {
+        match value {
+            0 => Self::NotOperational,
+            1 => Self::PartiallyOperational,
+            2 => Self::Operational,
+            other => Self::Unknown(other),
+        }
+    }
+}
+
+impl fmt::Display for OperationalState {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::NotOperational => f.write_str("not operational"),
+            Self::PartiallyOperational => f.write_str("partially operational"),
+            Self::Operational => f.write_str("operational"),
+            Self::Unknown(value) => write!(f, "unknown ({value})"),
+        }
+    }
 }
 
 /// A live connection to the scanner; dropping it disconnects. Not `Sync`, since the driver's

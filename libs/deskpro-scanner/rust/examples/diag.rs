@@ -13,7 +13,7 @@ use std::path::{Path, PathBuf};
 use std::time::{Duration, Instant};
 
 use clap::{Parser, Subcommand};
-use deskpro_scanner::driver::{self, Driver, Event, ProfileSchema};
+use deskpro_scanner::driver::{self, ApiState, Driver, Event, OperationalState, ProfileSchema};
 use deskpro_scanner::ffi;
 
 #[derive(Debug, Parser)]
@@ -277,8 +277,16 @@ fn info(args: &Args) -> color_eyre::Result<()> {
     println!("scanner version: {}", driver.scanner_version()?);
 
     let status = driver.status();
-    println!("state:               {}", status.state);
-    println!("operational state:   {}", status.operational_state);
+    println!(
+        "state:               {} ({})",
+        status.state,
+        ApiState::from(status.state)
+    );
+    println!(
+        "operational state:   {} ({})",
+        status.operational_state,
+        OperationalState::from(i64::from(status.operational_state))
+    );
     println!("images available:    {}", status.images_available);
     println!("feeder loaded:       {}", status.feeder_loaded);
     println!("next feeder loaded:  {}", status.next_feeder_loaded);
@@ -469,10 +477,6 @@ fn stream(
     Ok(())
 }
 
-/// `CTYPE_STATUS` values the scanner sends with "Ready for Scan" and "Scanning".
-const STATUS_READY: u32 = 1;
-const STATUS_SCANNING: u32 = 4;
-
 /// How long to keep listening for trailing images once a batch looks finished.
 const BATCH_END_GRACE: Duration = Duration::from_secs(1);
 
@@ -491,8 +495,9 @@ impl BatchTracker {
         };
         match control.ctype {
             ffi::CTYPE_STATUS => {
-                self.scanned |= control.num_data == STATUS_SCANNING;
-                self.ready = control.num_data == STATUS_READY;
+                let state = ApiState::from(control.num_data);
+                self.scanned |= state == ApiState::Scanning;
+                self.ready = state == ApiState::Ready;
             }
             ffi::CTYPE_FEEDER => self.feeder_empty = control.num_data == 0,
             _ => {}
@@ -513,7 +518,12 @@ fn print_event(event: &Event, save_images: Option<&Path>) -> color_eyre::Result<
             control.num_data,
             control.str_data_lossy()
         ),
-        Event::OperationalState(state) => println!("opstate  {state}"),
+        Event::OperationalState(state) => {
+            println!(
+                "opstate  {state} ({})",
+                OperationalState::from(i64::from(*state))
+            );
+        }
         Event::IncompatibleImage(size) => println!(
             "image    INCOMPATIBLE: driver sent {size} bytes of ImageInfo_t, we expect {}",
             size_of::<ffi::ImageInfo_t>()
