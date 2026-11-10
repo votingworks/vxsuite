@@ -1,3 +1,4 @@
+import { Buffer } from 'node:buffer';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 
@@ -59,7 +60,7 @@ const mockUsbDrive = createMockUsbDrive();
 const { printer } = createMockFujitsuPrinterHandler();
 const mockAuth = buildMockInsertedSmartCardAuth(vi.fn);
 const electionDefinition = parseElectionDefinition(
-  JSON.stringify(testCdfBallotDefinition)
+  Buffer.from(JSON.stringify(testCdfBallotDefinition))
 );
 
 afterEach(() => {

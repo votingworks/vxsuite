@@ -187,7 +187,9 @@ describe('createElectionDefinition', () => {
 
     const electionDefinition = createElectionDefinition(election);
 
-    const parsedElection = JSON.parse(electionDefinition.electionData);
+    const parsedElection = JSON.parse(
+      electionDefinition.electionData.toString('utf-8')
+    );
     expect(parsedElection.id).toEqual(election.id);
     expect(parsedElection.title).toEqual(election.title);
   });
@@ -215,7 +217,7 @@ test('createUnnormalizedElectionDefinition builds election data that zod normali
     candidatesPerContest: 2,
   });
   const electionDefinition = createUnnormalizedElectionDefinition(election);
-  const raw = JSON.parse(electionDefinition.electionData);
+  const raw = JSON.parse(electionDefinition.electionData.toString('utf-8'));
 
   expect(raw.unknownField).toEqual(true);
   expect(raw.precincts[0].splits).toBeNull();

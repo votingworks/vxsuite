@@ -369,7 +369,7 @@ function serializeElection(
   getBallotPositions: GetBallotPositionsFn,
   getCandidateOrderings: GetCandidateOrderingsFn,
   options: ElectionSerializationOptions
-): string {
+): Buffer {
   const electionToSerialize = (() => {
     // @coverage-defer
     switch (options.format) {
@@ -407,9 +407,11 @@ function serializeElection(
     }
   })();
 
-  return options.compact
-    ? JSON.stringify(electionToSerialize)
-    : JSON.stringify(electionToSerialize, null, 2);
+  return Buffer.from(
+    options.compact
+      ? JSON.stringify(electionToSerialize)
+      : JSON.stringify(electionToSerialize, null, 2)
+  );
 }
 
 /**
@@ -736,7 +738,11 @@ export async function createElectionDefinition<P extends BaseBallotProps>(p: {
   return {
     ballotPositionsPath: ballotPositionsFile.path,
     candidateOrderingsPath: candidateOrderingsFile.path,
-    electionDefinition: { ballotHash, election, electionData },
+    electionDefinition: {
+      ballotHash,
+      election,
+      electionData,
+    },
   };
 }
 
@@ -760,7 +766,9 @@ function electionWithBallotMeta(
   );
 
   const ballotHash = createHash('sha256').update(electionData).digest('hex');
-  const election = safeParseElectionAnyVersion(electionData).unsafeUnwrap();
+  const election = safeParseElectionAnyVersion(
+    electionData.toString('utf-8')
+  ).unsafeUnwrap();
 
   return { ballotHash, election, electionData };
 }

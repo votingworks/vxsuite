@@ -142,7 +142,7 @@ test('Export test decks', async () => {
       jurisdictionId: nonVxJurisdiction.id,
       upload: {
         format: 'vxf',
-        electionFileContents: electionDefinition.electionData,
+        electionFileContents: electionDefinition.electionData.toString('utf-8'),
       },
     })
   ).unsafeUnwrap();
@@ -248,7 +248,9 @@ test('split-file election: package export and test deck ballot hashes match', as
   ctx.auth0.setLoggedInUser(nonVxUser);
 
   const fixtures = electionGridLayoutNewHampshireTestBallotFixtures;
-  const electionFileContents = fixtures.readElectionDefinition().electionData;
+  const electionFileContents = fixtures
+    .readElectionDefinition()
+    .electionData.toString('utf-8');
 
   const electionId = (
     await ctx.apiClient.loadElection({
@@ -350,7 +352,8 @@ test.each([
         jurisdictionId: nonVxJurisdiction.id,
         upload: {
           format: 'vxf',
-          electionFileContents: electionDefinition.electionData,
+          electionFileContents:
+            electionDefinition.electionData.toString('utf-8'),
         },
       })
     ).unsafeUnwrap();
@@ -444,7 +447,8 @@ test.each([
         jurisdictionId: jurisdiction.id,
         upload: {
           format: 'vxf',
-          electionFileContents: baseElectionDefinition.electionData,
+          electionFileContents:
+            baseElectionDefinition.electionData.toString('utf-8'),
         },
       })
     ).unsafeUnwrap();
@@ -521,7 +525,8 @@ test('CDF exports', async () => {
       jurisdictionId: nonVxJurisdiction.id,
       upload: {
         format: 'vxf',
-        electionFileContents: baseElectionDefinition.electionData,
+        electionFileContents:
+          baseElectionDefinition.electionData.toString('utf-8'),
       },
     })
   ).unsafeUnwrap();

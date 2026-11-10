@@ -1,3 +1,4 @@
+import { Buffer } from 'node:buffer';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import {
@@ -52,7 +53,7 @@ beforeEach(() => {
 
 const mockAuth = buildMockInsertedSmartCardAuth(vi.fn);
 const electionDefinition = parseElectionDefinition(
-  JSON.stringify(testCdfBallotDefinition)
+  Buffer.from(JSON.stringify(testCdfBallotDefinition))
 );
 
 afterEach(() => {

@@ -1225,10 +1225,8 @@ test('Reading card data', async () => {
     logger: mockLogger,
   });
 
-  mockCard.readData
-    .expectCallWith()
-    .resolves(Buffer.from(electionData, 'utf-8'));
-  expect(await auth.readCardData()).toEqual(ok(electionData));
+  mockCard.readData.expectCallWith().resolves(electionData);
+  expect(await auth.readCardData()).toEqual(ok(electionData.toString('utf-8')));
 
   mockCard.readData.expectCallWith().resolves(Buffer.of());
   expect(await auth.readCardData()).toEqual(ok(undefined));

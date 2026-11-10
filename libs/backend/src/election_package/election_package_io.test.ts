@@ -314,7 +314,9 @@ test('readElectionPackageFromFile loads available ui strings', async () => {
 });
 
 test('readElectionPackageFromFile loads election strings from CDF', async () => {
-  const testCdfElectionData = JSON.stringify(testCdfBallotDefinition);
+  const testCdfElectionData = Buffer.from(
+    JSON.stringify(testCdfBallotDefinition)
+  );
   const pkg = await electionPackageZip({
     [ElectionPackageFileName.ELECTION]: testCdfElectionData,
   });
@@ -655,7 +657,7 @@ test.each([
   async (missingFile) => {
     const electionDefinition =
       electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
-    const allFiles: Record<string, string> = {
+    const allFiles: Record<string, Buffer | string> = {
       [ElectionPackageFileName.ELECTION]: electionDefinition.electionData,
       [ElectionPackageFileName.METADATA]: JSON.stringify(LATEST_METADATA),
       [ElectionPackageFileName.SYSTEM_SETTINGS]: JSON.stringify(

@@ -3,7 +3,6 @@ import {
   type Election,
   type ElectionDefinitionWithData,
   type ElectionPackageWithData,
-  hashElectionData,
   LATEST_METADATA,
   type RgbaImageData,
   safeParseElection,
@@ -12,6 +11,7 @@ import {
 import { createCanvas, loadImage } from 'canvas';
 import assert from 'node:assert';
 import type { Buffer } from 'node:buffer';
+import { createHash } from 'node:crypto';
 import { cpSync, existsSync, mkdirSync, readFileSync } from 'node:fs';
 import { basename, dirname, join } from 'node:path';
 import { getPathForFile } from './tmpdir.js';
@@ -158,8 +158,8 @@ export function election(path: string): ElectionFixture {
   const inner = file(path);
 
   function readElectionDefinition(): ElectionDefinitionWithData {
-    const electionData = inner.asText();
-    const ballotHash = hashElectionData(electionData);
+    const electionData = inner.asBuffer();
+    const ballotHash = createHash('sha256').update(electionData).digest('hex');
     const el = safeParseElection(electionData).unsafeUnwrap();
 
     return { ballotHash, election: el, electionData };

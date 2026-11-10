@@ -203,7 +203,7 @@ describe('importElectionPackage populates candidate_orderings', () => {
     };
 
     const { election, electionId } = await configure(store, {
-      electionData: JSON.stringify(inputElection),
+      electionData: Buffer.from(JSON.stringify(inputElection)),
       settings: { ...DEFAULT_SYSTEM_SETTINGS, splitElectionDefinition: false },
     });
 
@@ -246,7 +246,7 @@ describe('importElectionPackage populates candidate_orderings', () => {
       ballotPositions,
       candidateOrderingsBatchSize,
       candidateOrderings,
-      electionData: JSON.stringify(splitElection.election),
+      electionData: Buffer.from(JSON.stringify(splitElection.election)),
       settings: { ...DEFAULT_SYSTEM_SETTINGS, splitElectionDefinition: true },
     });
 
@@ -284,7 +284,7 @@ describe('importElectionPackage populates candidate_orderings', () => {
     const res = configure(store, {
       ballotPositions,
       candidateOrderings,
-      electionData: fixtures.electionJson.asText(),
+      electionData: fixtures.electionJson.asBuffer(),
       settings: { ...DEFAULT_SYSTEM_SETTINGS, splitElectionDefinition: true },
     });
 
@@ -299,7 +299,7 @@ describe('importElectionPackage populates candidate_orderings', () => {
       ballotPositions?: BallotPositions[];
       candidateOrderings?: BallotCandidateOrderings[];
       candidateOrderingsBatchSize?: number;
-      electionData: string;
+      electionData: Buffer;
       settings: SystemSettings;
     }
   ) {
@@ -367,7 +367,7 @@ describe('max sheets per ballot', () => {
         electionDefinition: {
           ballotHash: 'unused',
           election,
-          electionData: JSON.stringify(election),
+          electionData: Buffer.from(JSON.stringify(election)),
         },
       }),
     });
@@ -393,7 +393,7 @@ describe('max sheets per ballot', () => {
         electionDefinition: {
           ballotHash: 'unused',
           election,
-          electionData: JSON.stringify(election),
+          electionData: Buffer.from(JSON.stringify(election)),
         },
         systemSettings: {
           ...DEFAULT_SYSTEM_SETTINGS,
@@ -425,7 +425,7 @@ describe('max sheets per ballot', () => {
         electionDefinition: {
           ballotHash: 'unused',
           election,
-          electionData: JSON.stringify(election),
+          electionData: Buffer.from(JSON.stringify(election)),
         },
       }),
     });
@@ -556,7 +556,10 @@ test('importElectionPackage returns an error for an invalid election', async () 
     packagePath: await writeTempElectionZip({
       electionDefinition: {
         ...electionDefinition,
-        electionData: `${electionDefinition.electionData}!UH-OH-CORRUPTED`,
+        electionData: Buffer.concat([
+          electionDefinition.electionData,
+          Buffer.of(0x00),
+        ]),
       },
     }),
   });
@@ -1936,7 +1939,7 @@ test('getBallotAdjudicationData uses DB candidate orderings', async () => {
   const { ballotPositions, election } = toSplitFileElection(
     fixtures.readElection()
   );
-  const electionData = JSON.stringify(election);
+  const electionData = Buffer.from(JSON.stringify(election));
   const ballotStyle = assertDefined(election.ballotStyles[0]);
 
   const settings: SystemSettings = {

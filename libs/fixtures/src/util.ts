@@ -1,10 +1,11 @@
+import { Buffer } from 'node:buffer';
 import { createHash } from 'node:crypto';
 import type { Election, ElectionDefinitionWithData } from '@votingworks/types';
 
 export function asElectionDefinition(
   election: Election
 ): ElectionDefinitionWithData {
-  const electionData = JSON.stringify(election);
+  const electionData = Buffer.from(JSON.stringify(election));
   return {
     election,
     electionData,

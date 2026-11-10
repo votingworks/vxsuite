@@ -1,3 +1,4 @@
+import { Buffer } from 'node:buffer';
 import { expect, test } from 'vitest';
 import * as fixtures from './index.js';
 
@@ -16,7 +17,7 @@ test('asElectionDefinition', () => {
   ).toStrictEqual(
     expect.objectContaining({
       election: fixtures.readElectionGeneral(),
-      electionData: expect.any(String),
+      electionData: expect.any(Buffer),
       ballotHash: expect.any(String),
     })
   );

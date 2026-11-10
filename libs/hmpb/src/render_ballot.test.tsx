@@ -610,7 +610,9 @@ test('writes separate ballot meta files when `splitElectionDefinition` setting i
   expect(parsedElection.unsafeUnwrap().ballotHash).toEqual(ballotHash);
 
   // Expect an unindented election.json when the `compact` option is enabled.
-  expect(res.electionDefinition.electionData).not.toContain('\n');
+  expect(res.electionDefinition.electionData.toString('utf-8')).not.toContain(
+    '\n'
+  );
 });
 
 test('writes one set of split-file candidate orderings for each ballot style group', async () => {

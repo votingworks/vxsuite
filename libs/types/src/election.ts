@@ -1102,7 +1102,7 @@ export interface ElectionDefinition {
  * bytes for code that writes election packages.
  */
 export interface ElectionDefinitionWithData extends ElectionDefinition {
-  electionData: string;
+  electionData: Buffer;
 }
 
 export const ELECTION_SERIALIZATION_FORMATS = ['vxf', 'cdf'] as const;

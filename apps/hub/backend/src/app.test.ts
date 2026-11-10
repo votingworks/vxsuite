@@ -323,7 +323,8 @@ test('create/list/delete elections', async () => {
       jurisdictionId: sliJurisdiction.id,
       upload: {
         format: 'vxf',
-        electionFileContents: sliElectionDefinition.electionData,
+        electionFileContents:
+          sliElectionDefinition.electionData.toString('utf-8'),
       },
     })
   ).unsafeUnwrap();
@@ -542,7 +543,8 @@ test('create/list/delete elections', async () => {
       jurisdictionId: sliJurisdiction.id,
       upload: {
         format: 'vxf',
-        electionFileContents: sliElectionDefinition.electionData,
+        electionFileContents:
+          sliElectionDefinition.electionData.toString('utf-8'),
       },
     })
   ).unsafeUnwrap();
@@ -558,7 +560,8 @@ test('create/list/delete elections', async () => {
       jurisdictionId: sliJurisdiction.id,
       upload: {
         format: 'vxf',
-        electionFileContents: sliElectionDefinition.electionData,
+        electionFileContents:
+          sliElectionDefinition.electionData.toString('utf-8'),
       },
     })
   ).unsafeUnwrap();
@@ -574,7 +577,8 @@ test('create/list/delete elections', async () => {
       jurisdictionId: sliJurisdiction.id,
       upload: {
         format: 'vxf',
-        electionFileContents: sliElectionDefinition.electionData,
+        electionFileContents:
+          sliElectionDefinition.electionData.toString('utf-8'),
       },
     })
   ).unsafeUnwrap();
@@ -1056,7 +1060,8 @@ test('deleting a district updates associated precincts', async () => {
       jurisdictionId: nonVxJurisdiction.id,
       upload: {
         format: 'vxf',
-        electionFileContents: baseElectionDefinition.electionData,
+        electionFileContents:
+          baseElectionDefinition.electionData.toString('utf-8'),
       },
     })
   ).unsafeUnwrap();
@@ -1866,7 +1871,8 @@ test('deleting a party updates associated contests', async () => {
       jurisdictionId: nonVxJurisdiction.id,
       upload: {
         format: 'vxf',
-        electionFileContents: baseElectionDefinition.electionData,
+        electionFileContents:
+          baseElectionDefinition.electionData.toString('utf-8'),
       },
     })
   ).unsafeUnwrap();
@@ -3348,7 +3354,8 @@ test('getBallotPreviewPdf returns a ballot pdf for precinct with splits', async 
       jurisdictionId: nonVxJurisdiction.id,
       upload: {
         format: 'vxf',
-        electionFileContents: baseElectionDefinition.electionData,
+        electionFileContents:
+          baseElectionDefinition.electionData.toString('utf-8'),
       },
     })
   ).unsafeUnwrap();
@@ -3408,7 +3415,8 @@ test('getBallotPreviewPdf returns a ballot pdf for precinct with no split', asyn
       jurisdictionId: nonVxJurisdiction.id,
       upload: {
         format: 'vxf',
-        electionFileContents: baseElectionDefinition.electionData,
+        electionFileContents:
+          baseElectionDefinition.electionData.toString('utf-8'),
       },
     })
   ).unsafeUnwrap();
@@ -3457,7 +3465,7 @@ test('setBallotTemplate changes the ballot template used to render ballots', asy
       jurisdictionId: nonVxJurisdiction.id,
       upload: {
         format: 'vxf',
-        electionFileContents: electionDefinition.electionData,
+        electionFileContents: electionDefinition.electionData.toString('utf-8'),
       },
     })
   ).unsafeUnwrap();

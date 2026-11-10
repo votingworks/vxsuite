@@ -1,3 +1,4 @@
+import { Buffer } from 'node:buffer';
 import { createHash } from 'node:crypto';
 import { type Result, DateWithoutTime, err, ok } from '@votingworks/basics';
 import type { z } from 'zod/v4';
@@ -38,6 +39,10 @@ function safeParseElectionExtended(value: unknown): Result<
       return parsed;
     }
     return safeParseElectionExtended(parsed.ok());
+  }
+
+  if (Buffer.isBuffer(value)) {
+    return safeParseElectionExtended(value.toString('utf-8'));
   }
 
   const vxfResult = safeParseVxfElection(value);

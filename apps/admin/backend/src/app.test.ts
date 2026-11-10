@@ -910,7 +910,7 @@ describe('getCandidateOrderings', () => {
   const electionDef: ElectionDefinitionWithData = {
     ballotHash: 'unused',
     election: splitElection.election,
-    electionData: JSON.stringify(splitElection.election),
+    electionData: Buffer.from(JSON.stringify(splitElection.election)),
   };
 
   test('returns orderings from store', async () => {

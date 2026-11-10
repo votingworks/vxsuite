@@ -38,21 +38,20 @@ export async function readElection(
     return err({ type: 'ReadFileError', error: readFileResult.err() });
   }
 
-  const electionBytes = readFileResult.ok();
-  const decodeResult = decodeElectionData(electionBytes);
+  const electionData = readFileResult.ok();
+  const decodeResult = decodeElectionData(electionData);
   if (decodeResult.isErr()) {
     return err({ type: 'ParseError', error: decodeResult.err() });
   }
 
-  const electionData = decodeResult.ok();
-  const parseResult = safeParseElection(electionData);
+  const parseResult = safeParseElection(decodeResult.ok());
 
   if (parseResult.isErr()) {
     return err({ type: 'ParseError', error: parseResult.err() });
   }
 
   const election = parseResult.ok();
-  const ballotHash = hashElectionData(electionBytes);
+  const ballotHash = hashElectionData(electionData);
 
   return ok({ ballotHash, election, electionData });
 }

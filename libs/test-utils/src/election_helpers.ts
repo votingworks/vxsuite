@@ -1,3 +1,4 @@
+import { Buffer } from 'node:buffer';
 import { assertDefined, DateWithoutTime } from '@votingworks/basics';
 import {
   type Contest,
@@ -176,7 +177,7 @@ export function createTestElection(
 export function createElectionDefinition(
   election: Election
 ): ElectionDefinitionWithData {
-  return parseElectionDefinition(JSON.stringify(election));
+  return parseElectionDefinition(Buffer.from(JSON.stringify(election)));
 }
 
 /**
@@ -187,11 +188,13 @@ export function createElectionDefinitionCdf(
   election: Election
 ): ElectionDefinitionWithData {
   return parseElectionDefinition(
-    JSON.stringify(
-      convertVxfElectionToCdfBallotDefinition(
-        election,
-        (bs) => bs.ballotPositions,
-        (bs) => bs.orderedCandidatesByContest
+    Buffer.from(
+      JSON.stringify(
+        convertVxfElectionToCdfBallotDefinition(
+          election,
+          (bs) => bs.ballotPositions,
+          (bs) => bs.orderedCandidatesByContest
+        )
       )
     )
   );
@@ -201,7 +204,7 @@ export function createElectionDefinitionCdf(
  * Creates an ElectionDefinition from serialized election data (VxF or CDF).
  */
 export function parseElectionDefinition(
-  electionData: string
+  electionData: Buffer
 ): ElectionDefinitionWithData {
   return {
     ballotHash: hashElectionData(electionData),
@@ -219,14 +222,16 @@ export function createUnnormalizedElectionDefinition(
 ): ElectionDefinitionWithData {
   const [precinct, ...otherPrecincts] = election.precincts;
   return parseElectionDefinition(
-    JSON.stringify({
-      ...election,
-      unknownField: true,
-      precincts: [
-        { ...assertDefined(precinct), splits: null },
-        ...otherPrecincts,
-      ],
-    })
+    Buffer.from(
+      JSON.stringify({
+        ...election,
+        unknownField: true,
+        precincts: [
+          { ...assertDefined(precinct), splits: null },
+          ...otherPrecincts,
+        ],
+      })
+    )
   );
 }
 

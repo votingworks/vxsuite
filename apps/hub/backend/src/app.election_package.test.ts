@@ -258,7 +258,8 @@ test('Election package management', async () => {
       jurisdictionId: nonVxJurisdiction.id,
       upload: {
         format: 'vxf',
-        electionFileContents: baseElectionDefinition.electionData,
+        electionFileContents:
+          baseElectionDefinition.electionData.toString('utf-8'),
       },
     })
   ).unsafeUnwrap();
@@ -1166,7 +1167,8 @@ test('Election package export with VxDefaultBallot drops signature field', async
       jurisdictionId: nonVxJurisdiction.id,
       upload: {
         format: 'vxf',
-        electionFileContents: baseElectionDefinition.electionData,
+        electionFileContents:
+          baseElectionDefinition.electionData.toString('utf-8'),
       },
     })
   ).unsafeUnwrap();
@@ -1317,7 +1319,8 @@ test('Election package generation is deterministic', async () => {
       jurisdictionId: nonVxJurisdiction.id,
       upload: {
         format: 'vxf',
-        electionFileContents: baseElectionDefinition.electionData,
+        electionFileContents:
+          baseElectionDefinition.electionData.toString('utf-8'),
       },
     })
   ).unsafeUnwrap();
@@ -1463,7 +1466,8 @@ test('export ballots with audit IDs', async () => {
       jurisdictionId: nonVxJurisdiction.id,
       upload: {
         format: 'vxf',
-        electionFileContents: baseElectionDefinition.electionData,
+        electionFileContents:
+          baseElectionDefinition.electionData.toString('utf-8'),
       },
     })
   ).unsafeUnwrap();

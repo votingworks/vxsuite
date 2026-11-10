@@ -1,3 +1,4 @@
+import { Buffer } from 'node:buffer';
 import { afterAll, beforeEach, describe, expect, test, vi } from 'vitest';
 import { assert, assertDefined, err, ok, sleep } from '@votingworks/basics';
 
@@ -522,7 +523,7 @@ test('getExportedElectionDefinition returns the exported election including reor
         return contest;
       }),
   };
-  const reorderedElectionData = JSON.stringify(reorderedElection);
+  const reorderedElectionData = Buffer.from(JSON.stringify(reorderedElection));
   const reorderedBallotHash = createHash('sha256')
     .update(reorderedElectionData)
     .digest('hex');
@@ -612,7 +613,7 @@ test('createElectionPackageBackgroundTask clears previous export URLs', async ()
 
   await workspace.store.setElectionPackageExportInformation({
     ballotHash: 'ballot-hash',
-    electionData: 'election-data',
+    electionData: Buffer.from('election-data'),
     electionId,
     electionPackageUrl,
     officialBallotsUrl,
