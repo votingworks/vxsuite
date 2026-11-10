@@ -19,13 +19,16 @@ export interface UiStringsAudioContextInterface {
   api: UiStringsReactQueryApi;
   decreasePlaybackRate: () => void;
   increasePlaybackRate: () => void;
-  isEnabled: boolean;
+  isEnabledSetting: boolean;
+  isMuted: boolean;
   isPaused: boolean;
+  isPlaybackActive: boolean;
   output?: AudioNode;
   playbackRate: PlaybackRate;
   reset: () => void;
   setControlsEnabled: (enabled: boolean) => void;
   setIsEnabled: (enabled: boolean) => void;
+  setIsMuted: (muted: boolean) => void;
   setIsPaused: (paused: boolean) => void;
   setVolume: (volume: AudioVolume) => void;
   toggleEnabled: () => void;
@@ -81,9 +84,10 @@ export function UiStringsAudioContextProvider(
   props: UiStringsAudioContextProviderProps
 ): JSX.Element {
   const { api, children } = props;
-  const [isEnabled, setIsEnabledInternal] = React.useState(
+  const [isEnabledSetting, setIsEnabledInternal] = React.useState(
     DEFAULT_AUDIO_ENABLED_STATE
   );
+  const [isMuted, setIsMuted] = React.useState(false);
   const [controlsEnabled, setControlsEnabled] = React.useState(true);
   const [isPaused, setIsPaused] = React.useState(true);
   const [playbackRateIdx, setPlaybackRateIdx] = React.useState<number>(
@@ -125,8 +129,10 @@ export function UiStringsAudioContextProvider(
     [headphonesPluggedIn]
   );
 
+  const isPlaybackActive = isEnabledSetting && !isMuted;
+
   React.useEffect(() => {
-    if (isEnabled) {
+    if (isPlaybackActive) {
       setIsPaused(false);
     } else {
       // Pausing here isn't strictly necessary, since we're disconnecting the
@@ -135,7 +141,7 @@ export function UiStringsAudioContextProvider(
       setIsPaused(true);
       webAudioContextRef.current?.destination.disconnect();
     }
-  }, [isEnabled]);
+  }, [isPlaybackActive]);
 
   React.useEffect(() => {
     if (!webAudioContextRef.current) {
@@ -165,8 +171,8 @@ export function UiStringsAudioContextProvider(
   );
 
   const toggleEnabled = React.useCallback(
-    () => setIsEnabled(!isEnabled),
-    [isEnabled, setIsEnabled]
+    () => setIsEnabled(!isEnabledSetting),
+    [isEnabledSetting, setIsEnabled]
   );
 
   return (
@@ -175,14 +181,17 @@ export function UiStringsAudioContextProvider(
         api,
         decreasePlaybackRate: controlsEnabled ? decreasePlaybackRate : noOp,
         increasePlaybackRate: controlsEnabled ? increasePlaybackRate : noOp,
-        isEnabled,
+        isEnabledSetting,
+        isMuted,
         isPaused,
+        isPlaybackActive,
         output: gainNodeRef.current,
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         playbackRate: PLAYBACK_RATES[playbackRateIdx]!,
         reset,
         setControlsEnabled,
         setIsEnabled: controlsEnabled ? setIsEnabled : noOp,
+        setIsMuted,
         setIsPaused: controlsEnabled ? setIsPaused : noOp,
         setVolume: controlsEnabled ? setVolume : noOp,
         toggleEnabled: controlsEnabled ? toggleEnabled : noOp,

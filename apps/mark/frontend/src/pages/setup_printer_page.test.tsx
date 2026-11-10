@@ -1,6 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { mockUseAudioControls } from '@votingworks/test-utils';
-import { useAudioEnabled } from '@votingworks/ui';
+import { useMuteAudio } from '@votingworks/ui';
 import { render, screen } from '../../test/react_testing_library.js';
 import { SetupPrinterPage } from './setup_printer_page.js';
 import {
@@ -11,11 +10,9 @@ import {
 
 vi.useFakeTimers({ shouldAdvanceTime: true });
 
-const audioControlsMock = mockUseAudioControls(vi.fn);
 vi.mock(import('@votingworks/ui'), async (importActual) => ({
   ...(await importActual()),
-  useAudioEnabled: vi.fn(),
-  useAudioControls: () => audioControlsMock,
+  useMuteAudio: vi.fn(),
 }));
 
 let apiMock: ApiMock;
@@ -33,9 +30,6 @@ function renderInAppContext(ui: React.ReactNode) {
 }
 
 test('displays alarm and poll worker prompt when cardless voter session is active', () => {
-  const mockUseAudioEnabled = vi.mocked(useAudioEnabled);
-  mockUseAudioEnabled.mockReturnValue(true);
-
   apiMock.expectGetUsbPortStatus();
 
   // Expect at least one playSound call for alarm
@@ -65,9 +59,6 @@ test('displays alarm and poll worker prompt when cardless voter session is activ
 });
 
 test('displays alarm when polls are paused', () => {
-  const mockUseAudioEnabled = vi.mocked(useAudioEnabled);
-  mockUseAudioEnabled.mockReturnValue(true);
-
   apiMock.expectGetUsbPortStatus();
 
   // Expect at least one playSound call for alarm
@@ -90,9 +81,6 @@ test('displays alarm when polls are paused', () => {
 });
 
 test('does not display alarm when poll worker auth', () => {
-  const mockUseAudioEnabled = vi.mocked(useAudioEnabled);
-  mockUseAudioEnabled.mockReturnValue(true);
-
   apiMock.expectGetUsbPortStatus();
 
   // No playSound expected
@@ -109,9 +97,6 @@ test('does not display alarm when poll worker auth', () => {
 });
 
 test('displays alarm but not Settings when polls are open but no cardless voter session', () => {
-  const mockUseAudioEnabled = vi.mocked(useAudioEnabled);
-  mockUseAudioEnabled.mockReturnValue(true);
-
   apiMock.expectGetUsbPortStatus();
 
   // Alarm plays when polls are open/paused even without active voter session
@@ -139,9 +124,6 @@ test('displays alarm but not Settings when polls are open but no cardless voter 
 });
 
 test('does not display alarm when polls are closed initial', () => {
-  const mockUseAudioEnabled = vi.mocked(useAudioEnabled);
-  mockUseAudioEnabled.mockReturnValue(true);
-
   apiMock.expectGetUsbPortStatus();
 
   // No playSound expected
@@ -160,9 +142,6 @@ test('does not display alarm when polls are closed initial', () => {
 });
 
 test('does not display alarm when polls are closed final', () => {
-  const mockUseAudioEnabled = vi.mocked(useAudioEnabled);
-  mockUseAudioEnabled.mockReturnValue(true);
-
   apiMock.expectGetUsbPortStatus();
 
   // No playSound expected
@@ -180,10 +159,7 @@ test('does not display alarm when polls are closed final', () => {
   vi.advanceTimersByTime(5000);
 });
 
-test('mutes audio on render when alarm plays, unmutes on unmount', async () => {
-  const mockUseAudioEnabled = vi.mocked(useAudioEnabled);
-  mockUseAudioEnabled.mockReturnValue(true);
-
+test('mutes audio while alarm plays', async () => {
   apiMock.expectGetUsbPortStatus();
 
   // Expect playSound calls for alarm
@@ -194,39 +170,26 @@ test('mutes audio on render when alarm plays, unmutes on unmount', async () => {
   // USB ports are auto-disabled when alarm plays
   apiMock.expectToggleUsbPorts('disable');
 
-  const { unmount } = renderInAppContext(
+  renderInAppContext(
     <SetupPrinterPage isCardlessVoterAuth pollsState="polls_open" />
   );
-  expect(audioControlsMock.setIsEnabled).toHaveBeenLastCalledWith(false);
+  expect(vi.mocked(useMuteAudio)).toHaveBeenLastCalledWith(true);
 
-  // Advance time to trigger alarm plays and USB auto-disable before unmount
-  // Wait for query to resolve and effect to run
   await screen.findByRole('heading', { name: 'No Printer Detected' });
   vi.advanceTimersByTime(5000);
-
-  unmount();
-  expect(audioControlsMock.setIsEnabled).toHaveBeenLastCalledWith(true);
 });
 
 test('does not mute audio when poll worker is authenticated', () => {
-  const mockUseAudioEnabled = vi.mocked(useAudioEnabled);
-  mockUseAudioEnabled.mockReturnValue(true);
-  audioControlsMock.setIsEnabled.mockClear();
-
   apiMock.expectGetUsbPortStatus();
 
   // No playSound expected
   renderInAppContext(
     <SetupPrinterPage isPollWorkerAuth pollsState="polls_open" />
   );
-  expect(audioControlsMock.setIsEnabled).not.toHaveBeenCalled();
+  expect(vi.mocked(useMuteAudio)).toHaveBeenLastCalledWith(false);
 });
 
 test('mutes audio when polls open even without cardless voter session', () => {
-  const mockUseAudioEnabled = vi.mocked(useAudioEnabled);
-  mockUseAudioEnabled.mockReturnValue(true);
-  audioControlsMock.setIsEnabled.mockClear();
-
   apiMock.expectGetUsbPortStatus();
 
   // Alarm plays when polls are open
@@ -240,8 +203,7 @@ test('mutes audio when polls open even without cardless voter session', () => {
   renderInAppContext(
     <SetupPrinterPage isCardlessVoterAuth={false} pollsState="polls_open" />
   );
-  // Audio is muted when alarm plays
-  expect(audioControlsMock.setIsEnabled).toHaveBeenLastCalledWith(false);
+  expect(vi.mocked(useMuteAudio)).toHaveBeenLastCalledWith(true);
 
   vi.advanceTimersByTime(5000);
 });
@@ -251,9 +213,6 @@ test('mutes audio when polls open even without cardless voter session', () => {
 // which now include expectToggleUsbPorts('disable')
 
 test('does not auto-disable USB ports if already disabled', () => {
-  const mockUseAudioEnabled = vi.mocked(useAudioEnabled);
-  mockUseAudioEnabled.mockReturnValue(true);
-
   // Re-setup with USB ports already disabled (override the beforeEach setup)
   apiMock.expectGetUsbPortStatus(false);
 
@@ -276,9 +235,6 @@ test('does not auto-disable USB ports if already disabled', () => {
 });
 
 test('shows re-enable USB button for poll worker when ports are disabled', async () => {
-  const mockUseAudioEnabled = vi.mocked(useAudioEnabled);
-  mockUseAudioEnabled.mockReturnValue(true);
-
   // Re-setup with USB ports disabled
   apiMock.expectGetUsbPortStatus(false);
 
@@ -301,9 +257,6 @@ test('shows re-enable USB button for poll worker when ports are disabled', async
 });
 
 test('does not show re-enable USB button when ports are already enabled', () => {
-  const mockUseAudioEnabled = vi.mocked(useAudioEnabled);
-  mockUseAudioEnabled.mockReturnValue(true);
-
   // USB ports are enabled
   apiMock.expectGetUsbPortStatus(true);
 
@@ -323,9 +276,6 @@ test('does not show re-enable USB button when ports are already enabled', () => 
 });
 
 test('re-enable USB button works correctly', async () => {
-  const mockUseAudioEnabled = vi.mocked(useAudioEnabled);
-  mockUseAudioEnabled.mockReturnValue(true);
-
   // Re-setup with USB ports disabled
   apiMock.expectGetUsbPortStatus(false);
 

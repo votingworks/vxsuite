@@ -44,7 +44,10 @@ test('returns external-facing audio context API', () => {
       <UiStringsAudioContext.Provider
         value={{
           api: mockUiStringsApi,
-          isEnabled: true,
+          isEnabledSetting: true,
+          isMuted: false,
+          setIsMuted: vi.fn(),
+          isPlaybackActive: true,
           isPaused: false,
           playbackRate: PlaybackRate.PERCENT_100,
           setIsPaused: vi.fn(),

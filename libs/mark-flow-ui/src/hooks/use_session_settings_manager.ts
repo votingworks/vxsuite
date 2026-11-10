@@ -70,6 +70,11 @@ export function useSessionSettingsManager(
    */
   const restoreVoterSettings = React.useCallback(() => {
     if (!voterSettings) {
+      saveVoterSettings({
+        isAudioEnabled,
+        language: currentLanguage,
+        theme: currentTheme,
+      });
       return;
     }
 
@@ -80,7 +85,15 @@ export function useSessionSettingsManager(
     );
     setLanguage(voterSettings.language);
     setAudioEnabled(voterSettings.isAudioEnabled);
-  }, [setAudioEnabled, setLanguage, voterSettings, voterSettingsManager]);
+  }, [
+    currentLanguage,
+    currentTheme,
+    isAudioEnabled,
+    setAudioEnabled,
+    setLanguage,
+    voterSettings,
+    voterSettingsManager,
+  ]);
 
   /**
    * Callback for resetting to setting defaults for non-voters:
