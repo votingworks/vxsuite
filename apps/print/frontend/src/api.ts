@@ -178,18 +178,6 @@ export const getTestMode = {
   },
 } as const;
 
-export const getBallots = {
-  // @coverage-defer
-  queryKey(): QueryKey {
-    return ['getBallots'];
-  },
-  // @coverage-defer
-  useQuery() {
-    const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getBallots({}));
-  },
-} as const;
-
 export const getBallotPrintCounts = {
   queryKey(): QueryKey {
     return ['getBallotPrintCounts'];

@@ -65,7 +65,7 @@ import {
 } from './reports/ballots_printed_report.js';
 import { printTestPage } from './printing/test_print.js';
 import { saveReadinessReport } from './reports/readiness.js';
-import type { BallotPrintEntry, DeviceStatuses } from './types.js';
+import type { DeviceStatuses } from './types.js';
 import { getMachineConfig } from './machine_config.js';
 import { findBallotStyleId } from './util/ballot_styles.js';
 import { getCurrentTime } from './util/get_current_time.js';
@@ -416,19 +416,6 @@ export function buildApi(ctx: AppContext) {
       jobId: PrintJobId;
     }): Result<PrintJobStatus, Error> {
       return printer.getJobStatus(input.jobId);
-    },
-
-    getBallots(input: {
-      ballotType?: BallotType;
-      languageCode?: LanguageCode;
-    }): BallotPrintEntry[] {
-      const isTestMode = store.getTestMode();
-      const ballotMode = isTestMode ? 'test' : 'official';
-
-      return store.getBallots({
-        ...input,
-        ballotMode,
-      });
     },
 
     getBallotPrintCounts(): BallotPrintCount[] {

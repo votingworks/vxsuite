@@ -174,10 +174,6 @@ function buildClientApi({
       return clientStore.getAppMode();
     },
 
-    getMachineMode(): MachineMode {
-      return machineMode.get();
-    },
-
     isMultiStationAdjudicationEnabled(): boolean {
       return isMultiStationAdjudicationEnabled();
     },

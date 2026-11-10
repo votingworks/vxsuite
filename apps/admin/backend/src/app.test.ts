@@ -87,15 +87,13 @@ test('uses default machine config if not set', async () => {
   });
 });
 
-test('getMachineMode and setMachineMode', async () => {
-  const { apiClient } = buildTestEnvironment();
-  expect(await apiClient.getMachineMode()).toEqual('host');
-
+test('setMachineMode', async () => {
+  const { apiClient, machineMode } = buildTestEnvironment();
   await apiClient.setMachineMode({ mode: 'client' });
-  expect(await apiClient.getMachineMode()).toEqual('client');
+  expect(machineMode.get()).toEqual('client');
 
   await apiClient.setMachineMode({ mode: 'host' });
-  expect(await apiClient.getMachineMode()).toEqual('host');
+  expect(machineMode.get()).toEqual('host');
 });
 
 test.each([{ helperReturns: true }, { helperReturns: false }])(

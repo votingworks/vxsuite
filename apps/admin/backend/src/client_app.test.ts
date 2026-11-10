@@ -26,17 +26,14 @@ import { buildClientApp, type ClientApi } from './client_app.js';
 import { isMultiStationAdjudicationEnabled } from './multi_station_config.js';
 import type { PeerApi } from './peer_app.js';
 import { createClientWorkspace } from './util/workspace.js';
-import {
-  ClientConnectionStatus,
-  type ElectionRecord,
-  type MachineMode,
-} from './types.js';
+import { ClientConnectionStatus, type ElectionRecord } from './types.js';
 
 import {
   attachUsbDrive,
   mockMachineLocked,
   mockSystemAdministratorAuth,
   buildMockLogger,
+  buildMemoryMachineModeController,
   devsdb,
 } from '../test/app.js';
 
@@ -53,18 +50,13 @@ function buildClientTestEnvironment() {
     logger,
     platform: usbPlatform,
   });
-  let machineMode: MachineMode = 'host';
+  const machineMode = buildMemoryMachineModeController();
   const app = buildClientApp({
     auth,
     workspace,
     logger,
     multiUsbDrive,
-    machineMode: {
-      get: () => machineMode,
-      set: (newMachineMode) => {
-        machineMode = newMachineMode;
-      },
-    },
+    machineMode,
   });
   const server = app.listen();
   const { port } = server.address() as AddressInfo;
@@ -80,6 +72,7 @@ function buildClientTestEnvironment() {
     apiClient,
     server,
     usbPlatform,
+    machineMode,
   };
 }
 
@@ -101,11 +94,6 @@ test('getMachineConfig returns machine config', async () => {
   });
 });
 
-test('getMachineMode returns host by default', async () => {
-  const mode = await env.apiClient.getMachineMode();
-  expect(mode).toEqual('host');
-});
-
 test.each([{ helperReturns: true }, { helperReturns: false }])(
   'isMultiStationAdjudicationEnabled returns $helperReturns when the helper returns $helperReturns',
   async ({ helperReturns }) => {
@@ -116,12 +104,12 @@ test.each([{ helperReturns: true }, { helperReturns: false }])(
   }
 );
 
-test('setMachineMode and getMachineMode round-trip', async () => {
+test('setMachineMode', async () => {
   await env.apiClient.setMachineMode({ mode: 'client' });
-  expect(await env.apiClient.getMachineMode()).toEqual('client');
+  expect(env.machineMode.get()).toEqual('client');
 
   await env.apiClient.setMachineMode({ mode: 'host' });
-  expect(await env.apiClient.getMachineMode()).toEqual('host');
+  expect(env.machineMode.get()).toEqual('host');
 });
 
 test('setMachineMode throws when election is configured', async () => {

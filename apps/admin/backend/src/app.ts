@@ -92,7 +92,6 @@ import type {
   WriteInCandidateRecord,
   ImportElectionResultsReportingError,
   ManualResultsMetadata,
-  CastVoteRecordVoteInfo,
   AdjudicatedCvr,
   AdjudicationError,
   AppMode,
@@ -312,10 +311,6 @@ function buildApi({
 
     getAppMode(): AppMode {
       return workspace.store.getAppMode();
-    },
-
-    getMachineMode(): MachineMode {
-      return machineMode.get();
     },
 
     async setMachineMode(input: { mode: MachineMode }): Promise<void> {
@@ -958,13 +953,6 @@ function buildApi({
       }
       adjudicateCvr(input, machineId, store, logger);
       return ok();
-    },
-
-    getCastVoteRecordVoteInfo(input: { cvrId: Id }): CastVoteRecordVoteInfo {
-      return store.getCastVoteRecordVoteInfo({
-        ...input,
-        electionId: loadCurrentElectionIdOrThrow(workspace),
-      });
     },
 
     getWriteInCandidates(
