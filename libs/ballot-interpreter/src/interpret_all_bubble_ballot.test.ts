@@ -8,7 +8,7 @@ import {
   type Candidate,
   type CandidateVote,
   DEFAULT_MARK_THRESHOLDS,
-  type ElectionDefinition,
+  type ElectionDefinitionWithData,
   HmpbBallotPaperSize,
 } from '@votingworks/types';
 import {
@@ -27,7 +27,7 @@ describe.each(Object.values(HmpbBallotPaperSize))(
       filledBallotPath,
       cyclingTestDeckPath,
     } = allBubbleBallotFixtures(paperSize);
-    let electionDefinition: ElectionDefinition;
+    let electionDefinition: ElectionDefinitionWithData;
     beforeAll(async () => {
       electionDefinition = (await readElection(electionPath)).unsafeUnwrap();
     });

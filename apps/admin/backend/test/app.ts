@@ -14,6 +14,7 @@ import {
   type Election,
   constructElectionKey,
   type ElectionDefinition,
+  type ElectionDefinitionWithData,
   type ElectionRegisteredVoterCounts,
   type SystemSettings,
   type BallotCandidateOrderings,
@@ -134,7 +135,7 @@ export function saveTmpFile(
 export async function configureMachine(
   apiClient: grout.Client<Api>,
   auth: DippedSmartCardAuthApi,
-  electionDefinition: ElectionDefinition,
+  electionDefinition: ElectionDefinitionWithData,
   opts: {
     ballotPositions?: BallotPositions[];
     candidateOrderings?: BallotCandidateOrderings[];

@@ -6,6 +6,7 @@ import {
   type District,
   type Election,
   type ElectionDefinition,
+  type ElectionDefinitionWithData,
   HmpbBallotPaperSize,
   type Party,
   type Precinct,
@@ -174,7 +175,7 @@ export function createTestElection(
  */
 export function createElectionDefinition(
   election: Election
-): ElectionDefinition {
+): ElectionDefinitionWithData {
   return parseElectionDefinition(JSON.stringify(election));
 }
 
@@ -184,7 +185,7 @@ export function createElectionDefinition(
 // @coverage-exclude
 export function createElectionDefinitionCdf(
   election: Election
-): ElectionDefinition {
+): ElectionDefinitionWithData {
   return parseElectionDefinition(
     JSON.stringify(
       convertVxfElectionToCdfBallotDefinition(
@@ -201,7 +202,7 @@ export function createElectionDefinitionCdf(
  */
 export function parseElectionDefinition(
   electionData: string
-): ElectionDefinition {
+): ElectionDefinitionWithData {
   return {
     ballotHash: hashElectionData(electionData),
     election: safeParseElection(electionData).unsafeUnwrap(),
@@ -215,7 +216,7 @@ export function parseElectionDefinition(
  */
 export function createUnnormalizedElectionDefinition(
   election: Election
-): ElectionDefinition {
+): ElectionDefinitionWithData {
   const [precinct, ...otherPrecincts] = election.precincts;
   return parseElectionDefinition(
     JSON.stringify({
@@ -230,13 +231,11 @@ export function createUnnormalizedElectionDefinition(
 }
 
 /** Returns `electionDefinition` as a store reads it back after import. */
-export function asStoredElectionDefinition(
-  electionDefinition: ElectionDefinition
-): ElectionDefinition {
-  return {
-    ...electionDefinition,
-    electionData: JSON.stringify(electionDefinition.election),
-  };
+export function asStoredElectionDefinition({
+  election,
+  ballotHash,
+}: ElectionDefinition): ElectionDefinition {
+  return { election, ballotHash };
 }
 
 /**

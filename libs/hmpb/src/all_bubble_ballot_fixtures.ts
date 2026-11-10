@@ -4,7 +4,7 @@ import {
   BallotType,
   type BaseBallotProps,
   type CandidateContest,
-  type ElectionDefinition,
+  type ElectionDefinitionWithData,
   formatBallotHash,
   type GridPositionOption,
   gridPositionsFromBallotPositions,
@@ -46,7 +46,7 @@ export interface AllBubbleBallotFixtures {
     rendererPool: RendererPool,
     scratchDir?: ScratchDir
   ): Promise<{
-    electionDefinition: ElectionDefinition;
+    electionDefinition: ElectionDefinitionWithData;
     blankBallotPdf: Uint8Array;
     filledBallotPdf: Uint8Array;
     cyclingTestDeckPdf: Uint8Array;

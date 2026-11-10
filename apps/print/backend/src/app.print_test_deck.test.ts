@@ -11,6 +11,7 @@ import type { Server } from 'node:http';
 import {
   BallotType,
   type ElectionDefinition,
+  type ElectionDefinitionWithData,
   type EncodedBallotEntry,
 } from '@votingworks/types';
 import { parseElectionDefinition } from '@votingworks/test-utils';
@@ -71,7 +72,7 @@ afterEach(() => {
 });
 
 async function loadMsElectionFixture(paperSize: 'letter' | 'legal'): Promise<{
-  electionDefinition: ElectionDefinition;
+  electionDefinition: ElectionDefinitionWithData;
   blankBallotPdf: Buffer;
 }> {
   const fixtureDir =

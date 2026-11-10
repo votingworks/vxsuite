@@ -2,7 +2,7 @@ import { Client } from '@votingworks/db';
 import { BaseLogger, LogSource } from '@votingworks/logging';
 import {
   DEFAULT_SYSTEM_SETTINGS,
-  type ElectionDefinition,
+  type ElectionDefinitionWithData,
 } from '@votingworks/types';
 import { chmodSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -56,9 +56,9 @@ export async function importElectionPackageForTest(
  * for tests that need values the package reader would reject or recompute.
  */
 export async function createElectionPackageDbForTest(
-  electionDefinition: ElectionDefinition,
+  electionDefinition: ElectionDefinitionWithData,
   electionRow: Partial<
-    Pick<ElectionDefinition, 'electionData' | 'ballotHash'>
+    Pick<ElectionDefinitionWithData, 'electionData' | 'ballotHash'>
   > = {}
 ): Promise<string> {
   const dbPath = join(

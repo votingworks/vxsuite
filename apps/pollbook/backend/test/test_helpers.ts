@@ -233,7 +233,6 @@ export function getTestElection(): Election {
 export function getTestElectionDefinition(): ElectionDefinition {
   const testElectionDefinition: ElectionDefinition = {
     election: getTestElection(),
-    electionData: '',
     ballotHash: 'test-ballot-hash',
   };
   return testElectionDefinition;

@@ -193,7 +193,7 @@ describe('createElectionDefinition', () => {
   });
 });
 
-test('asStoredElectionDefinition replaces electionData with the serialized election', () => {
+test('asStoredElectionDefinition drops electionData', () => {
   const electionDefinition = createElectionDefinition(
     createTestElection({
       numCandidateContests: 1,
@@ -202,9 +202,9 @@ test('asStoredElectionDefinition replaces electionData with the serialized elect
     })
   );
 
-  expect(asStoredElectionDefinition(electionDefinition)).toEqual({
-    ...electionDefinition,
-    electionData: JSON.stringify(electionDefinition.election),
+  expect(asStoredElectionDefinition(electionDefinition)).toStrictEqual({
+    election: electionDefinition.election,
+    ballotHash: electionDefinition.ballotHash,
   });
 });
 

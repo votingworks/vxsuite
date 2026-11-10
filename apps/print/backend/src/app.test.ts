@@ -17,6 +17,7 @@ import {
   DEV_MACHINE_ID,
   type EncodedBallotEntry,
   type ElectionDefinition,
+  type ElectionDefinitionWithData,
   ElectionPackageFileName,
   HmpbBallotPaperSize,
   LanguageCode,
@@ -114,10 +115,10 @@ vi.mock(
 
 // Pre-built election definitions and ballots for common test scenarios
 interface SharedFixtures {
-  famousNamesMultiLangElectionDefinition: ElectionDefinition;
+  famousNamesMultiLangElectionDefinition: ElectionDefinitionWithData;
   famousNamesMultiLangOfficialBallots: EncodedBallotEntry[];
   famousNamesMultiLangOfficialAndTestBallots: EncodedBallotEntry[];
-  primaryPrecinctSplitsMultiLangElectionDefinition: ElectionDefinition;
+  primaryPrecinctSplitsMultiLangElectionDefinition: ElectionDefinitionWithData;
   primaryPrecinctSplitsMultiLangOfficialBallots: EncodedBallotEntry[];
 }
 
@@ -1348,7 +1349,7 @@ async function buildTestBallotsForElection(
   return entries;
 }
 
-async function makeMsElectionDefinition(): Promise<ElectionDefinition> {
+async function makeMsElectionDefinition(): Promise<ElectionDefinitionWithData> {
   return parseElectionDefinition(
     await readFile(msGeneralElectionFixtures.electionPath, 'utf-8')
   );

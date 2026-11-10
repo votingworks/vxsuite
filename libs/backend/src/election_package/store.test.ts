@@ -18,7 +18,6 @@ import {
   type BallotStyle,
   type ContestPosition,
   type Election,
-  type ElectionDefinition,
   type EncodedBallotEntry,
   type SystemSettings,
 } from '@votingworks/types';
@@ -61,8 +60,7 @@ const election: Election = {
   ...baseElection,
   ballotStyles: [style1, style2],
 };
-const electionDefinition: ElectionDefinition =
-  createElectionDefinition(election);
+const electionDefinition = createElectionDefinition(election);
 const jurisdiction = 'jurisdiction-1';
 const INCLUDE_ALL = {
   uiStrings: true,

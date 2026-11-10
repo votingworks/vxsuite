@@ -14,7 +14,6 @@ function getMockElectionDefinition(): ElectionDefinition {
   const today = getCurrentTime();
   return {
     ballotHash: '00000000000000000000',
-    electionData: 'test-election-data',
     election: {
       id: 'test-election-id',
       state: 'Test State',

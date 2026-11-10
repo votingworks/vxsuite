@@ -9,7 +9,7 @@ import { voteToOptionId } from '@votingworks/hmpb';
 import { pdfToImages } from '@votingworks/image-utils/pdf';
 import type {
   ContestId,
-  ElectionDefinition,
+  ElectionDefinitionWithData,
   GridPosition,
   RgbaImageData,
   UnmarkedWriteIn,
@@ -20,8 +20,10 @@ import { readFileSync } from 'node:fs';
 
 /** Imports `electionDefinition` into a temporary election package DB and returns its path. */
 export function makeInterpreterDb(
-  electionDefinition: ElectionDefinition,
-  electionRow?: Partial<Pick<ElectionDefinition, 'electionData' | 'ballotHash'>>
+  electionDefinition: ElectionDefinitionWithData,
+  electionRow?: Partial<
+    Pick<ElectionDefinitionWithData, 'electionData' | 'ballotHash'>
+  >
 ): Promise<string> {
   return createElectionPackageDbForTest(electionDefinition, electionRow);
 }

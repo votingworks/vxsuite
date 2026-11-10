@@ -692,7 +692,12 @@ test('Election package and ballots export', async () => {
 
   // Assert that an indented election.json was exported.
   // (Should only be compact when the `splitElectionDefinition` setting is on).
-  const { electionData } = electionDefinition;
+  const electionData = await readTextEntry(
+    getFileByName(
+      getEntries(await openZip(electionPackageContents)),
+      ElectionPackageFileName.ELECTION
+    )
+  );
   expect(electionData).toContain('\n');
 
   //

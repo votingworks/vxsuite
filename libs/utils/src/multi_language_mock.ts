@@ -2,6 +2,7 @@ import {
   hashElectionData,
   type Election,
   type ElectionDefinition,
+  type ElectionDefinitionWithData,
 } from '@votingworks/types';
 import { generateBallotStyleId } from './ballot_styles.js';
 
@@ -10,7 +11,7 @@ import { generateBallotStyleId } from './ballot_styles.js';
 export function getMockMultiLanguageElectionDefinition(
   electionDefinition: ElectionDefinition,
   languages: string[]
-): ElectionDefinition {
+): ElectionDefinitionWithData {
   const { election } = electionDefinition;
   const modifiedElection: Election = {
     ...election,

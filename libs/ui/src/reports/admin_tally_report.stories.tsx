@@ -23,7 +23,6 @@ import { PrintedReportPreview } from './layout.js';
 const electionTwoPartyPrimaryDefinition: ElectionDefinition = {
   ballotHash: 'cafef00d',
   election: safeParseElection(electionTwoPartyPrimaryData).unsafeUnwrap(),
-  electionData: 'irrelevant',
 };
 const { election } = electionTwoPartyPrimaryDefinition;
 const { contests } = election;

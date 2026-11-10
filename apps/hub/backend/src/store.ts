@@ -1342,7 +1342,6 @@ export class Store {
     return ok({
       ballotHash: row.ballotHash,
       election: parseResult.ok(),
-      electionData: row.electionData,
     });
   }
 

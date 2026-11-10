@@ -176,7 +176,6 @@ export class ElectionPackageStore<
             electionDefinition: {
               ballotHash: row.ballotHash,
               election: parseValidatedElection(row.electionData),
-              electionData: row.electionData,
             },
             electionPackageHash: row.electionPackageHash,
           }

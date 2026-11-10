@@ -2,7 +2,7 @@ import {
   type BallotCandidateOrderings,
   type BallotPositions,
   DEFAULT_SYSTEM_SETTINGS,
-  type ElectionPackage,
+  type ElectionPackageWithData,
   ElectionPackageFileName,
   type EncodedBallotEntry,
   LATEST_METADATA,
@@ -22,8 +22,8 @@ import { zipFile } from '@votingworks/test-utils';
  * Used to build packages with arbitrary file combinations, including ones
  * intentionally missing files to exercise reader error paths.
  */
-export type PartialElectionPackage = Partial<ElectionPackage> &
-  Pick<ElectionPackage, 'electionDefinition'> & {
+export type PartialElectionPackage = Partial<ElectionPackageWithData> &
+  Pick<ElectionPackageWithData, 'electionDefinition'> & {
     ballots?: EncodedBallotEntry[];
     ballotPositions?: BallotPositions[];
     candidateOrderings?: BallotCandidateOrderings[];

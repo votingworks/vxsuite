@@ -1,7 +1,7 @@
 import type {
   ContestPosition,
   Election,
-  ElectionDefinition,
+  ElectionDefinitionWithData,
   SheetPositions,
 } from '@votingworks/types';
 import * as builders from '../builders.js';
@@ -62,6 +62,6 @@ export function makeMultiSheetElection(): Election {
  * Election definition with mock multi-sheet grid layouts. The layouts are invalid and
  * cannot be used for scanning, but the data structure is useful for testing.
  */
-export function makeMultiSheetElectionDefinition(): ElectionDefinition {
+export function makeMultiSheetElectionDefinition(): ElectionDefinitionWithData {
   return asElectionDefinition(makeMultiSheetElection());
 }

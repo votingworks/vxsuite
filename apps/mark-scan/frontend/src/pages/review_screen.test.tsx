@@ -77,7 +77,6 @@ describe('propagates candidate orderings', () => {
       electionDefinition: {
         ballotHash: 'unused',
         election: electionGeneral,
-        electionData: 'unused',
       },
       precinctId: ballotStyle.precincts[0],
     });

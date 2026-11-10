@@ -1078,17 +1078,12 @@ export const ElectionSchema = z
 export type OptionalElection = Optional<Election>;
 
 /**
- * @deprecated New usage of this type is highly discouraged. If being used as a
- * parameter, consider accepting separate explicit pieces of the election data
- * subset needed for the API.
+ * @deprecated `Election` alone no longer describes a configuration: ballot
+ * positions and candidate orderings may live outside it, and `ballotHash`
+ * covers them too. Prefer accepting just the pieces an API needs.
  */
 export interface ElectionDefinition {
   election: Election;
-  /**
-   * The election file's original bytes, except on a definition read back from
-   * a machine's store, where it is the normalized VXF `Election` JSON.
-   */
-  electionData: string;
   /**
    * A hash of the election file as originally imported. This hash is encoded
    * on ballots and verified by tabulators to ensure that the ballots and the
@@ -1100,6 +1095,14 @@ export interface ElectionDefinition {
    * would be potentially insecure.
    */
   ballotHash: string;
+}
+
+/**
+ * @deprecated See {@link ElectionDefinition}. Carries the exact `election.json`
+ * bytes for code that writes election packages.
+ */
+export interface ElectionDefinitionWithData extends ElectionDefinition {
+  electionData: string;
 }
 
 export const ELECTION_SERIALIZATION_FORMATS = ['vxf', 'cdf'] as const;
