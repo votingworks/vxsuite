@@ -14,7 +14,6 @@ use std::os::unix::ffi::OsStrExt;
 use std::panic::{AssertUnwindSafe, catch_unwind};
 use std::path::Path;
 use std::ptr;
-use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::mpsc::{self, Receiver, Sender};
 use std::sync::{Mutex, PoisonError};
 
@@ -448,8 +447,8 @@ pub enum Event {
     OperationalState(i32),
 }
 
+/// Where the callbacks send events; `Some` exactly while a [`Driver`] exists.
 static EVENTS: Mutex<Option<Sender<Event>>> = Mutex::new(None);
-static CONNECTED: AtomicBool = AtomicBool::new(false);
 
 fn emit(event: Event) {
     let guard = EVENTS.lock().unwrap_or_else(PoisonError::into_inner);
@@ -617,18 +616,25 @@ impl Driver {
         app_id: &str,
         schema: ProfileSchema,
     ) -> Result<(Self, Receiver<Event>), Error> {
-        if CONNECTED.swap(true, Ordering::AcqRel) {
-            return Err(Error::AlreadyConnected);
+        let (tx, rx) = mpsc::channel();
+        {
+            let mut events = EVENTS.lock().unwrap_or_else(PoisonError::into_inner);
+            if events.is_some() {
+                return Err(Error::AlreadyConnected);
+            }
+            *events = Some(tx);
         }
 
-        Self::connect_inner(library_path, app_id, schema).inspect_err(|_| Self::release_globals())
+        let driver = Self::connect_inner(library_path, app_id, schema)
+            .inspect_err(|_| Self::clear_events())?;
+        Ok((driver, rx))
     }
 
     fn connect_inner(
         library_path: &Path,
         app_id: &str,
         schema: ProfileSchema,
-    ) -> Result<(Self, Receiver<Event>), Error> {
+    ) -> Result<Self, Error> {
         // SAFETY: the signatures in `Symbols` mirror the driver's own headers.
         let symbols = unsafe { Symbols::load(library_path) }?;
 
@@ -653,8 +659,6 @@ impl Driver {
         }
 
         let app_id = CString::new(app_id)?;
-        let (tx, rx) = mpsc::channel();
-        *EVENTS.lock().unwrap_or_else(PoisonError::into_inner) = Some(tx);
 
         // SAFETY: the trampolines match the header's callback signatures, and the driver only
         // invokes them between here and `ScannerDisconnect`.
@@ -679,18 +683,14 @@ impl Driver {
             )?;
         }
 
-        Ok((
-            Self {
-                symbols,
-                _not_sync: PhantomData,
-            },
-            rx,
-        ))
+        Ok(Self {
+            symbols,
+            _not_sync: PhantomData,
+        })
     }
 
-    fn release_globals() {
+    fn clear_events() {
         *EVENTS.lock().unwrap_or_else(PoisonError::into_inner) = None;
-        CONNECTED.store(false, Ordering::Release);
     }
 
     /// Reads driver-maintained state; does not talk to the device.
@@ -856,7 +856,7 @@ impl Drop for Driver {
             let _ = (self.symbols.ScannerDisconnect)();
             let _ = (self.symbols.SetCB_LogFunctionCB)(ptr::null_mut());
         }
-        Self::release_globals();
+        Self::clear_events();
     }
 }
 
