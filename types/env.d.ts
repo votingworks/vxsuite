@@ -74,6 +74,7 @@ declare namespace NodeJS {
     VX_CONFIG_ROOT?: string;
     VX_MACHINE_ID?: string;
     VX_MACHINE_JURISDICTION?: string;
+    VX_MACHINE_STATE?: string;
     VX_MACHINE_TYPE?:
       | 'admin'
       | 'central-scan'

@@ -33,7 +33,7 @@ beforeEach(() => {
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.ENABLE_ADMIN_ELECTION_DESIGN
   );
-  vi.stubEnv('VX_MACHINE_JURISDICTION', 'vx.test');
+  vi.stubEnv('VX_MACHINE_STATE', 'DEMO');
   vi.useFakeTimers({ toFake: ['Date'], now: new Date('2026-11-05T12:00:00') });
 });
 
@@ -247,7 +247,7 @@ test('unconfiguring removes the election definition', async () => {
 });
 
 test('unsupported machine state', async () => {
-  vi.stubEnv('VX_MACHINE_JURISDICTION', 'mi.kent');
+  vi.stubEnv('VX_MACHINE_STATE', 'MI');
   const { apiClient: api, auth } = buildTestEnvironment();
   mockSystemAdministratorAuth(auth);
 
