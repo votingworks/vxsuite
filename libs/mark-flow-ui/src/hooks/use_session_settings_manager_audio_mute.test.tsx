@@ -7,7 +7,7 @@ import {
   QUERY_CLIENT_DEFAULT_OPTIONS,
   UiStringsContextProvider,
   useAudioControls,
-  useAudioEnabled,
+  useAudioEnabledByUser,
   useMuteAudio,
   type UiStringsApiClient,
 } from '@votingworks/ui';
@@ -77,7 +77,7 @@ function useTestHook() {
 
   return {
     audioControls: useAudioControls(),
-    isAudioEnabled: useAudioEnabled(),
+    isAudioEnabled: useAudioEnabledByUser(),
     setAuthStatus,
     setIsAlarmActive,
   };

@@ -84,7 +84,7 @@ export function UiStringsAudioContextProvider(
   props: UiStringsAudioContextProviderProps
 ): JSX.Element {
   const { api, children } = props;
-  const [isEnabledByUser, setIsEnabledInternal] = React.useState(
+  const [isEnabledByUser, setIsEnabledByUserInternal] = React.useState(
     DEFAULT_AUDIO_ENABLED_STATE
   );
   const [isMutedBySystem, setIsMutedBySystem] = React.useState(false);
@@ -112,7 +112,7 @@ export function UiStringsAudioContextProvider(
   const setIsEnabled = React.useCallback(
     (enabled: boolean) => {
       if (headphonesPluggedIn) {
-        setIsEnabledInternal(enabled);
+        setIsEnabledByUserInternal(enabled);
       }
     },
     [headphonesPluggedIn]
@@ -125,7 +125,7 @@ export function UiStringsAudioContextProvider(
   }, [resetPlaybackSettings, setIsEnabled]);
 
   React.useEffect(
-    () => setIsEnabledInternal(headphonesPluggedIn),
+    () => setIsEnabledByUserInternal(headphonesPluggedIn),
     [headphonesPluggedIn]
   );
 

@@ -5,11 +5,11 @@ import { useAudioControls } from '../hooks/use_audio_controls.js';
 import { Icons } from '../icons.js';
 import { appStrings } from './app_strings.js';
 import { WithAltAudio } from './with_alt_audio.js';
-import { useAudioEnabled } from '../hooks/use_audio_enabled.js';
+import { useAudioEnabledByUser } from '../hooks/use_audio_enabled_by_user.js';
 import { useHeadphonesPluggedIn } from '../hooks/use_headphones_plugged_in.js';
 
 export function ToggleAudioButton(): React.ReactNode {
-  const isAudioEnabled = useAudioEnabled();
+  const isAudioEnabled = useAudioEnabledByUser();
   const headphonesPluggedIn = useHeadphonesPluggedIn();
   const audioControls = useAudioControls();
 

@@ -1,5 +1,5 @@
 import { describe, expect, test, vi } from 'vitest';
-import { useAudioEnabled } from '@votingworks/ui';
+import { useAudioEnabledByUser } from '@votingworks/ui';
 import { mockUseAudioControls } from '@votingworks/test-utils';
 import { deferred, sleep } from '@votingworks/basics';
 import { renderHook } from '../test/react_testing_library.js';
@@ -14,10 +14,10 @@ const mockAudioControls = mockUseAudioControls(vi.fn);
 vi.mock('@votingworks/ui', async () => ({
   ...(await vi.importActual('@votingworks/ui')),
   useAudioControls: () => mockAudioControls,
-  useAudioEnabled: vi.fn(),
+  useAudioEnabledByUser: vi.fn(),
 }));
 
-const mockUseAudioEnabled = vi.mocked(useAudioEnabled);
+const mockUseAudioEnabled = vi.mocked(useAudioEnabledByUser);
 
 describe('playSound', () => {
   test('mutes TTS audio while server sound is playing', async () => {

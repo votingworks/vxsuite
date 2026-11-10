@@ -21,7 +21,7 @@ import {
   createUiStringsApi,
   createSystemCallApi,
   useAudioControls,
-  useAudioEnabled,
+  useAudioEnabledByUser,
 } from '@votingworks/ui';
 import type { DiagnosticRecord } from '@votingworks/types';
 
@@ -643,7 +643,7 @@ export function usePlaySoundMutation(
   useClient: () => Pick<ApiClient, 'playSound'>
 ): UseMutationResult<void, unknown, { name: SoundName }, unknown> {
   const ttsAudio = useAudioControls();
-  const ttsWasEnabled = React.useRef(useAudioEnabled());
+  const ttsWasEnabled = React.useRef(useAudioEnabledByUser());
 
   const apiClient = useClient();
   return useMutation(async (input: { name: SoundName }) => {

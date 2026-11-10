@@ -4,7 +4,7 @@ import {
   type LanguageControls,
   useCurrentLanguage,
   VoterSettingsManagerContext,
-  useAudioEnabled,
+  useAudioEnabledByUser,
 } from '@votingworks/ui';
 import { type DefaultTheme, ThemeContext } from 'styled-components';
 import React from 'react';
@@ -22,14 +22,14 @@ const mockLanguageControls: Mocked<LanguageControls> = {
   reset: vi.fn(),
   setLanguage: vi.fn(),
 };
-const mockUseAudioEnabled = vi.mocked(useAudioEnabled);
+const mockUseAudioEnabled = vi.mocked(useAudioEnabledByUser);
 const mockUseCurrentLanguage = vi.mocked(useCurrentLanguage);
 
 vi.mock('@votingworks/ui', async () => ({
   ...(await vi.importActual('@votingworks/ui')),
   useAudioControls: () => mockAudioControls,
   useLanguageControls: () => mockLanguageControls,
-  useAudioEnabled: vi.fn(),
+  useAudioEnabledByUser: vi.fn(),
   useCurrentLanguage: vi.fn(),
 }));
 

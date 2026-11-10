@@ -4,7 +4,7 @@ import type { DefaultTheme } from 'styled-components';
 import {
   VoterSettingsManagerContext,
   useAudioControls,
-  useAudioEnabled,
+  useAudioEnabledByUser,
   useCurrentLanguage,
   useCurrentTheme,
   useLanguageControls,
@@ -39,7 +39,7 @@ export function useSessionSettingsManager(
   const { setIsEnabled: setAudioEnabled } = useAudioControls();
   const { reset: resetLanguage, setLanguage } = useLanguageControls();
   const currentLanguage = useCurrentLanguage();
-  const isAudioEnabled = useAudioEnabled();
+  const isAudioEnabled = useAudioEnabledByUser();
 
   const isLoggedInAsVoter = isCardlessVoterAuth(authStatus);
 
