@@ -230,48 +230,6 @@ fn check(function: &'static str, code: u32) -> Result<(), Error> {
     }
 }
 
-/// A NUL-terminated string the library allocated. Freed with `FreeBuffer` on drop.
-pub struct VendorString(NonNull<c_char>);
-
-// SAFETY: the buffer is plain memory owned exclusively by this value.
-unsafe impl Send for VendorString {}
-unsafe impl Sync for VendorString {}
-
-impl VendorString {
-    /// Takes ownership of a library-allocated string; `None` for null.
-    ///
-    /// # Safety
-    /// `ptr` must be null or a NUL-terminated buffer from the vendor library that nothing else
-    /// will free.
-    pub unsafe fn from_raw(ptr: *mut c_char) -> Option<Self> {
-        NonNull::new(ptr).map(Self)
-    }
-
-    #[must_use]
-    pub fn as_c_str(&self) -> &CStr {
-        // SAFETY: the library guarantees NUL termination and we own the buffer.
-        unsafe { CStr::from_ptr(self.0.as_ptr()) }
-    }
-
-    #[must_use]
-    pub fn to_string_lossy(&self) -> String {
-        self.as_c_str().to_string_lossy().into_owned()
-    }
-}
-
-impl Drop for VendorString {
-    fn drop(&mut self) {
-        // SAFETY: allocated by the library, owned by us, freed once.
-        unsafe { vendor_heap::free(self.0.as_ptr().cast()) }
-    }
-}
-
-impl fmt::Debug for VendorString {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        fmt::Debug::fmt(self.as_c_str(), f)
-    }
-}
-
 /// Calls a `uint32_t f(char** out)` function, taking ownership of the result.
 ///
 /// # Safety
@@ -281,12 +239,15 @@ unsafe fn fetch_string(
     f: unsafe extern "C" fn(*mut *mut c_char) -> u32,
 ) -> Result<String, Error> {
     let mut out: *mut c_char = ptr::null_mut();
-    // SAFETY: caller's contract.
+    // SAFETY: caller's contract; the result is NUL-terminated, ours, and freed once.
     unsafe {
         check(function, f(&raw mut out))?;
-        Ok(VendorString::from_raw(out)
-            .map(|s| s.to_string_lossy())
-            .unwrap_or_default())
+        if out.is_null() {
+            return Ok(String::new());
+        }
+        let string = CStr::from_ptr(out).to_string_lossy().into_owned();
+        vendor_heap::free(out.cast());
+        Ok(string)
     }
 }
 
@@ -326,7 +287,6 @@ pub struct Image {
 
 // SAFETY: both buffers are plain memory owned exclusively by this value and never mutated.
 unsafe impl Send for Image {}
-unsafe impl Sync for Image {}
 
 macro_rules! prop {
     ($self:expr, $field:ident) => {
@@ -1084,8 +1044,7 @@ mod tests {
     #[test]
     fn new_c_string_is_nul_terminated() {
         let p = vendor_heap::new_c_string(b"profile");
-        let s = unsafe { VendorString::from_raw(p) }.unwrap();
-        assert_eq!(s.as_c_str().to_bytes(), b"profile");
-        assert!(unsafe { VendorString::from_raw(ptr::null_mut()) }.is_none());
+        assert_eq!(unsafe { CStr::from_ptr(p) }.to_bytes(), b"profile");
+        unsafe { vendor_heap::free(p.cast()) };
     }
 }
