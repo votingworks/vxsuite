@@ -512,6 +512,14 @@ unsafe extern "C" fn image_trampoline(info: *mut ffi::ImageInfo_t, data: *mut u8
     }
 }
 
+/// Which side of the sheet an imprinter template applies to.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub enum ImprinterSide {
+    Front,
+    Back,
+}
+
 /// Driver-maintained scanner state, raw; see [`ApiState`] and [`OperationalState`].
 #[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -825,12 +833,16 @@ impl Driver {
         check("ScanContinue", unsafe { (self.symbols.ScanContinue)() })
     }
 
-    /// Sets the imprinter template (with `%CNT1%`-style variables). Undocumented export.
-    pub fn set_printer_string(&self, text: &str) -> Result<(), Error> {
+    /// Sets one side's imprinter template (with `%CNT1%`-style variables). Undocumented export.
+    pub fn set_printer_string(&self, side: ImprinterSide, text: &str) -> Result<(), Error> {
+        let side = match side {
+            ImprinterSide::Front => 0,
+            ImprinterSide::Back => 1,
+        };
         let text = CString::new(text)?;
         // SAFETY: the driver only reads the string during the call.
         check("SetPrinterstring", unsafe {
-            (self.symbols.SetPrinterstring)(text.as_ptr())
+            (self.symbols.SetPrinterstring)(side, text.as_ptr())
         })
     }
 

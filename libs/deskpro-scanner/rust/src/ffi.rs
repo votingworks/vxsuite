@@ -334,7 +334,7 @@ pub struct Symbols {
     pub GetFeederSide: unsafe extern "C" fn() -> u32,
     pub GetScannerOperationalState: unsafe extern "C" fn() -> u32,
     pub SetNumberOfSheets: unsafe extern "C" fn(u32) -> u32,
-    pub SetPrinterstring: unsafe extern "C" fn(*const c_char) -> u32,
+    pub SetPrinterstring: unsafe extern "C" fn(u32, *const c_char) -> u32,
     pub SetCounter: unsafe extern "C" fn(u32, i64) -> u32,
     pub GetScannerSetupDefault: unsafe extern "C" fn(*mut *mut c_char) -> u32,
     pub GetScannerSetupListSync: unsafe extern "C" fn(*mut *mut c_char) -> u32,

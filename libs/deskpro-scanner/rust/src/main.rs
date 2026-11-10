@@ -318,8 +318,8 @@ impl Session {
             CommandBody::ScanStop => self.with_driver(|driver| driver.scan_stop().map(ok)),
             CommandBody::ScanPause => self.with_driver(|driver| driver.scan_break().map(ok)),
             CommandBody::ScanResume => self.with_driver(|driver| driver.scan_continue().map(ok)),
-            CommandBody::SetImprinterText { text } => {
-                self.with_driver(|driver| driver.set_printer_string(text).map(ok))
+            CommandBody::SetImprinterText { side, text } => {
+                self.with_driver(|driver| driver.set_printer_string(*side, text).map(ok))
             }
             CommandBody::SetCounter { index, value } => {
                 self.with_driver(|driver| driver.set_counter(u32::from(*index), *value).map(ok))

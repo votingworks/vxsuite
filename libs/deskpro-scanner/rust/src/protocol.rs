@@ -119,6 +119,7 @@ pub enum CommandBody {
     ScanPause,
     ScanResume,
     SetImprinterText {
+        side: ImprinterSide,
         text: String,
     },
     SetCounter {
@@ -151,7 +152,7 @@ pub enum ErrorCode {
     Other,
 }
 
-pub use crate::driver::Status;
+pub use crate::driver::{ImprinterSide, Status};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Response {
@@ -333,6 +334,7 @@ mod tests {
             (
                 "setImprinterText",
                 C::SetImprinterText {
+                    side: ImprinterSide::Back,
                     text: "batch7_%NMC4%%CNT1%".to_owned(),
                 },
             ),

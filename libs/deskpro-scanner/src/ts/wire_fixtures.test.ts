@@ -48,7 +48,11 @@ const EXPECTED: Record<string, Expected> = {
   'command.scanPause': { command: { kind: 'scanPause' } },
   'command.scanResume': { command: { kind: 'scanResume' } },
   'command.setImprinterText': {
-    command: { kind: 'setImprinterText', text: 'batch7_%NMC4%%CNT1%' },
+    command: {
+      kind: 'setImprinterText',
+      side: 'back',
+      text: 'batch7_%NMC4%%CNT1%',
+    },
   },
   'command.setCounter': {
     command: { kind: 'setCounter', index: 1, value: -9_000_000_000 },

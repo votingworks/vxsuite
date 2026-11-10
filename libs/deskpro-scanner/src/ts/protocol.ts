@@ -108,13 +108,20 @@ export type Command =
   | { readonly kind: 'scanStop' }
   | { readonly kind: 'scanPause' }
   | { readonly kind: 'scanResume' }
-  | { readonly kind: 'setImprinterText'; readonly text: string }
+  | {
+      readonly kind: 'setImprinterText';
+      readonly side: ImprinterSide;
+      readonly text: string;
+    }
   | {
       readonly kind: 'setCounter';
       readonly index: number;
       readonly value: number;
     }
   | { readonly kind: 'setNumberOfSheets'; readonly count: number };
+
+/** Which side of the sheet an imprinter template applies to. */
+export type ImprinterSide = 'front' | 'back';
 
 const CommandSchema: z.ZodType<Command> = z.discriminatedUnion('kind', [
   z.object({ kind: z.literal('exit') }),
@@ -129,7 +136,11 @@ const CommandSchema: z.ZodType<Command> = z.discriminatedUnion('kind', [
   z.object({ kind: z.literal('scanStop') }),
   z.object({ kind: z.literal('scanPause') }),
   z.object({ kind: z.literal('scanResume') }),
-  z.object({ kind: z.literal('setImprinterText'), text: z.string() }),
+  z.object({
+    kind: z.literal('setImprinterText'),
+    side: z.enum(['front', 'back']),
+    text: z.string(),
+  }),
   z.object({ kind: z.literal('setCounter'), index: U8, value: I64 }),
   z.object({ kind: z.literal('setNumberOfSheets'), count: U32 }),
 ]);

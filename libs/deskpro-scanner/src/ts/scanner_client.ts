@@ -19,6 +19,7 @@ import {
   FRAME_HEADER_LENGTH,
   FrameType,
   type Hello,
+  type ImprinterSide,
   ProtocolError,
   type ResponseBody,
   type ScannedImage,
@@ -248,8 +249,11 @@ export class ScannerClient extends EventEmitter<ScannerClientEvents> {
     return this.expectOk({ kind: 'scanResume' });
   }
 
-  setImprinterText(text: string): Promise<ScannerResult<void>> {
-    return this.expectOk({ kind: 'setImprinterText', text });
+  setImprinterText(
+    side: ImprinterSide,
+    text: string
+  ): Promise<ScannerResult<void>> {
+    return this.expectOk({ kind: 'setImprinterText', side, text });
   }
 
   setCounter(index: number, value: number): Promise<ScannerResult<void>> {

@@ -90,7 +90,7 @@ test.each([
   ['scanStop', (c: ScannerClient) => c.scanStop()],
   ['scanPause', (c: ScannerClient) => c.scanPause()],
   ['scanResume', (c: ScannerClient) => c.scanResume()],
-  ['setImprinterText', (c: ScannerClient) => c.setImprinterText('x')],
+  ['setImprinterText', (c: ScannerClient) => c.setImprinterText('front', 'x')],
   ['setCounter', (c: ScannerClient) => c.setCounter(1, 5)],
   ['setNumberOfSheets', (c: ScannerClient) => c.setNumberOfSheets(25)],
 ] as const)('%s sends its own command and accepts ok', async (kind, call) => {
@@ -400,7 +400,7 @@ test('the real daemon reports notConnected for every command needing a driver', 
     client.scanResume(),
     client.setReady(true),
     client.setProfile('a = 1\n'),
-    client.setImprinterText('batch7_%CNT1%'),
+    client.setImprinterText('back', 'batch7_%CNT1%'),
     client.setCounter(1, 0),
     client.setNumberOfSheets(25),
   ])) {
