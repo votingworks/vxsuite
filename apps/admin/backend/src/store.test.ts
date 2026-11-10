@@ -18,6 +18,7 @@ import {
   type Id,
   type Election,
   type ElectionRegisteredVoterCounts,
+  type Precinct,
   type SystemSettings,
   type BallotCandidateOrderings,
   type BallotPositions,
@@ -2751,5 +2752,379 @@ describe('design districts', () => {
 
     store.electionDefinition.deleteInProgressElection();
     expect(store.electionDefinition.listDistricts(electionId)).toEqual([]);
+  });
+});
+
+describe('design precincts', () => {
+  const electionId = 'design-election';
+  const districts = [
+    { id: 'd1', name: 'District 1' },
+    { id: 'd2', name: 'District 2' },
+    { id: 'd3', name: 'District 3' },
+  ];
+
+  function setUpStore(): Store {
+    const store = Store.memoryStore(makeTemporaryDirectory());
+    store.electionDefinition.createInProgressElection({
+      electionId,
+      type: 'general',
+      date: new DateWithoutTime('2026-11-03'),
+      title: '',
+      state: 'DEMO',
+      jurisdictionName: '',
+      seal: '',
+      languageCodes: [LanguageCode.ENGLISH],
+    });
+    store.electionDefinition
+      .updateDistricts({
+        electionId,
+        newDistricts: districts,
+      })
+      .unsafeUnwrap();
+    return store;
+  }
+
+  const splitPrecinct: Precinct = {
+    id: 'p1',
+    name: 'Precinct 1',
+    splits: [
+      { id: 's10', name: 'Split 10', districtIds: ['d3'] },
+      {
+        id: 's2',
+        name: 'Split 2',
+        districtIds: ['d2', 'd1'],
+        electionTitleOverride: 'Title Override',
+        electionSealOverride: '<svg>seal</svg>',
+        clerkSignatureImage: '<svg>signature</svg>',
+        clerkSignatureCaption: 'Caption',
+      },
+    ],
+  };
+
+  const listedSplitPrecinct: Precinct = {
+    id: 'p1',
+    name: 'Precinct 1',
+    splits: [
+      {
+        id: 's2',
+        name: 'Split 2',
+        districtIds: ['d1', 'd2'],
+        electionTitleOverride: 'Title Override',
+        electionSealOverride: '<svg>seal</svg>',
+        clerkSignatureImage: '<svg>signature</svg>',
+        clerkSignatureCaption: 'Caption',
+      },
+      { id: 's10', name: 'Split 10', districtIds: ['d3'] },
+    ],
+  };
+
+  test('create, list, update and delete precincts', () => {
+    const store = setUpStore();
+    expect(store.electionDefinition.listPrecincts(electionId)).toEqual([]);
+    expect(
+      store.electionDefinition.getRegisteredVoterCounts(electionId)
+    ).toEqual({});
+
+    expect(
+      store.electionDefinition.createPrecinct({
+        electionId,
+        newPrecinct: {
+          id: 'p10',
+          name: 'Precinct 10',
+          districtIds: ['d2', 'd1'],
+        },
+        registeredVoterCounts: 100,
+      })
+    ).toEqual(ok());
+    expect(
+      store.electionDefinition.createPrecinct({
+        electionId,
+        newPrecinct: splitPrecinct,
+        registeredVoterCounts: { splits: { s2: 20, s10: 30 } },
+      })
+    ).toEqual(ok());
+    expect(
+      store.electionDefinition.createPrecinct({
+        electionId,
+        newPrecinct: { id: 'p2', name: 'Precinct 2', districtIds: [] },
+      })
+    ).toEqual(ok());
+
+    expect(store.electionDefinition.listPrecincts(electionId)).toEqual([
+      listedSplitPrecinct,
+      { id: 'p2', name: 'Precinct 2', districtIds: [] },
+      { id: 'p10', name: 'Precinct 10', districtIds: ['d1', 'd2'] },
+    ]);
+    expect(
+      store.electionDefinition.getRegisteredVoterCounts(electionId)
+    ).toEqual({
+      p10: 100,
+      p1: { splits: { s2: 20, s10: 30 } },
+    });
+
+    expect(
+      store.electionDefinition.updatePrecinct({
+        electionId,
+        updatedPrecinct: {
+          id: 'p1',
+          name: 'Precinct 1A',
+          districtIds: ['d3'],
+        },
+        registeredVoterCounts: 50,
+      })
+    ).toEqual(ok());
+    expect(
+      store.electionDefinition.updatePrecinct({
+        electionId,
+        updatedPrecinct: {
+          id: 'p10',
+          name: 'Precinct 10',
+          splits: [
+            { id: 's3', name: 'Split 3', districtIds: ['d1'] },
+            { id: 's4', name: 'Split 4', districtIds: ['d2'] },
+          ],
+        },
+        registeredVoterCounts: { splits: { s3: 5 } },
+      })
+    ).toEqual(ok());
+    expect(
+      store.electionDefinition.updatePrecinct({
+        electionId,
+        updatedPrecinct: { id: 'p2', name: 'Precinct 2', districtIds: ['d1'] },
+      })
+    ).toEqual(ok());
+    expect(store.electionDefinition.listPrecincts(electionId)).toEqual([
+      { id: 'p1', name: 'Precinct 1A', districtIds: ['d3'] },
+      { id: 'p2', name: 'Precinct 2', districtIds: ['d1'] },
+      {
+        id: 'p10',
+        name: 'Precinct 10',
+        splits: [
+          { id: 's3', name: 'Split 3', districtIds: ['d1'] },
+          { id: 's4', name: 'Split 4', districtIds: ['d2'] },
+        ],
+      },
+    ]);
+    expect(
+      store.electionDefinition.getRegisteredVoterCounts(electionId)
+    ).toEqual({
+      p1: 50,
+      p10: { splits: { s3: 5 } },
+    });
+
+    store.electionDefinition.deletePrecinct({ electionId, precinctId: 'p1' });
+    expect(
+      store.electionDefinition.listPrecincts(electionId).map(({ id }) => id)
+    ).toEqual(['p2', 'p10']);
+    expect(
+      store.electionDefinition.getRegisteredVoterCounts(electionId)
+    ).toEqual({
+      p10: { splits: { s3: 5 } },
+    });
+  });
+
+  test('ignores counts that do not match whether the precinct has splits', () => {
+    const store = setUpStore();
+    store.electionDefinition
+      .createPrecinct({
+        electionId,
+        newPrecinct: { id: 'p2', name: 'Precinct 2', districtIds: [] },
+        registeredVoterCounts: { splits: { s1: 10 } },
+      })
+      .unsafeUnwrap();
+    store.electionDefinition
+      .createPrecinct({
+        electionId,
+        newPrecinct: splitPrecinct,
+        registeredVoterCounts: 10,
+      })
+      .unsafeUnwrap();
+    expect(
+      store.electionDefinition.getRegisteredVoterCounts(electionId)
+    ).toEqual({});
+  });
+
+  test('duplicate names and split districts roll back the whole write', () => {
+    const store = setUpStore();
+    const precinct: Precinct = {
+      id: 'p2',
+      name: 'Precinct 2',
+      districtIds: ['d1'],
+    };
+    store.electionDefinition
+      .createPrecinct({ electionId, newPrecinct: precinct })
+      .unsafeUnwrap();
+    store.electionDefinition
+      .createPrecinct({
+        electionId,
+        newPrecinct: splitPrecinct,
+      })
+      .unsafeUnwrap();
+
+    expect(
+      store.electionDefinition.createPrecinct({
+        electionId,
+        newPrecinct: { id: 'p3', name: 'Precinct 2', districtIds: [] },
+      })
+    ).toEqual(err('duplicate-precinct-name'));
+    expect(
+      store.electionDefinition.updatePrecinct({
+        electionId,
+        updatedPrecinct: { ...precinct, name: 'Precinct 1' },
+        registeredVoterCounts: 10,
+      })
+    ).toEqual(err('duplicate-precinct-name'));
+    expect(
+      store.electionDefinition.updatePrecinct({
+        electionId,
+        updatedPrecinct: {
+          id: 'p2',
+          name: 'Precinct 2',
+          splits: [
+            { id: 's3', name: 'Split', districtIds: ['d1'] },
+            { id: 's4', name: 'Split', districtIds: ['d2'] },
+          ],
+        },
+      })
+    ).toEqual(err('duplicate-split-name'));
+    expect(
+      store.electionDefinition.createPrecinct({
+        electionId,
+        newPrecinct: {
+          id: 'p3',
+          name: 'Precinct 3',
+          splits: [
+            { id: 's3', name: 'Split 3', districtIds: ['d1', 'd2'] },
+            { id: 's4', name: 'Split 4', districtIds: ['d2', 'd1'] },
+          ],
+        },
+      })
+    ).toEqual(err('duplicate-split-districts'));
+
+    expect(store.electionDefinition.listPrecincts(electionId)).toEqual([
+      listedSplitPrecinct,
+      precinct,
+    ]);
+    expect(
+      store.electionDefinition.getRegisteredVoterCounts(electionId)
+    ).toEqual({});
+  });
+
+  test('rejects invalid precincts, counts, districts and ids', () => {
+    const store = setUpStore();
+    store.electionDefinition
+      .createPrecinct({
+        electionId,
+        newPrecinct: { id: 'p1', name: 'Precinct 1', districtIds: [] },
+      })
+      .unsafeUnwrap();
+
+    expect(() =>
+      store.electionDefinition.createPrecinct({
+        electionId,
+        newPrecinct: { id: 'p2', name: '', districtIds: [] },
+      })
+    ).toThrow();
+    expect(() =>
+      store.electionDefinition.createPrecinct({
+        electionId,
+        newPrecinct: { id: 'p2', name: 'Precinct 2', districtIds: [] },
+        registeredVoterCounts: -1,
+      })
+    ).toThrow();
+    expect(() =>
+      store.electionDefinition.createPrecinct({
+        electionId,
+        newPrecinct: { id: 'p2', name: 'Precinct 2', districtIds: ['missing'] },
+      })
+    ).toThrow();
+    const precinct4: Precinct = {
+      id: 'p4',
+      name: 'Precinct 4',
+      splits: [
+        { id: 's2', name: 'Split 1', districtIds: ['d1'] },
+        { id: 's4', name: 'Split 2', districtIds: ['d2'] },
+      ],
+    };
+    store.electionDefinition
+      .createPrecinct({ electionId, newPrecinct: precinct4 })
+      .unsafeUnwrap();
+    expect(() =>
+      store.electionDefinition.createPrecinct({
+        electionId,
+        newPrecinct: {
+          id: 'p3',
+          name: 'Precinct 3',
+          splits: [
+            { id: 's2', name: 'Split 1', districtIds: ['d1'] },
+            { id: 's3', name: 'Split 2', districtIds: ['d2'] },
+          ],
+        },
+      })
+    ).toThrow();
+    expect(() =>
+      store.electionDefinition.updatePrecinct({
+        electionId,
+        updatedPrecinct: { id: 'missing', name: 'Precinct 2', districtIds: [] },
+      })
+    ).toThrow('Precinct not found');
+    expect(() =>
+      store.electionDefinition.deletePrecinct({
+        electionId,
+        precinctId: 'missing',
+      })
+    ).toThrow('Precinct not found');
+    expect(store.electionDefinition.listPrecincts(electionId)).toEqual([
+      { id: 'p1', name: 'Precinct 1', districtIds: [] },
+      precinct4,
+    ]);
+  });
+
+  test('deleting a district removes it from precincts and splits', () => {
+    const store = setUpStore();
+    store.electionDefinition
+      .createPrecinct({
+        electionId,
+        newPrecinct: {
+          id: 'p2',
+          name: 'Precinct 2',
+          districtIds: ['d1', 'd2'],
+        },
+      })
+      .unsafeUnwrap();
+    store.electionDefinition
+      .createPrecinct({
+        electionId,
+        newPrecinct: splitPrecinct,
+      })
+      .unsafeUnwrap();
+
+    store.electionDefinition
+      .updateDistricts({
+        electionId,
+        deletedDistrictIds: ['d1'],
+      })
+      .unsafeUnwrap();
+    expect(store.electionDefinition.listPrecincts(electionId)).toMatchObject([
+      { id: 'p1', splits: [{ districtIds: ['d2'] }, { districtIds: ['d3'] }] },
+      { id: 'p2', districtIds: ['d2'] },
+    ]);
+  });
+
+  test('deleting the election deletes its precincts', () => {
+    const store = setUpStore();
+    store.electionDefinition
+      .createPrecinct({
+        electionId,
+        newPrecinct: splitPrecinct,
+        registeredVoterCounts: { splits: { s2: 20 } },
+      })
+      .unsafeUnwrap();
+
+    store.electionDefinition.deleteInProgressElection();
+    expect(store.electionDefinition.listPrecincts(electionId)).toEqual([]);
+    expect(
+      store.electionDefinition.getRegisteredVoterCounts(electionId)
+    ).toEqual({});
   });
 });

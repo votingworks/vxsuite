@@ -3,21 +3,40 @@ import {
   DateWithoutTime,
   err,
   ok,
+  iter,
   type Result,
+  uniqueDeep,
 } from '@votingworks/basics';
 import type { Client as DbClient } from '@votingworks/db';
 import type {
   DistrictsUpdate,
   DuplicateDistrictError,
+  DuplicatePrecinctError,
   ElectionInfo,
   ElectionInfoUpdate,
+  PrecinctCreate,
+  PrecinctDelete,
+  PrecinctUpdate,
 } from '@votingworks/election-definition-backend';
 import {
   type District,
+  type DistrictId,
   DistrictSchema,
   type ElectionId,
+  type ElectionRegisteredVoterCounts,
   type ElectionType,
+  hasSplits,
+  isPrecinctCount,
+  isSplitCounts,
   LanguageCodeSchema,
+  type NhPrecinctSplitOptions,
+  type Precinct,
+  type PrecinctId,
+  type PrecinctRegisteredVoterCountEntry,
+  PrecinctRegisteredVoterCountEntrySchema,
+  PrecinctSchema,
+  type PrecinctSplit,
+  type PrecinctSplitId,
   unsafeParse,
   unsafeParseJson,
 } from '@votingworks/types';
@@ -34,6 +53,69 @@ function isDuplicateDistrictNameError(error: unknown): boolean {
       'design_districts.election_id, design_districts.name'
     )
   );
+}
+
+function isDuplicatePrecinctNameError(error: unknown): boolean {
+  return (
+    error instanceof Error &&
+    'code' in error &&
+    error.code === 'SQLITE_CONSTRAINT_UNIQUE' &&
+    error.message.includes(
+      'design_precincts.election_id, design_precincts.name'
+    )
+  );
+}
+
+function isDuplicatePrecinctSplitNameError(error: unknown): boolean {
+  return (
+    error instanceof Error &&
+    'code' in error &&
+    error.code === 'SQLITE_CONSTRAINT_UNIQUE' &&
+    error.message.includes(
+      'design_precinct_splits.precinct_id, design_precinct_splits.name'
+    )
+  );
+}
+
+interface DistrictIdRow {
+  ownerId: string;
+  districtId: DistrictId;
+}
+
+function parseRegisteredVoterCounts(
+  registeredVoterCounts?: PrecinctRegisteredVoterCountEntry
+): PrecinctRegisteredVoterCountEntry | undefined {
+  return registeredVoterCounts === undefined
+    ? undefined
+    : unsafeParse(
+        PrecinctRegisteredVoterCountEntrySchema,
+        registeredVoterCounts
+      );
+}
+
+function hasDuplicateSplitDistricts(precinct: Precinct): boolean {
+  return (
+    hasSplits(precinct) &&
+    uniqueDeep(precinct.splits, (split) => split.districtIds.toSorted())
+      .length !== precinct.splits.length
+  );
+}
+
+function catchDuplicatePrecinctNames(
+  write: () => void
+): Result<void, DuplicatePrecinctError> {
+  try {
+    write();
+    return ok();
+  } catch (error) {
+    if (isDuplicatePrecinctNameError(error)) {
+      return err('duplicate-precinct-name');
+    }
+    if (isDuplicatePrecinctSplitNameError(error)) {
+      return err('duplicate-split-name');
+    }
+    throw error;
+  }
 }
 
 /**
@@ -235,5 +317,275 @@ export class ElectionDefinitionStore {
       }
       throw error;
     }
+  }
+
+  listPrecincts(electionId: ElectionId): Precinct[] {
+    const precinctRows = this.client.all(
+      `
+      select id, name
+      from design_precincts
+      where election_id = ?
+    `,
+      electionId
+    ) as Array<{ id: PrecinctId; name: string }>;
+    const splitRows = this.client.all(
+      `
+      select
+        design_precinct_splits.id,
+        design_precinct_splits.precinct_id as precinctId,
+        design_precinct_splits.name,
+        design_precinct_splits.nh_options as nhOptions
+      from design_precinct_splits
+      join design_precincts
+        on design_precincts.id = design_precinct_splits.precinct_id
+      where design_precincts.election_id = ?
+    `,
+      electionId
+    ) as Array<{
+      id: PrecinctSplitId;
+      precinctId: PrecinctId;
+      name: string;
+      nhOptions: string;
+    }>;
+    const precinctDistrictRows = iter(
+      this.client.all(
+        `
+        select
+          design_districts_precincts.precinct_id as ownerId,
+          design_districts_precincts.district_id as districtId
+        from design_districts_precincts
+        join design_precincts
+          on design_precincts.id = design_districts_precincts.precinct_id
+        where design_precincts.election_id = ?
+        order by design_districts_precincts.district_id
+      `,
+        electionId
+      ) as DistrictIdRow[]
+    ).toMap((row) => row.ownerId);
+    const splitDistrictRows = iter(
+      this.client.all(
+        `
+        select
+          design_districts_precinct_splits.precinct_split_id as ownerId,
+          design_districts_precinct_splits.district_id as districtId
+        from design_districts_precinct_splits
+        join design_precinct_splits
+          on design_precinct_splits.id =
+            design_districts_precinct_splits.precinct_split_id
+        join design_precincts
+          on design_precincts.id = design_precinct_splits.precinct_id
+        where design_precincts.election_id = ?
+        order by design_districts_precinct_splits.district_id
+      `,
+        electionId
+      ) as DistrictIdRow[]
+    ).toMap((row) => row.ownerId);
+    const splitRowsByPrecinctId = iter(
+      splitRows.toSorted((a, b) =>
+        NATURAL_SORT_COLLATOR.compare(a.name, b.name)
+      )
+    ).toMap((row) => row.precinctId);
+
+    function districtIds(rows?: Set<DistrictIdRow>): DistrictId[] {
+      return [...(rows ?? [])].map((row) => row.districtId);
+    }
+
+    return precinctRows
+      .toSorted((a, b) => NATURAL_SORT_COLLATOR.compare(a.name, b.name))
+      .map(({ id, name }) => {
+        const precinctSplitRows = splitRowsByPrecinctId.get(id);
+        if (!precinctSplitRows) {
+          return {
+            id,
+            name,
+            districtIds: districtIds(precinctDistrictRows.get(id)),
+          };
+        }
+        return {
+          id,
+          name,
+          splits: [...precinctSplitRows].map((split): PrecinctSplit => ({
+            id: split.id,
+            name: split.name,
+            districtIds: districtIds(splitDistrictRows.get(split.id)),
+            ...(JSON.parse(split.nhOptions) as NhPrecinctSplitOptions),
+          })),
+        };
+      });
+  }
+
+  createPrecinct(input: PrecinctCreate): Result<void, DuplicatePrecinctError> {
+    return this.writePrecinct(
+      input.electionId,
+      input.newPrecinct,
+      input.registeredVoterCounts
+    );
+  }
+
+  updatePrecinct(input: PrecinctUpdate): Result<void, DuplicatePrecinctError> {
+    assert(
+      this.client.one(
+        'select 1 from design_precincts where id = ? and election_id = ?',
+        input.updatedPrecinct.id,
+        input.electionId
+      ),
+      'Precinct not found'
+    );
+    return this.writePrecinct(
+      input.electionId,
+      input.updatedPrecinct,
+      input.registeredVoterCounts
+    );
+  }
+
+  private writePrecinct(
+    electionId: ElectionId,
+    unparsedPrecinct: Precinct,
+    unparsedRegisteredVoterCounts?: PrecinctRegisteredVoterCountEntry
+  ): Result<void, DuplicatePrecinctError> {
+    const precinct = unsafeParse(PrecinctSchema, unparsedPrecinct);
+    const registeredVoterCounts = parseRegisteredVoterCounts(
+      unparsedRegisteredVoterCounts
+    );
+    if (hasDuplicateSplitDistricts(precinct)) {
+      return err('duplicate-split-districts');
+    }
+    return catchDuplicatePrecinctNames(() =>
+      this.client.transaction(() => {
+        this.client.run(
+          `
+          insert into design_precincts (id, election_id, name)
+          values (?, ?, ?)
+          on conflict (id) do update set name = excluded.name
+        `,
+          precinct.id,
+          electionId,
+          precinct.name
+        );
+        this.client.run(
+          'delete from design_districts_precincts where precinct_id = ?',
+          precinct.id
+        );
+        this.client.run(
+          'delete from design_precinct_splits where precinct_id = ?',
+          precinct.id
+        );
+        this.client.run(
+          'delete from design_precinct_registered_voter_counts where precinct_id = ?',
+          precinct.id
+        );
+
+        if (hasSplits(precinct)) {
+          for (const split of precinct.splits) {
+            const { id, name, districtIds, ...nhOptions } = split;
+            this.client.run(
+              'insert into design_precinct_splits (id, precinct_id, name, nh_options) values (?, ?, ?, ?)',
+              id,
+              precinct.id,
+              name,
+              JSON.stringify(nhOptions)
+            );
+            for (const districtId of districtIds) {
+              this.client.run(
+                'insert into design_districts_precinct_splits (district_id, precinct_split_id) values (?, ?)',
+                districtId,
+                id
+              );
+            }
+            const splitCount =
+              registeredVoterCounts !== undefined &&
+              isSplitCounts(registeredVoterCounts)
+                ? registeredVoterCounts.splits[id]
+                : undefined;
+            if (splitCount !== undefined) {
+              this.client.run(
+                'insert into design_precinct_split_registered_voter_counts (split_id, count) values (?, ?)',
+                id,
+                splitCount
+              );
+            }
+          }
+        } else {
+          for (const districtId of precinct.districtIds) {
+            this.client.run(
+              'insert into design_districts_precincts (district_id, precinct_id) values (?, ?)',
+              districtId,
+              precinct.id
+            );
+          }
+          if (
+            registeredVoterCounts !== undefined &&
+            isPrecinctCount(registeredVoterCounts)
+          ) {
+            this.client.run(
+              'insert into design_precinct_registered_voter_counts (precinct_id, count) values (?, ?)',
+              precinct.id,
+              registeredVoterCounts
+            );
+          }
+        }
+      })
+    );
+  }
+
+  deletePrecinct(input: PrecinctDelete): void {
+    assert(
+      this.client.one(
+        'delete from design_precincts where id = ? and election_id = ? returning id',
+        input.precinctId,
+        input.electionId
+      ),
+      'Precinct not found'
+    );
+  }
+
+  getRegisteredVoterCounts(
+    electionId: ElectionId
+  ): ElectionRegisteredVoterCounts {
+    const precinctCountRows = this.client.all(
+      `
+      select counts.precinct_id as precinctId, counts.count
+      from design_precinct_registered_voter_counts counts
+      join design_precincts on design_precincts.id = counts.precinct_id
+      where design_precincts.election_id = ?
+    `,
+      electionId
+    ) as Array<{ precinctId: PrecinctId; count: number }>;
+    const splitCountRows = this.client.all(
+      `
+      select
+        design_precinct_splits.precinct_id as precinctId,
+        counts.split_id as splitId,
+        counts.count
+      from design_precinct_split_registered_voter_counts counts
+      join design_precinct_splits
+        on design_precinct_splits.id = counts.split_id
+      join design_precincts
+        on design_precincts.id = design_precinct_splits.precinct_id
+      where design_precincts.election_id = ?
+    `,
+      electionId
+    ) as Array<{
+      precinctId: PrecinctId;
+      splitId: PrecinctSplitId;
+      count: number;
+    }>;
+
+    const counts: ElectionRegisteredVoterCounts = {};
+    for (const { precinctId, count } of precinctCountRows) {
+      counts[precinctId] = count;
+    }
+    for (const { precinctId, splitId, count } of splitCountRows) {
+      const existing = counts[precinctId];
+      counts[precinctId] = {
+        splits: {
+          ...(existing !== undefined && isSplitCounts(existing)
+            ? existing.splits
+            : {}),
+          [splitId]: count,
+        },
+      };
+    }
+    return counts;
   }
 }
