@@ -439,8 +439,8 @@ fn to_wire_header(image: &driver::Image) -> ImageHeader {
         blank_page: image.blank_page(),
         integrity: image.integrity(),
         counters: image.counters(),
-        endorser_front_text: image.endorser_front_text().into_owned(),
-        endorser_back_text: image.endorser_back_text().into_owned(),
+        endorser_front_text: image.endorser_front_text(),
+        endorser_back_text: image.endorser_back_text(),
     }
 }
 

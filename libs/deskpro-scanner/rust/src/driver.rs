@@ -13,7 +13,7 @@ use std::marker::PhantomData;
 use std::os::unix::ffi::OsStrExt;
 use std::panic::{AssertUnwindSafe, catch_unwind};
 use std::path::Path;
-use std::ptr::{self, NonNull};
+use std::ptr;
 use std::sync::Mutex;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::mpsc::{self, Receiver, Sender};
@@ -279,61 +279,55 @@ impl From<ScanSide> for i32 {
     }
 }
 
-/// One scanned image: its `ImageInfo_t` and pixel buffer, both freed on drop.
+/// One scanned image: a copy of its properties, and the pixel buffer, freed on drop.
 pub struct Image {
-    info: NonNull<ffi::ImageInfo_t>,
+    props: Box<ffi::ImageProperties_t>,
     data: *mut u8,
 }
 
-// SAFETY: both buffers are plain memory owned exclusively by this value and never mutated.
+// SAFETY: the pixel buffer is plain memory owned exclusively by this value and never mutated.
 unsafe impl Send for Image {}
 
 macro_rules! prop {
     ($self:expr, $field:ident) => {
-        // SAFETY: `props()` points into a live `ImageInfo_t` at least `size_of::<ImageInfo_t>()`
-        // bytes long (checked in `from_raw`).
-        unsafe { ptr::addr_of!((*$self.props()).$field).read_unaligned() }
+        $self.props.$field
     };
 }
 
 impl Image {
-    /// Takes ownership of the two buffers passed to the image callback. A struct smaller than
-    /// ours is rejected with its size (and both buffers freed); a larger one is accepted.
+    /// Takes ownership of the two buffers passed to the image callback, copying the properties
+    /// and freeing the `ImageInfo_t`. A struct smaller than ours is rejected with its size (and
+    /// both buffers freed); a larger one is accepted.
     ///
     /// # Safety
     /// `info` must be a live `ImageInfo_t` from the library and `data` its image buffer (or
     /// null); the caller must not touch either afterwards.
     pub unsafe fn from_raw(info: *mut ffi::ImageInfo_t, data: *mut u8) -> Result<Self, i32> {
         unsafe {
-            let Some(info_nn) = NonNull::new(info) else {
+            if info.is_null() {
                 vendor_heap::free(data.cast());
                 return Err(0);
-            };
+            }
             let size = ptr::addr_of!((*info).size).read_unaligned();
             if size < 0 || usize::try_from(size).unwrap_or(0) < size_of::<ffi::ImageInfo_t>() {
                 vendor_heap::free(data.cast());
                 vendor_heap::free(info.cast());
                 return Err(size);
             }
-            Ok(Image {
-                info: info_nn,
-                data,
-            })
+            let props = Box::new(ptr::addr_of!((*info).ImageProperties).read_unaligned());
+            vendor_heap::free(info.cast());
+            Ok(Image { props, data })
         }
     }
 
-    fn props(&self) -> *const ffi::ImageProperties_t {
-        // SAFETY: `info` is live; `addr_of!` does not create a reference to the packed field.
-        unsafe { ptr::addr_of!((*self.info.as_ptr()).ImageProperties) }
-    }
-
     /// Reads a fixed-size `char[N]` field up to its first NUL.
-    #[allow(clippy::unused_self)] // `self` ties the slice's lifetime to the buffers
-    fn c_array_lossy(&self, field: *const c_char, len: usize) -> Cow<'_, str> {
-        // SAFETY: `field` points at `len` bytes inside the `ImageInfo_t` we own.
-        let bytes = unsafe { std::slice::from_raw_parts(field.cast::<u8>(), len) };
-        let end = bytes.iter().position(|&b| b == 0).unwrap_or(len);
-        String::from_utf8_lossy(&bytes[..end])
+    fn c_array_lossy(field: &[c_char]) -> String {
+        let bytes: Vec<u8> = field
+            .iter()
+            .take_while(|&&c| c != 0)
+            .map(|c| c.to_ne_bytes()[0])
+            .collect();
+        String::from_utf8_lossy(&bytes).into_owned()
     }
 
     /// The pixel buffer; empty when the library passed null or a non-positive size.
@@ -414,20 +408,12 @@ impl Image {
         prop!(self, integrity)
     }
     #[must_use]
-    pub fn endorser_front_text(&self) -> Cow<'_, str> {
-        self.c_array_lossy(
-            // SAFETY: as for `prop!`.
-            unsafe { ptr::addr_of!((*self.props()).endorserFrontText) }.cast(),
-            ffi::INO_IP_ENDORSERTEXT,
-        )
+    pub fn endorser_front_text(&self) -> String {
+        Self::c_array_lossy(&self.props.endorserFrontText)
     }
     #[must_use]
-    pub fn endorser_back_text(&self) -> Cow<'_, str> {
-        self.c_array_lossy(
-            // SAFETY: as for `prop!`.
-            unsafe { ptr::addr_of!((*self.props()).endorserBackText) }.cast(),
-            ffi::INO_IP_ENDORSERTEXT,
-        )
+    pub fn endorser_back_text(&self) -> String {
+        Self::c_array_lossy(&self.props.endorserBackText)
     }
 }
 
@@ -439,11 +425,8 @@ impl AsRef<[u8]> for Image {
 
 impl Drop for Image {
     fn drop(&mut self) {
-        // SAFETY: both buffers came from the library, are owned by us, and are freed once.
-        unsafe {
-            vendor_heap::free(self.data.cast());
-            vendor_heap::free(self.info.as_ptr().cast());
-        }
+        // SAFETY: the pixel buffer came from the library, is owned by us, and is freed once.
+        unsafe { vendor_heap::free(self.data.cast()) };
     }
 }
 
