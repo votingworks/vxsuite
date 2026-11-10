@@ -83,7 +83,27 @@ export function parseValidatedElection(json: string): Election {
   return { ...value, date: new DateWithoutTime(value.date) };
 }
 
-// @coverage-exclude: trivial, tested via consumers.
-export function hashElectionData(data: string): string {
+export function hashElectionData(data: string | Uint8Array): string {
   return sha256(data);
+}
+
+const STRICT_TEXT_DECODER = new TextDecoder('utf-8', {
+  fatal: true,
+  // eslint-disable-next-line vx/gts-identifiers
+  ignoreBOM: true,
+});
+
+/**
+ * Decodes an election file, failing on anything that would not re-encode to
+ * the same bytes (invalid UTF-8). A byte order mark is kept, so it fails to
+ * parse as JSON rather than being silently dropped from the hashed text.
+ */
+export function decodeElectionData(
+  bytes: Uint8Array
+): Result<string, TypeError> {
+  try {
+    return ok(STRICT_TEXT_DECODER.decode(bytes));
+  } catch (error) {
+    return err(error as TypeError);
+  }
 }

@@ -54,6 +54,8 @@ import {
   testVxfElection,
 } from './cdf/ballot-definition/fixtures.js';
 import {
+  decodeElectionData,
+  hashElectionData,
   parseValidatedElection,
   safeParseElection,
 } from './election_parsing.js';
@@ -541,6 +543,30 @@ test('parseValidatedElection round-trips a validated election', () => {
     expect(parsed).toEqual(validated);
     expect(parsed.date).toBeInstanceOf(DateWithoutTime);
   }
+});
+
+test('decodeElectionData decodes valid UTF-8 to text with the same hash', () => {
+  const bytes = new TextEncoder().encode('{"title":"Élection 选举"}');
+  const text = decodeElectionData(bytes).unsafeUnwrap();
+  expect(text).toEqual('{"title":"Élection 选举"}');
+  expect(hashElectionData(text)).toEqual(hashElectionData(bytes));
+});
+
+test('decodeElectionData rejects invalid UTF-8', () => {
+  expect(
+    decodeElectionData(new Uint8Array([0x7b, 0xff, 0x7d])).err()
+  ).toBeInstanceOf(TypeError);
+});
+
+test('decodeElectionData keeps a byte order mark so the JSON fails to parse', () => {
+  const json = JSON.stringify(election);
+  safeParseElection(json).unsafeUnwrap();
+
+  const text = decodeElectionData(
+    new Uint8Array([0xef, 0xbb, 0xbf, ...new TextEncoder().encode(json)])
+  ).unsafeUnwrap();
+  expect(text).toEqual(`\uFEFF${json}`); // byte order mark
+  expect(safeParseElection(text).err()).toBeInstanceOf(SyntaxError);
 });
 
 test('safeParseElection converts CDF to VXF', () => {
