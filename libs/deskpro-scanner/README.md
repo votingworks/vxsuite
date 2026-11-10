@@ -52,11 +52,12 @@ pnpm diag logs --out ./scanner-logs   # the scanner's own traces
 
 ## Installing the vendor driver
 
-Run the vendor's `install_scamaxusb3.sh` as root. It installs to
-`/opt/inotec/scamaxusb3/` and adds a udev rule for USB `2bcc:0001`. The driver
-writes profiles to `prof/` there, which only `plugdev` can write, so add the
-user running `deskproctl` to that group. Override the library location with
-`DESKPRO_INOAPI_PATH`.
+Run the
+[vendor's `install_scamaxusb3.sh`](https://drive.google.com/file/d/1IU-xkrwtahUTN37VoamYF0NA6TakG2Zu/view?usp=drive_link)
+as root. It installs to `/opt/inotec/scamaxusb3/` and adds a udev rule for USB
+`2bcc:0001`. The driver writes profiles to `prof/` there, which only `plugdev`
+can write, so add the user running `deskproctl` to that group. Override the
+library location with `DESKPRO_INOAPI_PATH`.
 
 The driver needs glibc 2.34 / `GLIBCXX_3.4.30` (Debian 12 has both) plus
 `libtiff6`, `liblcms2-2` and `libusb-1.0-0`. Set `[GUI] local=off` in
