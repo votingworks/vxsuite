@@ -3,11 +3,16 @@ import { useHistory, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { Icons, DesktopPalette, Callout } from '@votingworks/ui';
-import { hasSplits } from '@votingworks/types';
+import {
+  type ElectionId,
+  hasSplits,
+  type PrecinctId,
+} from '@votingworks/types';
 
-import { type ElectionIdParams, routes } from './routes.js';
-import * as api from './api.js';
-import { Column, EntityList } from '@votingworks/election-definition-ui';
+import { useElectionDefinitionApi } from './election_definition_context.js';
+import { EntityList } from './entity_list.js';
+import { Column } from './layout.js';
+import type { ListDetailRoutes } from './list_detail_routes.js';
 
 const NoPrecincts = styled.div`
   padding: 1rem;
@@ -19,19 +24,23 @@ const SplitIcon = styled(Icons.Split)<{ selected: boolean }>`
   transform: rotate(-90deg) scale(1, -1);
 `;
 
-export function PrecinctList(): React.ReactNode {
-  const { electionId, precinctId } = useParams<
-    ElectionIdParams & { precinctId?: string }
-  >();
-  const precinctRoutes = routes.election(electionId).precincts;
-  const precincts = api.listPrecincts.useQuery(electionId);
+export interface PrecinctListProps {
+  electionId: ElectionId;
+  precinctRoutes: ListDetailRoutes;
+}
+
+export function PrecinctList(props: PrecinctListProps): JSX.Element | null {
+  const { electionId, precinctRoutes } = props;
+  const { precinctId } = useParams<{ precinctId?: PrecinctId }>();
+  const precincts =
+    useElectionDefinitionApi().listPrecincts.useQuery(electionId);
 
   const history = useHistory();
 
   if (!precincts.isSuccess) return null;
 
   function onSelect(id: string) {
-    history.push(precinctRoutes.view(id).path);
+    history.push(precinctRoutes.viewUrl(id));
   }
 
   const { Box, Caption, Item, Items, Label } = EntityList;

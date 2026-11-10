@@ -1,19 +1,18 @@
 import { createMemoryHistory } from 'history';
 import { expect, test } from 'vitest';
-import { Router, Route } from 'react-router-dom';
+import { Route, Switch } from 'react-router-dom';
 
-import { within } from '@testing-library/react';
 import type { Precinct, PrecinctSplit } from '@votingworks/types';
 import { userEvent } from '@testing-library/user-event';
 
 import { createMockApiClient, provideApi } from '../test/api_helpers.js';
+import { render, screen, within } from '../test/react_testing_library.js';
+import { withRoute } from '../test/routing_helpers.js';
+import { useListDetailRoutes } from './list_detail_routes.js';
 import { PrecinctList } from './precincts_list.js';
-import { electionParamRoutes, routes } from './routes.js';
-import { render, screen } from '../test/react_testing_library.js';
 
 const electionId = 'election1';
-const precinctRoutes = routes.election(electionId).precincts;
-const precinctParamRoutes = electionParamRoutes.precincts;
+const rootPath = `/elections/${electionId}/precincts`;
 
 const withNoDistricts: Precinct = {
   districtIds: [],
@@ -66,7 +65,7 @@ test('renders precinct names and district/split counts', async () => {
 
 test('renders selected precinct based on URL, navigates on select', async () => {
   const { history } = renderList({
-    initialRoute: precinctRoutes.view(with1District.id).path,
+    initialRoute: `${rootPath}/${with1District.id}`,
     precincts: [with1District, with2Districts, with3Splits],
   });
 
@@ -82,9 +81,7 @@ test('renders selected precinct based on URL, navigates on select', async () => 
 
   getOption(with2Districts, '2 Districts', { selected: true });
   getOption(with1District, '1 District', { selected: false });
-  expect(history.location.pathname).toEqual(
-    precinctRoutes.view(with2Districts.id).path
-  );
+  expect(history.location.pathname).toEqual(`${rootPath}/${with2Districts.id}`);
 
   await userEvent.click(
     getOption(with3Splits, '3 Splits', { selected: false })
@@ -92,9 +89,7 @@ test('renders selected precinct based on URL, navigates on select', async () => 
 
   getOption(with3Splits, '3 Splits', { selected: true });
   getOption(with2Districts, '2 Districts', { selected: false });
-  expect(history.location.pathname).toEqual(
-    precinctRoutes.view(with3Splits.id).path
-  );
+  expect(history.location.pathname).toEqual(`${rootPath}/${with3Splits.id}`);
 });
 
 function getOption(
@@ -116,25 +111,38 @@ function mockSplit(partial: Partial<PrecinctSplit>) {
   return partial as PrecinctSplit;
 }
 
+function RoutedPrecinctList(): JSX.Element {
+  const precinctRoutes = useListDetailRoutes(
+    'precinctId',
+    ':stringKey/:subkey'
+  );
+  return (
+    <Switch>
+      <Route exact path={precinctRoutes.viewPath}>
+        <PrecinctList electionId={electionId} precinctRoutes={precinctRoutes} />
+      </Route>
+      <Route exact path={precinctRoutes.rootPath}>
+        <PrecinctList electionId={electionId} precinctRoutes={precinctRoutes} />
+      </Route>
+    </Switch>
+  );
+}
+
 function renderList(p: { precincts: Precinct[]; initialRoute?: string }) {
   const mockApi = createMockApiClient();
   mockApi.listPrecincts.expectCallWith({ electionId }).resolves(p.precincts);
 
   const history = createMemoryHistory({
-    initialEntries: [p.initialRoute || precinctRoutes.root.path],
+    initialEntries: [p.initialRoute || rootPath],
   });
 
   const result = render(
     provideApi(
       mockApi,
-      <Router history={history}>
-        <Route exact path={precinctParamRoutes.view(':precinctId').path}>
-          <PrecinctList />
-        </Route>
-        <Route exact path={precinctParamRoutes.root.path}>
-          <PrecinctList />
-        </Route>
-      </Router>
+      withRoute(<RoutedPrecinctList />, {
+        paramPath: '/elections/:electionId/precincts',
+        history,
+      })
     )
   );
 

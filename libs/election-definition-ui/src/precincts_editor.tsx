@@ -1,3 +1,45 @@
+import type React from 'react';
+import styled from 'styled-components';
+import { Redirect, Route, Switch, useParams } from 'react-router-dom';
+import type { ElectionId, PrecinctId } from '@votingworks/types';
+import { LinkButton } from '@votingworks/ui';
+import { useElectionDefinitionApi } from './election_definition_context.js';
+import { FixedViewport, ListActionsRow } from './layout.js';
+import {
+  type ListDetailRoutes,
+  useListDetailRoutes,
+} from './list_detail_routes.js';
+import { PrecinctForm } from './precincts_form.js';
+import { PrecinctList } from './precincts_list.js';
+
+export interface PrecinctsEditorProps {
+  electionId: ElectionId;
+  isLocked?: boolean;
+  AudioPanel?: React.ComponentType;
+}
+
+interface ContentProps extends PrecinctsEditorProps {
+  precinctRoutes: ListDetailRoutes;
+}
+
+export function PrecinctsEditor(props: PrecinctsEditorProps): JSX.Element {
+  const precinctRoutes = useListDetailRoutes(
+    'precinctId',
+    ':stringKey/:subkey'
+  );
+
+  return (
+    <Switch>
+      <Route path={precinctRoutes.viewPath}>
+        <Content {...props} precinctRoutes={precinctRoutes} />
+      </Route>
+      <Route path={precinctRoutes.rootPath}>
+        <Content {...props} precinctRoutes={precinctRoutes} />
+      </Route>
+    </Switch>
+  );
+}
+
 const Viewport = styled(FixedViewport)<{ hasActionsRow: boolean }>`
   display: grid;
   grid-template-rows: ${(p) => (p.hasActionsRow ? 'min-content 1fr' : '1fr')};
@@ -26,37 +68,28 @@ const Body = styled.div`
   }
 `;
 
-function Content(): React.ReactNode {
-  const { electionId, precinctId } = useParams<
-    ElectionIdParams & { precinctId?: string }
-  >();
+function Content(props: ContentProps): JSX.Element | null {
+  const { electionId, isLocked, AudioPanel, precinctRoutes } = props;
+  const { precinctId } = useParams<{ precinctId?: PrecinctId }>();
 
-  const precincts = listPrecincts.useQuery(electionId);
-  const ballotsFinalizedAt = getBallotsFinalizedAt.useQuery(electionId);
-  const electionInfoQuery = getElectionInfo.useQuery(electionId);
+  const api = useElectionDefinitionApi();
+  const precincts = api.listPrecincts.useQuery(electionId);
+  const electionInfoQuery = api.getElectionInfo.useQuery(electionId);
 
-  if (
-    !precincts.isSuccess ||
-    !ballotsFinalizedAt.isSuccess ||
-    !electionInfoQuery.isSuccess
-  ) {
+  if (!precincts.isSuccess || !electionInfoQuery.isSuccess) {
     return null;
   }
-
-  const precinctRoutes = routes.election(electionId).precincts;
-  const precinctParamRoutes = electionParamRoutes.precincts;
 
   /**
    * Used as a route redirect, to auto-select the first available precinct for
    * convenience, when navigating to the root route:
    */
-  const defaultPrecinctRoute =
+  const defaultPrecinctUrl =
     !precinctId && precincts.data.length > 0
       ? // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        precinctRoutes.view(precincts.data[0]!.id).path
+        precinctRoutes.viewUrl(precincts.data[0]!.id)
       : null;
 
-  const ballotsFinalized = !!ballotsFinalizedAt.data;
   const hasExternalSource = Boolean(electionInfoQuery.data.externalSource);
 
   return (
@@ -66,8 +99,8 @@ function Content(): React.ReactNode {
           <LinkButton
             variant="primary"
             icon="Add"
-            to={precinctRoutes.add.path}
-            disabled={ballotsFinalized}
+            to={precinctRoutes.addUrl}
+            disabled={isLocked}
           >
             Add Precinct
           </LinkButton>
@@ -75,58 +108,45 @@ function Content(): React.ReactNode {
       )}
 
       <Body>
-        <PrecinctList />
+        <PrecinctList electionId={electionId} precinctRoutes={precinctRoutes} />
         <Switch>
-          <Route
-            path={precinctParamRoutes.audio({
-              precinctId: ':precinctId',
-              stringKey: ':stringKey',
-              subkey: ':subkey',
-            })}
-          >
+          {AudioPanel && (
+            <Route path={precinctRoutes.audioPath}>
+              <EditPanel>
+                <AudioPanel />
+              </EditPanel>
+            </Route>
+          )}
+
+          <Route path={precinctRoutes.addPath}>
             <EditPanel>
-              <PrecinctAudioPanel />
+              <PrecinctForm
+                editing
+                electionId={electionId}
+                isLocked={isLocked}
+                precinctRoutes={precinctRoutes}
+                title="Add Precinct"
+              />
             </EditPanel>
           </Route>
 
-          <Route
-            path={precinctParamRoutes.add.path}
-            component={AddPrecinctForm}
-          />
+          <Route path={precinctRoutes.viewPath}>
+            <EditPrecinctForm {...props} />
+          </Route>
 
-          <Route
-            path={precinctParamRoutes.view(':precinctId').path}
-            component={EditPrecinctForm}
-          />
-
-          {defaultPrecinctRoute && <Redirect to={defaultPrecinctRoute} />}
+          {defaultPrecinctUrl && <Redirect to={defaultPrecinctUrl} />}
         </Switch>
       </Body>
     </Viewport>
   );
 }
 
-function AddPrecinctForm(): JSX.Element | null {
-  const { electionId } = useParams<ElectionIdParams>();
-  const precinctRoutes = routes.election(electionId).precincts;
-  const { title } = precinctRoutes.add;
+function EditPrecinctForm(props: ContentProps): JSX.Element | null {
+  const { electionId, isLocked, AudioPanel, precinctRoutes } = props;
+  const { precinctId } = useParams<{ precinctId: PrecinctId }>();
 
-  return (
-    <EditPanel>
-      <PrecinctForm editing electionId={electionId} title={title} />
-    </EditPanel>
-  );
-}
-
-function EditPrecinctForm(): JSX.Element | null {
-  type RouteParams = ElectionIdParams & { precinctId: string };
-  const { electionId, precinctId } = useParams<RouteParams>();
-
-  const listPrecinctsQuery = listPrecincts.useQuery(electionId);
-  const finalizedAt = getBallotsFinalizedAt.useQuery(electionId);
-
-  const precinctParamRoutes = electionParamRoutes.precincts;
-  const precinctRoutes = routes.election(electionId).precincts;
+  const api = useElectionDefinitionApi();
+  const listPrecinctsQuery = api.listPrecincts.useQuery(electionId);
 
   // @coverage-defer
   if (!listPrecinctsQuery.isSuccess) {
@@ -135,17 +155,21 @@ function EditPrecinctForm(): JSX.Element | null {
 
   const precincts = listPrecinctsQuery.data;
   const savedPrecinct = precincts.find((p) => p.id === precinctId);
-  const canEdit = !finalizedAt.data && !!savedPrecinct;
+  const canEdit = !isLocked && !!savedPrecinct;
+  const audioUrl = AudioPanel ? precinctRoutes.audioUrl : undefined;
 
   return (
     <EditPanel>
       <Switch>
         {canEdit && (
-          <Route path={precinctParamRoutes.edit(':precinctId').path} exact>
+          <Route path={precinctRoutes.editPath} exact>
             <PrecinctForm
+              audioUrl={audioUrl}
               editing
               electionId={electionId}
+              isLocked={isLocked}
               key={precinctId}
+              precinctRoutes={precinctRoutes}
               savedPrecinct={savedPrecinct}
               title="Edit Precinct"
             />
@@ -153,11 +177,14 @@ function EditPrecinctForm(): JSX.Element | null {
         )}
 
         {savedPrecinct && (
-          <Route path={precinctParamRoutes.view(':precinctId').path} exact>
+          <Route path={precinctRoutes.viewPath} exact>
             <PrecinctForm
+              audioUrl={audioUrl}
               electionId={electionId}
               editing={false}
+              isLocked={isLocked}
               key={precinctId}
+              precinctRoutes={precinctRoutes}
               savedPrecinct={savedPrecinct}
               title="Precinct Info"
             />
@@ -166,10 +193,9 @@ function EditPrecinctForm(): JSX.Element | null {
 
         <Redirect
           to={
-            // @coverage-defer
             savedPrecinct
-              ? precinctRoutes.view(precinctId).path
-              : precinctRoutes.root.path
+              ? precinctRoutes.viewUrl(precinctId)
+              : precinctRoutes.rootUrl
           }
         />
       </Switch>

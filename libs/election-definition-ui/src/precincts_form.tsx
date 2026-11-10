@@ -23,34 +23,25 @@ import {
 } from '@votingworks/types';
 
 import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
+import { generateId } from '@votingworks/election-definition-backend';
 
+import { InputWithAudio } from './ballot_audio/input_with_audio.js';
+import { useElectionDefinitionApi } from './election_definition_context.js';
 import {
-  Row,
-  InputGroup,
-  FieldName,
   FormBody,
   FormErrorContainer,
+  FormFixed,
   FormFooter,
-  InputWithAudio,
-  SealImageInput,
-  SignatureImageInput,
-  Column,
   FormTitle,
-  replaceAtIndex,
-} from '@votingworks/election-definition-ui';
-import { routes } from './routes.js';
-import {
-  listDistricts,
-  getStateFeatures,
-  getRegisteredVoterCounts,
-  updatePrecinct,
-  createPrecinct,
-  deletePrecinct,
-  getBallotsFinalizedAt,
-  getElectionInfo,
-} from './api.js';
-import { generateId } from './utils.js';
-import { FormFixed } from './form_fixed.js';
+} from './form_fixed.js';
+import { Column, FieldName, InputGroup, Row } from './layout.js';
+import type {
+  ListDetailAudioParams,
+  ListDetailRoutes,
+} from './list_detail_routes.js';
+import { SealImageInput } from './seal_image_input.js';
+import { SignatureImageInput } from './signature_image_input.js';
+import { replaceAtIndex } from './utils.js';
 
 function createBlankPrecinct(): Precinct {
   return {
@@ -61,25 +52,56 @@ function createBlankPrecinct(): Precinct {
 }
 
 export interface PrecinctFormProps {
+  audioUrl?: (params: ListDetailAudioParams) => string;
   editing: boolean;
   electionId: ElectionId;
+  isLocked?: boolean;
+  precinctRoutes: ListDetailRoutes;
   savedPrecinct?: Precinct;
   title: React.ReactNode;
 }
 
-export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
-  const { editing, electionId, savedPrecinct, title } = props;
-
-  const getStateFeaturesQuery = getStateFeatures.useQuery(electionId);
-  const listDistrictsQuery = listDistricts.useQuery(electionId);
-  const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
-  const getElectionInfoQuery = getElectionInfo.useQuery(electionId);
+export function PrecinctForm(props: PrecinctFormProps): JSX.Element | null {
+  const { electionId, savedPrecinct } = props;
   const getRegisteredVoterCountsQuery =
-    getRegisteredVoterCounts.useQuery(electionId);
+    useElectionDefinitionApi().getRegisteredVoterCounts.useQuery(electionId);
 
-  const savedRegisteredVoterCounts = savedPrecinct
-    ? getRegisteredVoterCountsQuery.data?.[savedPrecinct.id]
-    : undefined;
+  if (!getRegisteredVoterCountsQuery.isSuccess) {
+    return null;
+  }
+
+  return (
+    <PrecinctFormContents
+      {...props}
+      savedRegisteredVoterCounts={
+        savedPrecinct
+          ? getRegisteredVoterCountsQuery.data?.[savedPrecinct.id]
+          : undefined
+      }
+    />
+  );
+}
+
+function PrecinctFormContents(
+  props: PrecinctFormProps & {
+    savedRegisteredVoterCounts?: PrecinctRegisteredVoterCountEntry;
+  }
+): JSX.Element | null {
+  const {
+    audioUrl,
+    editing,
+    electionId,
+    isLocked,
+    precinctRoutes,
+    savedPrecinct,
+    savedRegisteredVoterCounts,
+    title,
+  } = props;
+
+  const api = useElectionDefinitionApi();
+  const getStateFeaturesQuery = api.getStateFeatures.useQuery(electionId);
+  const listDistrictsQuery = api.listDistricts.useQuery(electionId);
+  const getElectionInfoQuery = api.getElectionInfo.useQuery(electionId);
 
   const [precinct, setPrecinct] = useState<Precinct>(
     savedPrecinct ??
@@ -91,19 +113,17 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
     PrecinctRegisteredVoterCountEntry | undefined
   >(savedRegisteredVoterCounts);
 
-  const createPrecinctMutation = createPrecinct.useMutation();
-  const updatePrecinctMutation = updatePrecinct.useMutation();
-  const deletePrecinctMutation = deletePrecinct.useMutation();
+  const createPrecinctMutation = api.createPrecinct.useMutation();
+  const updatePrecinctMutation = api.updatePrecinct.useMutation();
+  const deletePrecinctMutation = api.deletePrecinct.useMutation();
 
   const history = useHistory();
-  const precinctRoutes = routes.election(electionId).precincts;
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
 
   if (
     !(
       getStateFeaturesQuery.isSuccess &&
       listDistrictsQuery.isSuccess &&
-      getBallotsFinalizedAtQuery.isSuccess &&
       getElectionInfoQuery.isSuccess
     )
   ) {
@@ -112,20 +132,19 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
 
   const features = getStateFeaturesQuery.data;
   const districts = listDistrictsQuery.data;
-  const finalized = !!getBallotsFinalizedAtQuery.data;
   const hasExternalSource = Boolean(getElectionInfoQuery.data.externalSource);
 
   function goBackToPrecinctsList() {
-    history.push(precinctRoutes.root.path);
+    history.push(precinctRoutes.rootUrl);
   }
 
   function setIsEditing(switchToEdit: boolean) {
-    if (!savedPrecinct) return history.replace(precinctRoutes.root.path);
+    if (!savedPrecinct) return history.replace(precinctRoutes.rootUrl);
 
     history.replace(
       switchToEdit
-        ? precinctRoutes.edit(savedPrecinct.id).path
-        : precinctRoutes.view(savedPrecinct.id).path
+        ? precinctRoutes.editUrl(savedPrecinct.id)
+        : precinctRoutes.viewUrl(savedPrecinct.id)
     );
   }
 
@@ -148,7 +167,7 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
         {
           onSuccess: (result) => {
             if (result.isErr()) return;
-            history.replace(precinctRoutes.view(precinct.id).path);
+            history.replace(precinctRoutes.viewUrl(precinct.id));
           },
         }
       );
@@ -311,8 +330,8 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
         <FormTitle>{title}</FormTitle>
         <InputGroup label="Name">
           <InputWithAudio
-            audioScreenUrl={precinctRoutes.audio({
-              precinctId: precinct.id,
+            audioScreenUrl={audioUrl?.({
+              id: precinct.id,
               stringKey: ElectionStringKey.PRECINCT_NAME,
               subkey: precinct.id,
             })}
@@ -339,8 +358,8 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
                     <Column style={{ gap: '1rem', height: '100%' }}>
                       <InputGroup label="Name">
                         <InputWithAudio
-                          audioScreenUrl={precinctRoutes.audio({
-                            precinctId: precinct.id,
+                          audioScreenUrl={audioUrl?.({
+                            id: precinct.id,
                             stringKey: ElectionStringKey.PRECINCT_SPLIT_NAME,
                             subkey: split.id,
                           })}
@@ -492,7 +511,7 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
                     </Column>
                   </Card>
                 ))}
-                {!finalized && !hasExternalSource && (
+                {!isLocked && !hasExternalSource && (
                   <div>
                     <Button icon="Add" onPress={onAddSplitPress}>
                       Add Split
@@ -549,7 +568,7 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
                       value={[...precinct.districtIds]}
                     />
                   </div>
-                  {!finalized && !hasExternalSource && (
+                  {!isLocked && !hasExternalSource && (
                     <div style={{ marginTop: '1.5rem' }}>
                       <Button icon="Add" onPress={onAddSplitPress}>
                         Add Split
@@ -565,7 +584,7 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
 
       <FormErrorContainer>{errorMessage}</FormErrorContainer>
 
-      {!finalized && (
+      {!isLocked && (
         <FormFooter style={{ justifyContent: 'space-between' }}>
           <PrimaryFormActions disabled={disabled} editing={editing} />
 
