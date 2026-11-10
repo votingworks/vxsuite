@@ -46,6 +46,9 @@ const primaryElection = primaryElectionRecordGenerated.election;
 let apiMock: MockApiClient;
 
 beforeEach(() => {
+  // Polling queries refetch on a real 1s interval otherwise, which can consume
+  // a test's next expected API call when the test runs slowly.
+  vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval'] });
   apiMock = createMockApiClient();
   apiMock.getUser.expectRepeatedCallsWith().resolves(user);
   mockUserFeatures(apiMock);
@@ -55,6 +58,7 @@ beforeEach(() => {
 afterEach(() => {
   apiMock.assertComplete();
   cleanup();
+  vi.useRealTimers();
 });
 
 function renderScreen(
