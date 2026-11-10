@@ -24,6 +24,7 @@ import {
   getFileByName,
   maybeGetFileByName,
   openZip,
+  readEntry,
   readTextEntry,
   systemLimitViolationToString,
 } from '@votingworks/utils';
@@ -44,6 +45,7 @@ import {
   ElectionPackageMetadataSchema,
   mergeUiStrings,
   type UiStringAudioIdsPackage,
+  decodeElectionData,
   safeParseElection,
   constructElectionKey,
   type EncodedBallotEntry,
@@ -118,6 +120,8 @@ function missingEntryError(name: string): Error {
  */
 export interface ElectionPackageZip {
   hasEntry(name: string): boolean;
+  /** Reads a whole entry into memory. Throws if missing. */
+  readEntryBytes(name: string): Promise<Uint8Array>;
   /** Reads a whole entry into memory as UTF-8 text. Throws if missing. */
   readEntryText(name: string): Promise<string>;
   /** Opens a stream over an entry's contents. Throws if missing. */
@@ -130,6 +134,7 @@ function createBufferBackedZip(zipFile: JsZipFile): ElectionPackageZip {
   const entries = getEntries(zipFile);
   return {
     hasEntry: (name) => maybeGetFileByName(entries, name) !== undefined,
+    readEntryBytes: (name) => readEntry(getFileByName(entries, name, ZIP_NAME)),
     readEntryText: (name) =>
       readTextEntry(getFileByName(entries, name, ZIP_NAME)),
     openEntryStream: (name) =>
@@ -184,17 +189,21 @@ function openFileBackedZip(
             });
           }
 
+          async function readEntryBytes(name: string): Promise<Buffer> {
+            const stream = await openEntryStream(name);
+            const chunks: Buffer[] = [];
+            for await (const chunk of stream) {
+              chunks.push(chunk as Buffer);
+            }
+            return Buffer.concat(chunks);
+          }
+
           resolve({
             zip: {
               hasEntry: (name) => entries.has(name),
+              readEntryBytes,
               async readEntryText(name) {
-                const stream = await openEntryStream(name);
-                const chunks: Buffer[] = [];
-                for await (const chunk of stream) {
-                  chunks.push(chunk as Buffer);
-                }
-                const contents = Buffer.concat(chunks);
-                return contents.toString('utf-8');
+                return (await readEntryBytes(name)).toString('utf-8');
               },
               openEntryStream,
             },
@@ -684,7 +693,14 @@ export async function parseAndHashElection(
 ): Promise<Result<ElectionDefinition, ElectionPackageError>> {
   const Entry = ElectionPackageFileName;
 
-  const electionData = await zip.readEntryText(Entry.ELECTION);
+  const electionBytes = await zip.readEntryBytes(Entry.ELECTION);
+  const decodeResult = decodeElectionData(electionBytes);
+  if (decodeResult.isErr()) {
+    const { message } = decodeResult.err();
+    return err({ type: 'invalid-election', message });
+  }
+
+  const electionData = decodeResult.ok();
   const electionResult = safeParseElection(electionData);
 
   if (electionResult.isErr()) {
@@ -693,7 +709,7 @@ export async function parseAndHashElection(
   }
 
   const election = electionResult.ok();
-  const electionHash = sha256Hex(electionData);
+  const electionHash = sha256Hex(electionBytes);
 
   // [TODO] Branch on software version instead, if/when this setting becomes the
   // default.

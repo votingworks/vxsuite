@@ -548,6 +548,69 @@ test('readElectionPackageFromFile errors when given an invalid election', async 
   );
 });
 
+function electionJsonWithInvalidUtf8(): Buffer {
+  const election =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElection();
+  const [before, after] = JSON.stringify({
+    ...election,
+    title: 'PLACEHOLDER',
+  }).split('PLACEHOLDER');
+  return Buffer.concat([
+    Buffer.from(assertDefined(before)),
+    Buffer.from([0xff]),
+    Buffer.from(assertDefined(after)),
+  ]);
+}
+
+function electionJsonWithByteOrderMark(): Buffer {
+  const { electionData } =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+  return Buffer.concat([
+    Buffer.from([0xef, 0xbb, 0xbf]),
+    Buffer.from(electionData),
+  ]);
+}
+
+test.each([
+  {
+    description: 'file, invalid UTF-8',
+    electionJson: electionJsonWithInvalidUtf8,
+    read: (pkg: Buffer) =>
+      readElectionPackageFromFile(makeTemporaryFile({ content: pkg })),
+    message: /not valid/i,
+  },
+  {
+    description: 'buffer, invalid UTF-8',
+    electionJson: electionJsonWithInvalidUtf8,
+    read: readElectionPackageFromBuffer,
+    message: /not valid/i,
+  },
+  {
+    description: 'file, byte order mark',
+    electionJson: electionJsonWithByteOrderMark,
+    read: (pkg: Buffer) =>
+      readElectionPackageFromFile(makeTemporaryFile({ content: pkg })),
+    message: /JSON/,
+  },
+  {
+    description: 'buffer, byte order mark',
+    electionJson: electionJsonWithByteOrderMark,
+    read: readElectionPackageFromBuffer,
+    message: /JSON/,
+  },
+])(
+  'rejects an election.json that is not exactly its own UTF-8 text ($description)',
+  async ({ electionJson, read, message }) => {
+    const pkg = await electionPackageZip({
+      [ElectionPackageFileName.ELECTION]: electionJson(),
+    });
+
+    expect(await read(pkg)).toEqual(
+      err({ type: 'invalid-election', message: expect.stringMatching(message) })
+    );
+  }
+);
+
 test('readElectionPackageFromFile errors when given invalid system settings', async () => {
   const pkg = await electionPackageZip({
     [ElectionPackageFileName.ELECTION]:
@@ -630,6 +693,7 @@ function jsonlEntryZip(entryName: string, jsonl: string): ElectionPackageZip {
       assert(name === entryName);
       return Promise.resolve(Readable.from([jsonl], { objectMode: false }));
     },
+    readEntryBytes: () => fail('unexpected call to readEntryBytes'),
     readEntryText: () => fail('unexpected call to readEntryText'),
   };
 }
@@ -672,6 +736,7 @@ test('streamElectionPackageBallots yields nothing for a package without ballots'
       streamElectionPackageBallots({
         hasEntry: () => false,
         openEntryStream: () => fail('unexpected call to openEntryStream'),
+        readEntryBytes: () => fail('unexpected call to readEntryBytes'),
         readEntryText: () => fail('unexpected call to readEntryText'),
       })
     ).toArray()
