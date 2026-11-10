@@ -41,7 +41,7 @@ import {
   RectSchema,
 } from './geometry.js';
 import { pollingPlacesGenerateFromPrecincts } from './polling_places.js';
-import { safeParseElection } from './election_parsing.js';
+import { decodeElectionData, safeParseElection } from './election_parsing.js';
 import { type Id, IdSchema, safeParse, safeParseJson } from './generic.js';
 import {
   ElectionStringKey,
@@ -437,8 +437,14 @@ export function safeParseElectionV4p0(
 }
 
 export function safeParseElectionAnyVersion(
-  value: string
-): Result<Election, z.ZodError | SyntaxError> {
+  value: string | Uint8Array
+): Result<Election, z.ZodError | SyntaxError | TypeError> {
+  if (typeof value !== 'string') {
+    const decodeResult = decodeElectionData(value);
+    if (decodeResult.isErr()) return decodeResult;
+    return safeParseElectionAnyVersion(decodeResult.ok());
+  }
+
   const latestResult = safeParseElection(value);
   if (latestResult.isOk()) {
     return latestResult;

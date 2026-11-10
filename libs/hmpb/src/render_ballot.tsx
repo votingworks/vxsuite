@@ -766,9 +766,7 @@ function electionWithBallotMeta(
   );
 
   const ballotHash = createHash('sha256').update(electionData).digest('hex');
-  const election = safeParseElectionAnyVersion(
-    electionData.toString('utf-8')
-  ).unsafeUnwrap();
+  const election = safeParseElectionAnyVersion(electionData).unsafeUnwrap();
 
   return { ballotHash, election, electionData };
 }

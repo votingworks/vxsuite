@@ -1,3 +1,4 @@
+import { Buffer } from 'node:buffer';
 import { vi, afterAll, expect, test } from 'vitest';
 import {
   centralScanningPollingPlaceId,
@@ -216,8 +217,8 @@ test('finalizing a Mississippi election does not require absentee polling places
       jurisdictionId: msJurisdiction.id,
       upload: {
         format: 'vxf',
-        electionFileContents: JSON.stringify(
-          electionGeneralFixtures.readElection()
+        electionFileContents: Buffer.from(
+          JSON.stringify(electionGeneralFixtures.readElection())
         ),
       },
     })
@@ -243,8 +244,8 @@ test('a central scanning absentee polling place and an early voting polling plac
       jurisdictionId: msJurisdiction.id,
       upload: {
         format: 'vxf',
-        electionFileContents: JSON.stringify(
-          electionGeneralFixtures.readElection()
+        electionFileContents: Buffer.from(
+          JSON.stringify(electionGeneralFixtures.readElection())
         ),
       },
     })

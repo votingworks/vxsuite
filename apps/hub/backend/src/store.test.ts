@@ -479,7 +479,9 @@ test('getExportedElectionDefinition returns the exported election including reor
       jurisdictionId: nonVxJurisdiction.id,
       upload: {
         format: 'vxf',
-        electionFileContents: JSON.stringify(baseElectionDefinition.election),
+        electionFileContents: Buffer.from(
+          JSON.stringify(baseElectionDefinition.election)
+        ),
       },
     })
   ).unsafeUnwrap();
@@ -755,7 +757,9 @@ test('getExportedElection returns election-out-of-date error when election data 
       jurisdictionId: nonVxJurisdiction.id,
       upload: {
         format: 'vxf',
-        electionFileContents: JSON.stringify(baseElectionDefinition.election),
+        electionFileContents: Buffer.from(
+          JSON.stringify(baseElectionDefinition.election)
+        ),
       },
     })
   ).unsafeUnwrap();

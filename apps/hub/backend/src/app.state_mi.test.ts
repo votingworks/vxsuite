@@ -1,3 +1,4 @@
+import { Buffer } from 'node:buffer';
 import { afterAll, expect, test, vi } from 'vitest';
 import { find } from '@votingworks/basics';
 import { electionGeneralFixtures } from '@votingworks/fixtures';
@@ -64,7 +65,7 @@ test('general elections include generated straight party contest', async () => {
       jurisdictionId: miJurisdiction.id,
       upload: {
         format: 'vxf',
-        electionFileContents: JSON.stringify(election),
+        electionFileContents: Buffer.from(JSON.stringify(election)),
       },
     })
   ).unsafeUnwrap();

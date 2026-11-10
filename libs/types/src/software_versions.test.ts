@@ -204,6 +204,17 @@ test('safeParseElectionAnyVersion', () => {
   expect(result.err()).toEqual(safeParseElection(invalidElectionData).err());
 });
 
+test('safeParseElectionAnyVersion decodes bytes strictly', () => {
+  expect(
+    safeParseElectionAnyVersion(
+      new TextEncoder().encode(v4p0PrimaryElectionData)
+    ).unsafeUnwrap()
+  ).toEqual(primaryElection);
+  expect(
+    safeParseElectionAnyVersion(new Uint8Array([0x7b, 0xff, 0x7d])).err()
+  ).toBeInstanceOf(TypeError);
+});
+
 test('v4.0 ballot styles may omit languages; conversion to latest defaults them to en', () => {
   // `languages` was optional in v4.0 but is required in v4.1+. Simulate a real
   // v4.0 election whose ballot styles omit the field.

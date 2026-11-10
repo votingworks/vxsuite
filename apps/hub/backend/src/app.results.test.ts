@@ -1,3 +1,4 @@
+import { Buffer } from 'node:buffer';
 import { afterAll, beforeEach, expect, test, vi } from 'vitest';
 import {
   ALL_PRECINCTS_SELECTION,
@@ -125,10 +126,8 @@ async function setUpElectionInSystem(
       jurisdictionId: nonVxJurisdiction.id,
       upload: {
         format: 'vxf',
-        electionFileContents: JSON.stringify(
-          baseElectionDefinition.election,
-          null,
-          2
+        electionFileContents: Buffer.from(
+          JSON.stringify(baseElectionDefinition.election, null, 2)
         ),
       },
     })
@@ -2085,10 +2084,8 @@ test('LiveReports uses modified exported election, not original VxHub election',
       jurisdictionId: nonVxJurisdiction.id,
       upload: {
         format: 'vxf',
-        electionFileContents: JSON.stringify(
-          baseElectionDefinition.election,
-          null,
-          2
+        electionFileContents: Buffer.from(
+          JSON.stringify(baseElectionDefinition.election, null, 2)
         ),
       },
     })

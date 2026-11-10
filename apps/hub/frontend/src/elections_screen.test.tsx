@@ -129,8 +129,9 @@ test('with no elections, loading an election', async () => {
   const file = new File([electionData], 'election.json', {
     type: 'application/json',
   });
-  // JSDOM's File doesn't implement File.text
-  file.text = () => Promise.resolve(electionData);
+  const electionBytes = new TextEncoder().encode(electionData);
+  // JSDOM's File doesn't implement File.arrayBuffer
+  file.arrayBuffer = () => Promise.resolve(electionBytes.buffer);
   await userEvent.upload(loadElectionInput, file);
 
   apiMock.loadElection
@@ -139,7 +140,7 @@ test('with no elections, loading an election', async () => {
       newId: ELECTION_ID,
       upload: {
         format: 'vxf',
-        electionFileContents: electionData,
+        electionFileContents: electionBytes,
       },
     })
     .resolves(ok(electionRecord.election.id));
