@@ -288,12 +288,6 @@ pub struct Image {
 // SAFETY: the pixel buffer is plain memory owned exclusively by this value and never mutated.
 unsafe impl Send for Image {}
 
-macro_rules! prop {
-    ($self:expr, $field:ident) => {
-        $self.props.$field
-    };
-}
-
 impl Image {
     /// Takes ownership of the two buffers passed to the image callback, copying the properties
     /// and freeing the `ImageInfo_t`. A struct smaller than ours is rejected with its size (and
@@ -343,69 +337,69 @@ impl Image {
 
     #[must_use]
     pub fn stream_id(&self) -> i32 {
-        prop!(self, streamID)
+        self.props.streamID
     }
     #[must_use]
     pub fn scan_side(&self) -> ScanSide {
-        prop!(self, scanSide).into()
+        self.props.scanSide.into()
     }
     #[must_use]
     pub fn seq_id(&self) -> i64 {
-        prop!(self, seqID)
+        self.props.seqID
     }
     #[must_use]
     pub fn counters(&self) -> [i64; 4] {
-        prop!(self, counter)
+        self.props.counter
     }
     #[must_use]
     pub fn resolution(&self) -> i32 {
-        prop!(self, resolution)
+        self.props.resolution
     }
     #[must_use]
     pub fn lines(&self) -> i32 {
-        prop!(self, lines)
+        self.props.lines
     }
     #[must_use]
     pub fn bytes_per_line(&self) -> i32 {
-        prop!(self, bytesPerLine)
+        self.props.bytesPerLine
     }
     #[must_use]
     pub fn pixels_per_line(&self) -> i32 {
-        prop!(self, pixelsPerLine)
+        self.props.pixelsPerLine
     }
     #[must_use]
     pub fn bits_per_pixel(&self) -> i32 {
-        prop!(self, bitsPerPixel)
+        self.props.bitsPerPixel
     }
     /// Byte length of [`Image::data`].
     #[must_use]
     pub fn size(&self) -> i32 {
-        prop!(self, size)
+        self.props.size
     }
     /// `INO_IP_FILEFORMAT_*`.
     #[must_use]
     pub fn file_format(&self) -> i32 {
-        prop!(self, fileformat)
+        self.props.fileformat
     }
     /// `INO_IP_COMPRESSION_*`.
     #[must_use]
     pub fn compression(&self) -> i32 {
-        prop!(self, compression)
+        self.props.compression
     }
     /// `INO_IP_DOUBLEFEED_*`.
     #[must_use]
     pub fn double_feed(&self) -> i32 {
-        prop!(self, doubleFeed)
+        self.props.doubleFeed
     }
     /// `INO_IP_BLANKPAGE_*`.
     #[must_use]
     pub fn blank_page(&self) -> i32 {
-        prop!(self, blankPage)
+        self.props.blankPage
     }
     /// `INO_IP_INTEGRITY_*`.
     #[must_use]
     pub fn integrity(&self) -> i32 {
-        prop!(self, integrity)
+        self.props.integrity
     }
     #[must_use]
     pub fn endorser_front_text(&self) -> String {
