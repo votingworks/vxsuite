@@ -11,6 +11,7 @@ import { createHash } from 'node:crypto';
 import {
   type Election,
   type ElectionDefinition,
+  decodeElectionData,
   hashElectionData,
   safeParseElection,
   safeParseInt,
@@ -23,6 +24,7 @@ import {
   openZip,
   getEntries,
   getFilePrefixedByName,
+  readEntry,
   readTextEntry,
   isSystemAdministratorAuth,
   isElectionManagerAuth,
@@ -264,9 +266,19 @@ export async function readPollbookPackage(
       'json',
       zipName
     );
-    const electionJsonString = await readTextEntry(electionEntry);
+    const electionBytes = await readEntry(electionEntry);
+    const decodeResult = decodeElectionData(electionBytes);
+    if (decodeResult.isErr()) {
+      return err({
+        type: 'ReadFileError',
+        error: new Error(
+          `Error decoding election definition: ${decodeResult.err()}`
+        ),
+      });
+    }
+
+    const electionJsonString = decodeResult.ok();
     const electionResult = safeParseElection(electionJsonString);
-    // @coverage-defer
     if (electionResult.isErr()) {
       debug('Error parsing election definition: %O', electionResult.err());
       return err({
@@ -279,7 +291,7 @@ export async function readPollbookPackage(
 
     const election = electionResult.ok();
     const electionDefinition: ElectionDefinition = {
-      ballotHash: hashElectionData(electionJsonString),
+      ballotHash: hashElectionData(electionBytes),
       election,
     };
 

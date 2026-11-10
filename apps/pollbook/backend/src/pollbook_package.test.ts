@@ -1,4 +1,10 @@
 import { describe, test, expect } from 'vitest';
+import { Buffer } from 'node:buffer';
+import { createHash } from 'node:crypto';
+import {
+  electionSimpleSinglePrecinctFixtures,
+  makeTemporaryFile,
+} from '@votingworks/fixtures';
 import type {
   Election,
   StreetSide,
@@ -9,8 +15,10 @@ import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import {
   parseVotersFromCsvString,
   parseValidStreetsFromCsvString,
+  readPollbookPackage,
 } from './pollbook_package.js';
 import { getTestElection } from '../test/test_helpers.js';
+import { mockPollbookPackageZip } from '../test/pollbook_package.js';
 
 // Get test election and add precincts with external IDs for testing
 const baseElection = getTestElection();
@@ -443,6 +451,59 @@ Main St,100,200,odd`;
       side: 'odd',
       postalCityTown: undefined,
       precinct: '',
+    });
+  });
+});
+
+describe('readPollbookPackage', () => {
+  const fixtures = electionSimpleSinglePrecinctFixtures;
+
+  async function readPackageWithElection(electionData: Buffer) {
+    return readPollbookPackage(
+      makeTemporaryFile({
+        content: await mockPollbookPackageZip(
+          electionData,
+          fixtures.pollbookTownVoters.asText(),
+          fixtures.pollbookTownStreetNames.asText()
+        ),
+      })
+    );
+  }
+
+  test('hashes the election file bytes', async () => {
+    const electionData = fixtures.electionSinglePrecinctBase.asBuffer();
+    const pollbookPackage = (
+      await readPackageWithElection(electionData)
+    ).unsafeUnwrap();
+    expect(pollbookPackage.electionDefinition.ballotHash).toEqual(
+      createHash('sha256').update(electionData).digest('hex')
+    );
+  });
+
+  test('rejects an election file that is not valid UTF-8', async () => {
+    const result = await readPackageWithElection(
+      Buffer.from([0x7b, 0xff, 0x7d])
+    );
+    expect(result.err()).toEqual({
+      type: 'ReadFileError',
+      error: expect.objectContaining({
+        message: expect.stringMatching(/decoding/),
+      }),
+    });
+  });
+
+  test('rejects an election file with a byte order mark', async () => {
+    const result = await readPackageWithElection(
+      Buffer.concat([
+        Buffer.from([0xef, 0xbb, 0xbf]),
+        fixtures.electionSinglePrecinctBase.asBuffer(),
+      ])
+    );
+    expect(result.err()).toEqual({
+      type: 'ReadFileError',
+      error: expect.objectContaining({
+        message: expect.stringMatching(/parsing/),
+      }),
     });
   });
 });
