@@ -55,8 +55,7 @@
     "express": "4.22.0",
     "luxon": "^3.0.0",
     "tmp": "^0.2.6",
-    "xstate": "^4.33.0",
-    "zod": "4.6.6"
+    "xstate": "^4.33.0"
   },
   "devDependencies": {
     "@types/debug": "4.1.12",

@@ -38,7 +38,6 @@
     "@votingworks/basics": "workspace:*",
     "@votingworks/db": "workspace:*",
     "@votingworks/dev-dock-backend": "workspace:*",
-    "@votingworks/fs": "workspace:*",
     "@votingworks/grout": "workspace:*",
     "@votingworks/hmpb": "workspace:*",
     "@votingworks/logging": "workspace:*",
@@ -48,16 +47,12 @@
     "@votingworks/ui": "workspace:*",
     "@votingworks/usb-drive": "workspace:*",
     "@votingworks/utils": "workspace:*",
-    "debug": "4.3.4",
     "express": "4.22.0",
-    "helmet": "^8.1.0",
     "react": "18.3.1",
     "styled-components": "^5.3.11",
-    "vitest": "5.0.2",
-    "zod": "4.6.6"
+    "vitest": "5.0.2"
   },
   "devDependencies": {
-    "@types/debug": "4.1.12",
     "@types/express": "4.17.14",
     "@types/jest-image-snapshot": "^6.4.0",
     "@types/node": "24.19.2",

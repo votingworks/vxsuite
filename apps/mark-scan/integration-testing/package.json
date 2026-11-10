@@ -16,14 +16,7 @@
   },
   "dependencies": {
     "@playwright/test": "1.55.1",
-    "@votingworks/auth": "workspace:*",
-    "@votingworks/backend": "workspace:*",
-    "@votingworks/basics": "workspace:*",
-    "@votingworks/fixtures": "workspace:*",
-    "@votingworks/grout": "workspace:*",
     "@votingworks/integration-test-utils": "workspace:*",
-    "@votingworks/types": "workspace:*",
-    "@votingworks/usb-drive": "workspace:*",
     "concurrently": "7.6.0"
   },
   "devDependencies": {
