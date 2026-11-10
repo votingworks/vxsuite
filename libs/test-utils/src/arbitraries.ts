@@ -19,7 +19,7 @@ import {
   type District,
   type DistrictId,
   type Election,
-  type ElectionDefinition,
+  type ElectionDefinitionWithData,
   ELECTION_TYPES,
   type Id,
   type Party,
@@ -632,7 +632,7 @@ export function arbitraryElection(): fc.Arbitrary<Election> {
  *     )
  *   })
  */
-export function arbitraryElectionDefinition(): fc.Arbitrary<ElectionDefinition> {
+export function arbitraryElectionDefinition(): fc.Arbitrary<ElectionDefinitionWithData> {
   return arbitraryElection()
     .map((election) => ({
       election,

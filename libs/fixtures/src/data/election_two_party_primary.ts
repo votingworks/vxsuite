@@ -1,5 +1,5 @@
 import path from 'node:path';
-import type { Election, ElectionDefinition } from '@votingworks/types';
+import type { Election, ElectionDefinitionWithData } from '@votingworks/types';
 import * as builders from '../builders.js';
 import { asElectionDefinition } from '../util.js';
 
@@ -24,7 +24,7 @@ export function makeSinglePrecinctElection(): Election {
   };
 }
 
-export function makeSinglePrecinctElectionDefinition(): ElectionDefinition {
+export function makeSinglePrecinctElectionDefinition(): ElectionDefinitionWithData {
   return asElectionDefinition(makeSinglePrecinctElection());
 }
 

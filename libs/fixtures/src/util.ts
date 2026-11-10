@@ -1,7 +1,9 @@
 import { createHash } from 'node:crypto';
-import type { Election, ElectionDefinition } from '@votingworks/types';
+import type { Election, ElectionDefinitionWithData } from '@votingworks/types';
 
-export function asElectionDefinition(election: Election): ElectionDefinition {
+export function asElectionDefinition(
+  election: Election
+): ElectionDefinitionWithData {
   const electionData = JSON.stringify(election);
   return {
     election,

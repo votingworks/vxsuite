@@ -1,7 +1,7 @@
 import {
   DEFAULT_SYSTEM_SETTINGS,
   type Election,
-  type ElectionDefinition,
+  type ElectionDefinitionWithData,
   type ElectionPackage,
   hashElectionData,
   LATEST_METADATA,
@@ -58,7 +58,7 @@ export interface ElectionFixture extends FileFixture {
   /**
    * Reads the election definition from the file.
    */
-  readElectionDefinition(): ElectionDefinition;
+  readElectionDefinition(): ElectionDefinitionWithData;
 
   /**
    * Converts the election file to an election package.
@@ -157,7 +157,7 @@ export function directory(path: string): DirectoryFixture {
 export function election(path: string): ElectionFixture {
   const inner = file(path);
 
-  function readElectionDefinition(): ElectionDefinition {
+  function readElectionDefinition(): ElectionDefinitionWithData {
     const electionData = inner.asText();
     const ballotHash = hashElectionData(electionData);
     const el = safeParseElection(electionData).unsafeUnwrap();
