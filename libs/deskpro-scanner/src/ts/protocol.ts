@@ -350,23 +350,39 @@ export interface ScannedImage {
   readonly data: Buffer;
 }
 
-const ImagePayloadSchema = z.tuple([
-  ImageHeaderSchema,
-  z.custom<Buffer>((value) => Buffer.isBuffer(value), 'expected pixel bytes'),
-]);
+const IMAGE_HEADER_LENGTH_SIZE = 4;
 
-/** Decodes an image frame payload, a CBOR `[header, pixels]` array, borrowing the pixels. */
+/** Decodes an image frame payload, borrowing the pixels. */
 export function decodeImage(payload: Buffer): ScannedImage {
-  const [header, data] = decodeAs(ImagePayloadSchema, payload);
-  return { header, data };
+  if (payload.length < IMAGE_HEADER_LENGTH_SIZE) {
+    throw new ProtocolError('image payload has no header length');
+  }
+  const headerEnd = IMAGE_HEADER_LENGTH_SIZE + payload.readUInt32LE(0);
+  if (headerEnd > payload.length) {
+    throw new ProtocolError(
+      `${headerEnd - IMAGE_HEADER_LENGTH_SIZE}-byte image header declared, ${
+        payload.length - IMAGE_HEADER_LENGTH_SIZE
+      } bytes present`
+    );
+  }
+  return {
+    header: decodeAs(
+      ImageHeaderSchema,
+      payload.subarray(IMAGE_HEADER_LENGTH_SIZE, headerEnd)
+    ),
+    data: payload.subarray(headerEnd),
+  };
 }
 
 /** Encodes an image frame payload, as the daemon does. */
 export function encodeImage({ header, data }: ScannedImage): Buffer {
-  return encoder.encode([
-    { ...header, counters: header.counters.map(int64) },
-    data,
-  ]);
+  const encodedHeader = encoder.encode({
+    ...header,
+    counters: header.counters.map(int64),
+  });
+  const headerLength = Buffer.alloc(IMAGE_HEADER_LENGTH_SIZE);
+  headerLength.writeUInt32LE(encodedHeader.length);
+  return Buffer.concat([headerLength, encodedHeader, data]);
 }
 
 /** The first frame the daemon writes. */

@@ -240,7 +240,6 @@ name = "deskpro-scanner"
 version = "0.1.0"
 dependencies = [
  "ciborium",
- "ciborium-ll",
  "clap",
  "color-eyre",
  "ctrlc",

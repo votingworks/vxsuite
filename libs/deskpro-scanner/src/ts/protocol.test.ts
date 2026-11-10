@@ -89,37 +89,43 @@ test('an int64 too large for a number is rejected rather than silently rounded',
   expect(() => decodeEvent(payload)).toThrow(ProtocolError);
 });
 
+const IMAGE_HEADER = {
+  seqId: 42,
+  streamId: 0,
+  scanSide: 1,
+  resolution: 200,
+  pixelsPerLine: 1_700,
+  lines: 2_200,
+  bytesPerLine: 1_700,
+  bitsPerPixel: 8,
+  fileFormat: 2,
+  compression: 0,
+  doubleFeed: 0,
+  blankPage: 0,
+  integrity: 0,
+  counters: [1, 2, 3, -9_000_000_000],
+  endorserFrontText: 'batch7_0042',
+  endorserBackText: '',
+} as const;
+
 test('decodes an image without copying the pixels', () => {
   const pixels = Buffer.alloc(10_000, 0xab);
-  const header = {
-    seqId: 42,
-    streamId: 0,
-    scanSide: 1,
-    resolution: 200,
-    pixelsPerLine: 1_700,
-    lines: 2_200,
-    bytesPerLine: 1_700,
-    bitsPerPixel: 8,
-    fileFormat: 2,
-    compression: 0,
-    doubleFeed: 0,
-    blankPage: 0,
-    integrity: 0,
-    counters: [1, 2, 3, -9_000_000_000],
-    endorserFrontText: 'batch7_0042',
-    endorserBackText: '',
-  } as const;
-  const payload = encodeImage({ header, data: pixels });
+  const payload = encodeImage({ header: IMAGE_HEADER, data: pixels });
 
   const image = decodeImage(payload);
-  expect(image.header).toEqual(header);
+  expect(image.header).toEqual(IMAGE_HEADER);
   expect(image.data).toEqual(pixels);
   // The pixels are a window onto the frame, not a copy of it.
   expect(image.data.buffer).toEqual(payload.buffer);
 });
 
-test('an image without pixel bytes is a protocol error', () => {
-  expect(() => decodeImage(encodeEvent({ kind: 'log', message: '' }))).toThrow(
-    ProtocolError
+test('an image with a truncated header is a protocol error', () => {
+  const payload = encodeImage({
+    header: IMAGE_HEADER,
+    data: Buffer.alloc(0),
+  });
+  expect(() => decodeImage(payload.subarray(0, 3))).toThrow(/no header length/);
+  expect(() => decodeImage(payload.subarray(0, 10))).toThrow(
+    /image header declared/
   );
 });

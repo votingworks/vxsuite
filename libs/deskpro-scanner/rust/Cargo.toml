@@ -36,7 +36,6 @@ path = "examples/diag.rs"
 
 [dependencies]
 ciborium = "0.2.2"
-ciborium-ll = "0.2.2"
 clap = { version = "4.0.29", features = ["derive", "env"] }
 color-eyre = "0.6.2"
 ctrlc = { version = "3.4.2", features = ["termination"] }

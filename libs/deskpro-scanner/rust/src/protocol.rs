@@ -1,11 +1,11 @@
 //! The wire protocol between `deskproctl` and its Node client: frames of a 1-byte type and a
-//! little-endian `u32` payload length, each carrying one CBOR item.
+//! little-endian `u32` payload length, each carrying one CBOR item. An image payload is instead a
+//! little-endian `u32` header length, the CBOR header, then the raw pixels.
 //!
 //! `../src/ts/protocol.ts` is the other half of this file and must change with it.
 
 #![allow(clippy::missing_errors_doc, clippy::missing_panics_doc)] // the `expect`s are on writes to a `Vec`
 
-use ciborium_ll::Header;
 use serde::{Deserialize, Serialize, de::DeserializeOwned};
 
 pub mod frame_type {
@@ -243,21 +243,20 @@ pub struct ImageHeader {
     pub endorser_back_text: String,
 }
 
-/// Encodes an image frame, a CBOR `[header, pixels]` array, up to its pixels, which the caller
-/// writes right after it. Fails with the payload size if the frame would exceed
-/// [`MAX_FRAME_PAYLOAD`].
+const IMAGE_HEADER_LENGTH_SIZE: usize = size_of::<u32>();
+
+/// Encodes an image frame up to its pixels, which the caller writes right after it. Fails with
+/// the payload size if the frame would exceed [`MAX_FRAME_PAYLOAD`].
 pub fn encode_image_frame_prefix(
     header: &ImageHeader,
     data_len: usize,
 ) -> std::result::Result<Vec<u8>, usize> {
-    let mut prefix = vec![frame_type::IMAGE, 0, 0, 0, 0];
-    ciborium_ll::Encoder::from(&mut prefix)
-        .push(Header::Array(Some(2)))
-        .expect("writing to a Vec");
+    let header_start = FRAME_HEADER_LENGTH + IMAGE_HEADER_LENGTH_SIZE;
+    let mut prefix = vec![0; header_start];
+    prefix[0] = frame_type::IMAGE;
     ciborium::into_writer(header, &mut prefix).expect("protocol types always serialize");
-    ciborium_ll::Encoder::from(&mut prefix)
-        .push(Header::Bytes(Some(data_len)))
-        .expect("writing to a Vec");
+    let header_len = u32::try_from(prefix.len() - header_start).expect("an image header is small");
+    prefix[FRAME_HEADER_LENGTH..header_start].copy_from_slice(&header_len.to_le_bytes());
     let payload_len = prefix.len() - FRAME_HEADER_LENGTH + data_len;
     match u32::try_from(payload_len) {
         Ok(length) if length <= MAX_FRAME_PAYLOAD => {
@@ -270,35 +269,17 @@ pub fn encode_image_frame_prefix(
 
 /// Decodes an image frame payload, borrowing the pixels from it.
 pub fn decode_image(payload: &[u8]) -> Result<(ImageHeader, &[u8])> {
-    let invalid = |error: &dyn std::fmt::Display| DecodeError::Invalid(error.to_string());
-    let mut rest = payload;
-    match ciborium_ll::Decoder::from(&mut rest).pull() {
-        Ok(Header::Array(Some(2))) => {}
-        Ok(header) => {
-            return Err(invalid(&format_args!(
-                "expected a 2-item array, got {header:?}"
-            )));
-        }
-        Err(error) => return Err(invalid(&format_args!("{error:?}"))),
-    }
-    let header: ImageHeader = ciborium::from_reader(&mut rest).map_err(|error| invalid(&error))?;
-    let length = match ciborium_ll::Decoder::from(&mut rest).pull() {
-        Ok(Header::Bytes(Some(length))) => length,
-        Ok(header) => {
-            return Err(invalid(&format_args!(
-                "expected pixel bytes, got {header:?}"
-            )));
-        }
-        Err(error) => return Err(invalid(&format_args!("{error:?}"))),
-    };
-    match rest.len().checked_sub(length) {
-        Some(0) => Ok((header, rest)),
-        Some(extra) => Err(DecodeError::TrailingData { payload: extra }),
-        None => Err(invalid(&format_args!(
-            "{length} pixel bytes declared, {} present",
+    let (header_len, rest) = payload
+        .split_first_chunk::<IMAGE_HEADER_LENGTH_SIZE>()
+        .ok_or_else(|| DecodeError::Invalid("image payload has no header length".to_owned()))?;
+    let header_len = u32::from_le_bytes(*header_len) as usize;
+    let (header, pixels) = rest.split_at_checked(header_len).ok_or_else(|| {
+        DecodeError::Invalid(format!(
+            "{header_len}-byte image header declared, {} bytes present",
             rest.len()
-        ))),
-    }
+        ))
+    })?;
+    Ok((decode(header)?, pixels))
 }
 
 /// The first frame the daemon writes.
@@ -662,13 +643,18 @@ mod tests {
     }
 
     #[test]
-    fn a_truncated_image_is_an_error() {
-        let mut frame = encode_image_frame_prefix(&an_image_header(), 3).expect("within the limit");
-        frame.extend_from_slice(&[1, 2]);
-        assert!(matches!(
-            decode_image(&frame[FRAME_HEADER_LENGTH..]),
-            Err(DecodeError::Invalid(_))
-        ));
+    fn a_truncated_image_header_is_an_error() {
+        let frame = encode_image_frame_prefix(&an_image_header(), 0).expect("within the limit");
+        let payload = &frame[FRAME_HEADER_LENGTH..];
+        for length in 0..payload.len() {
+            assert!(
+                matches!(
+                    decode_image(&payload[..length]),
+                    Err(DecodeError::Invalid(_))
+                ),
+                "a {length}-byte prefix should not decode"
+            );
+        }
     }
 
     #[test]
@@ -680,13 +666,6 @@ mod tests {
         encoded.push(0);
         assert_eq!(
             Command::decode(&encoded),
-            Err(DecodeError::TrailingData { payload: 1 })
-        );
-
-        let mut image = encode_image_frame_prefix(&an_image_header(), 1).expect("within the limit");
-        image.extend_from_slice(&[1, 2]);
-        assert_eq!(
-            decode_image(&image[FRAME_HEADER_LENGTH..]),
             Err(DecodeError::TrailingData { payload: 1 })
         );
     }
