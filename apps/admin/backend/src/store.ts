@@ -4629,7 +4629,7 @@ export class Store implements BaseStore {
     this.client.run('delete from design_elections');
   }
 
-  listDistricts(electionId: ElectionId): District[] {
+  listElectionDefinitionDistricts(electionId: ElectionId): District[] {
     const districts = this.client.all(
       `
       select id, name
@@ -4643,7 +4643,7 @@ export class Store implements BaseStore {
     );
   }
 
-  updateDistricts(
+  updateElectionDefinitionDistricts(
     input: DistrictsUpdate
   ): Result<void, DuplicateDistrictError> {
     const { electionId } = input;

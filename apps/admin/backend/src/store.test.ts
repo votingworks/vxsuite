@@ -2616,10 +2616,10 @@ describe('design districts', () => {
 
   test('add, rename and delete districts', () => {
     const store = setUpStore();
-    expect(store.listDistricts(electionId)).toEqual([]);
+    expect(store.listElectionDefinitionDistricts(electionId)).toEqual([]);
 
     expect(
-      store.updateDistricts({
+      store.updateElectionDefinitionDistricts({
         electionId,
         newDistricts: [
           { id: 'd10', name: 'District 10' },
@@ -2628,21 +2628,21 @@ describe('design districts', () => {
         ],
       })
     ).toEqual(ok());
-    expect(store.listDistricts(electionId)).toEqual([
+    expect(store.listElectionDefinitionDistricts(electionId)).toEqual([
       { id: 'd1', name: 'District 1' },
       { id: 'd2', name: 'District 2' },
       { id: 'd10', name: 'District 10' },
     ]);
 
     expect(
-      store.updateDistricts({
+      store.updateElectionDefinitionDistricts({
         electionId,
         deletedDistrictIds: ['d1'],
         updatedDistricts: [{ id: 'd2', name: 'District 1' }],
         newDistricts: [{ id: 'd3', name: 'District 3' }],
       })
     ).toEqual(ok());
-    expect(store.listDistricts(electionId)).toEqual([
+    expect(store.listElectionDefinitionDistricts(electionId)).toEqual([
       { id: 'd2', name: 'District 1' },
       { id: 'd3', name: 'District 3' },
       { id: 'd10', name: 'District 10' },
@@ -2656,47 +2656,52 @@ describe('design districts', () => {
       { id: 'd2', name: 'District 2' },
     ];
     store
-      .updateDistricts({ electionId, newDistricts: districts })
+      .updateElectionDefinitionDistricts({
+        electionId,
+        newDistricts: districts,
+      })
       .unsafeUnwrap();
 
     expect(
-      store.updateDistricts({
+      store.updateElectionDefinitionDistricts({
         electionId,
         deletedDistrictIds: ['d2'],
         newDistricts: [{ id: 'd3', name: 'District 1' }],
       })
     ).toEqual(err({ code: 'duplicate-name', districtId: 'd3' }));
     expect(
-      store.updateDistricts({
+      store.updateElectionDefinitionDistricts({
         electionId,
         updatedDistricts: [{ id: 'd2', name: 'District 1' }],
       })
     ).toEqual(err({ code: 'duplicate-name', districtId: 'd2' }));
-    expect(store.listDistricts(electionId)).toEqual(districts);
+    expect(store.listElectionDefinitionDistricts(electionId)).toEqual(
+      districts
+    );
   });
 
   test('rejects unknown and conflicting district ids', () => {
     const store = setUpStore();
     store
-      .updateDistricts({
+      .updateElectionDefinitionDistricts({
         electionId,
         newDistricts: [{ id: 'd1', name: 'District 1' }],
       })
       .unsafeUnwrap();
 
     expect(() =>
-      store.updateDistricts({
+      store.updateElectionDefinitionDistricts({
         electionId,
         updatedDistricts: [{ id: 'missing', name: 'District 2' }],
       })
     ).toThrow('District not found');
     expect(() =>
-      store.updateDistricts({
+      store.updateElectionDefinitionDistricts({
         electionId,
         newDistricts: [{ id: 'd1', name: 'District 2' }],
       })
     ).toThrow();
-    expect(store.listDistricts(electionId)).toEqual([
+    expect(store.listElectionDefinitionDistricts(electionId)).toEqual([
       { id: 'd1', name: 'District 1' },
     ]);
   });
@@ -2704,26 +2709,26 @@ describe('design districts', () => {
   test('rejects blank district names without saving', () => {
     const store = setUpStore();
     store
-      .updateDistricts({
+      .updateElectionDefinitionDistricts({
         electionId,
         newDistricts: [{ id: 'd1', name: 'District 1' }],
       })
       .unsafeUnwrap();
 
     expect(() =>
-      store.updateDistricts({
+      store.updateElectionDefinitionDistricts({
         electionId,
         deletedDistrictIds: ['d1'],
         newDistricts: [{ id: 'd2', name: '' }],
       })
     ).toThrow();
     expect(() =>
-      store.updateDistricts({
+      store.updateElectionDefinitionDistricts({
         electionId,
         updatedDistricts: [{ id: 'd1', name: '' }],
       })
     ).toThrow();
-    expect(store.listDistricts(electionId)).toEqual([
+    expect(store.listElectionDefinitionDistricts(electionId)).toEqual([
       { id: 'd1', name: 'District 1' },
     ]);
   });
@@ -2731,13 +2736,13 @@ describe('design districts', () => {
   test('deleting the election deletes its districts', () => {
     const store = setUpStore();
     store
-      .updateDistricts({
+      .updateElectionDefinitionDistricts({
         electionId,
         newDistricts: [{ id: 'd1', name: 'District 1' }],
       })
       .unsafeUnwrap();
 
     store.deleteInProgressElection();
-    expect(store.listDistricts(electionId)).toEqual([]);
+    expect(store.listElectionDefinitionDistricts(electionId)).toEqual([]);
   });
 });

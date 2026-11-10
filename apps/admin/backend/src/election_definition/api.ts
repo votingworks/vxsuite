@@ -144,14 +144,14 @@ function createElectionDefinitionApiMethods({
 
     listDistricts(input: ElectionInput): District[] {
       loadInProgressElectionInfo(input);
-      return store.listDistricts(input.electionId);
+      return store.listElectionDefinitionDistricts(input.electionId);
     },
 
     async updateDistricts(
       input: DistrictsUpdate
     ): Promise<Result<void, DuplicateDistrictError>> {
       loadInProgressElectionInfo(input);
-      const result = store.updateDistricts(input);
+      const result = store.updateElectionDefinitionDistricts(input);
       if (result.isErr()) {
         await logger.logAsCurrentRole(
           LogEventId.ElectionDefinitionDistrictsUpdated,
