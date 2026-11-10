@@ -44,7 +44,6 @@
     "@vitest/coverage-istanbul": "5.0.2",
     "@votingworks/coverage-check": "workspace:*",
     "esbuild": "0.28.1",
-    "esbuild-runner": "2.2.2",
     "eslint-plugin-vx": "workspace:*",
     "vitest": "5.0.2"
   },
