@@ -78,3 +78,12 @@ export const FormFixed = styled.form<FormFixedProps>`
       }
     `}
 `;
+
+export const FormTitle = styled(H2)`
+  /*
+   * Offset the vertical flex gap a bit to keep this visually attached to the
+   * rest of the form body.
+   */
+  margin-bottom: -0.25rem;
+  padding: 0;
+`;
