@@ -293,9 +293,11 @@ impl Session {
                 self.driver = None;
                 ResponseBody::Ok
             }
-            CommandBody::GetStatus => {
-                self.with_driver(|driver| Ok(ResponseBody::Status(driver.status())))
-            }
+            CommandBody::GetStatus => self.with_driver(|driver| {
+                Ok(ResponseBody::Status {
+                    status: driver.status(),
+                })
+            }),
             CommandBody::GetVersions => self.with_driver(|driver| {
                 let api = driver.api_version()?;
                 let scanner = driver.scanner_version()?;

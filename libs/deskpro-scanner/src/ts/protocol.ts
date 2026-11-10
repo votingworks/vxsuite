@@ -1,14 +1,12 @@
 /** Wire protocol shared with `rust/src/protocol.rs`; change both together. */
 
 import { Buffer } from 'node:buffer';
-import { throwIllegalValue } from '@votingworks/basics';
+import { Decoder, Encoder } from 'cbor-x';
+import { z } from 'zod';
+import { extractErrorMessage } from '@votingworks/basics';
 import { ProtocolError } from './protocol_error.js';
-import { Reader } from './reader.js';
-import { Writer } from './writer.js';
 
 export { ProtocolError } from './protocol_error.js';
-export { Reader } from './reader.js';
-export { Writer } from './writer.js';
 
 /** Frame types in either direction. */
 export const FrameType = {
@@ -50,23 +48,51 @@ export function decodeFrameHeader(header: Buffer): FrameHeader {
   return { frameType: header.readUInt8(0), length };
 }
 
-const CommandKind = {
-  Exit: 0,
-  Connect: 1,
-  Disconnect: 2,
-  GetStatus: 3,
-  GetVersions: 4,
-  GetProfile: 5,
-  SetProfile: 6,
-  SetReady: 7,
-  ScanStart: 8,
-  ScanStop: 9,
-  ScanPause: 10,
-  ScanResume: 11,
-  SetImprinterText: 12,
-  SetCounter: 13,
-  SetNumberOfSheets: 14,
-} as const;
+const encoder = new Encoder({
+  useRecords: false,
+  variableMapSize: true,
+  tagUint8Array: false,
+});
+
+const decoder = new Decoder({ useRecords: false, mapsAsObjects: true });
+
+const U8 = z.int().min(0).max(0xff);
+const U32 = z.int().min(0).max(0xffff_ffff);
+const I32 = z.int().min(-0x8000_0000).max(0x7fff_ffff);
+/**
+ * `int64_t`; the driver's values (sequence ids, counters) fit in a safe integer. `cbor-x` decodes
+ * 8-byte integers as `bigint`.
+ */
+const I64 = z.union([
+  z.int(),
+  z
+    .bigint()
+    .min(BigInt(Number.MIN_SAFE_INTEGER))
+    .max(BigInt(Number.MAX_SAFE_INTEGER))
+    .pipe(z.coerce.number()),
+]);
+
+function decodeAs<T>(schema: z.ZodType<T>, payload: Buffer): T {
+  let value: unknown;
+  try {
+    value = decoder.decode(payload);
+  } catch (error) {
+    throw new ProtocolError(`invalid CBOR: ${extractErrorMessage(error)}`);
+  }
+  const result = schema.safeParse(value);
+  if (!result.success) {
+    throw new ProtocolError(z.prettifyError(result.error));
+  }
+  return result.data;
+}
+
+/**
+ * `cbor-x` writes integers wider than 32 bits as float64, which `i64` fields reject, so send
+ * those as `bigint`.
+ */
+function int64(value: number): number | bigint {
+  return value >= -0x8000_0000 && value <= 0xffff_ffff ? value : BigInt(value);
+}
 
 /** A request to the daemon. */
 export type Command =
@@ -90,89 +116,67 @@ export type Command =
     }
   | { readonly kind: 'setNumberOfSheets'; readonly count: number };
 
-/** Encodes a command with the id its response will echo back. */
-export function encodeCommand(id: number, command: Command): Buffer {
-  const w = new Writer().u32(id);
-  switch (command.kind) {
-    case 'exit':
-      w.u8(CommandKind.Exit);
-      break;
-    case 'connect':
-      w.u8(CommandKind.Connect).str(command.appId);
-      break;
-    case 'disconnect':
-      w.u8(CommandKind.Disconnect);
-      break;
-    case 'getStatus':
-      w.u8(CommandKind.GetStatus);
-      break;
-    case 'getVersions':
-      w.u8(CommandKind.GetVersions);
-      break;
-    case 'getProfile':
-      w.u8(CommandKind.GetProfile);
-      break;
-    case 'setProfile':
-      w.u8(CommandKind.SetProfile).str(command.profile);
-      break;
-    case 'setReady':
-      w.u8(CommandKind.SetReady).bool(command.ready);
-      break;
-    case 'scanStart':
-      w.u8(CommandKind.ScanStart);
-      break;
-    case 'scanStop':
-      w.u8(CommandKind.ScanStop);
-      break;
-    case 'scanPause':
-      w.u8(CommandKind.ScanPause);
-      break;
-    case 'scanResume':
-      w.u8(CommandKind.ScanResume);
-      break;
-    case 'setImprinterText':
-      w.u8(CommandKind.SetImprinterText).str(command.text);
-      break;
-    case 'setCounter':
-      w.u8(CommandKind.SetCounter).u8(command.index).i64(command.value);
-      break;
-    case 'setNumberOfSheets':
-      w.u8(CommandKind.SetNumberOfSheets).u32(command.count);
-      break;
-    default:
-      throwIllegalValue(command);
-  }
-  return w.finish();
+const CommandSchema: z.ZodType<Command> = z.discriminatedUnion('kind', [
+  z.object({ kind: z.literal('exit') }),
+  z.object({ kind: z.literal('connect'), appId: z.string() }),
+  z.object({ kind: z.literal('disconnect') }),
+  z.object({ kind: z.literal('getStatus') }),
+  z.object({ kind: z.literal('getVersions') }),
+  z.object({ kind: z.literal('getProfile') }),
+  z.object({ kind: z.literal('setProfile'), profile: z.string() }),
+  z.object({ kind: z.literal('setReady'), ready: z.boolean() }),
+  z.object({ kind: z.literal('scanStart') }),
+  z.object({ kind: z.literal('scanStop') }),
+  z.object({ kind: z.literal('scanPause') }),
+  z.object({ kind: z.literal('scanResume') }),
+  z.object({ kind: z.literal('setImprinterText'), text: z.string() }),
+  z.object({ kind: z.literal('setCounter'), index: U8, value: I64 }),
+  z.object({ kind: z.literal('setNumberOfSheets'), count: U32 }),
+]);
+
+/** A command together with the id its response will echo back. */
+export interface CommandFrame {
+  readonly id: number;
+  readonly body: Command;
 }
 
-/** Must match `Response` in `protocol.rs`. */
-export const ResponseKind = {
-  Ok: 0,
-  Error: 1,
-  Status: 2,
-  Versions: 3,
-  Profile: 4,
-} as const;
+const CommandFrameSchema: z.ZodType<CommandFrame> = z.object({
+  id: U32,
+  body: CommandSchema,
+});
 
-/** Must match `ErrorCode` in `protocol.rs`; the keys are also `ScannerError` codes. */
-export const ErrorCode = {
-  driverUnavailable: 1,
-  notConnected: 2,
-  alreadyConnected: 3,
-  driver: 4,
-  badRequest: 5,
-  other: 6,
-} as const;
+/** Encodes a command with the id its response will echo back; throws if a field is out of range. */
+export function encodeCommand(id: number, command: Command): Buffer {
+  const result = CommandFrameSchema.safeParse({ id, body: command });
+  if (!result.success) {
+    throw new ProtocolError(z.prettifyError(result.error));
+  }
+  const body =
+    command.kind === 'setCounter'
+      ? { ...command, value: int64(command.value) }
+      : command;
+  return encoder.encode({ id, body });
+}
 
-/** The name of an {@link ErrorCode}. */
-export type ErrorCodeName = keyof typeof ErrorCode;
+/** Decodes a command frame payload. */
+export function decodeCommand(payload: Buffer): CommandFrame {
+  return decodeAs(CommandFrameSchema, payload);
+}
 
-const ERROR_CODE_NAMES: ReadonlyMap<number, ErrorCodeName> = new Map(
-  Object.entries(ErrorCode).map(([name, value]) => [
-    value,
-    name as ErrorCodeName,
-  ])
-);
+const ErrorCodeSchema = z.enum([
+  'driverUnavailable',
+  'notConnected',
+  'alreadyConnected',
+  'driver',
+  'badRequest',
+  'other',
+]);
+
+/** Must match `ErrorCode` in `protocol.rs`; these are also `ScannerError` codes. */
+export const ERROR_CODES = ErrorCodeSchema.options;
+
+/** One of {@link ERROR_CODES}. */
+export type ErrorCodeName = z.infer<typeof ErrorCodeSchema>;
 
 /** The scanner's state words, raw; the vendor headers do not define their values. */
 export interface Status {
@@ -183,6 +187,15 @@ export interface Status {
   readonly nextFeederLoaded: number;
   readonly feederSide: number;
 }
+
+const StatusSchema: z.ZodType<Status> = z.object({
+  state: U32,
+  operationalState: U32,
+  imagesAvailable: U32,
+  feederLoaded: U32,
+  nextFeederLoaded: U32,
+  feederSide: U32,
+});
 
 /** The daemon's answer to one command. */
 export type ResponseBody =
@@ -206,60 +219,34 @@ export interface Response {
   readonly body: ResponseBody;
 }
 
+const ResponseSchema: z.ZodType<Response> = z.object({
+  id: U32,
+  body: z.discriminatedUnion('kind', [
+    z.object({ kind: z.literal('ok') }),
+    z.object({
+      kind: z.literal('error'),
+      code: ErrorCodeSchema,
+      message: z.string(),
+    }),
+    z.object({ kind: z.literal('status'), status: StatusSchema }),
+    z.object({
+      kind: z.literal('versions'),
+      api: z.string(),
+      scanner: z.string(),
+    }),
+    z.object({ kind: z.literal('profile'), profile: z.string() }),
+  ]),
+});
+
 /** Decodes a response frame payload. */
 export function decodeResponse(payload: Buffer): Response {
-  const r = new Reader(payload);
-  const id = r.u32();
-  const kind = r.u8();
-  let body: ResponseBody;
-  switch (kind) {
-    case ResponseKind.Ok:
-      body = { kind: 'ok' };
-      break;
-    case ResponseKind.Error: {
-      const rawCode = r.u16();
-      const code = ERROR_CODE_NAMES.get(rawCode);
-      if (code === undefined) {
-        throw new ProtocolError(`unknown error code discriminant ${rawCode}`);
-      }
-      body = { kind: 'error', code, message: r.str() };
-      break;
-    }
-    case ResponseKind.Status:
-      body = {
-        kind: 'status',
-        status: {
-          state: r.u32(),
-          operationalState: r.u32(),
-          imagesAvailable: r.u32(),
-          feederLoaded: r.u32(),
-          nextFeederLoaded: r.u32(),
-          feederSide: r.u32(),
-        },
-      };
-      break;
-    case ResponseKind.Versions:
-      body = { kind: 'versions', api: r.str(), scanner: r.str() };
-      break;
-    case ResponseKind.Profile:
-      body = { kind: 'profile', profile: r.str() };
-      break;
-    default:
-      throw new ProtocolError(`unknown response discriminant ${kind}`);
-  }
-  r.finish();
-  return { id, body };
+  return decodeAs(ResponseSchema, payload);
 }
 
-/** Must match `Event` in `protocol.rs`. */
-export const EventKind = {
-  Log: 0,
-  Control: 1,
-  Disconnected: 2,
-  IncompatibleImage: 3,
-  OperationalState: 4,
-  OversizedImage: 5,
-} as const;
+/** Encodes a response frame payload, as the daemon does. */
+export function encodeResponse(response: Response): Buffer {
+  return encoder.encode(response);
+}
 
 /** Something the driver reported that no command asked for. */
 export type DaemonEvent =
@@ -284,45 +271,33 @@ export type DaemonEvent =
       readonly size: number;
     };
 
+const DaemonEventSchema: z.ZodType<DaemonEvent> = z.discriminatedUnion('kind', [
+  z.object({ kind: z.literal('log'), message: z.string() }),
+  z.object({
+    kind: z.literal('control'),
+    controlType: U32,
+    numData: U32,
+    strData: z.string(),
+  }),
+  z.object({ kind: z.literal('disconnected'), message: z.string() }),
+  z.object({ kind: z.literal('incompatibleImage'), size: I32 }),
+  z.object({ kind: z.literal('operationalState'), state: I32 }),
+  z.object({
+    kind: z.literal('oversizedImage'),
+    seqId: I64,
+    scanSide: I32,
+    size: I64,
+  }),
+]);
+
 /** Decodes an event frame payload. */
 export function decodeEvent(payload: Buffer): DaemonEvent {
-  const r = new Reader(payload);
-  const kind = r.u8();
-  let event: DaemonEvent;
-  switch (kind) {
-    case EventKind.Log:
-      event = { kind: 'log', message: r.str() };
-      break;
-    case EventKind.Control:
-      event = {
-        kind: 'control',
-        controlType: r.u32(),
-        numData: r.u32(),
-        strData: r.str(),
-      };
-      break;
-    case EventKind.Disconnected:
-      event = { kind: 'disconnected', message: r.str() };
-      break;
-    case EventKind.IncompatibleImage:
-      event = { kind: 'incompatibleImage', size: r.i32() };
-      break;
-    case EventKind.OperationalState:
-      event = { kind: 'operationalState', state: r.i32() };
-      break;
-    case EventKind.OversizedImage:
-      event = {
-        kind: 'oversizedImage',
-        seqId: r.i64(),
-        scanSide: r.i32(),
-        size: r.i64(),
-      };
-      break;
-    default:
-      throw new ProtocolError(`unknown event discriminant ${kind}`);
-  }
-  r.finish();
-  return event;
+  return decodeAs(DaemonEventSchema, payload);
+}
+
+/** Encodes an event frame payload, as the daemon does. */
+export function encodeEvent(event: DaemonEvent): Buffer {
+  return encoder.encode(event);
 }
 
 /** The `ImageProperties_t` fields carried across the wire. */
@@ -349,6 +324,25 @@ export interface ImageHeader {
   readonly endorserBackText: string;
 }
 
+const ImageHeaderSchema: z.ZodType<ImageHeader> = z.object({
+  seqId: I64,
+  streamId: I32,
+  scanSide: I32,
+  resolution: I32,
+  pixelsPerLine: I32,
+  lines: I32,
+  bytesPerLine: I32,
+  bitsPerPixel: I32,
+  fileFormat: I32,
+  compression: I32,
+  doubleFeed: I32,
+  blankPage: I32,
+  integrity: I32,
+  counters: z.tuple([I64, I64, I64, I64]),
+  endorserFrontText: z.string(),
+  endorserBackText: z.string(),
+});
+
 /** One side of one sheet. */
 export interface ScannedImage {
   readonly header: ImageHeader;
@@ -356,30 +350,23 @@ export interface ScannedImage {
   readonly data: Buffer;
 }
 
-/** Decodes an image frame payload, borrowing the pixels from it. */
+const ImagePayloadSchema = z.tuple([
+  ImageHeaderSchema,
+  z.custom<Buffer>((value) => Buffer.isBuffer(value), 'expected pixel bytes'),
+]);
+
+/** Decodes an image frame payload, a CBOR `[header, pixels]` array, borrowing the pixels. */
 export function decodeImage(payload: Buffer): ScannedImage {
-  const r = new Reader(payload);
-  const header: ImageHeader = {
-    seqId: r.i64(),
-    streamId: r.i32(),
-    scanSide: r.i32(),
-    resolution: r.i32(),
-    pixelsPerLine: r.i32(),
-    lines: r.i32(),
-    bytesPerLine: r.i32(),
-    bitsPerPixel: r.i32(),
-    fileFormat: r.i32(),
-    compression: r.i32(),
-    doubleFeed: r.i32(),
-    blankPage: r.i32(),
-    integrity: r.i32(),
-    counters: [r.i64(), r.i64(), r.i64(), r.i64()],
-    endorserFrontText: r.str(),
-    endorserBackText: r.str(),
-  };
-  const data = r.bytes();
-  r.finish();
+  const [header, data] = decodeAs(ImagePayloadSchema, payload);
   return { header, data };
+}
+
+/** Encodes an image frame payload, as the daemon does. */
+export function encodeImage({ header, data }: ScannedImage): Buffer {
+  return encoder.encode([
+    { ...header, counters: header.counters.map(int64) },
+    data,
+  ]);
 }
 
 /** The first frame the daemon writes. */
@@ -387,10 +374,14 @@ export interface Hello {
   readonly daemonVersion: string;
 }
 
+const HelloSchema: z.ZodType<Hello> = z.object({ daemonVersion: z.string() });
+
 /** Decodes a hello frame payload. */
 export function decodeHello(payload: Buffer): Hello {
-  const r = new Reader(payload);
-  const hello: Hello = { daemonVersion: r.str() };
-  r.finish();
-  return hello;
+  return decodeAs(HelloSchema, payload);
+}
+
+/** Encodes a hello frame payload, as the daemon does. */
+export function encodeHello(hello: Hello): Buffer {
+  return encoder.encode(hello);
 }

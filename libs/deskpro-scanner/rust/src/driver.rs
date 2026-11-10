@@ -503,7 +503,8 @@ unsafe extern "C" fn image_trampoline(info: *mut ffi::ImageInfo_t, data: *mut u8
 }
 
 /// Driver-maintained scanner state, raw; see [`ApiState`] and [`OperationalState`].
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Status {
     pub state: u32,
     pub operational_state: u32,

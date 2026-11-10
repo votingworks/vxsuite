@@ -1,62 +1,21 @@
 import { expect, test } from 'vitest';
 import { Buffer } from 'node:buffer';
 import {
+  type DaemonEvent,
   FRAME_HEADER_LENGTH,
   FrameType,
   MAX_FRAME_PAYLOAD,
   ProtocolError,
-  Reader,
-  Writer,
+  decodeCommand,
   decodeEvent,
   decodeFrameHeader,
   decodeImage,
   decodeResponse,
+  encodeCommand,
+  encodeEvent,
   encodeFrame,
+  encodeImage,
 } from './protocol.js';
-
-test('primitives round-trip through the reader', () => {
-  const payload = new Writer()
-    .u8(0xff)
-    .bool(true)
-    .bool(false)
-    .u16(0xbeef)
-    .u32(0xdead_beef)
-    .i32(-2_000_000_000)
-    .i64(-9_007_199_254_740_991)
-    .str('…unicode ✓')
-    .bytes(Buffer.of(1, 2, 3))
-    .finish();
-
-  const r = new Reader(payload);
-  expect(r.u8()).toEqual(0xff);
-  expect(r.bool()).toEqual(true);
-  expect(r.bool()).toEqual(false);
-  expect(r.u16()).toEqual(0xbeef);
-  expect(r.u32()).toEqual(0xdead_beef);
-  expect(r.i32()).toEqual(-2_000_000_000);
-  expect(r.i64()).toEqual(-9_007_199_254_740_991);
-  expect(r.str()).toEqual('…unicode ✓');
-  expect(r.bytes()).toEqual(Buffer.of(1, 2, 3));
-  expect(() => r.finish()).not.toThrow();
-});
-
-test('an int64 too large for a number is rejected rather than silently rounded', () => {
-  // 2^62, written by hand so the test file needs no BigInt literals.
-  const payload = Buffer.of(0, 0, 0, 0, 0, 0, 0, 0x40);
-  expect(() => new Reader(payload).i64()).toThrow(/does not fit in a number/);
-  expect(() => new Writer().i64(2 ** 62)).toThrow(/not a safe integer/);
-});
-
-test('reading past the end of a payload throws rather than returning garbage', () => {
-  const r = new Reader(Buffer.of(1, 2));
-  expect(() => r.u32()).toThrow(ProtocolError);
-});
-
-test('trailing data is an error', () => {
-  const r = new Reader(Buffer.of(1, 2));
-  r.u8();
-  expect(() => r.finish()).toThrow(/trailing data/);
-});
 
 test('frames round-trip', () => {
   const payload = Buffer.from('payload');
@@ -75,50 +34,64 @@ test('an oversized frame is refused before it is allocated', () => {
   expect(() => decodeFrameHeader(header)).toThrow(/exceeds/);
 });
 
-test('an unknown error code is a protocol error', () => {
-  const payload = new Writer().u32(1).u8(1).u16(99).str('').finish();
-  expect(() => decodeResponse(payload)).toThrow(/unknown error code/);
+test('commands wider than 32 bits are sent as integers', () => {
+  for (const value of [-9_007_199_254_740_991, -9_000_000_000, -1, 5]) {
+    const payload = encodeCommand(1, { kind: 'setCounter', index: 1, value });
+    expect(decodeCommand(payload).body).toEqual({
+      kind: 'setCounter',
+      index: 1,
+      value,
+    });
+  }
 });
 
-test('an unknown response discriminant is a protocol error', () => {
-  expect(() => decodeResponse(new Writer().u32(1).u8(200).finish())).toThrow(
-    /unknown response discriminant 200/
-  );
+test('a command with an out-of-range field is refused before it is sent', () => {
+  expect(() =>
+    encodeCommand(1, { kind: 'setCounter', index: 1, value: 2 ** 62 })
+  ).toThrow(ProtocolError);
+  expect(() =>
+    encodeCommand(1, { kind: 'setNumberOfSheets', count: -1 })
+  ).toThrow(ProtocolError);
+  expect(() =>
+    encodeCommand(1, { kind: 'setCounter', index: 256, value: 0 })
+  ).toThrow(ProtocolError);
 });
 
-test('an unknown event discriminant is a protocol error', () => {
-  expect(() => decodeEvent(Buffer.of(200))).toThrow(
-    /unknown event discriminant 200/
+test('a payload that is not CBOR is a protocol error', () => {
+  expect(() => decodeEvent(Buffer.of(0xff))).toThrow(/invalid CBOR/);
+});
+
+test('trailing data is a protocol error', () => {
+  const payload = Buffer.concat([
+    encodeEvent({ kind: 'log', message: 'x' }),
+    Buffer.of(0),
+  ]);
+  expect(() => decodeEvent(payload)).toThrow(/invalid CBOR/);
+});
+
+test('a message of the wrong shape is a protocol error', () => {
+  const unknownKind: unknown = { kind: 'selfDestruct' };
+  expect(() => decodeEvent(encodeEvent(unknownKind as DaemonEvent))).toThrow(
+    ProtocolError
   );
+  expect(() =>
+    decodeResponse(encodeEvent({ kind: 'operationalState', state: 0 }))
+  ).toThrow(ProtocolError);
+});
+
+test('an int64 too large for a number is rejected rather than silently rounded', () => {
+  const payload = encodeEvent({
+    kind: 'oversizedImage',
+    seqId: 1,
+    scanSide: 0,
+    size: (BigInt(2) ** BigInt(62)) as never,
+  });
+  expect(() => decodeEvent(payload)).toThrow(ProtocolError);
 });
 
 test('decodes an image without copying the pixels', () => {
   const pixels = Buffer.alloc(10_000, 0xab);
-  const payload = new Writer()
-    .i64(42)
-    .i32(0)
-    .i32(1)
-    .i32(200)
-    .i32(1_700)
-    .i32(2_200)
-    .i32(1_700)
-    .i32(8)
-    .i32(2)
-    .i32(0)
-    .i32(0)
-    .i32(0)
-    .i32(0)
-    .i64(1)
-    .i64(2)
-    .i64(3)
-    .i64(4)
-    .str('batch7_0042')
-    .str('')
-    .bytes(pixels)
-    .finish();
-
-  const image = decodeImage(payload);
-  expect(image.header).toEqual({
+  const header = {
     seqId: 42,
     streamId: 0,
     scanSide: 1,
@@ -132,11 +105,21 @@ test('decodes an image without copying the pixels', () => {
     doubleFeed: 0,
     blankPage: 0,
     integrity: 0,
-    counters: [1, 2, 3, 4],
+    counters: [1, 2, 3, -9_000_000_000],
     endorserFrontText: 'batch7_0042',
     endorserBackText: '',
-  });
+  } as const;
+  const payload = encodeImage({ header, data: pixels });
+
+  const image = decodeImage(payload);
+  expect(image.header).toEqual(header);
   expect(image.data).toEqual(pixels);
   // The pixels are a window onto the frame, not a copy of it.
   expect(image.data.buffer).toEqual(payload.buffer);
+});
+
+test('an image without pixel bytes is a protocol error', () => {
+  expect(() => decodeImage(encodeEvent({ kind: 'log', message: '' }))).toThrow(
+    ProtocolError
+  );
 });

@@ -12,11 +12,12 @@ import {
   spawnDaemon,
 } from './scanner_client.js';
 import {
-  ErrorCode,
+  ERROR_CODES,
   FrameType,
   type ImageHeader,
   type Status,
-  Writer,
+  encodeCommand,
+  encodeEvent,
   encodeFrame,
   FRAME_HEADER_LENGTH,
   MAX_FRAME_PAYLOAD,
@@ -81,29 +82,26 @@ test('starting twice is refused', async () => {
 });
 
 test.each([
-  ['connect', (c: ScannerClient) => c.connect('vitest'), 1],
-  ['disconnect', (c: ScannerClient) => c.disconnect(), 2],
-  ['exit', (c: ScannerClient) => c.exit(), 0],
-  ['setProfile', (c: ScannerClient) => c.setProfile('a = 1\n'), 6],
-  ['setReady', (c: ScannerClient) => c.setReady(true), 7],
-  ['scanStart', (c: ScannerClient) => c.scanStart(), 8],
-  ['scanStop', (c: ScannerClient) => c.scanStop(), 9],
-  ['scanPause', (c: ScannerClient) => c.scanPause(), 10],
-  ['scanResume', (c: ScannerClient) => c.scanResume(), 11],
-  ['setImprinterText', (c: ScannerClient) => c.setImprinterText('x'), 12],
-  ['setCounter', (c: ScannerClient) => c.setCounter(1, 5), 13],
-  ['setNumberOfSheets', (c: ScannerClient) => c.setNumberOfSheets(25), 14],
-] as const)(
-  '%s sends its own command and accepts ok',
-  async (_, call, kind) => {
-    const [scanner, daemon] = await withMock();
-    const pending = call(scanner);
-    await vi.waitFor(() => expect(daemon.received).toHaveLength(1));
-    expect(daemon.received[0]?.kind).toEqual(kind);
-    daemon.respondOk();
-    expect((await pending).unsafeUnwrap()).toBeUndefined();
-  }
-);
+  ['connect', (c: ScannerClient) => c.connect('vitest')],
+  ['disconnect', (c: ScannerClient) => c.disconnect()],
+  ['exit', (c: ScannerClient) => c.exit()],
+  ['setProfile', (c: ScannerClient) => c.setProfile('a = 1\n')],
+  ['setReady', (c: ScannerClient) => c.setReady(true)],
+  ['scanStart', (c: ScannerClient) => c.scanStart()],
+  ['scanStop', (c: ScannerClient) => c.scanStop()],
+  ['scanPause', (c: ScannerClient) => c.scanPause()],
+  ['scanResume', (c: ScannerClient) => c.scanResume()],
+  ['setImprinterText', (c: ScannerClient) => c.setImprinterText('x')],
+  ['setCounter', (c: ScannerClient) => c.setCounter(1, 5)],
+  ['setNumberOfSheets', (c: ScannerClient) => c.setNumberOfSheets(25)],
+] as const)('%s sends its own command and accepts ok', async (kind, call) => {
+  const [scanner, daemon] = await withMock();
+  const pending = call(scanner);
+  await vi.waitFor(() => expect(daemon.received).toHaveLength(1));
+  expect(daemon.received[0]?.body.kind).toEqual(kind);
+  daemon.respondOk();
+  expect((await pending).unsafeUnwrap()).toBeUndefined();
+});
 
 test('getStatus decodes the status response', async () => {
   const [scanner, daemon] = await withMock();
@@ -134,19 +132,16 @@ test('getProfile decodes the profile response', async () => {
   );
 });
 
-test.each(Object.entries(ErrorCode))(
-  'error code %s (%d) is reported as is',
-  async (clientCode, wireCode) => {
-    const [scanner, daemon] = await withMock();
-    const pending = scanner.scanStart();
-    await vi.waitFor(() => expect(daemon.received).toHaveLength(1));
-    daemon.respondError(wireCode, 'nope');
-    expect((await pending).unsafeUnwrapErr()).toEqual({
-      code: clientCode,
-      message: 'nope',
-    });
-  }
-);
+test.each(ERROR_CODES)('error code %s is reported as is', async (code) => {
+  const [scanner, daemon] = await withMock();
+  const pending = scanner.scanStart();
+  await vi.waitFor(() => expect(daemon.received).toHaveLength(1));
+  daemon.respondError(code, 'nope');
+  expect((await pending).unsafeUnwrapErr()).toEqual({
+    code,
+    message: 'nope',
+  });
+});
 
 test('a response of the wrong shape is reported as a protocol error', async () => {
   const [scanner, daemon] = await withMock();
@@ -209,7 +204,7 @@ test('a frame split across chunks is reassembled', async () => {
 
   const frame = encodeFrame(
     FrameType.Event,
-    new Writer().u8(0).str('split').finish()
+    encodeEvent({ kind: 'log', message: 'split' })
   );
   for (const byte of frame) {
     daemon.sendRaw(Buffer.of(byte));
@@ -226,11 +221,11 @@ test('two frames in one chunk are both delivered', async () => {
 
   const one = encodeFrame(
     FrameType.Event,
-    new Writer().u8(0).str('one').finish()
+    encodeEvent({ kind: 'log', message: 'one' })
   );
   const two = encodeFrame(
     FrameType.Event,
-    new Writer().u8(0).str('two').finish()
+    encodeEvent({ kind: 'log', message: 'two' })
   );
   daemon.sendRaw(Buffer.concat([one, two]));
 
@@ -267,7 +262,7 @@ test('frames that arrive after the daemon goes away are ignored', async () => {
   scanner.on('event', (event) => events.push(event));
   daemon.close('it crashed');
   daemon.sendRaw(
-    encodeFrame(FrameType.Event, new Writer().u8(0).str('late').finish())
+    encodeFrame(FrameType.Event, encodeEvent({ kind: 'log', message: 'late' }))
   );
   await new Promise((resolve) => {
     setImmediate(resolve);
@@ -282,7 +277,7 @@ test('an exception from a listener propagates without tearing the connection dow
   });
   const frame = encodeFrame(
     FrameType.Event,
-    new Writer().u8(0).str('one').finish()
+    encodeEvent({ kind: 'log', message: 'one' })
   );
   expect(() => daemon.transport.incoming.emit('data', frame)).toThrow(
     'listener bug'
@@ -522,7 +517,7 @@ test('the mock reassembles a command split across writes', async () => {
   const [, daemon] = await withMock();
   const frame = encodeFrame(
     FrameType.Command,
-    new Writer().u32(1).u8(1).str('vitest').finish()
+    encodeCommand(1, { kind: 'connect', appId: 'vitest' })
   );
   // Split before the header is complete, then again mid-payload.
   daemon.transport.outgoing.write(frame.subarray(0, 3));

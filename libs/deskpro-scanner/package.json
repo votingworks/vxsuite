@@ -35,7 +35,9 @@
   },
   "dependencies": {
     "@votingworks/basics": "workspace:*",
-    "debug": "4.3.4"
+    "cbor-x": "1.6.9",
+    "debug": "4.3.4",
+    "zod": "4.6.6"
   },
   "devDependencies": {
     "@types/debug": "4.1.12",

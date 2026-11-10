@@ -1,11 +1,12 @@
-//! The binary wire protocol between `deskproctl` and its Node client: frames of a 1-byte type, a
-//! little-endian `u32` payload length, then little-endian binary payloads.
+//! The wire protocol between `deskproctl` and its Node client: frames of a 1-byte type and a
+//! little-endian `u32` payload length, each carrying one CBOR item.
 //!
 //! `../src/ts/protocol.ts` is the other half of this file and must change with it.
 
-#![allow(clippy::missing_errors_doc)]
+#![allow(clippy::missing_errors_doc, clippy::missing_panics_doc)] // the `expect`s are on writes to a `Vec`
 
-use std::string::FromUtf8Error;
+use ciborium_ll::Header;
+use serde::{Deserialize, Serialize, de::DeserializeOwned};
 
 pub mod frame_type {
     pub const HELLO: u8 = 1;
@@ -23,17 +24,11 @@ pub const MAX_FRAME_PAYLOAD: u32 = 64 * 1024 * 1024;
 /// A malformed frame. The peer is out of sync, so the connection should be torn down.
 #[derive(Debug, thiserror::Error, PartialEq, Eq)]
 pub enum DecodeError {
-    #[error("truncated payload: wanted {wanted} more bytes, {available} available")]
-    Truncated { wanted: usize, available: usize },
+    #[error("invalid payload: {0}")]
+    Invalid(String),
 
     #[error("{payload} bytes of trailing data after a complete message")]
     TrailingData { payload: usize },
-
-    #[error("unknown {kind} discriminant {value}")]
-    UnknownDiscriminant { kind: &'static str, value: u32 },
-
-    #[error("string is not valid UTF-8: {0}")]
-    NotUtf8(#[from] FromUtf8Error),
 
     #[error("frame payload of {length} bytes exceeds the {MAX_FRAME_PAYLOAD} byte maximum")]
     FrameTooLarge { length: u32 },
@@ -41,135 +36,25 @@ pub enum DecodeError {
 
 type Result<T> = std::result::Result<T, DecodeError>;
 
-/// Appends little-endian primitives to a byte buffer.
-#[derive(Debug, Default)]
-pub struct Writer(Vec<u8>);
-
-impl Writer {
-    #[must_use]
-    pub fn with_capacity(capacity: usize) -> Self {
-        Self(Vec::with_capacity(capacity))
-    }
-
-    pub fn u8(&mut self, value: u8) -> &mut Self {
-        self.0.push(value);
-        self
-    }
-
-    pub fn bool(&mut self, value: bool) -> &mut Self {
-        self.u8(u8::from(value))
-    }
-
-    pub fn u16(&mut self, value: u16) -> &mut Self {
-        self.0.extend_from_slice(&value.to_le_bytes());
-        self
-    }
-
-    pub fn u32(&mut self, value: u32) -> &mut Self {
-        self.0.extend_from_slice(&value.to_le_bytes());
-        self
-    }
-
-    pub fn i32(&mut self, value: i32) -> &mut Self {
-        self.0.extend_from_slice(&value.to_le_bytes());
-        self
-    }
-
-    pub fn i64(&mut self, value: i64) -> &mut Self {
-        self.0.extend_from_slice(&value.to_le_bytes());
-        self
-    }
-
-    /// A `u32` byte length followed by the UTF-8 bytes.
-    pub fn str(&mut self, value: &str) -> &mut Self {
-        self.bytes(value.as_bytes())
-    }
-
-    /// A `u32` byte length followed by the bytes.
-    pub fn bytes(&mut self, value: &[u8]) -> &mut Self {
-        self.u32(u32::try_from(value.len()).unwrap_or(u32::MAX));
-        self.0.extend_from_slice(value);
-        self
-    }
-
-    #[must_use]
-    pub fn finish(self) -> Vec<u8> {
-        self.0
-    }
+/// Encodes one message as a CBOR item.
+#[must_use]
+pub fn encode(message: &impl Serialize) -> Vec<u8> {
+    let mut payload = Vec::new();
+    ciborium::into_writer(message, &mut payload).expect("protocol types always serialize");
+    payload
 }
 
-/// Reads little-endian primitives out of a payload, bounds-checking every read.
-#[derive(Debug)]
-pub struct Reader<'a> {
-    payload: &'a [u8],
-    offset: usize,
-}
-
-impl<'a> Reader<'a> {
-    #[must_use]
-    pub fn new(payload: &'a [u8]) -> Self {
-        Self { payload, offset: 0 }
-    }
-
-    fn take(&mut self, wanted: usize) -> Result<&'a [u8]> {
-        let available = self.payload.len() - self.offset;
-        if wanted > available {
-            return Err(DecodeError::Truncated { wanted, available });
-        }
-        let slice = &self.payload[self.offset..self.offset + wanted];
-        self.offset += wanted;
-        Ok(slice)
-    }
-
-    pub fn u8(&mut self) -> Result<u8> {
-        Ok(self.take(1)?[0])
-    }
-
-    pub fn bool(&mut self) -> Result<bool> {
-        Ok(self.u8()? != 0)
-    }
-
-    pub fn u16(&mut self) -> Result<u16> {
-        Ok(u16::from_le_bytes(
-            self.take(2)?.try_into().unwrap_or_default(),
-        ))
-    }
-
-    pub fn u32(&mut self) -> Result<u32> {
-        Ok(u32::from_le_bytes(
-            self.take(4)?.try_into().unwrap_or_default(),
-        ))
-    }
-
-    pub fn i32(&mut self) -> Result<i32> {
-        Ok(i32::from_le_bytes(
-            self.take(4)?.try_into().unwrap_or_default(),
-        ))
-    }
-
-    pub fn i64(&mut self) -> Result<i64> {
-        Ok(i64::from_le_bytes(
-            self.take(8)?.try_into().unwrap_or_default(),
-        ))
-    }
-
-    pub fn str(&mut self) -> Result<String> {
-        Ok(String::from_utf8(self.bytes()?.to_vec())?)
-    }
-
-    pub fn bytes(&mut self) -> Result<&'a [u8]> {
-        let length = self.u32()? as usize;
-        self.take(length)
-    }
-
-    /// Fails if anything is left over.
-    pub fn finish(self) -> Result<()> {
-        let remaining = self.payload.len() - self.offset;
-        if remaining == 0 {
-            Ok(())
-        } else {
-            Err(DecodeError::TrailingData { payload: remaining })
-        }
+/// Decodes a payload holding exactly one CBOR item.
+pub fn decode<T: DeserializeOwned>(payload: &[u8]) -> Result<T> {
+    let mut rest = payload;
+    let message = ciborium::from_reader(&mut rest)
+        .map_err(|error| DecodeError::Invalid(error.to_string()))?;
+    if rest.is_empty() {
+        Ok(message)
+    } else {
+        Err(DecodeError::TrailingData {
+            payload: rest.len(),
+        })
     }
 }
 
@@ -197,17 +82,23 @@ pub fn decode_frame_header(header: &[u8; FRAME_HEADER_LENGTH]) -> Result<(u8, u3
 }
 
 /// A request from the client, tagged with an id the matching [`Response`] echoes back.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Command {
     pub id: u32,
     pub body: CommandBody,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(
+    tag = "kind",
+    rename_all = "camelCase",
+    rename_all_fields = "camelCase"
+)]
 pub enum CommandBody {
     /// Shut the daemon down. Answered before the process exits.
     Exit,
     /// Open `libinoapi.so` and connect to the scanner.
+    #[serde(rename_all = "camelCase")]
     Connect {
         app_id: String,
     },
@@ -239,98 +130,15 @@ pub enum CommandBody {
     },
 }
 
-mod command_kind {
-    pub const EXIT: u8 = 0;
-    pub const CONNECT: u8 = 1;
-    pub const DISCONNECT: u8 = 2;
-    pub const GET_STATUS: u8 = 3;
-    pub const GET_VERSIONS: u8 = 4;
-    pub const GET_PROFILE: u8 = 5;
-    pub const SET_PROFILE: u8 = 6;
-    pub const SET_READY: u8 = 7;
-    pub const SCAN_START: u8 = 8;
-    pub const SCAN_STOP: u8 = 9;
-    pub const SCAN_PAUSE: u8 = 10;
-    pub const SCAN_RESUME: u8 = 11;
-    pub const SET_IMPRINTER_TEXT: u8 = 12;
-    pub const SET_COUNTER: u8 = 13;
-    pub const SET_NUMBER_OF_SHEETS: u8 = 14;
-}
-
 impl Command {
-    /// The client's half; here only to generate the wire fixtures.
-    #[cfg(test)]
-    #[must_use]
-    pub fn encode(&self) -> Vec<u8> {
-        use CommandBody::{
-            Connect, Disconnect, Exit, GetProfile, GetStatus, GetVersions, ScanPause, ScanResume,
-            ScanStart, ScanStop, SetCounter, SetImprinterText, SetNumberOfSheets, SetProfile,
-            SetReady,
-        };
-        let mut w = Writer::default();
-        w.u32(self.id);
-        match &self.body {
-            Exit => w.u8(command_kind::EXIT),
-            Connect { app_id } => w.u8(command_kind::CONNECT).str(app_id),
-            Disconnect => w.u8(command_kind::DISCONNECT),
-            GetStatus => w.u8(command_kind::GET_STATUS),
-            GetVersions => w.u8(command_kind::GET_VERSIONS),
-            GetProfile => w.u8(command_kind::GET_PROFILE),
-            SetProfile { profile } => w.u8(command_kind::SET_PROFILE).str(profile),
-            SetReady { ready } => w.u8(command_kind::SET_READY).bool(*ready),
-            ScanStart => w.u8(command_kind::SCAN_START),
-            ScanStop => w.u8(command_kind::SCAN_STOP),
-            ScanPause => w.u8(command_kind::SCAN_PAUSE),
-            ScanResume => w.u8(command_kind::SCAN_RESUME),
-            SetImprinterText { text } => w.u8(command_kind::SET_IMPRINTER_TEXT).str(text),
-            SetCounter { index, value } => w.u8(command_kind::SET_COUNTER).u8(*index).i64(*value),
-            SetNumberOfSheets { count } => w.u8(command_kind::SET_NUMBER_OF_SHEETS).u32(*count),
-        };
-        w.finish()
-    }
-
     pub fn decode(payload: &[u8]) -> Result<Self> {
-        use CommandBody::{
-            Connect, Disconnect, Exit, GetProfile, GetStatus, GetVersions, ScanPause, ScanResume,
-            ScanStart, ScanStop, SetCounter, SetImprinterText, SetNumberOfSheets, SetProfile,
-            SetReady,
-        };
-        let mut r = Reader::new(payload);
-        let id = r.u32()?;
-        let kind = r.u8()?;
-        let body = match kind {
-            command_kind::EXIT => Exit,
-            command_kind::CONNECT => Connect { app_id: r.str()? },
-            command_kind::DISCONNECT => Disconnect,
-            command_kind::GET_STATUS => GetStatus,
-            command_kind::GET_VERSIONS => GetVersions,
-            command_kind::GET_PROFILE => GetProfile,
-            command_kind::SET_PROFILE => SetProfile { profile: r.str()? },
-            command_kind::SET_READY => SetReady { ready: r.bool()? },
-            command_kind::SCAN_START => ScanStart,
-            command_kind::SCAN_STOP => ScanStop,
-            command_kind::SCAN_PAUSE => ScanPause,
-            command_kind::SCAN_RESUME => ScanResume,
-            command_kind::SET_IMPRINTER_TEXT => SetImprinterText { text: r.str()? },
-            command_kind::SET_COUNTER => SetCounter {
-                index: r.u8()?,
-                value: r.i64()?,
-            },
-            command_kind::SET_NUMBER_OF_SHEETS => SetNumberOfSheets { count: r.u32()? },
-            value => {
-                return Err(DecodeError::UnknownDiscriminant {
-                    kind: "command",
-                    value: u32::from(value),
-                });
-            }
-        };
-        r.finish()?;
-        Ok(Self { id, body })
+        decode(payload)
     }
 }
 
 /// Why a command failed. Driver failures carry the driver's error text in the message.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub enum ErrorCode {
     /// `libinoapi.so` is missing, or cannot be loaded on this host.
     DriverUnavailable,
@@ -343,129 +151,42 @@ pub enum ErrorCode {
     Other,
 }
 
-impl ErrorCode {
-    fn to_u16(self) -> u16 {
-        match self {
-            ErrorCode::DriverUnavailable => 1,
-            ErrorCode::NotConnected => 2,
-            ErrorCode::AlreadyConnected => 3,
-            ErrorCode::Driver => 4,
-            ErrorCode::BadRequest => 5,
-            ErrorCode::Other => 6,
-        }
-    }
-
-    #[cfg(test)]
-    fn from_u16(value: u16) -> Result<Self> {
-        Ok(match value {
-            1 => ErrorCode::DriverUnavailable,
-            2 => ErrorCode::NotConnected,
-            3 => ErrorCode::AlreadyConnected,
-            4 => ErrorCode::Driver,
-            5 => ErrorCode::BadRequest,
-            6 => ErrorCode::Other,
-            value => {
-                return Err(DecodeError::UnknownDiscriminant {
-                    kind: "error code",
-                    value: u32::from(value),
-                });
-            }
-        })
-    }
-}
-
 pub use crate::driver::Status;
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Response {
     pub id: u32,
     pub body: ResponseBody,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(tag = "kind", rename_all = "camelCase")]
 pub enum ResponseBody {
     Ok,
     Error { code: ErrorCode, message: String },
-    Status(Status),
+    Status { status: Status },
     Versions { api: String, scanner: String },
     Profile { profile: String },
-}
-
-mod response_kind {
-    pub const OK: u8 = 0;
-    pub const ERROR: u8 = 1;
-    pub const STATUS: u8 = 2;
-    pub const VERSIONS: u8 = 3;
-    pub const PROFILE: u8 = 4;
 }
 
 impl Response {
     #[must_use]
     pub fn encode(&self) -> Vec<u8> {
-        use ResponseBody as B;
-        let mut w = Writer::default();
-        w.u32(self.id);
-        match &self.body {
-            B::Ok => w.u8(response_kind::OK),
-            B::Error { code, message } => {
-                w.u8(response_kind::ERROR).u16(code.to_u16()).str(message)
-            }
-            B::Status(status) => w
-                .u8(response_kind::STATUS)
-                .u32(status.state)
-                .u32(status.operational_state)
-                .u32(status.images_available)
-                .u32(status.feeder_loaded)
-                .u32(status.next_feeder_loaded)
-                .u32(status.feeder_side),
-            B::Versions { api, scanner } => w.u8(response_kind::VERSIONS).str(api).str(scanner),
-            B::Profile { profile } => w.u8(response_kind::PROFILE).str(profile),
-        };
-        w.finish()
-    }
-
-    #[cfg(test)]
-    pub fn decode(payload: &[u8]) -> Result<Self> {
-        use ResponseBody as B;
-        let mut r = Reader::new(payload);
-        let id = r.u32()?;
-        let kind = r.u8()?;
-        let body = match kind {
-            response_kind::OK => B::Ok,
-            response_kind::ERROR => B::Error {
-                code: ErrorCode::from_u16(r.u16()?)?,
-                message: r.str()?,
-            },
-            response_kind::STATUS => B::Status(Status {
-                state: r.u32()?,
-                operational_state: r.u32()?,
-                images_available: r.u32()?,
-                feeder_loaded: r.u32()?,
-                next_feeder_loaded: r.u32()?,
-                feeder_side: r.u32()?,
-            }),
-            response_kind::VERSIONS => B::Versions {
-                api: r.str()?,
-                scanner: r.str()?,
-            },
-            response_kind::PROFILE => B::Profile { profile: r.str()? },
-            value => {
-                return Err(DecodeError::UnknownDiscriminant {
-                    kind: "response",
-                    value: u32::from(value),
-                });
-            }
-        };
-        r.finish()?;
-        Ok(Self { id, body })
+        encode(self)
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(
+    tag = "kind",
+    rename_all = "camelCase",
+    rename_all_fields = "camelCase"
+)]
 pub enum Event {
     /// A line from the driver's own logger.
     Log { message: String },
     /// A `ScannerControl_t`, passed through raw.
+    #[serde(rename_all = "camelCase")]
     Control {
         control_type: u32,
         num_data: u32,
@@ -478,6 +199,7 @@ pub enum Event {
     /// The scanner's operational state changed; 0 while an error is active.
     OperationalState { state: i32 },
     /// An image's frame would exceed [`MAX_FRAME_PAYLOAD`], so it was dropped.
+    #[serde(rename_all = "camelCase")]
     OversizedImage {
         seq_id: i64,
         scan_side: i32,
@@ -485,79 +207,20 @@ pub enum Event {
     },
 }
 
-mod event_kind {
-    pub const LOG: u8 = 0;
-    pub const CONTROL: u8 = 1;
-    pub const DISCONNECTED: u8 = 2;
-    pub const INCOMPATIBLE_IMAGE: u8 = 3;
-    pub const OPERATIONAL_STATE: u8 = 4;
-    pub const OVERSIZED_IMAGE: u8 = 5;
-}
-
 impl Event {
     #[must_use]
     pub fn encode(&self) -> Vec<u8> {
-        use Event as E;
-        let mut w = Writer::default();
-        match self {
-            E::Log { message } => w.u8(event_kind::LOG).str(message),
-            E::Control {
-                control_type,
-                num_data,
-                str_data,
-            } => w
-                .u8(event_kind::CONTROL)
-                .u32(*control_type)
-                .u32(*num_data)
-                .str(str_data),
-            E::Disconnected { message } => w.u8(event_kind::DISCONNECTED).str(message),
-            E::IncompatibleImage { size } => w.u8(event_kind::INCOMPATIBLE_IMAGE).i32(*size),
-            E::OperationalState { state } => w.u8(event_kind::OPERATIONAL_STATE).i32(*state),
-            E::OversizedImage {
-                seq_id,
-                scan_side,
-                size,
-            } => w
-                .u8(event_kind::OVERSIZED_IMAGE)
-                .i64(*seq_id)
-                .i32(*scan_side)
-                .i64(*size),
-        };
-        w.finish()
+        encode(self)
     }
 
     pub fn decode(payload: &[u8]) -> Result<Self> {
-        use Event as E;
-        let mut r = Reader::new(payload);
-        let event = match r.u8()? {
-            event_kind::LOG => E::Log { message: r.str()? },
-            event_kind::CONTROL => E::Control {
-                control_type: r.u32()?,
-                num_data: r.u32()?,
-                str_data: r.str()?,
-            },
-            event_kind::DISCONNECTED => E::Disconnected { message: r.str()? },
-            event_kind::INCOMPATIBLE_IMAGE => E::IncompatibleImage { size: r.i32()? },
-            event_kind::OPERATIONAL_STATE => E::OperationalState { state: r.i32()? },
-            event_kind::OVERSIZED_IMAGE => E::OversizedImage {
-                seq_id: r.i64()?,
-                scan_side: r.i32()?,
-                size: r.i64()?,
-            },
-            value => {
-                return Err(DecodeError::UnknownDiscriminant {
-                    kind: "event",
-                    value: u32::from(value),
-                });
-            }
-        };
-        r.finish()?;
-        Ok(event)
+        decode(payload)
     }
 }
 
 /// The `ImageProperties_t` fields sent ahead of the pixels in an image frame.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ImageHeader {
     /// Pairs the two sides of one sheet.
     pub seq_id: i64,
@@ -580,86 +243,67 @@ pub struct ImageHeader {
     pub endorser_back_text: String,
 }
 
-impl ImageHeader {
-    fn write(&self, w: &mut Writer) {
-        w.i64(self.seq_id)
-            .i32(self.stream_id)
-            .i32(self.scan_side)
-            .i32(self.resolution)
-            .i32(self.pixels_per_line)
-            .i32(self.lines)
-            .i32(self.bytes_per_line)
-            .i32(self.bits_per_pixel)
-            .i32(self.file_format)
-            .i32(self.compression)
-            .i32(self.double_feed)
-            .i32(self.blank_page)
-            .i32(self.integrity);
-        for counter in self.counters {
-            w.i64(counter);
-        }
-        w.str(&self.endorser_front_text)
-            .str(&self.endorser_back_text);
-    }
-
-    fn read(r: &mut Reader<'_>) -> Result<Self> {
-        Ok(Self {
-            seq_id: r.i64()?,
-            stream_id: r.i32()?,
-            scan_side: r.i32()?,
-            resolution: r.i32()?,
-            pixels_per_line: r.i32()?,
-            lines: r.i32()?,
-            bytes_per_line: r.i32()?,
-            bits_per_pixel: r.i32()?,
-            file_format: r.i32()?,
-            compression: r.i32()?,
-            double_feed: r.i32()?,
-            blank_page: r.i32()?,
-            integrity: r.i32()?,
-            counters: [r.i64()?, r.i64()?, r.i64()?, r.i64()?],
-            endorser_front_text: r.str()?,
-            endorser_back_text: r.str()?,
-        })
-    }
-}
-
-/// Encodes an image frame up to its pixels, which the caller writes right after it. Fails with
-/// the payload size if the frame would exceed [`MAX_FRAME_PAYLOAD`].
+/// Encodes an image frame, a CBOR `[header, pixels]` array, up to its pixels, which the caller
+/// writes right after it. Fails with the payload size if the frame would exceed
+/// [`MAX_FRAME_PAYLOAD`].
 pub fn encode_image_frame_prefix(
     header: &ImageHeader,
     data_len: usize,
 ) -> std::result::Result<Vec<u8>, usize> {
-    let mut w = Writer::default();
-    header.write(&mut w);
-    let header_bytes = w.finish();
-    let payload_len = header_bytes.len() + 4 + data_len;
-    let (Ok(length), Ok(data_length)) = (u32::try_from(payload_len), u32::try_from(data_len))
-    else {
-        return Err(payload_len);
-    };
-    if length > MAX_FRAME_PAYLOAD {
-        return Err(payload_len);
+    let mut prefix = vec![frame_type::IMAGE, 0, 0, 0, 0];
+    ciborium_ll::Encoder::from(&mut prefix)
+        .push(Header::Array(Some(2)))
+        .expect("writing to a Vec");
+    ciborium::into_writer(header, &mut prefix).expect("protocol types always serialize");
+    ciborium_ll::Encoder::from(&mut prefix)
+        .push(Header::Bytes(Some(data_len)))
+        .expect("writing to a Vec");
+    let payload_len = prefix.len() - FRAME_HEADER_LENGTH + data_len;
+    match u32::try_from(payload_len) {
+        Ok(length) if length <= MAX_FRAME_PAYLOAD => {
+            prefix[1..FRAME_HEADER_LENGTH].copy_from_slice(&length.to_le_bytes());
+            Ok(prefix)
+        }
+        _ => Err(payload_len),
     }
-    let mut prefix = Vec::with_capacity(FRAME_HEADER_LENGTH + header_bytes.len() + 4);
-    prefix.push(frame_type::IMAGE);
-    prefix.extend_from_slice(&length.to_le_bytes());
-    prefix.extend_from_slice(&header_bytes);
-    prefix.extend_from_slice(&data_length.to_le_bytes());
-    Ok(prefix)
 }
 
 /// Decodes an image frame payload, borrowing the pixels from it.
 pub fn decode_image(payload: &[u8]) -> Result<(ImageHeader, &[u8])> {
-    let mut r = Reader::new(payload);
-    let header = ImageHeader::read(&mut r)?;
-    let data = r.bytes()?;
-    r.finish()?;
-    Ok((header, data))
+    let invalid = |error: &dyn std::fmt::Display| DecodeError::Invalid(error.to_string());
+    let mut rest = payload;
+    match ciborium_ll::Decoder::from(&mut rest).pull() {
+        Ok(Header::Array(Some(2))) => {}
+        Ok(header) => {
+            return Err(invalid(&format_args!(
+                "expected a 2-item array, got {header:?}"
+            )));
+        }
+        Err(error) => return Err(invalid(&format_args!("{error:?}"))),
+    }
+    let header: ImageHeader = ciborium::from_reader(&mut rest).map_err(|error| invalid(&error))?;
+    let length = match ciborium_ll::Decoder::from(&mut rest).pull() {
+        Ok(Header::Bytes(Some(length))) => length,
+        Ok(header) => {
+            return Err(invalid(&format_args!(
+                "expected pixel bytes, got {header:?}"
+            )));
+        }
+        Err(error) => return Err(invalid(&format_args!("{error:?}"))),
+    };
+    match rest.len().checked_sub(length) {
+        Some(0) => Ok((header, rest)),
+        Some(extra) => Err(DecodeError::TrailingData { payload: extra }),
+        None => Err(invalid(&format_args!(
+            "{length} pixel bytes declared, {} present",
+            rest.len()
+        ))),
+    }
 }
 
 /// The first frame the daemon writes.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Hello {
     pub daemon_version: String,
 }
@@ -667,19 +311,7 @@ pub struct Hello {
 impl Hello {
     #[must_use]
     pub fn encode(&self) -> Vec<u8> {
-        let mut w = Writer::default();
-        w.str(&self.daemon_version);
-        w.finish()
-    }
-
-    #[cfg(test)]
-    pub fn decode(payload: &[u8]) -> Result<Self> {
-        let mut r = Reader::new(payload);
-        let hello = Self {
-            daemon_version: r.str()?,
-        };
-        r.finish()?;
-        Ok(hello)
+        encode(self)
     }
 }
 
@@ -754,14 +386,16 @@ mod tests {
             ("error.other", error(ErrorCode::Other, "…unicode ✓")),
             (
                 "status",
-                R::Status(Status {
-                    state: 2,
-                    operational_state: 1,
-                    images_available: 4,
-                    feeder_loaded: 1,
-                    next_feeder_loaded: 0,
-                    feeder_side: 0,
-                }),
+                R::Status {
+                    status: Status {
+                        state: 2,
+                        operational_state: 1,
+                        images_available: 4,
+                        feeder_loaded: 1,
+                        next_feeder_loaded: 0,
+                        feeder_side: 0,
+                    },
+                },
             ),
             (
                 "versions",
@@ -826,11 +460,10 @@ mod tests {
     fn wire_fixtures() -> String {
         let mut frames = Vec::new();
         for (name, body) in every_command() {
-            let payload = Command {
+            let payload = encode(&Command {
                 id: FIXTURE_ID,
                 body,
-            }
-            .encode();
+            });
             frames.push((
                 format!("command.{name}"),
                 encode_frame(frame_type::COMMAND, &payload),
@@ -899,7 +532,7 @@ mod tests {
                 id: u32::try_from(id).unwrap_or(0),
                 body,
             };
-            assert_eq!(Command::decode(&command.encode()), Ok(command));
+            assert_eq!(Command::decode(&encode(&command)), Ok(command));
         }
     }
 
@@ -910,7 +543,7 @@ mod tests {
                 id: u32::try_from(id).unwrap_or(0),
                 body,
             };
-            assert_eq!(Response::decode(&response.encode()), Ok(response));
+            assert_eq!(decode(&response.encode()), Ok(response));
         }
     }
 
@@ -926,7 +559,18 @@ mod tests {
         let hello = Hello {
             daemon_version: "0.1.0".to_owned(),
         };
-        assert_eq!(Hello::decode(&hello.encode()), Ok(hello));
+        assert_eq!(decode(&hello.encode()), Ok(hello));
+    }
+
+    #[test]
+    fn strings_longer_than_the_decoder_scratch_buffer_round_trip() {
+        let command = Command {
+            id: 1,
+            body: CommandBody::SetProfile {
+                profile: "ProfilePaper_brightness = 200\n".repeat(1_000),
+            },
+        };
+        assert_eq!(Command::decode(&encode(&command)), Ok(command));
     }
 
     fn an_image_header() -> ImageHeader {
@@ -1003,13 +647,12 @@ mod tests {
 
     #[test]
     fn a_truncated_payload_is_an_error_rather_than_a_panic() {
-        let encoded = Command {
+        let encoded = encode(&Command {
             id: 1,
             body: CommandBody::Connect {
                 app_id: "VxCentralScan".to_owned(),
             },
-        }
-        .encode();
+        });
         for length in 0..encoded.len() {
             assert!(
                 Command::decode(&encoded[..length]).is_err(),
@@ -1019,58 +662,55 @@ mod tests {
     }
 
     #[test]
+    fn a_truncated_image_is_an_error() {
+        let mut frame = encode_image_frame_prefix(&an_image_header(), 3).expect("within the limit");
+        frame.extend_from_slice(&[1, 2]);
+        assert!(matches!(
+            decode_image(&frame[FRAME_HEADER_LENGTH..]),
+            Err(DecodeError::Invalid(_))
+        ));
+    }
+
+    #[test]
     fn trailing_data_is_an_error() {
-        let mut encoded = Command {
+        let mut encoded = encode(&Command {
             id: 1,
             body: CommandBody::ScanStart,
-        }
-        .encode();
+        });
         encoded.push(0);
         assert_eq!(
             Command::decode(&encoded),
             Err(DecodeError::TrailingData { payload: 1 })
         );
-    }
 
-    #[test]
-    fn unknown_discriminants_are_named_in_the_error() {
+        let mut image = encode_image_frame_prefix(&an_image_header(), 1).expect("within the limit");
+        image.extend_from_slice(&[1, 2]);
         assert_eq!(
-            Command::decode(&[1, 0, 0, 0, 200]),
-            Err(DecodeError::UnknownDiscriminant {
-                kind: "command",
-                value: 200
-            })
-        );
-        assert_eq!(
-            Event::decode(&[200]),
-            Err(DecodeError::UnknownDiscriminant {
-                kind: "event",
-                value: 200
-            })
-        );
-        assert_eq!(
-            Response::decode(&[1, 0, 0, 0, 200]),
-            Err(DecodeError::UnknownDiscriminant {
-                kind: "response",
-                value: 200
-            })
-        );
-        assert_eq!(
-            Response::decode(&[1, 0, 0, 0, 1, 99, 0, 0, 0, 0, 0]),
-            Err(DecodeError::UnknownDiscriminant {
-                kind: "error code",
-                value: 99
-            })
+            decode_image(&image[FRAME_HEADER_LENGTH..]),
+            Err(DecodeError::TrailingData { payload: 1 })
         );
     }
 
     #[test]
-    fn invalid_utf8_in_a_string_is_an_error() {
-        // A Connect command whose app id is a lone 0xff byte.
-        let payload = [1, 0, 0, 0, 1, 1, 0, 0, 0, 0xff];
+    fn unknown_kinds_are_errors() {
+        #[derive(Serialize)]
+        struct Unknown {
+            id: u32,
+            body: UnknownBody,
+        }
+        #[derive(Serialize)]
+        struct UnknownBody {
+            kind: &'static str,
+        }
+        let payload = encode(&Unknown {
+            id: 1,
+            body: UnknownBody {
+                kind: "selfDestruct",
+            },
+        });
         assert!(matches!(
             Command::decode(&payload),
-            Err(DecodeError::NotUtf8(_))
+            Err(DecodeError::Invalid(message)) if message.contains("selfDestruct")
         ));
     }
 }

@@ -35,11 +35,14 @@ name = "deskpro-diag"
 path = "examples/diag.rs"
 
 [dependencies]
+ciborium = "0.2.2"
+ciborium-ll = "0.2.2"
 clap = { version = "4.0.29", features = ["derive", "env"] }
 color-eyre = "0.6.2"
 ctrlc = { version = "3.4.2", features = ["termination"] }
 libc = "0.2.189"
 libloading = "0.9.0"
+serde = { version = "1.0.150", features = ["derive"] }
 thiserror = "2.0.21"
 tracing = "0.1.40"
 tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }

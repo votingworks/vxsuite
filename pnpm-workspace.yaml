@@ -69,6 +69,7 @@ allowBuilds:
   node-quirc: true
   pcsclite: true
   usb: true
+  cbor-extract: false
   core-js: false
   core-js-pure: false
   protobufjs: false
