@@ -484,8 +484,8 @@ mod tests {
             blank_page: 0,
             integrity: 0,
             counters: [0; 4],
-            endorser_front_text: String::new(),
-            endorser_back_text: String::new(),
+            endorser_front_text: None,
+            endorser_back_text: None,
         }
     }
 

@@ -319,9 +319,10 @@ export interface ImageHeader {
   readonly blankPage: number;
   readonly integrity: number;
   readonly counters: readonly [number, number, number, number];
-  /** What the imprinter reports for this side. */
-  readonly endorserFrontText: string;
-  readonly endorserBackText: string;
+  /** What the imprinter printed on the sheet's front, if anything. */
+  readonly endorserFrontText?: string;
+  /** What the imprinter printed on the sheet's back, if anything. */
+  readonly endorserBackText?: string;
 }
 
 const ImageHeaderSchema: z.ZodType<ImageHeader> = z.object({
@@ -339,8 +340,8 @@ const ImageHeaderSchema: z.ZodType<ImageHeader> = z.object({
   blankPage: I32,
   integrity: I32,
   counters: z.tuple([I64, I64, I64, I64]),
-  endorserFrontText: z.string(),
-  endorserBackText: z.string(),
+  endorserFrontText: z.string().optional(),
+  endorserBackText: z.string().optional(),
 });
 
 /** One side of one sheet. */

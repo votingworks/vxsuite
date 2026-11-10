@@ -105,7 +105,6 @@ const IMAGE_HEADER = {
   integrity: 0,
   counters: [1, 2, 3, -9_000_000_000],
   endorserFrontText: 'batch7_0042',
-  endorserBackText: '',
 } as const;
 
 test('decodes an image without copying the pixels', () => {

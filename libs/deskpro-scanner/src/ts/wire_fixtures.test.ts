@@ -134,7 +134,6 @@ const EXPECTED: Record<string, Expected> = {
         integrity: 0,
         counters: [1, 2, 3, 4],
         endorserFrontText: 'batch7_0042',
-        endorserBackText: '',
       },
       data: Buffer.of(1, 2, 3),
     },

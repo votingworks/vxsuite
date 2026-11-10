@@ -239,8 +239,10 @@ pub struct ImageHeader {
     pub blank_page: i32,
     pub integrity: i32,
     pub counters: [i64; 4],
-    pub endorser_front_text: String,
-    pub endorser_back_text: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub endorser_front_text: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub endorser_back_text: Option<String>,
 }
 
 const IMAGE_HEADER_LENGTH_SIZE: usize = size_of::<u32>();
@@ -570,8 +572,8 @@ mod tests {
             blank_page: 0,
             integrity: 0,
             counters: [1, 2, 3, 4],
-            endorser_front_text: "batch7_0042".to_owned(),
-            endorser_back_text: String::new(),
+            endorser_front_text: Some("batch7_0042".to_owned()),
+            endorser_back_text: None,
         }
     }
 

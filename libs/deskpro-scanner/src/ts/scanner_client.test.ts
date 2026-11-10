@@ -66,7 +66,6 @@ const AN_IMAGE_HEADER: ImageHeader = {
   integrity: 0,
   counters: [1, 2, 3, 4],
   endorserFrontText: 'batch7_0042',
-  endorserBackText: '',
 };
 
 // ----------------------------------------------------------------------------

@@ -237,6 +237,9 @@ pub struct Image {
 // SAFETY: the pixel buffer is plain memory owned exclusively by this value and never mutated.
 unsafe impl Send for Image {}
 
+/// What the scanner reports as a side's endorser text when nothing was imprinted.
+const NOT_ENDORSED_TEXT: &str = "undefined";
+
 impl Image {
     /// Takes ownership of the two buffers passed to the image callback, copying the properties
     /// and freeing the `ImageInfo_t`. A struct smaller than ours is rejected with its size (and
@@ -264,6 +267,11 @@ impl Image {
     }
 
     /// Reads a fixed-size `char[N]` field up to its first NUL.
+    fn endorser_text(field: &[c_char]) -> Option<String> {
+        Some(Self::c_array_lossy(field))
+            .filter(|text| !text.is_empty() && text != NOT_ENDORSED_TEXT)
+    }
+
     fn c_array_lossy(field: &[c_char]) -> String {
         let bytes: Vec<u8> = field
             .iter()
@@ -350,13 +358,15 @@ impl Image {
     pub fn integrity(&self) -> i32 {
         self.props.integrity
     }
+    /// What the imprinter printed on this sheet's front, if anything.
     #[must_use]
-    pub fn endorser_front_text(&self) -> String {
-        Self::c_array_lossy(&self.props.endorserFrontText)
+    pub fn endorser_front_text(&self) -> Option<String> {
+        Self::endorser_text(&self.props.endorserFrontText)
     }
+    /// What the imprinter printed on this sheet's back, if anything.
     #[must_use]
-    pub fn endorser_back_text(&self) -> String {
-        Self::c_array_lossy(&self.props.endorserBackText)
+    pub fn endorser_back_text(&self) -> Option<String> {
+        Self::endorser_text(&self.props.endorserBackText)
     }
 }
 
@@ -989,6 +999,22 @@ mod tests {
     }
 
     #[test]
+    fn endorser_text_is_absent_when_nothing_was_imprinted() {
+        let field = |text: &[u8]| -> Vec<c_char> {
+            text.iter()
+                .chain(&[0])
+                .map(|&b| c_char::from_ne_bytes([b]))
+                .collect()
+        };
+        assert_eq!(Image::endorser_text(&field(b"undefined")), None);
+        assert_eq!(Image::endorser_text(&field(b"")), None);
+        assert_eq!(
+            Image::endorser_text(&field(b"0042")).as_deref(),
+            Some("0042")
+        );
+    }
+
+    #[test]
     fn image_reads_packed_fields_and_owns_both_buffers() {
         let (info, data) = fake_image(i32::try_from(size_of::<ImageInfo_t>()).expect("fits"));
         let image = unsafe { Image::from_raw(info, data) }.expect("compatible");
@@ -997,8 +1023,8 @@ mod tests {
         assert_eq!(image.counters(), [7, 0, 0, -1]);
         assert_eq!(image.resolution(), 200);
         assert_eq!(image.file_format(), INO_IP_FILEFORMAT_BMP);
-        assert_eq!(image.endorser_front_text(), "batch-1_0007");
-        assert_eq!(image.endorser_back_text(), "");
+        assert_eq!(image.endorser_front_text().as_deref(), Some("batch-1_0007"));
+        assert_eq!(image.endorser_back_text(), None);
         assert_eq!(image.integrity(), INO_IP_INTEGRITY_BACKFAILED);
         assert_eq!(image.data(), b"ab\0");
     }

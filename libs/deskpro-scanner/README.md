@@ -15,7 +15,7 @@ const scanner = new ScannerClient();
 
 scanner.on('image', ({ header, data }) => {
   // `header.seqId` pairs the two sides of a sheet; `header.scanSide` is 0 front, 1 back.
-  // `header.endorserFrontText` is what the imprinter reports for this sheet.
+  // `header.endorserFrontText` is what the imprinter printed, if anything.
 });
 
 (await scanner.setReady(true)).unsafeUnwrap();
