@@ -455,7 +455,7 @@ impl Symbols {
 }
 
 /// The driver's own `AllocBuffer` / `FreeBuffer`, which every buffer crossing the API must use.
-/// Process-wide so `Drop` impls can reach them; `malloc` / `free` until a driver is loaded.
+/// Process-wide so `Drop` impls can reach them; using them before a driver is loaded panics.
 pub mod vendor_heap {
     use std::ffi::{c_char, c_void};
     use std::sync::{PoisonError, RwLock};
@@ -471,31 +471,16 @@ pub mod vendor_heap {
         free: FreeFn,
     }
 
-    unsafe extern "C" fn fallback_alloc(size: i32) -> *mut c_void {
-        match usize::try_from(size) {
-            // SAFETY: plain allocation.
-            Ok(size) if size > 0 => unsafe { libc::malloc(size) },
-            _ => std::ptr::null_mut(),
-        }
-    }
-
-    unsafe extern "C" fn fallback_free(ptr: *mut c_void) -> u32 {
-        // SAFETY: caller's contract, as for `FreeBuffer`.
-        unsafe { libc::free(ptr) };
-        0
-    }
-
-    static HEAP: RwLock<Heap> = RwLock::new(Heap {
-        alloc: fallback_alloc,
-        free: fallback_free,
-    });
+    static HEAP: RwLock<Option<Heap>> = RwLock::new(None);
 
     fn heap() -> Heap {
-        *HEAP.read().unwrap_or_else(PoisonError::into_inner)
+        HEAP.read()
+            .unwrap_or_else(PoisonError::into_inner)
+            .expect("the vendor heap is used only after the driver is loaded")
     }
 
-    pub(super) fn install(alloc: AllocFn, free: FreeFn) {
-        *HEAP.write().unwrap_or_else(PoisonError::into_inner) = Heap { alloc, free };
+    pub(crate) fn install(alloc: AllocFn, free: FreeFn) {
+        *HEAP.write().unwrap_or_else(PoisonError::into_inner) = Some(Heap { alloc, free });
     }
 
     /// Allocates `size` uninitialized bytes on the driver's heap.

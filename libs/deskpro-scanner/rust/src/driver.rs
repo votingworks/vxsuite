@@ -953,8 +953,23 @@ mod tests {
         ));
     }
 
+    unsafe extern "C" fn test_alloc(size: i32) -> *mut c_void {
+        unsafe { libc::malloc(usize::try_from(size).expect("positive size")) }
+    }
+
+    unsafe extern "C" fn test_free(ptr: *mut c_void) -> u32 {
+        unsafe { libc::free(ptr) };
+        0
+    }
+
+    /// Stands in for the driver's allocator, which tests never load.
+    fn use_malloc_heap() {
+        vendor_heap::install(test_alloc, test_free);
+    }
+
     /// Builds an `ImageInfo_t` and pixel buffer on the vendor heap, as the library does.
     fn fake_image(size_field: i32) -> (*mut ImageInfo_t, *mut u8) {
+        use_malloc_heap();
         let info = vendor_heap::alloc(size_of::<ImageInfo_t>()).cast::<ImageInfo_t>();
         unsafe {
             ptr::write_bytes(info.cast::<u8>(), 0, size_of::<ImageInfo_t>());
@@ -1026,6 +1041,7 @@ mod tests {
 
     #[test]
     fn new_c_string_is_nul_terminated() {
+        use_malloc_heap();
         let p = vendor_heap::new_c_string(b"profile");
         assert_eq!(unsafe { CStr::from_ptr(p) }.to_bytes(), b"profile");
         unsafe { vendor_heap::free(p.cast()) };
