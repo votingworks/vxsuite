@@ -867,7 +867,8 @@ mod tests {
     use crate::ffi::*;
     use std::mem::{offset_of, size_of};
 
-    // Values from a C++ probe compiled against `ino.hpp` on x86_64.
+    // From a C++ probe of `ino.hpp` on x86_64, so CI catches Rust-side edits without the header;
+    // `tests/vendor_header.rs` checks every field against the installed header itself.
     #[test]
     fn struct_sizes_match_the_c_headers() {
         assert_eq!(size_of::<ImageProperties_t>(), 30_904);
