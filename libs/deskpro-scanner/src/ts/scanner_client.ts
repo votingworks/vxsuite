@@ -71,9 +71,20 @@ export function spawnDaemon(daemonPath = DEFAULT_DAEMON_PATH): Transport {
   child.on('exit', (code, signal) =>
     notifyClose(`deskproctl exited with code ${code}, signal ${signal}`)
   );
+  let terminating = false;
+  function terminate(): void {
+    if (terminating || closedReason !== undefined) return;
+    terminating = true;
+    child.kill('SIGTERM');
+    const escalate = setTimeout(
+      () => child.kill('SIGKILL'),
+      DAEMON_KILL_GRACE_MS
+    );
+    child.once('exit', () => clearTimeout(escalate));
+  }
   child.stdin.on('error', (error) => {
     debug('deskproctl stdin: %s', error.message);
-    child.kill('SIGTERM');
+    terminate();
   });
   return {
     incoming: child.stdout,
@@ -85,15 +96,7 @@ export function spawnDaemon(daemonPath = DEFAULT_DAEMON_PATH): Transport {
         listener(closedReason);
       }
     },
-    close() {
-      if (closedReason !== undefined) return;
-      child.kill('SIGTERM');
-      const escalate = setTimeout(
-        () => child.kill('SIGKILL'),
-        DAEMON_KILL_GRACE_MS
-      );
-      child.once('exit', () => clearTimeout(escalate));
-    },
+    close: terminate,
   };
 }
 

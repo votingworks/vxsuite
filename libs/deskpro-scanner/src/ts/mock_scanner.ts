@@ -53,6 +53,7 @@ export function createMockDaemon(): MockScannerDaemon {
   const received: MockCommand[] = [];
   const unanswered: number[] = [];
   const closeListeners: Array<(reason: string) => void> = [];
+  let closedReason: string | undefined;
   let buffer = Buffer.alloc(0);
 
   outgoing.on('data', (chunk: Buffer) => {
@@ -77,6 +78,7 @@ export function createMockDaemon(): MockScannerDaemon {
   }
 
   function notifyClose(reason: string): void {
+    closedReason = reason;
     for (const listener of closeListeners) {
       listener(reason);
     }
@@ -95,6 +97,7 @@ export function createMockDaemon(): MockScannerDaemon {
     outgoing,
     onClose(listener) {
       closeListeners.push(listener);
+      if (closedReason !== undefined) listener(closedReason);
     },
     close() {
       incoming.end();

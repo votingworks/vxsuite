@@ -512,6 +512,45 @@ test('a daemon that ignores SIGTERM is killed after the grace period', async () 
   });
 });
 
+test('a daemon that stops reading stdin and ignores SIGTERM is killed after the grace period', async () => {
+  await withStubDaemon(
+    "trap '' TERM\nexec 0<&-\nexec sleep 30",
+    async (daemonPath) => {
+      client = new ScannerClient(spawnDaemon(daemonPath));
+      const hello = client.start();
+      await sleep(100);
+      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+      try {
+        const status = client.getStatus();
+        while (vi.getTimerCount() === 0) {
+          await new Promise((resolve) => {
+            setImmediate(resolve);
+          });
+        }
+        vi.advanceTimersByTime(DAEMON_KILL_GRACE_MS);
+        expect((await status).unsafeUnwrapErr()).toEqual({
+          code: 'daemonExited',
+          message: 'deskproctl exited with code null, signal SIGKILL',
+        });
+      } finally {
+        vi.useRealTimers();
+      }
+      expect((await hello).unsafeUnwrapErr().code).toEqual('daemonExited');
+    }
+  );
+});
+
+test('the mock replays a close to a client started after it', async () => {
+  const daemon = createMockDaemon();
+  daemon.close('gone');
+  expect(
+    (await new ScannerClient(daemon.transport).start()).unsafeUnwrapErr()
+  ).toEqual({
+    code: 'daemonExited',
+    message: 'gone',
+  });
+});
+
 test('the mock reassembles a command split across writes', async () => {
   const [, daemon] = await withMock();
   const frame = encodeFrame(
