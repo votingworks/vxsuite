@@ -8,11 +8,12 @@ export function buildApp(apiMock: ApiMock) {
   const queryClient = createQueryClient();
   function renderApp() {
     return renderRootElement(
-      App({ apiClient: apiMock.apiClient, queryClient }),
-      {
+      App({
         apiClient: apiMock.apiClient,
+        electionDefinitionApiClient: apiMock.electionDefinitionApiClient,
         queryClient,
-      }
+      }),
+      { apiMock, queryClient }
     );
   }
   return { apiMock, renderApp };

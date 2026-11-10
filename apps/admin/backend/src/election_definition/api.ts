@@ -65,12 +65,7 @@ async function requireElectionDefinitionAccess({
   }
 }
 
-/**
- * Creates the API methods for defining an election on VxAdmin. They must be
- * guarded by {@link createElectionDefinitionAccessMiddleware}.
- */
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export function createElectionDefinitionApiMethods({
+function createElectionDefinitionApiMethods({
   workspace,
   logger,
 }: {
@@ -182,23 +177,28 @@ export function createElectionDefinitionApiMethods({
 }
 
 /**
- * Requires election definition to be enabled and a system administrator to be
- * logged in for calls to the given election definition methods.
+ * Builds the API for defining an election on VxAdmin, available only to system
+ * administrators when election definition is enabled.
  */
-export function createElectionDefinitionAccessMiddleware({
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export function buildElectionDefinitionApi({
   auth,
   workspace,
-  methods,
+  logger,
 }: {
   auth: DippedSmartCardAuthApi;
   workspace: Workspace;
-  methods: object;
-}): grout.BeforeMiddleware<grout.AnyContext> {
-  return async function requireElectionDefinitionAccessForMethod({
-    methodName,
-  }) {
-    if (methodName in methods) {
-      await requireElectionDefinitionAccess({ auth, workspace });
-    }
-  };
+  logger: Logger;
+}) {
+  return grout.createApi(
+    createElectionDefinitionApiMethods({ workspace, logger }),
+    { before: [() => requireElectionDefinitionAccess({ auth, workspace })] }
+  );
 }
+
+/**
+ * A type to be used by the frontend to create an election definition API client
+ */
+export type ElectionDefinitionApi = ReturnType<
+  typeof buildElectionDefinitionApi
+>;

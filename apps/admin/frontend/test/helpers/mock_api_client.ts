@@ -1,6 +1,7 @@
 import { screen } from '@testing-library/react';
 import type {
   Api,
+  ElectionDefinitionApi,
   AdjudicatedCvrContest,
   BallotCountReportSpec,
   BallotCountReportWarning,
@@ -179,6 +180,8 @@ function createDeferredMock<T, U>(
 export function createApiMock(
   apiClient: MockApiClient = createMockApiClient()
 ) {
+  const electionDefinitionApiClient = createMockClient<ElectionDefinitionApi>();
+
   // Emulates the backend's sequence-based `waitForUsbDriveChange` long-poll:
   // each expected status change bumps the sequence, so the watcher refetches
   // `getUsbDriveStatus` once (rather than idly polling). Comparing against
@@ -215,7 +218,12 @@ export function createApiMock(
   return {
     apiClient,
 
-    assertComplete: apiClient.assertComplete,
+    electionDefinitionApiClient,
+
+    assertComplete() {
+      apiClient.assertComplete();
+      electionDefinitionApiClient.assertComplete();
+    },
 
     setAuthStatus(authStatus: DippedSmartCardAuth.AuthStatus) {
       apiClient.getAuthStatus.expectRepeatedCallsWith().resolves(authStatus);

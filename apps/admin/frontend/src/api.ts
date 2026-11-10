@@ -1,6 +1,6 @@
 import React from 'react';
 import { deepEqual, fail } from '@votingworks/basics';
-import type { Api } from '@votingworks/admin-backend';
+import type { Api, ElectionDefinitionApi } from '@votingworks/admin-backend';
 import {
   AUTH_STATUS_POLLING_INTERVAL_MS,
   QUERY_CLIENT_DEFAULT_OPTIONS,
@@ -43,6 +43,27 @@ export function useApiClient(): ApiClient {
   // @coverage-defer
   if (!apiClient) {
     throw new Error('ApiClientContext.Provider not found');
+  }
+  return apiClient;
+}
+
+export type ElectionDefinitionApiClient = grout.Client<ElectionDefinitionApi>;
+
+export function createElectionDefinitionApiClient(): ElectionDefinitionApiClient {
+  return grout.createClient<ElectionDefinitionApi>({
+    baseUrl: '/api/election-definition',
+  });
+}
+
+export const ElectionDefinitionApiClientContext = React.createContext<
+  ElectionDefinitionApiClient | undefined
+>(undefined);
+
+export function useElectionDefinitionApiClient(): ElectionDefinitionApiClient {
+  const apiClient = React.useContext(ElectionDefinitionApiClientContext);
+  // @coverage-defer
+  if (!apiClient) {
+    throw new Error('ElectionDefinitionApiClientContext.Provider not found');
   }
   return apiClient;
 }
@@ -1284,7 +1305,7 @@ export const getCurrentInProgressElection = {
     return ['getCurrentInProgressElection'];
   },
   useQuery(options: { enabled?: boolean } = {}) {
-    const apiClient = useApiClient();
+    const apiClient = useElectionDefinitionApiClient();
     return useQuery(
       this.queryKey(),
       () => apiClient.getCurrentInProgressElection(),
@@ -1310,14 +1331,14 @@ async function invalidateElectionListQueries(
   await queryClient.invalidateQueries(getCurrentInProgressElection.queryKey());
 }
 
-export const electionDefinitionApi = createElectionDefinitionApi(useApiClient, {
-  invalidateElectionQueries,
-  invalidateElectionListQueries,
-});
+export const electionDefinitionApi = createElectionDefinitionApi(
+  useElectionDefinitionApiClient,
+  { invalidateElectionQueries, invalidateElectionListQueries }
+);
 
 export const createInProgressElection = {
   useMutation() {
-    const apiClient = useApiClient();
+    const apiClient = useElectionDefinitionApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.createInProgressElection, {
       async onSuccess() {

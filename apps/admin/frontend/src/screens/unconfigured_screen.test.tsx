@@ -336,7 +336,7 @@ test('Create New Election button is hidden when election definition is disabled 
 
 test('Create New Election button is offered with election packages', async () => {
   apiMock.expectListPotentialElectionPackagesOnUsbDrive([]);
-  apiMock.apiClient.getCurrentInProgressElection
+  apiMock.electionDefinitionApiClient.getCurrentInProgressElection
     .expectCallWith()
     .resolves(null);
   renderInAppContext(<UnconfiguredScreen />, {
@@ -353,7 +353,7 @@ test('Create New Election button is offered when no USB drive is inserted', asyn
   apiMock.apiClient.listPotentialElectionPackagesOnUsbDrive
     .expectCallWith()
     .resolves(err({ type: 'no-entity', message: 'No USB drive found' }));
-  apiMock.apiClient.getCurrentInProgressElection
+  apiMock.electionDefinitionApiClient.getCurrentInProgressElection
     .expectCallWith()
     .resolves(null);
   renderInAppContext(<UnconfiguredScreen />, {
