@@ -76,6 +76,7 @@ import {
   type DistrictsUpdate,
   type DuplicateDistrictError,
   type DuplicateElectionError,
+  type DuplicatePrecinctError,
   type ExternalElectionSource,
   generateId,
   getStateFeaturesConfig,
