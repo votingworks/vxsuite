@@ -253,6 +253,5 @@ function mockElectionDef(electionData: string): ElectionDefinition {
   return {
     ballotHash: 'cafef00d',
     election: safeParseElection(electionData).unsafeUnwrap(),
-    electionData: 'irrelevant',
   };
 }

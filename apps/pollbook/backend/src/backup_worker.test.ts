@@ -26,7 +26,6 @@ function setSinglePrecinctElection(store: LocalStore): void {
 
   const singlePrecinctElectionDefinition: ElectionDefinition = {
     election: singlePrecinctElection,
-    electionData: '',
     ballotHash: 'test-ballot-hash',
   };
 

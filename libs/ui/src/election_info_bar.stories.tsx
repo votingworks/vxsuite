@@ -17,7 +17,6 @@ const initialArgs: ElectionInfoBarProps = {
   electionDefinition: {
     ballotHash: 'cafef00d',
     election,
-    electionData: '',
   },
   electionPackageHash: '11111111111111111111',
   machineId: '00123456',

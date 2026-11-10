@@ -169,7 +169,6 @@ const initialArgs: BmdPaperBallotProps = {
   electionDefinition: {
     ballotHash: 'cafef00d',
     election,
-    electionData: 'irrelevant',
   },
   isLiveMode: true,
   machineType: 'markScan',
