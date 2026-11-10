@@ -1,3 +1,39 @@
+import React from 'react';
+import { Route, useHistory } from 'react-router-dom';
+import styled from 'styled-components';
+import { assertDefined } from '@votingworks/basics';
+import {
+  type DuplicateDistrictError,
+  generateId,
+} from '@votingworks/election-definition-backend';
+import {
+  type District,
+  type DistrictId,
+  type ElectionId,
+  ElectionStringKey,
+} from '@votingworks/types';
+import {
+  Button,
+  Callout,
+  DesktopPalette,
+  Modal,
+  P,
+  useCurrentTheme,
+} from '@votingworks/ui';
+import { useAudioPanelRoutes } from './audio_panel_routes.js';
+import { useEditModeRoutes } from './edit_mode_routes.js';
+import { InputWithAudio } from './ballot_audio/input_with_audio.js';
+import { useElectionDefinitionApi } from './election_definition_context.js';
+import { FormBody, FormFixed, FormFooter } from './form_fixed.js';
+import { FixedViewport, ListActionsRow } from './layout.js';
+import { Tooltip, TooltipContainer } from './tooltip.js';
+
+export interface DistrictsEditorProps {
+  electionId: ElectionId;
+  isLocked?: boolean;
+  AudioPanel?: React.ComponentType;
+}
+
 const Viewport = styled(FixedViewport)<{ hasActionsRow: boolean }>`
   display: grid;
   grid-template-rows: ${(p) => (p.hasActionsRow ? 'min-content 1fr' : '1fr')};
@@ -48,9 +84,22 @@ function createBlankDistrict(): District {
   };
 }
 
-function Contents(props: { editing: boolean }): React.ReactNode {
-  const { editing } = props;
-  const { electionId } = useParams<ElectionIdParams>();
+export function DistrictsEditor(
+  props: DistrictsEditorProps
+): JSX.Element | null {
+  const { electionId, isLocked, AudioPanel } = props;
+  const history = useHistory();
+  const editModeRoutes = useEditModeRoutes();
+  const audioRoutes = useAudioPanelRoutes(':stringKey/:subkey');
+  const editing = editModeRoutes.isEditing;
+  function audioScreenUrl(districtId: DistrictId): string | undefined {
+    return AudioPanel
+      ? audioRoutes.screenUrl({
+          stringKey: ElectionStringKey.DISTRICT_NAME,
+          subkey: districtId,
+        })
+      : undefined;
+  }
 
   const [deletedIds, setDeletedDistrictIds] = React.useState(new Set<string>());
   const [newDistricts, setNewDistricts] = React.useState<District[]>([]);
@@ -59,13 +108,10 @@ function Contents(props: { editing: boolean }): React.ReactNode {
   );
   const [isConfirmingDelete, setIsConfirmingDelete] = React.useState(false);
 
-  const history = useHistory();
-  const districtsRoutes = routes.election(electionId).districts;
-  const districtsParamRoutes = electionParamRoutes.districts;
+  const api = useElectionDefinitionApi();
 
-  const ballotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
-  const electionInfoQuery = getElectionInfo.useQuery(electionId);
-  const savedDistrictsQuery = listDistricts.useQuery(electionId);
+  const electionInfoQuery = api.getElectionInfo.useQuery(electionId);
+  const savedDistrictsQuery = api.listDistricts.useQuery(electionId);
 
   // Reset form on initial and post-save fetches:
   React.useEffect(() => {
@@ -76,14 +122,10 @@ function Contents(props: { editing: boolean }): React.ReactNode {
     setUpdatedDistricts([...savedDistrictsQuery.data]);
   }, [savedDistrictsQuery.data]);
 
-  const updateDistrictsMutation = updateDistricts.useMutation();
+  const updateDistrictsMutation = api.updateDistricts.useMutation();
   const error = updateDistrictsMutation.data?.err();
 
-  if (
-    !savedDistrictsQuery.isSuccess ||
-    !ballotsFinalizedAtQuery.isSuccess ||
-    !electionInfoQuery.isSuccess
-  ) {
+  if (!savedDistrictsQuery.isSuccess || !electionInfoQuery.isSuccess) {
     return null;
   }
 
@@ -105,7 +147,7 @@ function Contents(props: { editing: boolean }): React.ReactNode {
 
   function setEditing(switchToEdit: boolean) {
     history.replace(
-      switchToEdit ? districtsRoutes.edit.path : districtsRoutes.root.path
+      switchToEdit ? editModeRoutes.editUrl : editModeRoutes.viewUrl
     );
   }
 
@@ -138,9 +180,8 @@ function Contents(props: { editing: boolean }): React.ReactNode {
     }),
     {}
   );
-  const ballotsFinalized = !!ballotsFinalizedAtQuery.data;
   const updating = updateDistrictsMutation.isLoading;
-  const disabled = ballotsFinalized || !editing || updating;
+  const disabled = !!isLocked || !editing || updating;
   const hasExternalSource = Boolean(electionInfoQuery.data.externalSource);
 
   function reset() {
@@ -214,7 +255,7 @@ function Contents(props: { editing: boolean }): React.ReactNode {
       {!hasExternalSource && (
         <ListActionsRow>
           <Button
-            disabled={updating || ballotsFinalized}
+            disabled={updating || isLocked}
             icon="Add"
             onPress={() => {
               setNewDistricts([...newDistricts, createBlankDistrict()]);
@@ -253,6 +294,7 @@ function Contents(props: { editing: boolean }): React.ReactNode {
             <DistrictList>
               {updatedDistricts.map((district, i) => (
                 <DistrictRow
+                  audioScreenUrl={audioScreenUrl(district.id)}
                   disabled={disabled}
                   district={district}
                   editing={editing}
@@ -276,6 +318,7 @@ function Contents(props: { editing: boolean }): React.ReactNode {
 
               {newDistricts.map((district, i) => (
                 <DistrictRow
+                  audioScreenUrl={audioScreenUrl(district.id)}
                   disabled={disabled}
                   district={district}
                   editing={editing}
@@ -297,7 +340,7 @@ function Contents(props: { editing: boolean }): React.ReactNode {
             </DistrictList>
           </FormBody>
 
-          {!ballotsFinalized && (
+          {!isLocked && (
             <FormFooter>
               {editing ? (
                 <React.Fragment>
@@ -325,16 +368,11 @@ function Contents(props: { editing: boolean }): React.ReactNode {
           )}
         </FormFixed>
 
-        <Switch>
-          <Route
-            path={districtsParamRoutes.audio({
-              stringKey: ':stringKey',
-              subkey: ':subkey',
-            })}
-            exact
-            component={DistrictAudioPanel}
-          />
-        </Switch>
+        {AudioPanel && (
+          <Route path={audioRoutes.panelPath}>
+            <AudioPanel />
+          </Route>
+        )}
       </Body>
     </Viewport>
   );
@@ -357,6 +395,7 @@ const DistrictRowContainer = styled.div`
 `;
 
 function DistrictRow(props: {
+  audioScreenUrl?: string;
   disabled?: boolean;
   district: District;
   editing: boolean;
@@ -367,6 +406,7 @@ function DistrictRow(props: {
   onDelete: (districtId: string) => void;
 }) {
   const {
+    audioScreenUrl,
     disabled,
     district,
     editing,
@@ -377,7 +417,6 @@ function DistrictRow(props: {
     onDelete,
   } = props;
 
-  const { electionId } = useParams<ElectionIdParams>();
   const theme = useCurrentTheme();
 
   const errorRef = React.useRef<HTMLDivElement>(null);
@@ -391,10 +430,7 @@ function DistrictRow(props: {
     <React.Fragment>
       <DistrictRowContainer key={district.id}>
         <InputWithAudio
-          audioScreenUrl={routes.election(electionId).districts.audio({
-            stringKey: ElectionStringKey.DISTRICT_NAME,
-            subkey: district.id,
-          })}
+          audioScreenUrl={audioScreenUrl}
           autoFocus={district.name === ''}
           disabled={disabled}
           editing={editing}

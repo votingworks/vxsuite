@@ -99,7 +99,9 @@ function renderPanel(
   ttsString: { stringKey: ElectionStringKey; subkey: string }
 ) {
   const history = createMemoryHistory({
-    initialEntries: [districtRoutes.audio({ ...ttsString })],
+    initialEntries: [
+      `${districtRoutes.root.path}/audio/${ttsString.stringKey}/${ttsString.subkey}`,
+    ],
   });
 
   const mockApi = createMockApiClient();
@@ -120,10 +122,7 @@ function renderPanel(
         <Switch>
           <Route
             exact
-            path={districtParamRoutes.audio({
-              stringKey: ':stringKey',
-              subkey: ':subkey',
-            })}
+            path={`${districtParamRoutes.root.path}/audio/:stringKey/:subkey`}
             component={DistrictAudioPanel}
           />
           <Route exact path={districtParamRoutes.root.path} />
