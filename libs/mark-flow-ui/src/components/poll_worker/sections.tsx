@@ -3,7 +3,6 @@ import {
   H2,
   H3,
   H4,
-  H6,
   P,
   PowerDownButton,
   type SignedHashValidationApiClient,
@@ -141,25 +140,6 @@ export function SectionSystem(props: SectionSystemProps): JSX.Element {
   return (
     <React.Fragment>
       <H3>System</H3>
-      <SystemButtons
-        apiClient={apiClient}
-        includePowerButton={includePowerButton}
-      />
-    </React.Fragment>
-  );
-}
-
-/**
- * System section with H6 heading (for admin screen).
- * Uses H6 visual styling while allowing semantic heading level to be set via `as` prop.
- */
-// @coverage-exclude: currently tested via apps.
-export function H6SectionSystem(props: SectionSystemProps): JSX.Element {
-  const { apiClient, includePowerButton } = props;
-
-  return (
-    <React.Fragment>
-      <H6 as="h2">System</H6>
       <SystemButtons
         apiClient={apiClient}
         includePowerButton={includePowerButton}

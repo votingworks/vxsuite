@@ -45,8 +45,3 @@ export const StandardPollsTransitionTypeSchema: z.ZodSchema<StandardPollsTransit
   z.union([z.literal('open_polls'), z.literal('close_polls')]);
 export const PollsSuspensionTransitionTypeSchema: z.ZodSchema<PollsSuspensionTransitionType> =
   z.union([z.literal('pause_voting'), z.literal('resume_voting')]);
-export const PollsTransitionTypeSchema: z.ZodSchema<PollsTransitionType> =
-  z.union([
-    StandardPollsTransitionTypeSchema,
-    PollsSuspensionTransitionTypeSchema,
-  ]);

@@ -1,30 +1,6 @@
 import type { BatteryInfo as BatteryInfoType } from '@votingworks/backend';
-import { format } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
-import { styled } from './styled.js';
 import { type IconProps, Icons } from './icons.js';
-import { Font } from './typography.js';
-import { useSystemCallApi } from './system_call_api.js';
-
-const BatteryInfo = styled.div`
-  align-self: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-width: 2.1rem;
-`;
-
-const IconContainer = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 4px;
-`;
-
-const BatteryPercentText = styled(Font)`
-  font-size: 0.8em;
-  line-height: 0.9;
-`;
 
 export function getBatteryIcon(
   batteryInfo?: BatteryInfoType,
@@ -62,24 +38,4 @@ export function getBatteryIcon(
       throw new Error('Invalid battery level');
     }
   }
-}
-
-export function BatteryDisplay(): JSX.Element {
-  const systemCallApi = useSystemCallApi();
-  const batteryInfoQuery = systemCallApi.getBatteryInfo.useQuery();
-  const batteryInfo = batteryInfoQuery.data;
-
-  return (
-    <BatteryInfo>
-      <IconContainer>
-        {batteryInfo ? getBatteryIcon(batteryInfo) : <Icons.BatteryFull />}
-        {batteryInfo && !batteryInfo.discharging && (
-          <Icons.Bolt style={{ fontSize: '0.8em' }} />
-        )}
-      </IconContainer>
-      <BatteryPercentText weight="semiBold">
-        {batteryInfo ? format.percent(batteryInfo.level) : '—-%'}
-      </BatteryPercentText>
-    </BatteryInfo>
-  );
 }

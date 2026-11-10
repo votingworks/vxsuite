@@ -42,5 +42,3 @@ export async function interpret(
     pages: pageInterpretations,
   });
 }
-
-export type InterpretFn = typeof interpret;

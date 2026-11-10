@@ -21,7 +21,6 @@ import {
   getContestVoteOptionsForYesNoContest,
   getSingleYesNoVote,
   hasWriteIns,
-  normalizeWriteInId,
 } from './votes.js';
 
 const electionGeneral = electionGeneralFixtures.readElection();
@@ -61,15 +60,6 @@ test('getSingleYesNoVote', () => {
   expect(getSingleYesNoVote(['yes-option'])).toEqual('yes-option');
   expect(getSingleYesNoVote(['no-option'])).toEqual('no-option');
   expect(getSingleYesNoVote(['yes-option', 'no-option'])).toEqual(undefined);
-});
-
-test('normalizeWriteInId', () => {
-  expect(normalizeWriteInId('arandomword')).toEqual('arandomword');
-  expect(normalizeWriteInId('writeIn-123')).toEqual('writeIn-123');
-  expect(normalizeWriteInId('__write-in-123')).toEqual('__write-in-123');
-  expect(normalizeWriteInId('write-in-123456')).toEqual(
-    Tabulation.GENERIC_WRITE_IN_ID
-  );
 });
 
 const ballotTargetMarkBase: Pick<

@@ -90,11 +90,6 @@ export function maybeParse<T>(
   return safeParse(parser, value).ok();
 }
 
-/**
- * Creates a type that is either `T` or a `Promise` wrapping `T`.
- */
-export type PromiseOr<T> = T | Promise<T>;
-
 export type Id = string;
 export const IdSchema: z.ZodSchema<Id> = z
   .string()

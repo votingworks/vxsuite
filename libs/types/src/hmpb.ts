@@ -23,7 +23,7 @@ import {
   type Size,
   SizeSchema,
 } from './geometry.js';
-import { type ImageData, ImageDataSchema } from './image.js';
+import type { ImageData } from './image.js';
 
 export const BALLOT_MODES = ['official', 'test', 'sample'] as const;
 export type BallotMode = (typeof BALLOT_MODES)[number];
@@ -50,10 +50,6 @@ export interface BallotImage {
   imageData: ImageData;
   metadata: BallotPageMetadata;
 }
-export const BallotImageSchema: z.ZodSchema<BallotImage> = z.object({
-  imageData: ImageDataSchema,
-  metadata: BallotPageMetadataSchema,
-});
 
 export interface BallotPageContestOptionLayout {
   definition?: ContestOption;

@@ -1,31 +1,25 @@
 import { expect, test } from 'vitest';
 import * as fc from 'fast-check';
-import { assert, DateWithoutTime, find, ok } from '@votingworks/basics';
+import { DateWithoutTime, find, ok } from '@votingworks/basics';
 import {
   ballotPaperDimensions,
   getBallotStyle,
   getCandidateParties,
-  getCandidatePartiesDescription,
   getContestDistrictName,
   getContests,
+  findContest,
   getContestsFromIds,
   formatBallotHash,
-  getDistrictIdsForPartyId,
   getPartyAbbreviationByPartyId,
-  getPartyFullNameFromBallotStyle,
-  getPartyIdsInBallotStyles,
+  getPartyForBallotStyle,
   isCombinedBallotPrimary,
   getPartyIdsWithContests,
-  getPartyPrimaryAdjectiveFromBallotStyle,
   getPrecinctById,
-  getPrecinctIndexById,
   isVotePresent,
-  validateVotes,
   vote,
   formatElectionPackageHash,
   formatElectionHashes,
   getGroupIdFromBallotStyleId,
-  getPrecinctSplitById,
   getAllPrecinctsAndSplits,
   getOrderedCandidates,
   getSortedCandidateVote,
@@ -38,7 +32,6 @@ import {
 import {
   BallotIdSchema,
   HmpbBallotPaperSize,
-  type BallotStyleId,
   BallotStyleSchema,
   type CandidateContest,
   CandidateSchema,
@@ -130,14 +123,25 @@ test('vote fills in empty votes', () => {
   });
 });
 
-test('can get a party primary adjective from ballot style', () => {
-  const ballotStyleId = '1D' as BallotStyleId;
+test('getPartyForBallotStyle', () => {
+  const ballotStyle = primaryElection.ballotStyles[0]!;
   expect(
-    getPartyPrimaryAdjectiveFromBallotStyle({
-      ballotStyleId,
+    getPartyForBallotStyle({
+      ballotStyleId: ballotStyle.id,
       election: primaryElection,
-    })
-  ).toEqual('Democratic');
+    })?.id
+  ).toEqual(ballotStyle.partyId);
+  expect(
+    getPartyForBallotStyle({ ballotStyleId: 'nope', election: primaryElection })
+  ).toBeUndefined();
+});
+
+test('findContest', () => {
+  const { contests } = electionTwoPartyPrimary;
+  expect(findContest({ contests, contestId: contests[0]!.id })).toEqual(
+    contests[0]
+  );
+  expect(findContest({ contests, contestId: 'nope' })).toBeUndefined();
 });
 
 test('can get a party abbreviation by party ID', () => {
@@ -156,108 +160,11 @@ test('can get a party abbreviation by party ID', () => {
   ).toEqual('');
 });
 
-test('can get a party full name from ballot style', () => {
-  const ballotStyleId = '1D' as BallotStyleId;
-  expect(
-    getPartyFullNameFromBallotStyle({
-      ballotStyleId,
-      election: primaryElection,
-    })
-  ).toEqual('Democratic Party');
-});
-
-test('failing to get a full party name returns an empty string', () => {
-  const ballotStyleId = 'DOES_NOT_EXIST' as BallotStyleId;
-  expect(
-    getPartyFullNameFromBallotStyle({
-      ballotStyleId,
-      election: primaryElection,
-    })
-  ).toEqual('');
-});
-
-test('special cases party primary adjective transform "Democrat" -> "Democratic"', () => {
-  const ballotStyleId = '1D' as BallotStyleId;
-  expect(
-    getPartyPrimaryAdjectiveFromBallotStyle({
-      ballotStyleId,
-      election: primaryElection,
-    })
-  ).toEqual('Democratic');
-});
-
-test('defaults to empty string if no party can be found', () => {
-  const ballotStyleId = 'bogus' as BallotStyleId;
-  expect(
-    getPartyPrimaryAdjectiveFromBallotStyle({
-      ballotStyleId,
-      election: {
-        ...election,
-        parties: [],
-      },
-    })
-  ).toEqual('');
-});
-
 test('getPrecinctById', () => {
   expect(
     getPrecinctById({ election, precinctId: election.precincts[0]!.id })
   ).toEqual(election.precincts[0]);
   expect(getPrecinctById({ election, precinctId: '' })).toBeUndefined();
-});
-
-test('getPrecinctIndexById', () => {
-  expect(
-    getPrecinctIndexById({ election, precinctId: election.precincts[0]!.id })
-  ).toEqual(0);
-  expect(getPrecinctIndexById({ election, precinctId: '' })).toEqual(-1);
-});
-
-test('getPrecinctSplitById', () => {
-  const precinct = testVxfElection.precincts[0]!;
-  assert(hasSplits(precinct));
-  expect(
-    getPrecinctSplitById({
-      election: testVxfElection,
-      precinctSplitId: 'precinct-1-split-1',
-    })
-  ).toEqual({
-    ...precinct.splits[0]!,
-    precinctId: precinct.id,
-  });
-  expect(
-    getPrecinctSplitById({
-      election: testVxfElection,
-      precinctSplitId: 'precinct-1-split-2',
-    })
-  ).toEqual({
-    ...precinct.splits[1]!,
-    precinctId: precinct.id,
-  });
-});
-
-test('getDistrictIdsForPartyId', () => {
-  for (const party of electionTwoPartyPrimary.parties) {
-    const ballotStylesByParty = electionTwoPartyPrimary.ballotStyles.filter(
-      ({ partyId }) => party.id === partyId
-    );
-    for (const districtId of getDistrictIdsForPartyId(
-      electionTwoPartyPrimary,
-      party.id
-    )) {
-      expect(
-        ballotStylesByParty.some(({ districts }) =>
-          districts.includes(districtId)
-        )
-      ).toEqual(true);
-    }
-  }
-});
-
-test('getPartyIdsInBallotStyles', () => {
-  expect(getPartyIdsInBallotStyles(electionTwoPartyPrimary)).toEqual(
-    electionTwoPartyPrimary.parties.map(({ id }) => id)
-  );
 });
 
 test('isCombinedBallotPrimary', () => {
@@ -390,28 +297,6 @@ test('isVotePresent', () => {
       )!.candidates[0]!,
     ])
   ).toEqual(true);
-});
-
-test('validates votes by checking that contests are present in a given ballot style', () => {
-  const ballotStyle = election.ballotStyles[0]!;
-
-  const yesno = election.contests.find(
-    (c): c is YesNoContest => c.type === 'yesno'
-  ) as YesNoContest;
-  expect(() =>
-    validateVotes({
-      votes: {
-        [yesno.id]: [yesno.options[0].id],
-      },
-      ballotStyle,
-      election,
-    })
-  ).not.toThrowError();
-  expect(() =>
-    validateVotes({ votes: { nope: ['yes-option'] }, ballotStyle, election })
-  ).toThrowError(
-    'found a vote with contest id "nope", but no such contest exists in ballot style 1'
-  );
 });
 
 test('candidate schema', () => {
@@ -606,31 +491,6 @@ test('getCandidateParties', () => {
 
   expect(() =>
     getCandidateParties(election.parties, {
-      id: 'bob-loblaw',
-      name: 'Bob Loblaw',
-      partyIds: [unsafeParse(PartyIdSchema, 'not-a-listed-party')],
-    })
-  ).toThrowError(/not-a-listed-party/);
-});
-
-test('getCandidatePartiesDescription', () => {
-  expect(
-    getCandidatePartiesDescription(election, {
-      id: 'bob-loblaw',
-      name: 'Bob Loblaw',
-    })
-  ).toEqual(undefined);
-
-  expect(
-    getCandidatePartiesDescription(election, {
-      id: 'bob-loblaw',
-      name: 'Bob Loblaw',
-      partyIds: election.parties.map(({ id }) => id),
-    })
-  ).toEqual(election.parties.map(({ name }) => name).join(', '));
-
-  expect(() =>
-    getCandidatePartiesDescription(election, {
       id: 'bob-loblaw',
       name: 'Bob Loblaw',
       partyIds: [unsafeParse(PartyIdSchema, 'not-a-listed-party')],

@@ -36,12 +36,6 @@ export const Table = styled(UiTable)`
   }
 `;
 
-// [TODO] Remove after instances are replaced with `ListActionsRow`.
-export const TableActionsRow = styled(Row)`
-  margin-bottom: 1rem;
-  gap: 0.5rem;
-`;
-
 export const ListActionsRow = styled.div`
   border-bottom: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid
     ${(p) => p.theme.colors.outline};

@@ -206,7 +206,6 @@ export type GroupOf<T> = T & GroupSpecifier;
 export type GroupList<T> = Array<GroupOf<T>>;
 
 export type ElectionResultsGroupMap = GroupMap<ElectionResults>;
-export type ElectionResultsGroupList = GroupList<ElectionResults>;
 
 /**
  * Simplified representation of votes on a scanned ballot for tabulation
@@ -243,7 +242,6 @@ export type ManualElectionResults = Omit<ElectionResults, 'cardCounts'> & {
   ballotCount: number;
 };
 export type ManualResultsGroupMap = GroupMap<ManualElectionResults>;
-export type ManualResultsGroupList = GroupList<ManualElectionResults>;
 
 export type ManualBallotCountsGroupMap = GroupMap<number>;
 

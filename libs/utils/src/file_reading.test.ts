@@ -10,7 +10,6 @@ import {
   maybeGetFileByName,
   openZip,
   readEntry,
-  readJsonEntry,
   readTextEntry,
 } from './file_reading.js';
 
@@ -78,19 +77,6 @@ test('readTextEntry reads entry content as string', async () => {
   if (entry) {
     const result = await readTextEntry(entry);
     expect(result).toEqual('Hello World');
-  }
-});
-
-test('readJsonEntry reads entry content as JSON', async () => {
-  const testData = { message: 'Hello World', count: 42 } as const;
-  const zip = new JsZip();
-  zip.file('test.json', JSON.stringify(testData));
-  const entries = getEntries(zip);
-  const entry = entries[0];
-
-  if (entry) {
-    const result = await readJsonEntry(entry);
-    expect(result).toEqual(testData);
   }
 });
 

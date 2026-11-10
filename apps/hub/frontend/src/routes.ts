@@ -193,8 +193,6 @@ export interface ElectionIdParams {
 }
 export const electionParamRoutes = routes.election(':electionId');
 
-export const rootNavRoutes: Route[] = [];
-
 export function electionNavRoutes(
   electionInfo: ElectionInfo,
   systemSettings: SystemSettings,

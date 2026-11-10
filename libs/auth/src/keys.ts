@@ -49,13 +49,6 @@ export const InlineKeySchema: z.ZodSchema<InlineKey> = z.object({
 });
 
 /**
- * A Zod schema for RemoteKey
- */
-export const RemoteKeySchema: z.ZodSchema<RemoteKey> = z.object({
-  source: z.literal('remote'),
-});
-
-/**
  * A Zod schema for TpmKey
  */
 export const TpmKeySchema: z.ZodSchema<TpmKey> = z.object({

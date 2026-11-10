@@ -13,7 +13,6 @@ import {
 import { assertDefined } from '@votingworks/basics';
 import { getEmptyElectionResults } from '@votingworks/utils';
 import {
-  convertContestWriteInSummaryToWriteInTallies,
   getEmptyContestWriteInSummary,
   getEmptyElectionWriteInSummary,
   tabulateWriteInTallies,
@@ -50,66 +49,6 @@ test('getEmptyElectionWriteInSummary', () => {
       },
     },
   });
-});
-
-test('convertContestWriteInSummaryToWriteInTallies', () => {
-  expect(
-    convertContestWriteInSummaryToWriteInTallies({
-      ballotStyleGroupId: '1M',
-      contestId: 'zoo-council-mammal',
-      invalidTally: 9,
-      pendingTally: 11,
-      totalTally: 32,
-      candidateTallies: {
-        'mr-pickles': {
-          id: 'mr-pickles',
-          name: 'Mr. Pickles',
-          tally: 5,
-          isWriteIn: true,
-        },
-        lion: {
-          id: 'lion',
-          name: 'Lion',
-          tally: 7,
-          isWriteIn: false,
-        },
-      },
-    })
-  ).toEqual(
-    expect.arrayContaining([
-      expect.objectContaining({
-        ballotStyleGroupId: '1M' as BallotStyleGroupId,
-        contestId: 'zoo-council-mammal',
-        status: 'pending',
-        tally: 11,
-      }),
-      expect.objectContaining({
-        ballotStyleGroupId: '1M' as BallotStyleGroupId,
-        contestId: 'zoo-council-mammal',
-        status: 'adjudicated',
-        adjudicationType: 'invalid',
-        tally: 9,
-      }),
-      expect.objectContaining({
-        ballotStyleGroupId: '1M' as BallotStyleGroupId,
-        contestId: 'zoo-council-mammal',
-        status: 'adjudicated',
-        adjudicationType: 'official-candidate',
-        candidateId: 'lion',
-        candidateName: 'Lion',
-        tally: 7,
-      }),
-      expect.objectContaining({
-        ballotStyleGroupId: '1M' as BallotStyleGroupId,
-        contestId: 'zoo-council-mammal',
-        status: 'adjudicated',
-        adjudicationType: 'write-in-candidate',
-        candidateId: 'mr-pickles',
-        candidateName: 'Mr. Pickles',
-        tally: 5,
-      }),
-    ])
-  );
 });
 
 const mockZooCouncilMammalSummary: Tabulation.ContestWriteInSummary = {
