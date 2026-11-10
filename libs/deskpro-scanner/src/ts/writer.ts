@@ -5,11 +5,15 @@ import { ProtocolError } from './protocol_error.js';
 export class Writer {
   private readonly chunks: Buffer[] = [];
 
-  u8(value: number): this {
-    const buffer = Buffer.allocUnsafe(1);
-    buffer.writeUInt8(value);
+  private put(size: number, write: (buffer: Buffer) => void): this {
+    const buffer = Buffer.allocUnsafe(size);
+    write(buffer);
     this.chunks.push(buffer);
     return this;
+  }
+
+  u8(value: number): this {
+    return this.put(1, (b) => b.writeUInt8(value));
   }
 
   bool(value: boolean): this {
@@ -17,24 +21,15 @@ export class Writer {
   }
 
   u16(value: number): this {
-    const buffer = Buffer.allocUnsafe(2);
-    buffer.writeUInt16LE(value);
-    this.chunks.push(buffer);
-    return this;
+    return this.put(2, (b) => b.writeUInt16LE(value));
   }
 
   u32(value: number): this {
-    const buffer = Buffer.allocUnsafe(4);
-    buffer.writeUInt32LE(value);
-    this.chunks.push(buffer);
-    return this;
+    return this.put(4, (b) => b.writeUInt32LE(value));
   }
 
   i32(value: number): this {
-    const buffer = Buffer.allocUnsafe(4);
-    buffer.writeInt32LE(value);
-    this.chunks.push(buffer);
-    return this;
+    return this.put(4, (b) => b.writeInt32LE(value));
   }
 
   /** Writes an `int64_t`; the driver's values (sequence ids, counters) fit in a safe integer. */
@@ -42,12 +37,7 @@ export class Writer {
     if (!Number.isSafeInteger(value)) {
       throw new ProtocolError(`${value} is not a safe integer`);
     }
-    const buffer = Buffer.allocUnsafe(8);
-    const high = Math.floor(value / 2 ** 32);
-    buffer.writeUInt32LE(value - high * 2 ** 32, 0);
-    buffer.writeInt32LE(high, 4);
-    this.chunks.push(buffer);
-    return this;
+    return this.put(8, (b) => b.writeBigInt64LE(BigInt(value)));
   }
 
   /** A `uint32` byte length followed by the UTF-8 bytes. */
