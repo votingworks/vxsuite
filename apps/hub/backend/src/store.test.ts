@@ -4,7 +4,7 @@ import { assert, assertDefined, err, ok, sleep } from '@votingworks/basics';
 import {
   type CandidateContest,
   type Election,
-  type ElectionDefinition,
+  type ElectionDefinitionWithData,
   LanguageCode,
   LATEST_SOFTWARE_VERSION,
   type TtsEditKey,
@@ -526,7 +526,7 @@ test('getExportedElectionDefinition returns the exported election including reor
   const reorderedBallotHash = createHash('sha256')
     .update(reorderedElectionData)
     .digest('hex');
-  const reorderedElectionDefinition: ElectionDefinition = {
+  const reorderedElectionDefinition: ElectionDefinitionWithData = {
     ...baseElectionDefinition,
     election: reorderedElection,
     electionData: reorderedElectionData,

@@ -11,6 +11,7 @@ import {
 import {
   BallotType,
   DEFAULT_SYSTEM_SETTINGS,
+  ElectionPackageFileName,
   formatBallotHash,
   LATEST_SOFTWARE_VERSION,
   type BaseBallotProps,
@@ -555,9 +556,11 @@ test('CDF exports', async () => {
     await readElectionPackageFromBuffer(electionPackageContents)
   ).unsafeUnwrap().electionPackage;
 
-  expect(electionDefinition.electionData).toMatch(
-    /"@type": "BallotDefinition.BallotDefinition"/
-  );
+  const zip = await JsZip.loadAsync(new Uint8Array(electionPackageContents));
+  const electionData = await assertDefined(
+    zip.file(ElectionPackageFileName.ELECTION)
+  ).async('text');
+  expect(electionData).toMatch(/"@type": "BallotDefinition.BallotDefinition"/);
 
   const testDecksBallotHash = testDecksFilePath.match(
     'test-decks-(.*).zip'

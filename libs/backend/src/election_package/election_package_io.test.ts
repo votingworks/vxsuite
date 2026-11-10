@@ -4,7 +4,7 @@ import { mockBaseLogger } from '@votingworks/logging';
 import {
   BallotType,
   DEFAULT_SYSTEM_SETTINGS,
-  type ElectionDefinition,
+  type ElectionDefinitionWithData,
   ElectionPackageFileName,
   type ElectionPackageMetadata,
   type ElectionRegisteredVoterCounts,
@@ -206,7 +206,7 @@ test('read from file - SystemSettings.splitElectionDefinition = true', async () 
     .update(sha256Hex(candidateOrderingsJsonl))
     .digest('hex');
 
-  const electionDefinition: ElectionDefinition = {
+  const electionDefinition: ElectionDefinitionWithData = {
     ballotHash,
     election,
     electionData,
