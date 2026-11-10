@@ -55,7 +55,9 @@ export function AccessibleControllerSandbox<T extends Keybinding>(
       setPressedKey(undefined);
       setCurrentAudioStringKey(undefined);
 
-      const key = event.key as T;
+      const key = (
+        event.key.length === 1 ? event.key.toUpperCase() : event.key
+      ) as T;
       const audioStringKey = feedbackStringKeys[key];
       if (!audioStringKey) {
         return;
