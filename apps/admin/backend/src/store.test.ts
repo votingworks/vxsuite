@@ -154,7 +154,9 @@ test('import an election package', async () => {
     packagePath: makeTemporaryFile({ content: electionPackageFileContents }),
   });
   const { electionId, electionPackage } = importResult.unsafeUnwrap();
-  expect(electionPackage.electionDefinition).toEqual(electionDefinition);
+  expect(electionPackage.electionDefinition).toEqual(
+    asStoredElectionDefinition(electionDefinition)
+  );
   expect(electionPackage.systemSettings).toEqual(systemSettings);
 
   store.assertElectionExists(electionId);

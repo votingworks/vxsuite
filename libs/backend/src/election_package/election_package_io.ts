@@ -714,7 +714,7 @@ export async function parseAndHashElection(
   // [TODO] Branch on software version instead, if/when this setting becomes the
   // default.
   if (!systemSettings.splitElectionDefinition) {
-    return ok({ ballotHash: electionHash, election, electionData });
+    return ok({ ballotHash: electionHash, election });
   }
 
   const ballotHash = computeBallotHashVxf({
@@ -723,7 +723,7 @@ export async function parseAndHashElection(
     election: electionHash,
   });
 
-  return ok({ ballotHash, election, electionData });
+  return ok({ ballotHash, election });
 }
 
 /**

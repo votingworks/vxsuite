@@ -29,6 +29,7 @@ import {
   mockSessionExpiresAt,
   zipFile,
   parseElectionDefinition,
+  asStoredElectionDefinition,
 } from '@votingworks/test-utils';
 import {
   electionTwoPartyPrimaryFixtures,
@@ -150,7 +151,7 @@ test('readElectionPackageFromFile reads an election package without system setti
     (await readElectionPackageFromFile(file)).unsafeUnwrap()
   ).toEqual<ParsedElectionPackageWithHash>({
     electionPackage: {
-      electionDefinition,
+      electionDefinition: asStoredElectionDefinition(electionDefinition),
       metadata: LATEST_METADATA,
       uiStringAudioIds: {},
       systemSettings: DEFAULT_SYSTEM_SETTINGS,
@@ -177,7 +178,7 @@ test('readElectionPackageFromFile reads an election package with system settings
     (await readElectionPackageFromFile(file)).unsafeUnwrap()
   ).toEqual<ParsedElectionPackageWithHash>({
     electionPackage: {
-      electionDefinition,
+      electionDefinition: asStoredElectionDefinition(electionDefinition),
       metadata: LATEST_METADATA,
       uiStringAudioIds: {},
       systemSettings: DEFAULT_SYSTEM_SETTINGS,
@@ -225,7 +226,7 @@ test('read from file - SystemSettings.splitElectionDefinition = true', async () 
   expect(res).toEqual<Result<ParsedElectionPackageWithHash, unknown>>(
     ok({
       electionPackage: {
-        electionDefinition,
+        electionDefinition: asStoredElectionDefinition(electionDefinition),
         metadata: LATEST_METADATA,
         uiStringAudioIds: {},
         systemSettings: settings,
@@ -302,7 +303,7 @@ test('readElectionPackageFromFile loads available ui strings', async () => {
     (await readElectionPackageFromFile(file)).unsafeUnwrap()
   ).toEqual<ParsedElectionPackageWithHash>({
     electionPackage: {
-      electionDefinition,
+      electionDefinition: asStoredElectionDefinition(electionDefinition),
       metadata: LATEST_METADATA,
       uiStringAudioIds: {},
       systemSettings: DEFAULT_SYSTEM_SETTINGS,
@@ -326,7 +327,9 @@ test('readElectionPackageFromFile loads election strings from CDF', async () => 
     (await readElectionPackageFromFile(file)).unsafeUnwrap()
   ).toEqual<ParsedElectionPackageWithHash>({
     electionPackage: {
-      electionDefinition: parseElectionDefinition(testCdfElectionData),
+      electionDefinition: asStoredElectionDefinition(
+        parseElectionDefinition(testCdfElectionData)
+      ),
       metadata: LATEST_METADATA,
       uiStringAudioIds: {},
       systemSettings: DEFAULT_SYSTEM_SETTINGS,
@@ -371,7 +374,7 @@ test('readElectionPackageFromFile loads UI string audio IDs', async () => {
     (await readElectionPackageFromFile(file)).unsafeUnwrap()
   ).toEqual<ParsedElectionPackageWithHash>({
     electionPackage: {
-      electionDefinition,
+      electionDefinition: asStoredElectionDefinition(electionDefinition),
       metadata: LATEST_METADATA,
       systemSettings: DEFAULT_SYSTEM_SETTINGS,
       uiStrings: electionDefinition.election.ballotStrings,
@@ -416,7 +419,7 @@ test('readElectionPackageFromFile ignores ballots and audio clips entries', asyn
     (await readElectionPackageFromFile(file)).unsafeUnwrap()
   ).toEqual<ParsedElectionPackageWithHash>({
     electionPackage: {
-      electionDefinition,
+      electionDefinition: asStoredElectionDefinition(electionDefinition),
       metadata: LATEST_METADATA,
       uiStringAudioIds: {},
       systemSettings: DEFAULT_SYSTEM_SETTINGS,
@@ -464,7 +467,7 @@ test('readElectionPackageFromBuffer parses registered voter counts', async () =>
     (await readElectionPackageFromBuffer(pkg)).unsafeUnwrap()
   ).toEqual<ParsedElectionPackageWithHash>({
     electionPackage: {
-      electionDefinition,
+      electionDefinition: asStoredElectionDefinition(electionDefinition),
       metadata: LATEST_METADATA,
       uiStringAudioIds: {},
       systemSettings: DEFAULT_SYSTEM_SETTINGS,
@@ -502,7 +505,7 @@ test('readElectionPackageFromFile reads metadata', async () => {
     (await readElectionPackageFromFile(file)).unsafeUnwrap()
   ).toEqual<ParsedElectionPackageWithHash>({
     electionPackage: {
-      electionDefinition,
+      electionDefinition: asStoredElectionDefinition(electionDefinition),
       metadata,
       systemSettings: DEFAULT_SYSTEM_SETTINGS,
       uiStringAudioIds: {},
@@ -782,7 +785,9 @@ test('readSignedElectionPackageFromDirectory can read an election package from a
       mockBaseLogger({ fn: vi.fn })
     )
   ).unsafeUnwrap();
-  expect(electionPackage.electionDefinition).toEqual(electionDefinition);
+  expect(electionPackage.electionDefinition).toEqual(
+    asStoredElectionDefinition(electionDefinition)
+  );
   expect(electionPackage.systemSettings).toEqual(
     safeParseSystemSettings(systemSettings.asText()).unsafeUnwrap()
   );
@@ -822,7 +827,9 @@ test("readSignedElectionPackageFromDirectory uses default system settings when s
       mockBaseLogger({ fn: vi.fn })
     )
   ).unsafeUnwrap();
-  expect(electionPackage.electionDefinition).toEqual(electionDefinition);
+  expect(electionPackage.electionDefinition).toEqual(
+    asStoredElectionDefinition(electionDefinition)
+  );
   expect(electionPackage.systemSettings).toEqual(DEFAULT_SYSTEM_SETTINGS);
 });
 
@@ -1048,7 +1055,9 @@ test('configures using the most recently created election package across electio
       mockBaseLogger({ fn: vi.fn })
     )
   ).unsafeUnwrap();
-  expect(electionPackage.electionDefinition).toEqual(electionDefinition);
+  expect(electionPackage.electionDefinition).toEqual(
+    asStoredElectionDefinition(electionDefinition)
+  );
 });
 
 test('ignores hidden `.`-prefixed files, even if they are newer', async () => {
@@ -1099,7 +1108,9 @@ test('ignores hidden `.`-prefixed files, even if they are newer', async () => {
       mockBaseLogger({ fn: vi.fn })
     )
   ).unsafeUnwrap();
-  expect(electionPackage.electionDefinition).toEqual(electionDefinition);
+  expect(electionPackage.electionDefinition).toEqual(
+    asStoredElectionDefinition(electionDefinition)
+  );
   expect(electionPackage.systemSettings).toEqual(
     safeParseSystemSettings(systemSettings.asText()).unsafeUnwrap()
   );
