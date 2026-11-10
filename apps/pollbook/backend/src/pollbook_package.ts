@@ -281,7 +281,6 @@ export async function readPollbookPackage(
     const electionDefinition: ElectionDefinition = {
       ballotHash: hashElectionData(electionJsonString),
       election,
-      electionData: electionJsonString,
     };
 
     const votersEntry = getFilePrefixedByName(

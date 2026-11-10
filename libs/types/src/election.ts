@@ -1084,11 +1084,8 @@ export type OptionalElection = Optional<Election>;
  */
 export interface ElectionDefinition {
   election: Election;
-  /**
-   * The election file's original bytes, except on a definition read back from
-   * a machine's store, where it is the normalized VXF `Election` JSON.
-   */
-  electionData: string;
+  /** Being removed; use {@link ElectionDefinitionWithData}. */
+  electionData?: string;
   /**
    * A hash of the election file as originally imported. This hash is encoded
    * on ballots and verified by tabulators to ensure that the ballots and the

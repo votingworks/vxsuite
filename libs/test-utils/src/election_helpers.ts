@@ -231,13 +231,11 @@ export function createUnnormalizedElectionDefinition(
 }
 
 /** Returns `electionDefinition` as a store reads it back after import. */
-export function asStoredElectionDefinition(
-  electionDefinition: ElectionDefinition
-): ElectionDefinition {
-  return {
-    ...electionDefinition,
-    electionData: JSON.stringify(electionDefinition.election),
-  };
+export function asStoredElectionDefinition({
+  election,
+  ballotHash,
+}: ElectionDefinition): ElectionDefinition {
+  return { election, ballotHash };
 }
 
 /**

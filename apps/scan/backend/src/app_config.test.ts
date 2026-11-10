@@ -13,6 +13,7 @@ import {
 } from '@votingworks/utils';
 import { assertDefined, err, ok } from '@votingworks/basics';
 import {
+  asStoredElectionDefinition,
   mockElectionManagerUser,
   mockSessionExpiresAt,
   createElectionDefinitionCdf,
@@ -218,7 +219,9 @@ test('in single-location election, auto-select polling place on configure', asyn
     );
     const config = await apiClient.getConfig();
     expect(config.pollingPlaceId).toEqual(defaultPollingPlace.id);
-    expect(config.electionDefinition).toEqual(electionDefinition);
+    expect(config.electionDefinition).toEqual(
+      asStoredElectionDefinition(electionDefinition)
+    );
     expect(config.electionPackageHash).toEqual(expect.any(String));
   });
 });

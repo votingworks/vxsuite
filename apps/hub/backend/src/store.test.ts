@@ -565,7 +565,6 @@ test('getExportedElectionDefinition returns the exported election including reor
   expect(exportedElectionDefinitionResult).toEqual(
     ok({
       election: expect.anything(), // checked below
-      electionData: expect.anything(),
       ballotHash: reorderedBallotHash,
     })
   );

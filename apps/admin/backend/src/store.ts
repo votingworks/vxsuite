@@ -517,7 +517,6 @@ export class Store implements BaseStore {
       electionDefinition: {
         ballotHash: r.ballotHash,
         election: parseValidatedElection(r.electionData),
-        electionData: r.electionData,
       },
       createdAt: convertSqliteTimestampToIso8601(r.createdAt),
       isOfficialResults: r.isOfficialResults === 1,
@@ -575,7 +574,6 @@ export class Store implements BaseStore {
     const electionDefinition: ElectionDefinition = {
       ballotHash,
       election: parseValidatedElection(electionData),
-      electionData,
     };
     this.cachedElection = { id: electionId, electionDefinition };
     return electionDefinition;
