@@ -623,13 +623,7 @@ impl Driver {
             return Err(Error::AlreadyConnected);
         }
 
-        match Self::connect_inner(library_path, app_id, schema) {
-            Ok(pair) => Ok(pair),
-            Err(error) => {
-                Self::release_globals();
-                Err(error)
-            }
-        }
+        Self::connect_inner(library_path, app_id, schema).inspect_err(|_| Self::release_globals())
     }
 
     fn connect_inner(
