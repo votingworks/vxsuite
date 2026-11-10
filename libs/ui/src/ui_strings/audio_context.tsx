@@ -19,8 +19,8 @@ export interface UiStringsAudioContextInterface {
   api: UiStringsReactQueryApi;
   decreasePlaybackRate: () => void;
   increasePlaybackRate: () => void;
-  isEnabledSetting: boolean;
-  isMuted: boolean;
+  isEnabledByUser: boolean;
+  isMutedBySystem: boolean;
   isPaused: boolean;
   isPlaybackActive: boolean;
   output?: AudioNode;
@@ -28,7 +28,7 @@ export interface UiStringsAudioContextInterface {
   reset: () => void;
   setControlsEnabled: (enabled: boolean) => void;
   setIsEnabled: (enabled: boolean) => void;
-  setIsMuted: (muted: boolean) => void;
+  setIsMutedBySystem: (muted: boolean) => void;
   setIsPaused: (paused: boolean) => void;
   setVolume: (volume: AudioVolume) => void;
   toggleEnabled: () => void;
@@ -84,10 +84,10 @@ export function UiStringsAudioContextProvider(
   props: UiStringsAudioContextProviderProps
 ): JSX.Element {
   const { api, children } = props;
-  const [isEnabledSetting, setIsEnabledInternal] = React.useState(
+  const [isEnabledByUser, setIsEnabledInternal] = React.useState(
     DEFAULT_AUDIO_ENABLED_STATE
   );
-  const [isMuted, setIsMuted] = React.useState(false);
+  const [isMutedBySystem, setIsMutedBySystem] = React.useState(false);
   const [controlsEnabled, setControlsEnabled] = React.useState(true);
   const [isPaused, setIsPaused] = React.useState(true);
   const [playbackRateIdx, setPlaybackRateIdx] = React.useState<number>(
@@ -129,7 +129,7 @@ export function UiStringsAudioContextProvider(
     [headphonesPluggedIn]
   );
 
-  const isPlaybackActive = isEnabledSetting && !isMuted;
+  const isPlaybackActive = isEnabledByUser && !isMutedBySystem;
 
   React.useEffect(() => {
     if (isPlaybackActive) {
@@ -171,8 +171,8 @@ export function UiStringsAudioContextProvider(
   );
 
   const toggleEnabled = React.useCallback(
-    () => setIsEnabled(!isEnabledSetting),
-    [isEnabledSetting, setIsEnabled]
+    () => setIsEnabled(!isEnabledByUser),
+    [isEnabledByUser, setIsEnabled]
   );
 
   return (
@@ -181,8 +181,8 @@ export function UiStringsAudioContextProvider(
         api,
         decreasePlaybackRate: controlsEnabled ? decreasePlaybackRate : noOp,
         increasePlaybackRate: controlsEnabled ? increasePlaybackRate : noOp,
-        isEnabledSetting,
-        isMuted,
+        isEnabledByUser,
+        isMutedBySystem,
         isPaused,
         isPlaybackActive,
         output: gainNodeRef.current,
@@ -191,7 +191,7 @@ export function UiStringsAudioContextProvider(
         reset,
         setControlsEnabled,
         setIsEnabled: controlsEnabled ? setIsEnabled : noOp,
-        setIsMuted,
+        setIsMutedBySystem,
         setIsPaused: controlsEnabled ? setIsPaused : noOp,
         setVolume: controlsEnabled ? setVolume : noOp,
         toggleEnabled: controlsEnabled ? toggleEnabled : noOp,

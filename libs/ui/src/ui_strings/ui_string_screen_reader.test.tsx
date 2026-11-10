@@ -278,7 +278,7 @@ test('is a no-op and stays paused while muted', async () => {
 
   const clickTarget = await screen.findByTestId('clickTarget');
   act(() => getAudioContext()?.setIsEnabled(true));
-  act(() => getAudioContext()?.setIsMuted(true));
+  act(() => getAudioContext()?.setIsMutedBySystem(true));
   expect(getAudioContext()?.isPaused).toEqual(true);
 
   await userEvent.click(clickTarget);

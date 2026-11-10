@@ -118,7 +118,7 @@ function AudioControls() {
     increasePlaybackRate,
   } = useAudioControls();
 
-  if (!ctx?.isEnabledSetting) return null;
+  if (!ctx?.isEnabledByUser) return null;
 
   return (
     <Controls>

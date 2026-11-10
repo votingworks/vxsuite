@@ -60,7 +60,7 @@ test('visual mode is disabled when button is pressed', async () => {
   // audio-only mode:
   act(() => getAudioContext()!.setIsEnabled(false));
   await waitFor(
-    () => expect(getAudioContext()!.isEnabledSetting).toEqual(false),
+    () => expect(getAudioContext()!.isEnabledByUser).toEqual(false),
     {
       timeout: 2000,
     }

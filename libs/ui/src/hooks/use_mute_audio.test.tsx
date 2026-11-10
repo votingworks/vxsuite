@@ -14,17 +14,17 @@ test('mutes while shouldMute is true, without changing the setting', async () =>
   await waitFor(() =>
     expect(getAudioContext()?.isPlaybackActive).toEqual(true)
   );
-  expect(getAudioContext()?.isMuted).toEqual(false);
+  expect(getAudioContext()?.isMutedBySystem).toEqual(false);
 
   shouldMute = true;
   rerender();
-  expect(getAudioContext()?.isMuted).toEqual(true);
+  expect(getAudioContext()?.isMutedBySystem).toEqual(true);
   expect(getAudioContext()?.isPlaybackActive).toEqual(false);
-  expect(getAudioContext()?.isEnabledSetting).toEqual(true);
+  expect(getAudioContext()?.isEnabledByUser).toEqual(true);
 
   shouldMute = false;
   rerender();
-  expect(getAudioContext()?.isMuted).toEqual(false);
+  expect(getAudioContext()?.isMutedBySystem).toEqual(false);
   expect(getAudioContext()?.isPlaybackActive).toEqual(true);
 
   unmount();
@@ -39,11 +39,11 @@ test('unmutes on unmount', async () => {
   }
 
   const { rerender } = render(<Muter />);
-  await waitFor(() => expect(getAudioContext()?.isMuted).toEqual(true));
+  await waitFor(() => expect(getAudioContext()?.isMutedBySystem).toEqual(true));
   expect(getAudioContext()?.isPlaybackActive).toEqual(false);
 
   rerender(<div />);
-  expect(getAudioContext()?.isMuted).toEqual(false);
+  expect(getAudioContext()?.isMutedBySystem).toEqual(false);
   expect(getAudioContext()?.isPlaybackActive).toEqual(true);
 });
 
