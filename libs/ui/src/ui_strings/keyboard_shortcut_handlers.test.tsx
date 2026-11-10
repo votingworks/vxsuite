@@ -68,7 +68,10 @@ test('Shift+L switches display language', async () => {
 });
 
 test.each([
-  { key: Keybinding.TOGGLE_AUDIO, expectedFnCall: audioControls.toggleEnabled },
+  {
+    key: Keybinding.TOGGLE_AUDIO,
+    expectedFnCall: audioControls.toggleEnabledByUser,
+  },
   {
     key: Keybinding.PLAYBACK_RATE_DOWN,
     expectedFnCall: audioControls.decreasePlaybackRate,

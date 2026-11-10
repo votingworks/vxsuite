@@ -42,7 +42,7 @@ export function AudioSettings(props: AudioSettingsProps): JSX.Element {
   const { setIsVisualModeDisabled } = React.useContext(
     VoterSettingsManagerContext
   );
-  const { setIsEnabled: setAudioEnabled } = useAudioControls();
+  const { setIsEnabledByUser: setAudioEnabled } = useAudioControls();
   const { isVisualModeDisabled } = useCurrentTheme();
 
   const onAudioOnlyPress = React.useCallback(() => {
@@ -118,7 +118,7 @@ function AudioControls() {
     increasePlaybackRate,
   } = useAudioControls();
 
-  if (!ctx?.isEnabledSetting) return null;
+  if (!ctx?.isEnabledByUser) return null;
 
   return (
     <Controls>

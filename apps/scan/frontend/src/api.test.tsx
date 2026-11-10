@@ -1,5 +1,5 @@
 import { describe, expect, test, vi } from 'vitest';
-import { useAudioEnabled } from '@votingworks/ui';
+import { useAudioEnabledByUser } from '@votingworks/ui';
 import { mockUseAudioControls } from '@votingworks/test-utils';
 import { deferred, sleep } from '@votingworks/basics';
 import { renderHook } from '../test/react_testing_library.js';
@@ -14,10 +14,10 @@ const mockAudioControls = mockUseAudioControls(vi.fn);
 vi.mock('@votingworks/ui', async () => ({
   ...(await vi.importActual('@votingworks/ui')),
   useAudioControls: () => mockAudioControls,
-  useAudioEnabled: vi.fn(),
+  useAudioEnabledByUser: vi.fn(),
 }));
 
-const mockUseAudioEnabled = vi.mocked(useAudioEnabled);
+const mockUseAudioEnabled = vi.mocked(useAudioEnabledByUser);
 
 describe('playSound', () => {
   test('mutes TTS audio while server sound is playing', async () => {
@@ -27,17 +27,19 @@ describe('playSound', () => {
     mockUseAudioEnabled.mockReturnValue(true);
 
     const { result } = renderHook(api.playSound.useMutation, { wrapper });
-    expect(mockAudioControls.setIsEnabled).not.toHaveBeenCalled();
+    expect(mockAudioControls.setIsEnabledByUser).not.toHaveBeenCalled();
 
     const deferredPlay = mockPlaySound(mockClient);
 
     const deferredMutate = result.current.mutateAsync({ name: 'success' });
     await sleep(0); // Wait for mutation to run in next tick.
-    expect(mockAudioControls.setIsEnabled).toHaveBeenLastCalledWith(false);
+    expect(mockAudioControls.setIsEnabledByUser).toHaveBeenLastCalledWith(
+      false
+    );
 
     deferredPlay.resolve();
     await deferredMutate;
-    expect(mockAudioControls.setIsEnabled).toHaveBeenLastCalledWith(true);
+    expect(mockAudioControls.setIsEnabledByUser).toHaveBeenLastCalledWith(true);
   });
 
   test('does NOT unmute TTS audio if already muted by the voter', async () => {
@@ -47,17 +49,21 @@ describe('playSound', () => {
     mockUseAudioEnabled.mockReturnValue(false);
 
     const { result } = renderHook(api.playSound.useMutation, { wrapper });
-    expect(mockAudioControls.setIsEnabled).not.toHaveBeenCalled();
+    expect(mockAudioControls.setIsEnabledByUser).not.toHaveBeenCalled();
 
     const deferredPlay = mockPlaySound(mockClient);
 
     const deferredMutate = result.current.mutateAsync({ name: 'success' });
     await sleep(0); // Wait for mutation to run in next tick.
-    expect(mockAudioControls.setIsEnabled).toHaveBeenLastCalledWith(false);
+    expect(mockAudioControls.setIsEnabledByUser).toHaveBeenLastCalledWith(
+      false
+    );
 
     deferredPlay.resolve();
     await deferredMutate;
-    expect(mockAudioControls.setIsEnabled).toHaveBeenLastCalledWith(false);
+    expect(mockAudioControls.setIsEnabledByUser).toHaveBeenLastCalledWith(
+      false
+    );
   });
 
   function mockPlaySound(client: ApiMock) {

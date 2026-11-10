@@ -19,19 +19,19 @@ export interface UiStringsAudioContextInterface {
   api: UiStringsReactQueryApi;
   decreasePlaybackRate: () => void;
   increasePlaybackRate: () => void;
-  isEnabledSetting: boolean;
-  isMuted: boolean;
+  isEnabledByUser: boolean;
+  isMutedBySystem: boolean;
   isPaused: boolean;
   isPlaybackActive: boolean;
   output?: AudioNode;
   playbackRate: PlaybackRate;
   reset: () => void;
   setControlsEnabled: (enabled: boolean) => void;
-  setIsEnabled: (enabled: boolean) => void;
-  setIsMuted: (muted: boolean) => void;
+  setIsEnabledByUser: (enabled: boolean) => void;
+  setIsMutedBySystem: (muted: boolean) => void;
   setIsPaused: (paused: boolean) => void;
   setVolume: (volume: AudioVolume) => void;
-  toggleEnabled: () => void;
+  toggleEnabledByUser: () => void;
   togglePause: () => void;
   volume: AudioVolume;
   webAudioContext?: AudioContext;
@@ -84,10 +84,10 @@ export function UiStringsAudioContextProvider(
   props: UiStringsAudioContextProviderProps
 ): JSX.Element {
   const { api, children } = props;
-  const [isEnabledSetting, setIsEnabledInternal] = React.useState(
+  const [isEnabledByUser, setIsEnabledByUserInternal] = React.useState(
     DEFAULT_AUDIO_ENABLED_STATE
   );
-  const [isMuted, setIsMuted] = React.useState(false);
+  const [isMutedBySystem, setIsMutedBySystem] = React.useState(false);
   const [controlsEnabled, setControlsEnabled] = React.useState(true);
   const [isPaused, setIsPaused] = React.useState(true);
   const [playbackRateIdx, setPlaybackRateIdx] = React.useState<number>(
@@ -109,10 +109,10 @@ export function UiStringsAudioContextProvider(
     setIsPaused(false);
   }, []);
 
-  const setIsEnabled = React.useCallback(
+  const setIsEnabledByUser = React.useCallback(
     (enabled: boolean) => {
       if (headphonesPluggedIn) {
-        setIsEnabledInternal(enabled);
+        setIsEnabledByUserInternal(enabled);
       }
     },
     [headphonesPluggedIn]
@@ -120,16 +120,16 @@ export function UiStringsAudioContextProvider(
 
   const reset = React.useCallback(() => {
     resetPlaybackSettings();
-    setIsEnabled(DEFAULT_AUDIO_ENABLED_STATE);
+    setIsEnabledByUser(DEFAULT_AUDIO_ENABLED_STATE);
     setControlsEnabled(true);
-  }, [resetPlaybackSettings, setIsEnabled]);
+  }, [resetPlaybackSettings, setIsEnabledByUser]);
 
   React.useEffect(
-    () => setIsEnabledInternal(headphonesPluggedIn),
+    () => setIsEnabledByUserInternal(headphonesPluggedIn),
     [headphonesPluggedIn]
   );
 
-  const isPlaybackActive = isEnabledSetting && !isMuted;
+  const isPlaybackActive = isEnabledByUser && !isMutedBySystem;
 
   React.useEffect(() => {
     if (isPlaybackActive) {
@@ -170,9 +170,9 @@ export function UiStringsAudioContextProvider(
     [isPaused]
   );
 
-  const toggleEnabled = React.useCallback(
-    () => setIsEnabled(!isEnabledSetting),
-    [isEnabledSetting, setIsEnabled]
+  const toggleEnabledByUser = React.useCallback(
+    () => setIsEnabledByUser(!isEnabledByUser),
+    [isEnabledByUser, setIsEnabledByUser]
   );
 
   return (
@@ -181,8 +181,8 @@ export function UiStringsAudioContextProvider(
         api,
         decreasePlaybackRate: controlsEnabled ? decreasePlaybackRate : noOp,
         increasePlaybackRate: controlsEnabled ? increasePlaybackRate : noOp,
-        isEnabledSetting,
-        isMuted,
+        isEnabledByUser,
+        isMutedBySystem,
         isPaused,
         isPlaybackActive,
         output: gainNodeRef.current,
@@ -190,11 +190,11 @@ export function UiStringsAudioContextProvider(
         playbackRate: PLAYBACK_RATES[playbackRateIdx]!,
         reset,
         setControlsEnabled,
-        setIsEnabled: controlsEnabled ? setIsEnabled : noOp,
-        setIsMuted,
+        setIsEnabledByUser: controlsEnabled ? setIsEnabledByUser : noOp,
+        setIsMutedBySystem,
         setIsPaused: controlsEnabled ? setIsPaused : noOp,
         setVolume: controlsEnabled ? setVolume : noOp,
-        toggleEnabled: controlsEnabled ? toggleEnabled : noOp,
+        toggleEnabledByUser: controlsEnabled ? toggleEnabledByUser : noOp,
         togglePause: controlsEnabled ? togglePause : noOp,
         volume,
         webAudioContext: webAudioContextRef.current,

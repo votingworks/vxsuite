@@ -23,8 +23,8 @@ test('returns external-facing audio context API', () => {
     increasePlaybackRate: vi.fn(),
     reset: vi.fn(),
     setControlsEnabled: vi.fn(),
-    setIsEnabled: vi.fn(),
-    toggleEnabled: vi.fn(),
+    setIsEnabledByUser: vi.fn(),
+    toggleEnabledByUser: vi.fn(),
     togglePause: vi.fn(),
   } as const;
 
@@ -44,9 +44,9 @@ test('returns external-facing audio context API', () => {
       <UiStringsAudioContext.Provider
         value={{
           api: mockUiStringsApi,
-          isEnabledSetting: true,
-          isMuted: false,
-          setIsMuted: vi.fn(),
+          isEnabledByUser: true,
+          isMutedBySystem: false,
+          setIsMutedBySystem: vi.fn(),
           isPlaybackActive: true,
           isPaused: false,
           playbackRate: PlaybackRate.PERCENT_100,

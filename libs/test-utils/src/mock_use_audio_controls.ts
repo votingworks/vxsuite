@@ -12,8 +12,8 @@ export function mockUseAudioControls(fn: typeof vi.fn): Mocked<AudioControls> {
     reset: fn(),
     replay: fn(),
     setControlsEnabled: fn(),
-    setIsEnabled: fn(),
-    toggleEnabled: fn(),
+    setIsEnabledByUser: fn(),
+    toggleEnabledByUser: fn(),
     togglePause: fn(),
   };
 }

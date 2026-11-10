@@ -2,7 +2,7 @@ import React from 'react';
 import {
   VoterSettingsManagerContext,
   useAudioControls,
-  useAudioEnabled,
+  useAudioEnabledByUser,
   useCurrentLanguage,
   useLanguageControls,
 } from '@votingworks/ui';
@@ -30,7 +30,7 @@ export function useSessionSettingsManager(): SessionSettingsManagerProps {
   const audioContext = useAudioControls();
   const languageContext = useLanguageControls();
   const voterSettingsContext = React.useContext(VoterSettingsManagerContext);
-  const isAudioEnabled = useAudioEnabled();
+  const isAudioEnabled = useAudioEnabledByUser();
   const currentLanguage = useCurrentLanguage();
   const currentTheme = React.useContext(ThemeContext);
 
@@ -86,7 +86,7 @@ export function useSessionSettingsManager(): SessionSettingsManagerProps {
   function resumeSession() {
     // @coverage-defer
     if (savedIsAudioEnabled !== null) {
-      audioContext.setIsEnabled(savedIsAudioEnabled);
+      audioContext.setIsEnabledByUser(savedIsAudioEnabled);
     }
     // @coverage-defer
     if (savedVoterSessionLanguage) {

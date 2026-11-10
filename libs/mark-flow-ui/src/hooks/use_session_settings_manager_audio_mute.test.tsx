@@ -7,7 +7,7 @@ import {
   QUERY_CLIENT_DEFAULT_OPTIONS,
   UiStringsContextProvider,
   useAudioControls,
-  useAudioEnabled,
+  useAudioEnabledByUser,
   useMuteAudio,
   type UiStringsApiClient,
 } from '@votingworks/ui';
@@ -77,7 +77,7 @@ function useTestHook() {
 
   return {
     audioControls: useAudioControls(),
-    isAudioEnabled: useAudioEnabled(),
+    isAudioEnabled: useAudioEnabledByUser(),
     setAuthStatus,
     setIsAlarmActive,
   };
@@ -136,7 +136,7 @@ test('voter audio setting survives a poll worker visit during an ongoing alarm',
 test('voter-disabled audio stays disabled after a poll worker round trip', async () => {
   const { result } = await renderAndStartVoterSession();
 
-  act(() => result.current.audioControls.setIsEnabled(false));
+  act(() => result.current.audioControls.setIsEnabledByUser(false));
   act(() => result.current.setAuthStatus(POLL_WORKER_AUTH));
   act(() => result.current.setAuthStatus(VOTER_AUTH));
   expect(result.current.isAudioEnabled).toEqual(false);

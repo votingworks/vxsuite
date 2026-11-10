@@ -6,12 +6,12 @@ import { useAudioContext } from '../ui_strings/audio_context.js';
  * changing the voter's audio on/off setting.
  */
 export function useMuteAudio(shouldMute: boolean): void {
-  const setIsMuted = useAudioContext()?.setIsMuted;
+  const setIsMutedBySystem = useAudioContext()?.setIsMutedBySystem;
 
   React.useEffect(() => {
-    if (!shouldMute || !setIsMuted) return;
+    if (!shouldMute || !setIsMutedBySystem) return;
 
-    setIsMuted(true);
-    return () => setIsMuted(false);
-  }, [shouldMute, setIsMuted]);
+    setIsMutedBySystem(true);
+    return () => setIsMutedBySystem(false);
+  }, [shouldMute, setIsMutedBySystem]);
 }

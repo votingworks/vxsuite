@@ -34,7 +34,7 @@ export * from './full_screen_message.js';
 export * from './global_styles.js';
 export * from './hooks/ui_strings_api.js';
 export * from './hooks/use_audio_controls.js';
-export * from './hooks/use_audio_enabled.js';
+export * from './hooks/use_audio_enabled_by_user.js';
 export * from './hooks/use_mute_audio.js';
 export * from './hooks/use_available_languages.js';
 export * from './hooks/use_change_listener.js';

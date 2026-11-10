@@ -21,7 +21,7 @@ import {
   createUiStringsApi,
   createSystemCallApi,
   useAudioControls,
-  useAudioEnabled,
+  useAudioEnabledByUser,
 } from '@votingworks/ui';
 import type { DiagnosticRecord } from '@votingworks/types';
 
@@ -643,7 +643,7 @@ export function usePlaySoundMutation(
   useClient: () => Pick<ApiClient, 'playSound'>
 ): UseMutationResult<void, unknown, { name: SoundName }, unknown> {
   const ttsAudio = useAudioControls();
-  const ttsWasEnabled = React.useRef(useAudioEnabled());
+  const ttsWasEnabled = React.useRef(useAudioEnabledByUser());
 
   const apiClient = useClient();
   return useMutation(async (input: { name: SoundName }) => {
@@ -652,10 +652,10 @@ export function usePlaySoundMutation(
     // When playing sounds through the server (which involves switching all
     // audio over to the speaker), we first mute the TTS audio to avoid
     // conflicting audio/unintelligible speech.
-    ttsAudio.setIsEnabled(false);
+    ttsAudio.setIsEnabledByUser(false);
 
     await apiClient.playSound(input);
 
-    ttsAudio.setIsEnabled(ttsWasEnabled.current);
+    ttsAudio.setIsEnabledByUser(ttsWasEnabled.current);
   });
 }

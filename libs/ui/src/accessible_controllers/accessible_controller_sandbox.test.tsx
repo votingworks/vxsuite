@@ -140,16 +140,16 @@ test('force-enables audio and disables audio controls while active', async () =>
 
   await screen.findByRole('heading', { name: /controller help/i });
   expect(mockAudioControls.setControlsEnabled).toHaveBeenLastCalledWith(false);
-  expect(mockAudioControls.setIsEnabled).toHaveBeenLastCalledWith(true);
+  expect(mockAudioControls.setIsEnabledByUser).toHaveBeenLastCalledWith(true);
 
   // Reset audio control mocks so we can verify there are no further calls to
-  // `setIsEnabled`:
-  mockAudioControls.setIsEnabled.mockReset();
+  // `setIsEnabledByUser`:
+  mockAudioControls.setIsEnabledByUser.mockReset();
   mockAudioControls.setControlsEnabled.mockReset();
 
   rerender(<div>Regular Voter Screen</div>);
 
   await screen.findByText('Regular Voter Screen');
   expect(mockAudioControls.setControlsEnabled).toHaveBeenLastCalledWith(true);
-  expect(mockAudioControls.setIsEnabled).not.toHaveBeenCalled();
+  expect(mockAudioControls.setIsEnabledByUser).not.toHaveBeenCalled();
 });
