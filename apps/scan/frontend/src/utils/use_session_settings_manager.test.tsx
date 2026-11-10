@@ -145,7 +145,7 @@ it('First cache/clear voter settings and then restore', () => {
 
   // Validate settings were reset
   expect(mockAudioControls.reset).toHaveBeenCalledTimes(1);
-  expect(mockAudioControls.setIsEnabled).not.toHaveBeenCalled();
+  expect(mockAudioControls.setIsEnabledByUser).not.toHaveBeenCalled();
   expect(mockLanguageControls.reset).toHaveBeenCalledTimes(1);
   expect(mockLanguageControls.setLanguage).not.toHaveBeenCalled();
   expect(result.current.theme).toEqual(
@@ -165,8 +165,8 @@ it('First cache/clear voter settings and then restore', () => {
       isVisualModeDisabled: true,
     })
   );
-  expect(mockAudioControls.setIsEnabled).toHaveBeenCalledTimes(1);
-  expect(mockAudioControls.setIsEnabled).toHaveBeenCalledWith(false);
+  expect(mockAudioControls.setIsEnabledByUser).toHaveBeenCalledTimes(1);
+  expect(mockAudioControls.setIsEnabledByUser).toHaveBeenCalledWith(false);
   expect(mockLanguageControls.setLanguage).toHaveBeenCalledTimes(1);
   expect(mockLanguageControls.setLanguage).toHaveBeenCalledWith('es-US');
 });

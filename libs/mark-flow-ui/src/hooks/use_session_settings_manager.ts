@@ -36,7 +36,7 @@ export function useSessionSettingsManager(
   const voterSettingsManager = React.useContext(VoterSettingsManagerContext);
   const currentTheme = useCurrentTheme();
 
-  const { setIsEnabled: setAudioEnabled } = useAudioControls();
+  const { setIsEnabledByUser: setAudioEnabled } = useAudioControls();
   const { reset: resetLanguage, setLanguage } = useLanguageControls();
   const currentLanguage = useCurrentLanguage();
   const isAudioEnabled = useAudioEnabledByUser();

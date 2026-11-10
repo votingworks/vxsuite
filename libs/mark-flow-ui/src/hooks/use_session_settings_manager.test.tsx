@@ -94,7 +94,7 @@ function useTestHook() {
 
 const ALLOWED_AUDIO_CONTROLS: ReadonlySet<keyof AudioControls> = new Set<
   keyof AudioControls
->(['setIsEnabled']);
+>(['setIsEnabledByUser']);
 
 afterEach(() => {
   // Catch any unexpected audio control usage:
@@ -118,7 +118,7 @@ test('Resets settings when election official logs in', () => {
   expect(mockLanguageControls.reset).not.toHaveBeenCalled();
   expect(mockLanguageControls.setLanguage).not.toHaveBeenCalled();
   expect(mockAudioControls.reset).not.toHaveBeenCalled();
-  expect(mockAudioControls.setIsEnabled).not.toHaveBeenCalled();
+  expect(mockAudioControls.setIsEnabledByUser).not.toHaveBeenCalled();
 
   // Simulate changing session settings as voter:
   act(() => {
@@ -147,7 +147,7 @@ test('Resets settings when election official logs in', () => {
   );
   expect(mockLanguageControls.reset).toHaveBeenCalled();
   expect(mockLanguageControls.setLanguage).not.toHaveBeenCalled();
-  expect(mockAudioControls.setIsEnabled).toHaveBeenLastCalledWith(false);
+  expect(mockAudioControls.setIsEnabledByUser).toHaveBeenLastCalledWith(false);
 
   // Simulate changing session settings as Election Manager:
   act(() => {
@@ -173,7 +173,7 @@ test('Resets settings when election official logs in', () => {
     })
   );
   expect(mockLanguageControls.setLanguage).toHaveBeenCalledWith(SPANISH);
-  expect(mockAudioControls.setIsEnabled).toHaveBeenLastCalledWith(true);
+  expect(mockAudioControls.setIsEnabledByUser).toHaveBeenLastCalledWith(true);
   expect(mockAudioControls.reset).not.toHaveBeenCalled();
 });
 
@@ -206,7 +206,7 @@ test('Clears stored voter settings when session is ended', () => {
   mockLanguageControls.reset.mockReset();
   mockLanguageControls.setLanguage.mockReset();
   mockAudioControls.reset.mockReset();
-  mockAudioControls.setIsEnabled.mockReset();
+  mockAudioControls.setIsEnabledByUser.mockReset();
 
   // Logging back in as a voter after session end should be a no-op:
   act(() => result.current.setMockAuth(VOTER_AUTH));
@@ -217,5 +217,5 @@ test('Clears stored voter settings when session is ended', () => {
   expect(mockLanguageControls.reset).not.toHaveBeenCalled();
   expect(mockLanguageControls.setLanguage).not.toHaveBeenCalled();
   expect(mockAudioControls.reset).not.toHaveBeenCalled();
-  expect(mockAudioControls.setIsEnabled).not.toHaveBeenCalled();
+  expect(mockAudioControls.setIsEnabledByUser).not.toHaveBeenCalled();
 });

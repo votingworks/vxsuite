@@ -41,7 +41,7 @@ export function AccessibleControllerSandbox<T extends Keybinding>(
 
   const audioControls = useAudioControls();
   const setAudioControlsEnabled = audioControls.setControlsEnabled;
-  const setAudioEnabled = audioControls.setIsEnabled;
+  const setAudioEnabled = audioControls.setIsEnabledByUser;
 
   React.useEffect(() => {
     setAudioEnabled(true);

@@ -28,7 +28,7 @@ export function ToggleAudioButton(): React.ReactNode {
       <P weight="bold">{statusText}</P>
       <Button
         disabled={!headphonesPluggedIn}
-        onPress={audioControls.toggleEnabled}
+        onPress={audioControls.toggleEnabledByUser}
       >
         <WithAltAudio
           audioText={

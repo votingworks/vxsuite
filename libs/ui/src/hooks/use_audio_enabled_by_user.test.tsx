@@ -20,6 +20,6 @@ test('returns audio state when rendered within audio context', async () => {
 
   await waitFor(() => expect(result.current).toEqual(true));
 
-  act(() => getAudioControls()!.setIsEnabled(false));
+  act(() => getAudioControls()!.setIsEnabledByUser(false));
   expect(result.current).toEqual(false);
 });

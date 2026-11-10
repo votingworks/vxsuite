@@ -86,7 +86,7 @@ export function useSessionSettingsManager(): SessionSettingsManagerProps {
   function resumeSession() {
     // @coverage-defer
     if (savedIsAudioEnabled !== null) {
-      audioContext.setIsEnabled(savedIsAudioEnabled);
+      audioContext.setIsEnabledByUser(savedIsAudioEnabled);
     }
     // @coverage-defer
     if (savedVoterSessionLanguage) {

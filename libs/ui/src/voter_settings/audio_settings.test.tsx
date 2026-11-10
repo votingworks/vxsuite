@@ -58,7 +58,7 @@ test('visual mode is disabled when button is pressed', async () => {
 
   // Start off with audio disabled to verify it's re-enabled when entering
   // audio-only mode:
-  act(() => getAudioContext()!.setIsEnabled(false));
+  act(() => getAudioContext()!.setIsEnabledByUser(false));
   await waitFor(
     () => expect(getAudioContext()!.isEnabledByUser).toEqual(false),
     {
@@ -74,7 +74,7 @@ test('visual mode is disabled when button is pressed', async () => {
   expect(currentTheme!.isVisualModeDisabled).toEqual(true);
   screen.getButton('Exit Audio-Only Mode');
   expect(onEnterAudioOnlyMode).toHaveBeenCalled();
-  expect(mockAudioControls.setIsEnabled.mock.calls).toEqual([[true]]);
+  expect(mockAudioControls.setIsEnabledByUser.mock.calls).toEqual([[true]]);
 });
 
 describe('volume controls', () => {
@@ -118,7 +118,7 @@ describe('volume controls', () => {
     render(<AudioSettings onEnterAudioOnlyMode={vi.fn()} />);
     await screen.findByText(/volume:/i);
 
-    act(() => getAudioContext()!.setIsEnabled(false));
+    act(() => getAudioContext()!.setIsEnabledByUser(false));
     expect(screen.queryByText(/volume:/i)).not.toBeInTheDocument();
     expect(screen.queryButton(/increase.+volume/i)).not.toBeInTheDocument();
     expect(screen.queryButton(/decrease.+volume/i)).not.toBeInTheDocument();
@@ -166,7 +166,7 @@ describe('rate controls', () => {
     render(<AudioSettings onEnterAudioOnlyMode={vi.fn()} />);
     await screen.findAllByText(/rate of speech:/i);
 
-    act(() => getAudioContext()!.setIsEnabled(false));
+    act(() => getAudioContext()!.setIsEnabledByUser(false));
     expect(screen.queryByText(/rate of speech:/i)).not.toBeInTheDocument();
     expect(screen.queryButton(/increase.+rate/i)).not.toBeInTheDocument();
     expect(screen.queryButton(/decrease.+rate/i)).not.toBeInTheDocument();

@@ -52,11 +52,11 @@ function newRenderer(params: {
           playbackRate: PlaybackRate.PERCENT_100,
           reset: vi.fn(),
           setControlsEnabled: vi.fn(),
-          setIsEnabled: vi.fn(),
+          setIsEnabledByUser: vi.fn(),
           setIsMutedBySystem: vi.fn(),
           setIsPaused: vi.fn(),
           setVolume: vi.fn(),
-          toggleEnabled: vi.fn(),
+          toggleEnabledByUser: vi.fn(),
           togglePause: vi.fn(),
           volume: DEFAULT_AUDIO_VOLUME,
         }}

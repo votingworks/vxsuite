@@ -652,10 +652,10 @@ export function usePlaySoundMutation(
     // When playing sounds through the server (which involves switching all
     // audio over to the speaker), we first mute the TTS audio to avoid
     // conflicting audio/unintelligible speech.
-    ttsAudio.setIsEnabled(false);
+    ttsAudio.setIsEnabledByUser(false);
 
     await apiClient.playSound(input);
 
-    ttsAudio.setIsEnabled(ttsWasEnabled.current);
+    ttsAudio.setIsEnabledByUser(ttsWasEnabled.current);
   });
 }

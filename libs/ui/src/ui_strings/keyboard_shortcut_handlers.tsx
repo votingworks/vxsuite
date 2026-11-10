@@ -34,7 +34,7 @@ export function KeyboardShortcutHandlers(): React.ReactNode {
           break;
         }
         case Keybinding.TOGGLE_AUDIO:
-          audioControls.toggleEnabled();
+          audioControls.toggleEnabledByUser();
           break;
         case Keybinding.PLAYBACK_RATE_DOWN:
           audioControls.decreasePlaybackRate();
