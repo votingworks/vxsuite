@@ -1,7 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
-import { Buffer } from 'node:buffer';
 import { DateTime } from 'luxon';
-import { assert, err, ok } from '@votingworks/basics';
+import { assert } from '@votingworks/basics';
 import {
   readElectionGeneralDefinition,
   readElectionTwoPartyPrimary,
@@ -84,7 +83,7 @@ afterEach(() => {
 
 const jurisdiction = TEST_JURISDICTION;
 const otherJurisdiction = `${TEST_JURISDICTION}-2`;
-const { election, electionData } = readElectionGeneralDefinition();
+const { election } = readElectionGeneralDefinition();
 const electionKey = constructElectionKey(election);
 const otherElectionKey = constructElectionKey(readElectionTwoPartyPrimary());
 const defaultConfig: InsertedSmartCardAuthConfig = {};
@@ -1218,49 +1217,6 @@ test('Cardless voter sessions - end-to-end', async () => {
   );
 });
 
-test('Reading card data', async () => {
-  const auth = new InsertedSmartCardAuth({
-    card: mockCard,
-    config: defaultConfig,
-    logger: mockLogger,
-  });
-
-  mockCard.readData.expectCallWith().resolves(electionData);
-  expect(await auth.readCardData()).toEqual(ok(electionData.toString('utf-8')));
-
-  mockCard.readData.expectCallWith().resolves(Buffer.of());
-  expect(await auth.readCardData()).toEqual(ok(undefined));
-});
-
-test('Writing card data', async () => {
-  const auth = new InsertedSmartCardAuth({
-    card: mockCard,
-    config: defaultConfig,
-    logger: mockLogger,
-  });
-
-  mockCard.writeData
-    .expectCallWith(Buffer.from(JSON.stringify(election), 'utf-8'))
-    .resolves();
-  mockCard.readData
-    .expectCallWith()
-    .resolves(Buffer.from(JSON.stringify(election), 'utf-8'));
-  expect(await auth.writeCardData({ data: JSON.stringify(election) })).toEqual(
-    ok()
-  );
-});
-
-test('Clearing card data', async () => {
-  const auth = new InsertedSmartCardAuth({
-    card: mockCard,
-    config: defaultConfig,
-    logger: mockLogger,
-  });
-
-  mockCard.clearData.expectCallWith().resolves();
-  expect(await auth.clearCardData()).toEqual(ok());
-});
-
 test('Checking PIN error handling', async () => {
   const auth = new InsertedSmartCardAuth({
     card: mockCard,
@@ -1567,53 +1523,6 @@ test('Attempting to start a cardless voter session when not allowed by config', 
     })
   ).rejects.toThrow();
   expect(() => auth.endCardlessVoterSession()).toThrow();
-});
-
-test('Reading card data error handling', async () => {
-  const auth = new InsertedSmartCardAuth({
-    card: mockCard,
-    config: defaultConfig,
-    logger: mockLogger,
-  });
-
-  mockCard.readData.expectCallWith().throws(new Error('Whoa!'));
-  expect(await auth.readCardData()).toEqual(err(new Error('Whoa!')));
-});
-
-test('Writing card data error handling', async () => {
-  const auth = new InsertedSmartCardAuth({
-    card: mockCard,
-    config: defaultConfig,
-    logger: mockLogger,
-  });
-
-  mockCard.writeData
-    .expectCallWith(Buffer.from(JSON.stringify(election), 'utf-8'))
-    .throws(new Error('Whoa!'));
-  expect(await auth.writeCardData({ data: JSON.stringify(election) })).toEqual(
-    err(new Error('Whoa!'))
-  );
-
-  mockCard.writeData
-    .expectCallWith(Buffer.from(JSON.stringify(election), 'utf-8'))
-    .resolves();
-  mockCard.readData.expectCallWith().throws(new Error('Whoa!'));
-  expect(
-    await auth.writeCardData({
-      data: JSON.stringify(election),
-    })
-  ).toEqual(err(new Error('Verification of write by reading data failed')));
-});
-
-test('Clearing card data error handling', async () => {
-  const auth = new InsertedSmartCardAuth({
-    card: mockCard,
-    config: defaultConfig,
-    logger: mockLogger,
-  });
-
-  mockCard.clearData.expectCallWith().throws(new Error('Whoa!'));
-  expect(await auth.clearCardData()).toEqual(err(new Error('Whoa!')));
 });
 
 test.each<{
