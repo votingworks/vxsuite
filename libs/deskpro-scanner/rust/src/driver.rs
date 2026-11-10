@@ -1,6 +1,6 @@
 //! Safe wrapper around the `InoTec` driver.
 //!
-//! The vendor structs are packed, so fields are read with `read_unaligned`. Buffer ownership
+//! The vendor structs are packed, so they are copied out with `read_unaligned`. Buffer ownership
 //! differs per callback: control messages and images are ours to free, log strings are not.
 //! Callbacks carry no user data, so at most one [`Driver`] exists per process.
 
@@ -14,9 +14,9 @@ use std::os::unix::ffi::OsStrExt;
 use std::panic::{AssertUnwindSafe, catch_unwind};
 use std::path::Path;
 use std::ptr;
-use std::sync::Mutex;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::mpsc::{self, Receiver, Sender};
+use std::sync::{Mutex, PoisonError};
 
 use crate::ffi::{self, LoadError, Symbols, vendor_heap};
 
@@ -452,9 +452,7 @@ static EVENTS: Mutex<Option<Sender<Event>>> = Mutex::new(None);
 static CONNECTED: AtomicBool = AtomicBool::new(false);
 
 fn emit(event: Event) {
-    let guard = EVENTS
-        .lock()
-        .unwrap_or_else(std::sync::PoisonError::into_inner);
+    let guard = EVENTS.lock().unwrap_or_else(PoisonError::into_inner);
     if let Some(tx) = guard.as_ref() {
         let _ = tx.send(event);
     }
@@ -656,9 +654,7 @@ impl Driver {
 
         let app_id = CString::new(app_id)?;
         let (tx, rx) = mpsc::channel();
-        *EVENTS
-            .lock()
-            .unwrap_or_else(std::sync::PoisonError::into_inner) = Some(tx);
+        *EVENTS.lock().unwrap_or_else(PoisonError::into_inner) = Some(tx);
 
         // SAFETY: the trampolines match the header's callback signatures, and the driver only
         // invokes them between here and `ScannerDisconnect`.
@@ -693,9 +689,7 @@ impl Driver {
     }
 
     fn release_globals() {
-        *EVENTS
-            .lock()
-            .unwrap_or_else(std::sync::PoisonError::into_inner) = None;
+        *EVENTS.lock().unwrap_or_else(PoisonError::into_inner) = None;
         CONNECTED.store(false, Ordering::Release);
     }
 
