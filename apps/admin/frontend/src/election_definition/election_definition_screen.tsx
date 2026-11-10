@@ -10,6 +10,7 @@ import {
   DistrictsEditor,
   ElectionDefinitionContextProvider,
   ElectionInfoEditor,
+  PrecinctsEditor,
 } from '@votingworks/election-definition-ui';
 import type { ElectionId } from '@votingworks/types';
 import { DesktopPalette, RouterTabBar } from '@votingworks/ui';
@@ -43,6 +44,7 @@ function DefinitionScreen(): JSX.Element | null {
     getCurrentInProgressElection.useQuery();
   const infoPath = routerPaths.electionDefinitionInfo(electionId);
   const districtsPath = routerPaths.electionDefinitionDistricts(electionId);
+  const precinctsPath = routerPaths.electionDefinitionPrecincts(electionId);
 
   if (!getCurrentInProgressElectionQuery.isSuccess) {
     return null;
@@ -58,6 +60,7 @@ function DefinitionScreen(): JSX.Element | null {
           tabs={[
             { title: 'Election Info', path: infoPath },
             { title: 'Districts', path: districtsPath },
+            { title: 'Precincts', path: precinctsPath },
           ]}
         />
         <Switch>
@@ -69,6 +72,9 @@ function DefinitionScreen(): JSX.Element | null {
           </Route>
           <Route path={routerPaths.electionDefinitionDistricts(':electionId')}>
             <DistrictsEditor electionId={electionId} />
+          </Route>
+          <Route path={routerPaths.electionDefinitionPrecincts(':electionId')}>
+            <PrecinctsEditor electionId={electionId} />
           </Route>
           <Redirect to={infoPath} />
         </Switch>
