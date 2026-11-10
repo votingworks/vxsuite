@@ -233,11 +233,6 @@ function isForeignKeyError(
   );
 }
 
-export type DuplicatePrecinctError =
-  | 'duplicate-precinct-name'
-  | 'duplicate-split-name'
-  | 'duplicate-split-districts';
-
 export type DuplicatePartyErrorCode =
   | 'duplicate-name'
   | 'duplicate-full-name'
