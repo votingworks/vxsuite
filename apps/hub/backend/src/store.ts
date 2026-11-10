@@ -2951,16 +2951,6 @@ export class Store {
     });
   }
 
-  async requeueInterruptedBackgroundTasks(): Promise<void> {
-    await this.db.withClient(async (client) =>
-      client.query(`
-        update background_tasks
-        set started_at = null
-        where started_at is not null and completed_at is null
-      `)
-    );
-  }
-
   async ttsEditsAll(params: {
     jurisdictionId: string;
   }): Promise<TtsEditEntry[]> {

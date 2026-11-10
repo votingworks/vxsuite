@@ -313,61 +313,6 @@ test('Background task processing - starting and completing tasks', async () => {
   });
 });
 
-test('Background task processing - requeuing interrupted tasks', async () => {
-  const store = testStore.getStore();
-  const taskName = 'some_task_name' as TaskName;
-
-  const task1Id = await store.createBackgroundTask(taskName, {
-    somePayload: 1,
-  });
-  const task2Id = await store.createBackgroundTask(taskName, {
-    somePayload: 2,
-  });
-  const task3Id = await store.createBackgroundTask(taskName, {
-    somePayload: 3,
-  });
-  const task4Id = await store.createBackgroundTask(taskName, {
-    somePayload: 4,
-  });
-
-  await store.startBackgroundTask(task1Id);
-  await store.completeBackgroundTask(task1Id);
-  await store.startBackgroundTask(task2Id);
-  await store.startBackgroundTask(task3Id);
-
-  async function expectTaskToBeQueued(taskId: string): Promise<void> {
-    const task = assertDefined(await store.getBackgroundTask(taskId));
-    expect(task.startedAt).not.toBeDefined();
-    expect(task.completedAt).not.toBeDefined();
-  }
-
-  async function expectTaskToBeStartedButNotCompleted(
-    taskId: string
-  ): Promise<void> {
-    const task = assertDefined(await store.getBackgroundTask(taskId));
-    expect(task.startedAt).toBeDefined();
-    expect(task.completedAt).not.toBeDefined();
-  }
-
-  async function expectTaskToBeCompleted(taskId: string): Promise<void> {
-    const task = assertDefined(await store.getBackgroundTask(taskId));
-    expect(task.startedAt).toBeDefined();
-    expect(task.completedAt).toBeDefined();
-  }
-
-  await expectTaskToBeCompleted(task1Id);
-  await expectTaskToBeStartedButNotCompleted(task2Id);
-  await expectTaskToBeStartedButNotCompleted(task3Id);
-  await expectTaskToBeQueued(task4Id);
-
-  await store.requeueInterruptedBackgroundTasks();
-
-  await expectTaskToBeCompleted(task1Id);
-  await expectTaskToBeQueued(task2Id);
-  await expectTaskToBeQueued(task3Id);
-  await expectTaskToBeQueued(task4Id);
-});
-
 test('graceful interruption - mark and requeue tasks', async () => {
   const store = testStore.getStore();
   const taskName: TaskName = 'generate_election_package';
