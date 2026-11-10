@@ -3,13 +3,6 @@ import type { Election, ElectionDefinition } from '@votingworks/types';
 import * as builders from '../builders.js';
 import { asElectionDefinition } from '../util.js';
 
-export const makeBatchCsvData = builders.file(
-  'data/electionTwoPartyPrimary/csvFiles/batchResults.csv'
-).asText;
-export const makeFinalCsvData = builders.file(
-  'data/electionTwoPartyPrimary/csvFiles/finalResults.csv'
-).asText;
-
 export const electionJson = builders.election(
   'data/electionTwoPartyPrimary/election.json'
 );
