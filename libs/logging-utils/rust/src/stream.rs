@@ -6,7 +6,7 @@ use flate2::{Compression, read::GzDecoder, write::GzEncoder};
 
 /// Reads data as either an uncompressed or gzip-compressed stream.
 pub enum Reader<R: Read> {
-    Gzip(BufReader<GzDecoder<R>>),
+    Gzip(Box<BufReader<GzDecoder<R>>>),
     Plain(BufReader<R>),
 }
 
@@ -16,7 +16,7 @@ impl<R: Read> Reader<R> {
             return Reader::Plain(BufReader::new(inner));
         }
 
-        Reader::Gzip(BufReader::new(GzDecoder::new(inner)))
+        Reader::Gzip(Box::new(BufReader::new(GzDecoder::new(inner))))
     }
 }
 
@@ -47,7 +47,7 @@ impl<R: Read> BufRead for Reader<R> {
 
 /// Writes data as either an uncompressed or gzip-compressed stream.
 pub enum Writer<W: Write> {
-    Gzip(BufWriter<GzEncoder<W>>),
+    Gzip(Box<BufWriter<GzEncoder<W>>>),
     Plain(BufWriter<W>),
 }
 
@@ -57,10 +57,10 @@ impl<W: Write> Writer<W> {
             return Writer::Plain(BufWriter::new(inner));
         }
 
-        Writer::Gzip(BufWriter::new(GzEncoder::new(
+        Writer::Gzip(Box::new(BufWriter::new(GzEncoder::new(
             inner,
             Compression::default(),
-        )))
+        ))))
     }
 }
 
