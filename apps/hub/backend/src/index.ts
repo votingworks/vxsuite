@@ -47,6 +47,7 @@ export type { Api, AuthErrorCode, UnauthenticatedApi } from './app.js';
 export type { ConvertMsResultsError } from './convert_ms_results.js';
 
 export type { BallotTemplateId } from '@votingworks/hmpb';
+export type { PdfPagePng } from '@votingworks/image-utils/pdf';
 
 // Frontend tests import these for generating test data
 export { createBlankElection } from './app.js';

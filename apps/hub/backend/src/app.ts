@@ -3,6 +3,7 @@ import * as Sentry from '@sentry/node';
 import { auth as auth0Middleware } from 'express-openid-connect';
 import path, { join } from 'node:path';
 import { Buffer } from 'node:buffer';
+import { type PdfPagePng, pdfToPngPages } from '@votingworks/image-utils/pdf';
 import {
   type BallotMode,
   type Election,
@@ -147,6 +148,8 @@ import { defaultSystemSettings } from './system_settings.js';
 import { logActivity } from './activity_logs.js';
 
 const debug = rootDebug.extend('app');
+
+const BALLOT_PREVIEW_SCALE = 200 / 72;
 
 export function createBlankElection(
   id: ElectionId,
@@ -857,7 +860,10 @@ export function buildApi(ctx: AppContext) {
       ballotMode: BallotMode;
       variant?: NhStateBallotVariant;
     }): Promise<
-      Result<{ pdfData: Uint8Array; fileName: string }, BallotLayoutError>
+      Result<
+        { pdfData: Uint8Array; pages: PdfPagePng[]; fileName: string },
+        BallotLayoutError
+      >
     > {
       const {
         election,
@@ -916,6 +922,9 @@ export function buildApi(ctx: AppContext) {
 
       return ok({
         pdfData: ballotPdf.ok(),
+        pages: await pdfToPngPages(ballotPdf.ok(), {
+          scale: BALLOT_PREVIEW_SCALE,
+        }),
         fileName: `PROOF-${getBallotPdfFileName(ballotProps)}`,
       });
     },

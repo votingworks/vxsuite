@@ -1,4 +1,5 @@
 import { afterAll, afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { getPdfPageCount } from '@votingworks/image-utils/pdf';
 import {
   DateWithoutTime,
   type Result,
@@ -3377,6 +3378,8 @@ test('getBallotPreviewPdf returns a ballot pdf for precinct with splits', async 
   ).unsafeUnwrap();
 
   await expect(result.pdfData).toMatchPdfSnapshot();
+  expect(result.pages).toHaveLength(await getPdfPageCount(result.pdfData));
+  expect(result.pages[0]).toMatchObject({ width: 612, height: 792 });
 
   await suppressingConsoleOutput(async () => {
     // Check permissions

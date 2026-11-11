@@ -4,9 +4,7 @@ import {
   type CandidateContest,
   type YesNoContest,
 } from '@votingworks/types';
-import type { BallotTemplateId } from '@votingworks/hub-backend';
-import type { DocumentProps, PageProps } from 'react-pdf';
-import { type ReactNode, useEffect } from 'react';
+import type { BallotTemplateId, PdfPagePng } from '@votingworks/hub-backend';
 import { ok, err } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import { within } from '@testing-library/react';
@@ -31,44 +29,25 @@ const electionId = electionRecord.election.id;
 const ballotStyle = electionRecord.election.ballotStyles[0]!;
 const precinct = electionRecord.election.precincts[0]!;
 
-function MockDocument({
-  children,
-  onLoadSuccess,
-  onSourceSuccess,
-  file,
-}: DocumentProps) {
-  useEffect(() => {
-    onSourceSuccess?.();
-    (onLoadSuccess as (args: { numPages: number }) => void)?.({ numPages: 2 });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+function mockBallotPreview(content: string) {
+  const page: PdfPagePng = {
+    png: Buffer.from(content),
+    width: 612,
+    height: 792,
+  };
+  return { pdfData: Buffer.from(content), pages: [page, page] };
+}
 
-  return (
-    <div>
-      <div>Mock Document</div>
-      <div>
-        {file && new TextDecoder().decode((file as { data: Uint8Array }).data)}
-      </div>
-      {children as ReactNode}
-    </div>
+function previewSrc(content: string) {
+  return `data:image/png;base64,${Buffer.from(content).toString('base64')}`;
+}
+
+async function findBallotPreview(content: string) {
+  const [firstPage] = await screen.findAllByRole('img', { name: 'Page 1' });
+  await vi.waitFor(() =>
+    expect(firstPage).toHaveAttribute('src', previewSrc(content))
   );
 }
-
-function MockPage({ pageNumber }: PageProps) {
-  return <div>Mock Page {pageNumber}</div>;
-}
-
-// Don't load the real react-pdf: importing it evaluates pdfjs-dist, which
-// requires browser APIs (e.g. DOMMatrix) that jsdom doesn't provide.
-vi.mock(
-  import('react-pdf'),
-  () =>
-    ({
-      pdfjs: { GlobalWorkerOptions: { workerSrc: 'mock-worker-src' } },
-      Document: MockDocument,
-      Page: MockPage,
-    }) as unknown as typeof import('react-pdf')
-);
 
 let apiMock: MockApiClient;
 
@@ -127,7 +106,7 @@ test('shows a PDF ballot preview', async () => {
     })
     .resolves(
       ok({
-        pdfData: Buffer.from('mock ballot pdf'),
+        ...mockBallotPreview('mock ballot pdf'),
         fileName: 'mock ballot.pdf',
       })
     );
@@ -136,10 +115,11 @@ test('shows a PDF ballot preview', async () => {
   await screen.findByRole('heading', { name: 'View Ballot' });
   screen.getByRole('button', { name: 'Close' });
 
-  const document = screen.getByText('Mock Document').parentElement!;
-  await within(document).findByText('mock ballot pdf');
-  await within(document).findByText('Mock Page 1');
-  await within(document).findByText('Mock Page 2');
+  await findBallotPreview('mock ballot pdf');
+  const [page1, page2] = screen.getAllByRole('img');
+  expect(page1).toHaveAccessibleName('Page 1');
+  expect(page1).toHaveStyle({ width: '816px', height: '1056px' });
+  expect(page2).toHaveAccessibleName('Page 2');
 
   screen.getByText('Page: 1/2');
   screen.getByText('100%');
@@ -191,14 +171,14 @@ test('changes ballot type', async () => {
     })
     .resolves(
       ok({
-        pdfData: Buffer.from('mock precinct ballot pdf'),
+        ...mockBallotPreview('mock precinct ballot pdf'),
         fileName: 'mock precinct ballot.pdf',
       })
     );
   renderScreen();
 
   await screen.findByRole('heading', { name: 'View Ballot' });
-  screen.getByText('mock precinct ballot pdf');
+  await findBallotPreview('mock precinct ballot pdf');
   const ballotTypeRadioGroup = screen.getByRole('radiogroup', {
     name: 'Ballot Type',
   });
@@ -222,12 +202,12 @@ test('changes ballot type', async () => {
     })
     .resolves(
       ok({
-        pdfData: Buffer.from('mock absentee ballot pdf'),
+        ...mockBallotPreview('mock absentee ballot pdf'),
         fileName: 'mock absentee ballot.pdf',
       })
     );
   await userEvent.click(absenteeRadioOption);
-  await screen.findByText('mock absentee ballot pdf');
+  await findBallotPreview('mock absentee ballot pdf');
   screen.getByRole('radio', { name: 'Absentee', checked: true });
 });
 
@@ -243,14 +223,14 @@ test('changes tabulation mode', async () => {
     })
     .resolves(
       ok({
-        pdfData: Buffer.from('mock official ballot pdf'),
+        ...mockBallotPreview('mock official ballot pdf'),
         fileName: 'mock official ballot.pdf',
       })
     );
   renderScreen();
 
   await screen.findByRole('heading', { name: 'View Ballot' });
-  screen.getByText('mock official ballot pdf');
+  await findBallotPreview('mock official ballot pdf');
   const tabulationModeRadioGroup = screen.getByRole('radiogroup', {
     name: 'Tabulation Mode',
   });
@@ -278,12 +258,12 @@ test('changes tabulation mode', async () => {
     })
     .resolves(
       ok({
-        pdfData: Buffer.from('mock test ballot pdf'),
+        ...mockBallotPreview('mock test ballot pdf'),
         fileName: 'mock test ballot.pdf',
       })
     );
   await userEvent.click(testRadioOption);
-  await screen.findByText('mock test ballot pdf');
+  await findBallotPreview('mock test ballot pdf');
   screen.getByRole('radio', { name: 'L&A Test Ballot', checked: true });
 });
 
@@ -303,14 +283,14 @@ test('NhStateBallot template: Federal Office Only option locks mode to Official'
     })
     .resolves(
       ok({
-        pdfData: Buffer.from('mock precinct ballot pdf'),
+        ...mockBallotPreview('mock precinct ballot pdf'),
         fileName: 'mock precinct ballot.pdf',
       })
     );
   renderScreen();
 
   await screen.findByRole('heading', { name: 'View Ballot' });
-  await screen.findByText('mock precinct ballot pdf');
+  await findBallotPreview('mock precinct ballot pdf');
 
   const ballotTypeRadioGroup = screen.getByRole('radiogroup', {
     name: 'Ballot Type',
@@ -339,12 +319,12 @@ test('NhStateBallot template: Federal Office Only option locks mode to Official'
     })
     .resolves(
       ok({
-        pdfData: Buffer.from('mock test ballot pdf'),
+        ...mockBallotPreview('mock test ballot pdf'),
         fileName: 'mock test ballot.pdf',
       })
     );
   await userEvent.click(testRadioOption);
-  await screen.findByText('mock test ballot pdf');
+  await findBallotPreview('mock test ballot pdf');
 
   apiMock.getBallotPreviewPdf
     .expectCallWith({
@@ -357,12 +337,12 @@ test('NhStateBallot template: Federal Office Only option locks mode to Official'
     })
     .resolves(
       ok({
-        pdfData: Buffer.from('mock foo ballot pdf'),
+        ...mockBallotPreview('mock foo ballot pdf'),
         fileName: 'mock foo ballot.pdf',
       })
     );
   await userEvent.click(fooRadioOption);
-  await screen.findByText('mock foo ballot pdf');
+  await findBallotPreview('mock foo ballot pdf');
   screen.getByRole('radio', { name: 'Federal Office Only', checked: true });
   expect(testRadioOption).toBeDisabled();
   within(tabulationModeRadioGroup).getByRole('radio', {

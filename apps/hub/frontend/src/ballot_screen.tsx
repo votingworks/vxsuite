@@ -1,6 +1,6 @@
 import fileDownload from 'js-file-download';
 import { Link, useParams } from 'react-router-dom';
-import { find, range, throwIllegalValue } from '@votingworks/basics';
+import { find, throwIllegalValue } from '@votingworks/basics';
 import {
   HmpbBallotPaperSize,
   type BallotMode,
@@ -11,6 +11,7 @@ import {
   PrecinctIdSchema,
   type Contest,
 } from '@votingworks/types';
+import { Buffer } from 'node:buffer';
 import { useMemo, useRef, useState, type ReactNode, type UIEvent } from 'react';
 import styled from 'styled-components';
 import { z } from 'zod/v4';
@@ -26,9 +27,8 @@ import {
   TaskHeader,
   TaskScreen,
 } from '@votingworks/ui';
-import { Document, Page, pdfjs } from 'react-pdf';
 import { format } from '@votingworks/utils';
-import type { BallotTemplateId } from '@votingworks/hub-backend';
+import type { BallotTemplateId, PdfPagePng } from '@votingworks/hub-backend';
 import type { NhStateBallotVariant } from '@votingworks/hmpb';
 import {
   FieldName as BaseFieldName,
@@ -45,11 +45,7 @@ import {
 } from './api.js';
 import { routes } from './routes.js';
 
-// The worker is bundled from the same pdfjs-dist version react-pdf uses
-pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-  'pdfjs-dist/build/pdf.worker.min.mjs',
-  import.meta.url
-).toString();
+const CSS_PIXELS_PER_POINT = 96 / 72;
 
 const FieldName = styled(BaseFieldName)`
   font-weight: ${(p) => p.theme.sizes.fontWeight.bold};
@@ -86,16 +82,15 @@ const PdfDocumentScroller = styled.div`
   overflow: auto;
   flex: 1;
   padding: 2rem;
+`;
 
-  /* stylelint-disable selector-class-pattern */
-  .react-pdf__Document .react-pdf__Page {
-    box-shadow: 0 0 0.5rem rgb(0, 0, 0, 25%);
-    margin: 0 auto;
-    width: min-content;
+const PageImage = styled.img`
+  display: block;
+  box-shadow: 0 0 0.5rem rgb(0, 0, 0, 25%);
+  margin: 0 auto;
 
-    &:not(:last-child) {
-      margin-bottom: 1rem;
-    }
+  &:not(:last-child) {
+    margin-bottom: 1rem;
   }
 `;
 
@@ -124,17 +119,19 @@ const ZOOM_STEP = 0.25;
 const MIN_ZOOM = 0.25;
 const MAX_ZOOM = 2;
 
-function PdfViewer({ pdfData }: { pdfData?: Uint8Array }) {
-  const [numPages, setNumPages] = useState<number>();
+function PdfViewer({ pages }: { pages?: PdfPagePng[] }) {
   const [zoom, setZoom] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
-
-  const file = useMemo(
-    // Copy the buffer since react-pdf drains it, which can cause an error on
-    // re-render
-    () => pdfData && { data: Uint8Array.from(pdfData) },
-    [pdfData]
+  const pageImages = useMemo(
+    () =>
+      pages?.map(({ png, width, height }) => ({
+        src: `data:image/png;base64,${Buffer.from(png).toString('base64')}`,
+        width,
+        height,
+      })),
+    [pages]
   );
+  const numPages = pageImages?.length;
 
   // @coverage-defer
   function onScroll(e: UIEvent<HTMLDivElement>) {
@@ -147,19 +144,6 @@ function PdfViewer({ pdfData }: { pdfData?: Uint8Array }) {
     const scrollProgress = (scrollTop + pageHeight / 6) / scrollHeight;
     setCurrentPage(Math.floor(scrollProgress * numPages) + 1);
   }
-
-  const loading = (
-    <Row
-      style={{
-        justifyContent: 'center',
-        alignItems: 'center',
-        fontSize: '3rem',
-        height: '100%',
-      }}
-    >
-      <Icons.Loading />
-    </Row>
-  );
 
   return (
     <PdfContainer>
@@ -189,33 +173,32 @@ function PdfViewer({ pdfData }: { pdfData?: Uint8Array }) {
           />
         </Row>
       </PdfControls>
-      {pdfData ? (
+      {pageImages ? (
         <PdfDocumentScroller onScroll={onScroll}>
-          {!numPages && loading}
-          <Document
-            file={file}
-            onSourceSuccess={() => setNumPages(undefined)}
-            onLoadSuccess={(result) => setNumPages(result.numPages)}
-            // Hide the built in loading message
-            loading=""
-          >
-            {numPages &&
-              range(1, numPages + 1).map((pageNumber) => (
-                <Page
-                  key={pageNumber}
-                  // ReactPDF renders at 3/4 of actual size for some reason
-                  // https://github.com/wojtekmaj/react-pdf/issues/1219
-                  scale={zoom * (4 / 3)}
-                  pageNumber={pageNumber}
-                  renderTextLayer={false}
-                  renderAnnotationLayer={false}
-                  loading=""
-                />
-              ))}
-          </Document>
+          {pageImages.map(({ src, width, height }, index) => (
+            <PageImage
+              // eslint-disable-next-line react/no-array-index-key
+              key={index}
+              src={src}
+              alt={`Page ${index + 1}`}
+              style={{
+                width: width * zoom * CSS_PIXELS_PER_POINT,
+                height: height * zoom * CSS_PIXELS_PER_POINT,
+              }}
+            />
+          ))}
         </PdfDocumentScroller>
       ) : (
-        loading
+        <Row
+          style={{
+            justifyContent: 'center',
+            alignItems: 'center',
+            fontSize: '3rem',
+            height: '100%',
+          }}
+        >
+          <Icons.Loading />
+        </Row>
       )}
     </PdfContainer>
   );
@@ -407,7 +390,7 @@ export function BallotScreen(): JSX.Element | null {
               }
             }
 
-            return <PdfViewer pdfData={ballotResult.ok().pdfData} />;
+            return <PdfViewer pages={ballotResult.ok().pages} />;
           })()}
         </Viewer>
       </TaskContent>
