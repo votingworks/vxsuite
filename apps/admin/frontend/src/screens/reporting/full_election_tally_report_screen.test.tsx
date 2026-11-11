@@ -11,6 +11,7 @@ import {
 import { renderInAppContext } from '../../../test/render_in_app_context.js';
 import { routerPaths } from '../../router_paths.js';
 import { screen } from '../../../test/react_testing_library.js';
+import { findPdfPreview } from '../../../test/helpers/pdf_preview.js';
 
 let apiMock: ApiMock;
 
@@ -43,7 +44,7 @@ test('displays report', async () => {
     isOfficialResults: true,
   });
 
-  await screen.findByText('Full Election Tally Report Mock Preview');
+  await findPdfPreview('Full Election Tally Report Mock Preview');
 
   screen.getByRole('heading', { name: TITLE });
   expect(screen.getByRole('link', { name: 'Reports' })).toHaveAttribute(

@@ -9,6 +9,7 @@ import {
 } from '../../../test/helpers/mock_api_client.js';
 import { renderInAppContext } from '../../../test/render_in_app_context.js';
 import { screen } from '../../../test/react_testing_library.js';
+import { findPdfPreview } from '../../../test/helpers/pdf_preview.js';
 import {
   TITLE,
   VotingMethodBallotCountReport,
@@ -50,7 +51,7 @@ test('displays report (primary)', async () => {
     '/reports'
   );
 
-  await screen.findByText('Precinct Ballot Count Report Mock Preview');
+  await findPdfPreview('Precinct Ballot Count Report Mock Preview');
 });
 
 test('displays report (general)', async () => {
@@ -79,5 +80,5 @@ test('displays report (general)', async () => {
     '/reports'
   );
 
-  await screen.findByText('Precinct Ballot Count Report Mock Preview');
+  await findPdfPreview('Precinct Ballot Count Report Mock Preview');
 });

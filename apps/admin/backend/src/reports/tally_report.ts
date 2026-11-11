@@ -9,6 +9,7 @@ import { type Printer, renderToPdf } from '@votingworks/printing';
 import type { UsbDrive } from '@votingworks/usb-drive';
 import { join } from 'node:path';
 import { generateTitleForReport } from './titles.js';
+import { type PdfPreview, renderPdfPreview } from './pdf_preview.js';
 import type { Store } from '../store.js';
 import { getCurrentTime } from '../util/get_current_time.js';
 import { type TallyReportWarning, getTallyReportWarning } from './warnings.js';
@@ -100,15 +101,15 @@ type TallyReportPreviewProps = TallyReportSpec & {
 };
 
 /**
- * PDF data for a tally report alongside any potential warnings.
+ * Preview of a tally report alongside any potential warnings.
  */
 export interface TallyReportPreview {
-  pdf?: Uint8Array;
+  pdfPreview?: PdfPreview;
   warning?: TallyReportWarning;
 }
 
 /**
- * Returns a PDF preview of the tally report, as a buffer, along with
+ * Returns a preview of the tally report, as page images, along with
  * any report warnings that should be displayed to the user.
  */
 export async function generateTallyReportPreview({
@@ -134,7 +135,9 @@ export async function generateTallyReportPreview({
     const report = buildTallyReport(reportProps);
     const pdfResult = await renderToPdf({ document: report });
     return {
-      pdf: pdfResult.ok(),
+      pdfPreview: pdfResult.isOk()
+        ? await renderPdfPreview(pdfResult.ok())
+        : undefined,
       warning: pdfResult.isErr() ? { type: pdfResult.err() } : warning,
     };
   })();
@@ -142,7 +145,7 @@ export async function generateTallyReportPreview({
     message: `User previewed a tally report.${
       result.warning ? ` Warning: ${result.warning.type}` : ''
     }`,
-    disposition: result.pdf ? 'success' : 'failure',
+    disposition: result.pdfPreview ? 'success' : 'failure',
   });
   return result;
 }

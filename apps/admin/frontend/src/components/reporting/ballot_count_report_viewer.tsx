@@ -131,7 +131,7 @@ export function BallotCountReportViewer({
         )}
       </div>
       <PdfViewer
-        pdfData={previewQuery.data?.pdf}
+        pdfPreview={previewQuery.data?.pdfPreview}
         loading={previewQuery.isFetching}
       />
     </React.Fragment>

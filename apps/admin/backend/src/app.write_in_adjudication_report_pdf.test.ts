@@ -12,6 +12,7 @@ import {
 import { HP_4001_PRINTER_CONFIG, renderToPdf } from '@votingworks/printing';
 import { assert, assertDefined, err, ok } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
+import { expectPdfPreviewToMatchSnapshot } from '../test/pdf_preview.js';
 import {
   attachUsbDrive,
   buildTestEnvironment,
@@ -100,7 +101,7 @@ test('write-in adjudication report', async () => {
   ) {
     const preview = await apiClient.getWriteInAdjudicationReportPreview();
     expect(preview.warning).toBeUndefined();
-    await expect(preview.pdf).toMatchPdfSnapshot({
+    expectPdfPreviewToMatchSnapshot(preview.pdfPreview, {
       failureThreshold: 0.0001,
       customSnapshotIdentifier,
     });
@@ -328,7 +329,7 @@ test('write-in adjudication report warning', async () => {
 
   vi.mocked(renderToPdf).mockResolvedValueOnce(err('content-too-large'));
   expect(await apiClient.getWriteInAdjudicationReportPreview()).toEqual({
-    pdf: undefined,
+    pdfPreview: undefined,
     warning: { type: 'content-too-large' },
   });
 });

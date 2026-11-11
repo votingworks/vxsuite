@@ -81,9 +81,11 @@ export function WriteInImageReportScreen(): JSX.Element {
   const exportMutation = exportWriteInImageReportPdf.useMutation();
 
   const isPreviewLoading = !!contestId && previewQuery.isFetching;
-  // Clear pdfData while loading so the old contest's PDF is never shown
+  // Clear the preview while loading so the old contest's report is never shown
   // during the transition to a new contest.
-  const pdfData = isPreviewLoading ? undefined : previewQuery.data?.pdf;
+  const pdfPreview = isPreviewLoading
+    ? undefined
+    : previewQuery.data?.pdfPreview;
   const disablePdfExport =
     previewQuery.data?.warning?.type === 'content-too-large';
   const actionsDisabled = !contestId || isPreviewLoading || disablePdfExport;
@@ -152,7 +154,7 @@ export function WriteInImageReportScreen(): JSX.Element {
         <PdfViewer
           key={contestId ?? 'no-contest'}
           loading={isPreviewLoading}
-          pdfData={pdfData}
+          pdfPreview={pdfPreview}
         />
       </ReportScreenContainer>
     </NavigationScreen>

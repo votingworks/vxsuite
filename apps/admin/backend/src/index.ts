@@ -19,6 +19,7 @@ export type {
 } from './restore_app.js';
 export type { RestoreStatus } from './backup/restore/index.js';
 export type { PeerApi } from './peer_app.js';
+export type { PdfPreview } from './reports/pdf_preview.js';
 export type { TallyReportSpec } from './reports/tally_report.js';
 export type { BallotCountReportSpec } from './reports/ballot_count_report.js';
 export type {

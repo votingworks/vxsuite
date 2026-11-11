@@ -12,6 +12,10 @@ import {
   createApiMock,
 } from '../../../test/helpers/mock_api_client.js';
 import { screen, within } from '../../../test/react_testing_library.js';
+import {
+  findPdfPreview,
+  queryPdfPreview,
+} from '../../../test/helpers/pdf_preview.js';
 import { renderInAppContext } from '../../../test/render_in_app_context.js';
 import { BallotCountReportViewer } from './ballot_count_report_viewer.js';
 
@@ -78,7 +82,7 @@ test('when auto-generation is on, it loads the preview automatically', async () 
     { apiMock, electionDefinition }
   );
 
-  await screen.findByText('Unofficial Full Election Ballot Count Report');
+  await findPdfPreview('Unofficial Full Election Ballot Count Report');
 
   expect(
     screen.queryByRole('button', { name: 'Generate Report' })
@@ -110,7 +114,7 @@ test('when auto-generation is off, it requires a button press to load the report
     expect(screen.getButton(buttonLabel)).toBeDisabled();
   }
   expect(
-    screen.queryByText('Unofficial Full Election Ballot Count Report')
+    queryPdfPreview('Unofficial Full Election Ballot Count Report')
   ).not.toBeInTheDocument();
 
   apiMock.expectGetBallotCountReportPreview({
@@ -123,7 +127,7 @@ test('when auto-generation is off, it requires a button press to load the report
   });
 
   await userEvent.click(screen.getButton('Generate Report'));
-  await screen.findByText('Unofficial Full Election Ballot Count Report');
+  await findPdfPreview('Unofficial Full Election Ballot Count Report');
   expect(screen.getButton('Generate Report')).toBeDisabled();
   for (const buttonLabel of ACTION_BUTTON_LABELS) {
     expect(screen.getButton(buttonLabel)).toBeEnabled();
@@ -232,7 +236,7 @@ test('printing report', async () => {
     { apiMock, electionDefinition }
   );
 
-  await screen.findByText('Unofficial Full Election Ballot Count Report');
+  await findPdfPreview('Unofficial Full Election Ballot Count Report');
 
   const { resolve } = apiMock.expectPrintBallotCountReport({
     expectCallWith: reportSpec,
@@ -284,7 +288,7 @@ test('exporting PDF', async () => {
     }
   );
 
-  await screen.findByText('Unofficial Full Election Ballot Count Report');
+  await findPdfPreview('Unofficial Full Election Ballot Count Report');
 
   await userEvent.click(screen.getButton('Export Report PDF'));
   const modal = await screen.findByRole('alertdialog');
@@ -342,7 +346,7 @@ test('exporting CSV', async () => {
     }
   );
 
-  await screen.findByText('Unofficial Full Election Ballot Count Report');
+  await findPdfPreview('Unofficial Full Election Ballot Count Report');
 
   await userEvent.click(screen.getButton('Export Report CSV'));
   const modal = await screen.findByRole('alertdialog');

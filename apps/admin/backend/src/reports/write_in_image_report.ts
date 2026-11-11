@@ -26,6 +26,7 @@ import { getCurrentTime } from '../util/get_current_time.js';
 import type { ExportDataResult, WriteInRecord } from '../types.js';
 import { buildExporter } from '../util/exporter.js';
 import { generateReportsDirectoryPath } from '../util/filenames.js';
+import { type PdfPreview, renderPdfPreview } from './pdf_preview.js';
 import { rootDebug } from '../util/debug.js';
 
 const debug = rootDebug.extend('write-in-image-report');
@@ -229,11 +230,11 @@ interface WriteInImageReportWarning {
 
 /** Preview data returned when generating the write-in image report. */
 export interface WriteInImageReportPreview {
-  pdf?: Uint8Array;
+  pdfPreview?: PdfPreview;
   warning?: WriteInImageReportWarning;
 }
 
-/** Generates the write-in image report and returns a PDF preview. */
+/** Generates the write-in image report and returns a preview of its pages. */
 export async function generateWriteInImageReportPreview({
   logger,
   ...reportProps
@@ -241,14 +242,16 @@ export async function generateWriteInImageReportPreview({
   const report = await buildWriteInImageReport(reportProps);
   const pdfResult = await renderToPdf({ document: report });
   const result: WriteInImageReportPreview = {
-    pdf: pdfResult.ok(),
+    pdfPreview: pdfResult.isOk()
+      ? await renderPdfPreview(pdfResult.ok())
+      : undefined,
     warning: pdfResult.isErr() ? { type: pdfResult.err() } : undefined,
   };
   await logger.logAsCurrentRole(LogEventId.ElectionReportPreviewed, {
     message: `User previewed the write-in image report.${
       result.warning ? ` Warning: ${result.warning.type}` : ''
     }`,
-    disposition: result.pdf ? 'success' : 'failure',
+    disposition: result.pdfPreview ? 'success' : 'failure',
   });
   return result;
 }

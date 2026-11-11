@@ -29,7 +29,6 @@ import {
   createMockClient,
   type MockClient,
 } from '@votingworks/grout-test-utils';
-import { Buffer } from 'node:buffer';
 import {
   type MockFunction,
   mockElectionManagerUser,
@@ -59,6 +58,7 @@ import {
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { type Mock, vi } from 'vitest';
+import { mockPdfPreview } from './pdf_preview.js';
 
 // the below is copied from libs/printing to avoid importing a backend package
 export const MOCK_PRINTER_CONFIG: PrinterConfig = {
@@ -776,7 +776,7 @@ export function createApiMock(
       pdfContent?: string;
     }) {
       apiClient.getTallyReportPreview.expectCallWith(reportSpec).resolves({
-        pdf: pdfContent ? Buffer.from(pdfContent) : undefined,
+        pdfPreview: pdfContent ? mockPdfPreview(pdfContent) : undefined,
         warning,
       });
     },
@@ -804,7 +804,7 @@ export function createApiMock(
       apiClient.getBallotCountReportPreview
         .expectCallWith(reportSpec)
         .resolves({
-          pdf: pdfContent ? Buffer.from(pdfContent) : undefined,
+          pdfPreview: pdfContent ? mockPdfPreview(pdfContent) : undefined,
           warning,
         });
     },
@@ -822,7 +822,7 @@ export function createApiMock(
     expectGetWriteInAdjudicationReportPreview(pdfContent: string) {
       apiClient.getWriteInAdjudicationReportPreview
         .expectCallWith()
-        .resolves({ pdf: Buffer.from(pdfContent) });
+        .resolves({ pdfPreview: mockPdfPreview(pdfContent) });
     },
 
     expectPrintWriteInAdjudicationReport: createDeferredMock(
@@ -841,7 +841,7 @@ export function createApiMock(
     expectGetVoterTurnoutReportPreview(pdfContent: string) {
       apiClient.getVoterTurnoutReportPreview
         .expectCallWith()
-        .resolves({ pdf: Buffer.from(pdfContent) });
+        .resolves({ pdfPreview: mockPdfPreview(pdfContent) });
     },
 
     expectPrintVoterTurnoutReport: createDeferredMock(
@@ -854,7 +854,7 @@ export function createApiMock(
     expectGetWriteInImageReportPreview(contestId: string, pdfContent: string) {
       apiClient.getWriteInImageReportPreview
         .expectCallWith({ contestId })
-        .resolves({ pdf: Buffer.from(pdfContent) });
+        .resolves({ pdfPreview: mockPdfPreview(pdfContent) });
     },
 
     expectPrintWriteInImageReport: createDeferredMock(

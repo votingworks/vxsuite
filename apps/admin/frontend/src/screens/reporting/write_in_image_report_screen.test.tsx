@@ -20,6 +20,7 @@ import {
   screen,
   within,
 } from '../../../test/react_testing_library.js';
+import { findPdfPreview } from '../../../test/helpers/pdf_preview.js';
 
 let apiMock: ApiMock;
 
@@ -76,7 +77,7 @@ test('select contest → preview loads and actions appear', async () => {
   await screen.findByRole('heading', { name: TITLE });
   selectContest('Mayor');
 
-  await screen.findByText('Mock Write-In Image Report');
+  await findPdfPreview('Mock Write-In Image Report');
   screen.getByRole('button', { name: 'Print Report' });
   screen.getByRole('button', { name: 'Export Report PDF' });
 });
@@ -95,7 +96,7 @@ test('print report', async () => {
   });
 
   selectContest('Mayor');
-  await screen.findByText('Mock Write-In Image Report');
+  await findPdfPreview('Mock Write-In Image Report');
 
   apiMock.apiClient.printWriteInImageReport
     .expectCallWith({ contestId: MAYOR_CONTEST_ID })
@@ -119,7 +120,7 @@ test('export report PDF', async () => {
   });
 
   selectContest('Mayor');
-  await screen.findByText('Mock Write-In Image Report');
+  await findPdfPreview('Mock Write-In Image Report');
 
   vi.setSystemTime(new Date('2021-01-01T00:00:00.000Z'));
   apiMock.apiClient.exportWriteInImageReportPdf
@@ -159,7 +160,10 @@ test('shows warning and disables actions when PDF is too large', async () => {
   apiMock.setPrinterStatus({ connected: true });
   apiMock.apiClient.getWriteInImageReportPreview
     .expectCallWith({ contestId: MAYOR_CONTEST_ID })
-    .resolves({ pdf: undefined, warning: { type: 'content-too-large' } });
+    .resolves({
+      pdfPreview: undefined,
+      warning: { type: 'content-too-large' },
+    });
   renderInAppContext(<WriteInImageReportScreen />, {
     electionDefinition,
     apiMock,

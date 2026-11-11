@@ -8,6 +8,7 @@ import type { UsbDrive } from '@votingworks/usb-drive';
 import { join } from 'node:path';
 import type { Store } from '../store.js';
 import { generateTitleForReport } from './titles.js';
+import { type PdfPreview, renderPdfPreview } from './pdf_preview.js';
 import { getCurrentTime } from '../util/get_current_time.js';
 import type { ExportDataResult } from '../types.js';
 import {
@@ -83,15 +84,15 @@ type BallotCountReportPreviewProps = BallotCountReportSpec & {
 };
 
 /**
- * PDF data for a ballot count report alongside any potential warnings.
+ * Preview of a ballot count report alongside any potential warnings.
  */
 export interface BallotCountReportPreview {
-  pdf?: Uint8Array;
+  pdfPreview?: PdfPreview;
   warning?: BallotCountReportWarning;
 }
 
 /**
- * Returns a PDF preview of the ballot count report, as a buffer, along with
+ * Returns a preview of the ballot count report, as page images, along with
  * any report warnings that should be displayed to the user.
  */
 export async function generateBallotCountReportPreview({
@@ -107,7 +108,7 @@ export async function generateBallotCountReportPreview({
     const report = buildBallotCountReport(reportProps);
     const pdf = await renderToPdf({ document: report });
     return {
-      pdf: pdf.ok(),
+      pdfPreview: pdf.isOk() ? await renderPdfPreview(pdf.ok()) : undefined,
       warning: pdf.isErr() ? { type: pdf.err() } : warning,
     };
   })();
@@ -115,7 +116,7 @@ export async function generateBallotCountReportPreview({
     message: `User previewed a ballot count report.${
       result.warning ? ` Warning: ${result.warning.type}` : ''
     }`,
-    disposition: result.pdf ? 'success' : 'failure',
+    disposition: result.pdfPreview ? 'success' : 'failure',
   });
   return result;
 }

@@ -18,6 +18,7 @@ import { assert, err } from '@votingworks/basics';
 import type { Client } from '@votingworks/grout';
 import { LogEventId } from '@votingworks/logging';
 import type { BallotStyleGroupId } from '@votingworks/types';
+import { expectPdfPreviewToMatchSnapshot } from '../test/pdf_preview.js';
 import {
   attachUsbDrive,
   buildTestEnvironment,
@@ -92,8 +93,8 @@ async function expectIdenticalSnapshotsAcrossExportMethods({
   reportSpec: TallyReportSpec;
   customSnapshotIdentifier: string;
 }) {
-  const { pdf } = await apiClient.getTallyReportPreview(reportSpec);
-  await expect(pdf).toMatchPdfSnapshot({
+  const { pdfPreview } = await apiClient.getTallyReportPreview(reportSpec);
+  expectPdfPreviewToMatchSnapshot(pdfPreview, {
     failureThreshold: 0.036,
     customSnapshotIdentifier,
   });
@@ -359,7 +360,7 @@ test('tally report warning', async () => {
       includeSignatureLines: false,
     })
   ).toEqual({
-    pdf: undefined,
+    pdfPreview: undefined,
     warning: { type: 'no-reports-match-filter' },
   });
 
@@ -371,7 +372,7 @@ test('tally report warning', async () => {
       includeSignatureLines: false,
     })
   ).toEqual({
-    pdf: undefined,
+    pdfPreview: undefined,
     warning: { type: 'content-too-large' },
   });
 

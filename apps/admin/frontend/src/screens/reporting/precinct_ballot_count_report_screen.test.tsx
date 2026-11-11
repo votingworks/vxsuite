@@ -9,6 +9,7 @@ import {
 } from '../../../test/helpers/mock_api_client.js';
 import { renderInAppContext } from '../../../test/render_in_app_context.js';
 import { screen } from '../../../test/react_testing_library.js';
+import { findPdfPreview } from '../../../test/helpers/pdf_preview.js';
 import {
   PrecinctBallotCountReport,
   TITLE,
@@ -44,7 +45,7 @@ test('displays report (primary)', async () => {
     isOfficialResults: false,
   });
 
-  await screen.findByText('Precinct Ballot Count Report Mock Preview');
+  await findPdfPreview('Precinct Ballot Count Report Mock Preview');
 
   screen.getByRole('heading', { name: TITLE });
   expect(screen.getByRole('link', { name: 'Reports' })).toHaveAttribute(
@@ -73,7 +74,7 @@ test('displays report (general)', async () => {
     isOfficialResults: false,
   });
 
-  await screen.findByText('Precinct Ballot Count Report Mock Preview');
+  await findPdfPreview('Precinct Ballot Count Report Mock Preview');
 
   screen.getByRole('heading', { name: TITLE });
   expect(screen.getByRole('link', { name: 'Reports' })).toHaveAttribute(

@@ -62,7 +62,7 @@ export function VoterTurnoutReportScreen(): JSX.Element {
         </div>
         <PdfViewer
           loading={previewQuery.isFetching}
-          pdfData={previewQuery.data?.pdf}
+          pdfPreview={previewQuery.data?.pdfPreview}
         />
       </ReportScreenContainer>
     </NavigationScreen>

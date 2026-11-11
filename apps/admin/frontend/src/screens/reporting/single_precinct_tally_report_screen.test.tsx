@@ -7,6 +7,7 @@ import {
 } from '../../../test/helpers/mock_api_client.js';
 import { renderInAppContext } from '../../../test/render_in_app_context.js';
 import { screen } from '../../../test/react_testing_library.js';
+import { findPdfPreview } from '../../../test/helpers/pdf_preview.js';
 import {
   TITLE,
   SinglePrecinctTallyReportScreen,
@@ -52,7 +53,7 @@ test('select precinct and view report', async () => {
   await userEvent.click(screen.getByLabelText('Select Precinct'));
   await userEvent.click(screen.getByText('Precinct 1'));
 
-  await screen.findByText('Precinct 1 Tally Report Mock Preview');
+  await findPdfPreview('Precinct 1 Tally Report Mock Preview');
 
   // switch to precinct 2 report
   apiMock.expectGetTallyReportPreview({

@@ -1,12 +1,11 @@
 import { expect, test, vi } from 'vitest';
-import { Buffer } from 'node:buffer';
 import { render, screen } from '../../../test/react_testing_library.js';
 import { PdfViewer } from './pdf_viewer.js';
-import { setMockPdfNumPages } from '../../../test/react_pdf_mocks.js';
+import { mockPdfPreview } from '../../../test/helpers/pdf_preview.js';
 
 const LOADING_TEST_ID = 'pdf-loading';
 
-test('is blank when there is no pdf data', () => {
+test('is blank when there is no preview', () => {
   render(<PdfViewer />);
   expect(screen.queryByTestId(LOADING_TEST_ID)).not.toBeInTheDocument();
   expect(screen.queryByText(/Page:/)).not.toBeInTheDocument();
@@ -18,40 +17,36 @@ test('shows loading message when loading=true', () => {
   screen.getByTestId(LOADING_TEST_ID);
 });
 
-test('shows loading message when document numPages is not yet known', () => {
-  setMockPdfNumPages(undefined);
-  render(<PdfViewer pdfData={Buffer.from('mock-pdf')} />);
+test('rendering a preview', () => {
+  render(<PdfViewer pdfPreview={mockPdfPreview('mock-pdf', 3)} />);
 
-  screen.getByTestId(LOADING_TEST_ID);
-});
-
-test('rendering a document', async () => {
-  setMockPdfNumPages(3);
-  render(<PdfViewer pdfData={Buffer.from('mock-pdf')} />);
-
-  await screen.findByText('Document');
-  screen.getByText('mock-pdf');
-  screen.getByText('Page 1');
-  screen.getByText('Page 2');
-  screen.getByText('Page 3');
-
+  const pages = screen.getAllByRole('img');
+  expect(pages.map((page) => page.getAttribute('alt'))).toEqual([
+    'Page 1',
+    'Page 2',
+    'Page 3',
+  ]);
+  expect(pages[0]).toHaveStyle({ width: '1468.8px', height: '1900.8px' });
   screen.getByText('Page: 1/3');
 
   // scroll tested in integration tests
 });
 
-test('when changing the document, the page count resets', async () => {
-  const { rerender } = render(<PdfViewer pdfData={Buffer.from('mock-pdf')} />);
+test('when changing the preview, the page count resets', async () => {
+  const { rerender } = render(
+    <PdfViewer pdfPreview={mockPdfPreview('mock-pdf')} />
+  );
   await screen.findByText('Page: 1/1');
 
-  rerender(<PdfViewer pdfData={undefined} />);
+  rerender(<PdfViewer pdfPreview={undefined} />);
   await vi.waitFor(() => {
     expect(screen.queryByText(/Page:/)).not.toBeInTheDocument();
   });
 });
 
-test('when the PDF is too long, disables', async () => {
-  setMockPdfNumPages(51);
-  render(<PdfViewer pdfData={Buffer.from('mock-pdf')} />);
-  await screen.findByRole('heading', { name: 'Preview Disabled' });
+test('when the report is too long, disables', () => {
+  render(
+    <PdfViewer pdfPreview={{ ...mockPdfPreview('mock-pdf'), pageCount: 51 }} />
+  );
+  screen.getByRole('heading', { name: 'Preview Disabled' });
 });

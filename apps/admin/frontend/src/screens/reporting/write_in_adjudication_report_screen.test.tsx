@@ -14,6 +14,7 @@ import {
   TallyWriteInReportScreen,
 } from './write_in_adjudication_report_screen.js';
 import { screen, within } from '../../../test/react_testing_library.js';
+import { findPdfPreview } from '../../../test/helpers/pdf_preview.js';
 
 let apiMock: ApiMock;
 
@@ -41,7 +42,7 @@ test('renders provided data', async () => {
     apiMock,
     usbDriveStatus: mockUsbDriveStatus('mounted'),
   });
-  await screen.findByText('Mock Write-In Adjudication Report');
+  await findPdfPreview('Mock Write-In Adjudication Report');
 
   await screen.findByRole('heading', { name: TITLE });
   expect(screen.getByRole('link', { name: 'Reports' })).toHaveAttribute(
@@ -77,7 +78,7 @@ test('shows warning and prevents actions when PDF is too large', async () => {
   apiMock.apiClient.getWriteInAdjudicationReportPreview
     .expectCallWith()
     .resolves({
-      pdf: undefined,
+      pdfPreview: undefined,
       warning: { type: 'content-too-large' },
     });
   renderInAppContext(<TallyWriteInReportScreen />, {

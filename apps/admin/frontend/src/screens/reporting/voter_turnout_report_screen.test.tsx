@@ -13,6 +13,7 @@ import {
   VoterTurnoutReportScreen,
 } from './voter_turnout_report_screen.js';
 import { screen, within } from '../../../test/react_testing_library.js';
+import { findPdfPreview } from '../../../test/helpers/pdf_preview.js';
 
 let apiMock: ApiMock;
 
@@ -37,7 +38,7 @@ test('renders report preview and heading', async () => {
     usbDriveStatus: mockUsbDriveStatus('mounted'),
   });
 
-  await screen.findByText('Mock Voter Turnout Report');
+  await findPdfPreview('Mock Voter Turnout Report');
   await screen.findByRole('heading', { name: TITLE });
   expect(screen.getByRole('link', { name: 'Reports' })).toHaveAttribute(
     'href',
@@ -55,7 +56,7 @@ test('print report', async () => {
     usbDriveStatus: mockUsbDriveStatus('mounted'),
   });
 
-  await screen.findByText('Mock Voter Turnout Report');
+  await findPdfPreview('Mock Voter Turnout Report');
 
   apiMock.apiClient.printVoterTurnoutReport.expectCallWith().resolves();
   await userEvent.click(screen.getButton('Print Report'));
@@ -73,7 +74,7 @@ test('export report PDF', async () => {
     usbDriveStatus: mockUsbDriveStatus('mounted'),
   });
 
-  await screen.findByText('Mock Voter Turnout Report');
+  await findPdfPreview('Mock Voter Turnout Report');
 
   vi.setSystemTime(new Date('2021-01-01T00:00:00'));
   apiMock.apiClient.exportVoterTurnoutReportPdf
@@ -94,7 +95,7 @@ test('shows warning and disables actions when PDF is too large', async () => {
   apiMock.expectGetCastVoteRecordFileMode('official');
   apiMock.setPrinterStatus({ connected: true });
   apiMock.apiClient.getVoterTurnoutReportPreview.expectCallWith().resolves({
-    pdf: undefined,
+    pdfPreview: undefined,
     warning: { type: 'content-too-large' },
   });
   renderInAppContext(<VoterTurnoutReportScreen />, {

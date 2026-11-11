@@ -15,6 +15,7 @@ import { getCurrentTime } from '../util/get_current_time.js';
 import type { ExportDataResult } from '../types.js';
 import { buildExporter } from '../util/exporter.js';
 import { generateReportsDirectoryPath } from '../util/filenames.js';
+import { type PdfPreview, renderPdfPreview } from './pdf_preview.js';
 
 function buildWriteInAdjudicationReport({
   store,
@@ -54,15 +55,15 @@ interface WriteInAdjudicationReportWarning {
 }
 
 /**
- * PDF data for a write-in adjudication report alongside any potential warnings.
+ * Preview of a write-in adjudication report alongside any potential warnings.
  */
 export interface WriteInAdjudicationReportPreview {
-  pdf?: Uint8Array;
+  pdfPreview?: PdfPreview;
   warning?: WriteInAdjudicationReportWarning;
 }
 
 /**
- * Returns a PDF preview of the write-in adjudication report, as a buffer.
+ * Returns a preview of the write-in adjudication report, as page images.
  */
 export async function generateWriteInAdjudicationReportPreview({
   logger,
@@ -71,14 +72,16 @@ export async function generateWriteInAdjudicationReportPreview({
   const report = buildWriteInAdjudicationReport(reportProps);
   const pdfResult = await renderToPdf({ document: report });
   const result: WriteInAdjudicationReportPreview = {
-    pdf: pdfResult.ok(),
+    pdfPreview: pdfResult.isOk()
+      ? await renderPdfPreview(pdfResult.ok())
+      : undefined,
     warning: pdfResult.isErr() ? { type: pdfResult.err() } : undefined,
   };
   await logger.logAsCurrentRole(LogEventId.ElectionReportPreviewed, {
     message: `User previewed the write-in adjudication report.${
       result.warning ? ` Warning: ${result.warning.type}` : ''
     }`,
-    disposition: result.pdf ? 'success' : 'failure',
+    disposition: result.pdfPreview ? 'success' : 'failure',
   });
   return result;
 }

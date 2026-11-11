@@ -12,6 +12,7 @@ import {
   createApiMock,
 } from '../../../test/helpers/mock_api_client.js';
 import { screen, within } from '../../../test/react_testing_library.js';
+import { findPdfPreview } from '../../../test/helpers/pdf_preview.js';
 import { renderInAppContext } from '../../../test/render_in_app_context.js';
 import { TallyReportViewer } from './tally_report_viewer.js';
 
@@ -78,7 +79,7 @@ test('when auto-generation is on, it loads the preview automatically', async () 
     { apiMock, electionDefinition }
   );
 
-  await screen.findByText(
+  await findPdfPreview(
     'Unofficial Lincoln Municipal General Election Tally Report'
   );
   expect(
@@ -113,7 +114,7 @@ test('when auto-generation is off, it requires a button press to load the report
     pdfContent: 'Unofficial Lincoln Municipal General Election Tally Report',
   });
   await userEvent.click(screen.getButton('Generate Report'));
-  await screen.findByText(
+  await findPdfPreview(
     'Unofficial Lincoln Municipal General Election Tally Report'
   );
   expect(screen.getButton('Generate Report')).toBeDisabled();
@@ -201,7 +202,7 @@ test('printing report', async () => {
     { apiMock, electionDefinition }
   );
 
-  await screen.findByText(
+  await findPdfPreview(
     'Unofficial Lincoln Municipal General Election Tally Report'
   );
 
@@ -246,7 +247,7 @@ test('exporting PDF', async () => {
     }
   );
 
-  await screen.findByText(
+  await findPdfPreview(
     'Unofficial Lincoln Municipal General Election Tally Report'
   );
 
@@ -297,7 +298,7 @@ test('exporting CSV', async () => {
     }
   );
 
-  await screen.findByText(
+  await findPdfPreview(
     'Unofficial Lincoln Municipal General Election Tally Report'
   );
 
@@ -354,7 +355,7 @@ test('when full election report - allows CDF export and includes signature lines
     }
   );
 
-  await screen.findByText(
+  await findPdfPreview(
     'Unofficial Lincoln Municipal General Election Tally Report'
   );
 

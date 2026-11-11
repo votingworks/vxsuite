@@ -6,6 +6,7 @@ import {
 } from '../../../test/helpers/mock_api_client.js';
 import { renderInAppContext } from '../../../test/render_in_app_context.js';
 import { screen } from '../../../test/react_testing_library.js';
+import { findPdfPreview } from '../../../test/helpers/pdf_preview.js';
 import {
   AllPrecinctsTallyReportScreen,
   TITLE,
@@ -41,7 +42,7 @@ test('displays report', async () => {
     isOfficialResults: false,
   });
 
-  await screen.findByText('All Precincts Tally Report Mock Preview');
+  await findPdfPreview('All Precincts Tally Report Mock Preview');
 
   screen.getByRole('heading', { name: TITLE });
   expect(screen.getByRole('link', { name: 'Reports' })).toHaveAttribute(

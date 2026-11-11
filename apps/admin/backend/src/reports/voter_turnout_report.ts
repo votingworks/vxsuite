@@ -14,6 +14,7 @@ import { getCurrentTime } from '../util/get_current_time.js';
 import type { ExportDataResult } from '../types.js';
 import { buildExporter } from '../util/exporter.js';
 import { generateReportsDirectoryPath } from '../util/filenames.js';
+import { type PdfPreview, renderPdfPreview } from './pdf_preview.js';
 
 function buildVoterTurnoutReport({
   store,
@@ -51,10 +52,10 @@ interface VoterTurnoutReportWarning {
 }
 
 /**
- * PDF data for a voter turnout report alongside any potential warnings.
+ * Preview of a voter turnout report alongside any potential warnings.
  */
 export interface VoterTurnoutReportPreview {
-  pdf?: Uint8Array;
+  pdfPreview?: PdfPreview;
   warning?: VoterTurnoutReportWarning;
 }
 
@@ -65,7 +66,7 @@ interface VoterTurnoutReportProps {
 }
 
 /**
- * Returns a PDF preview of the voter turnout report, as a buffer.
+ * Returns a preview of the voter turnout report, as page images.
  */
 export async function generateVoterTurnoutReportPreview({
   logger,
@@ -75,7 +76,9 @@ export async function generateVoterTurnoutReportPreview({
     const report = buildVoterTurnoutReport(reportProps);
     const pdfResult = await renderToPdf({ document: report });
     return {
-      pdf: pdfResult.ok(),
+      pdfPreview: pdfResult.isOk()
+        ? await renderPdfPreview(pdfResult.ok())
+        : undefined,
       warning: pdfResult.isErr() ? { type: pdfResult.err() } : undefined,
     };
   })();
@@ -83,7 +86,7 @@ export async function generateVoterTurnoutReportPreview({
     message: `User previewed the voter turnout report.${
       result.warning ? ` Warning: ${result.warning.type}` : ''
     }`,
-    disposition: result.pdf ? 'success' : 'failure',
+    disposition: result.pdfPreview ? 'success' : 'failure',
   });
   return result;
 }

@@ -8,6 +8,7 @@ import {
 import { renderInAppContext } from '../../../test/render_in_app_context.js';
 import { TallyReportBuilder } from './tally_report_builder.js';
 import { screen, within } from '../../../test/react_testing_library.js';
+import { findPdfPreview } from '../../../test/helpers/pdf_preview.js';
 import {
   canonicalizeFilter,
   canonicalizeGroupBy,
@@ -75,7 +76,7 @@ test('happy path', async () => {
     pdfContent: 'Absentee Ballot Tally Report Mock Preview',
   });
   await userEvent.click(screen.getButton('Generate Report'));
-  await screen.findByText('Absentee Ballot Tally Report Mock Preview');
+  await findPdfPreview('Absentee Ballot Tally Report Mock Preview');
 
   // Change Report Parameters
   await userEvent.click(screen.getByLabelText('Remove Absentee'));
@@ -99,5 +100,5 @@ test('happy path', async () => {
   });
   await userEvent.click(screen.getButton('Generate Report'));
 
-  await screen.findByText('Precinct Ballot Tally Report Mock Preview');
+  await findPdfPreview('Precinct Ballot Tally Report Mock Preview');
 });

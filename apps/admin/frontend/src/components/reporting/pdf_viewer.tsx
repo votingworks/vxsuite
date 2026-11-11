@@ -1,19 +1,10 @@
-import { Document, Page, pdfjs } from 'react-pdf';
 import styled from 'styled-components';
 import { useMemo, useState, type UIEvent } from 'react';
 import { H3, Icons, P } from '@votingworks/ui';
 import { Buffer } from 'node:buffer';
-import { range } from '@votingworks/basics';
+import type { PdfPreview } from '@votingworks/admin-backend';
 
-// The worker is bundled from the same pdfjs-dist version react-pdf uses
-pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-  'pdfjs-dist/build/pdf.worker.min.mjs',
-  import.meta.url
-).toString();
-
-// Large PDFs can crash the page. We've seen this occur at ~100 pages, so set a
-// conservative limit to make sure it never happens in production.
-const MAX_NUM_PAGES = 50;
+const CSS_PIXELS_PER_POINT = 96 / 72;
 
 const PdfContainer = styled.div`
   flex: 1;
@@ -29,15 +20,15 @@ const PdfDocumentScroller = styled.div`
   flex: 1;
   padding: 1rem 0;
   width: 100%;
-  /* stylelint-disable selector-class-pattern */
-  .react-pdf__Document .react-pdf__Page {
-    box-shadow: 0 0 0.5rem rgb(0, 0, 0, 25%);
-    margin: 0 auto;
-    width: min-content;
+`;
 
-    &:not(:last-child) {
-      margin-bottom: 1rem;
-    }
+const PageImage = styled.img`
+  display: block;
+  box-shadow: 0 0 0.5rem rgb(0, 0, 0, 25%);
+  margin: 0 auto;
+
+  &:not(:last-child) {
+    margin-bottom: 1rem;
   }
 `;
 
@@ -64,19 +55,22 @@ export const Row = styled.div`
 const DEFAULT_ZOOM = 1.8;
 
 interface PdfViewerProps {
-  pdfData?: Uint8Array;
+  pdfPreview?: PdfPreview;
   loading?: boolean;
 }
 
-function PdfViewerHelper({ pdfData, loading }: PdfViewerProps): JSX.Element {
-  const [numPages, setNumPages] = useState<number>();
+function PdfViewerHelper({ pdfPreview, loading }: PdfViewerProps): JSX.Element {
   const [currentPage, setCurrentPage] = useState(1);
-  const file = useMemo(
-    // must copy the buffer before passing to react-pdf, otherwise it will be consumed
-    // bug: https://github.com/wojtekmaj/react-pdf/issues/1657
-    () => (pdfData ? { data: Buffer.from(pdfData) } : undefined),
-    [pdfData]
+  const pages = useMemo(
+    () =>
+      pdfPreview?.pages.map(({ png, width, height }) => ({
+        src: `data:image/png;base64,${Buffer.from(png).toString('base64')}`,
+        width: width * DEFAULT_ZOOM * CSS_PIXELS_PER_POINT,
+        height: height * DEFAULT_ZOOM * CSS_PIXELS_PER_POINT,
+      })),
+    [pdfPreview]
   );
+  const numPages = pages?.length;
 
   // @coverage-defer
   function onScroll(e: UIEvent<HTMLDivElement>) {
@@ -89,22 +83,8 @@ function PdfViewerHelper({ pdfData, loading }: PdfViewerProps): JSX.Element {
     const scrollProgress = (scrollTop + pageHeight / 6) / scrollHeight;
     setCurrentPage(Math.floor(scrollProgress * numPages) + 1);
   }
-  const loadingSpinner = (
-    <Row
-      style={{
-        justifyContent: 'center',
-        alignItems: 'center',
-        fontSize: '3rem',
-        height: '100%',
-        minHeight: '5rem',
-      }}
-      data-testid="pdf-loading"
-    >
-      <Icons.Loading />
-    </Row>
-  );
 
-  if (numPages && numPages > MAX_NUM_PAGES) {
+  if (pdfPreview && pdfPreview.pages.length < pdfPreview.pageCount) {
     return (
       <PdfContainer>
         <PdfControls />
@@ -125,48 +105,46 @@ function PdfViewerHelper({ pdfData, loading }: PdfViewerProps): JSX.Element {
       <PdfControls>
         <span>{numPages ? `Page: ${currentPage}/${numPages}` : ''}</span>
       </PdfControls>
-      {file ? (
+      {pages ? (
         <PdfDocumentScroller onScroll={onScroll} data-testid="pdf-scroller">
-          {!numPages && loadingSpinner}
-          <Document
-            file={file}
-            // @coverage-defer
-            onSourceSuccess={() => setNumPages(undefined)}
-            onLoadSuccess={(result) => setNumPages(result.numPages)}
-            // Hide the built in loading message
-            loading=""
-            data-testid="pdf-document"
-          >
-            {numPages &&
-              range(1, numPages + 1).map((pageNumber) => (
-                <Page
-                  key={pageNumber}
-                  // ReactPDF renders at 3/4 of actual size for some reason
-                  // https://github.com/wojtekmaj/react-pdf/issues/1219
-                  scale={DEFAULT_ZOOM * (4 / 3)}
-                  pageNumber={pageNumber}
-                  renderTextLayer={false}
-                  renderAnnotationLayer={false}
-                  loading=""
-                  data-testid={`pdf-page-${pageNumber}`}
-                />
-              ))}
-          </Document>
+          {pages.map(({ src, width, height }, index) => (
+            <PageImage
+              // eslint-disable-next-line react/no-array-index-key
+              key={index}
+              src={src}
+              alt={`Page ${index + 1}`}
+              style={{ width, height }}
+            />
+          ))}
         </PdfDocumentScroller>
       ) : loading ? (
-        loadingSpinner
+        <Row
+          style={{
+            justifyContent: 'center',
+            alignItems: 'center',
+            fontSize: '3rem',
+            height: '100%',
+            minHeight: '5rem',
+          }}
+          data-testid="pdf-loading"
+        >
+          <Icons.Loading />
+        </Row>
       ) : null}
     </PdfContainer>
   );
 }
 
-export function PdfViewer({ loading, pdfData }: PdfViewerProps): JSX.Element {
+export function PdfViewer({
+  loading,
+  pdfPreview,
+}: PdfViewerProps): JSX.Element {
   return (
     <PdfViewerHelper
-      // Reset the page count state whenever we change the PDF data
-      key={String(Boolean(pdfData))}
+      // Reset the current page whenever we change the preview
+      key={String(Boolean(pdfPreview))}
       loading={loading}
-      pdfData={pdfData}
+      pdfPreview={pdfPreview}
     />
   );
 }

@@ -11,6 +11,7 @@ import {
 } from '../../../test/helpers/mock_api_client.js';
 import { renderInAppContext } from '../../../test/render_in_app_context.js';
 import { screen, within } from '../../../test/react_testing_library.js';
+import { findPdfPreview } from '../../../test/helpers/pdf_preview.js';
 import {
   canonicalizeFilter,
   canonicalizeGroupBy,
@@ -72,7 +73,7 @@ test('offers reporting status filter and grouping when withholding is enabled', 
     expect(screen.getButton('Generate Report')).toBeEnabled();
   });
   await userEvent.click(screen.getButton('Generate Report'));
-  await screen.findByText('Counted Ballots Ballot Count Report');
+  await findPdfPreview('Counted Ballots Ballot Count Report');
 });
 
 test('happy path', async () => {
@@ -144,9 +145,7 @@ test('happy path', async () => {
   });
   await userEvent.click(screen.getButton('Generate Report'));
 
-  await screen.findByText(
-    'Test Unofficial Absentee Ballot Ballot Count Report'
-  );
+  await findPdfPreview('Test Unofficial Absentee Ballot Ballot Count Report');
 
   // Change Report Parameters
   await userEvent.click(screen.getByLabelText('Remove Absentee'));
@@ -171,9 +170,7 @@ test('happy path', async () => {
   });
   await userEvent.click(screen.getByText('Generate Report'));
 
-  await screen.findByText(
-    'Test Unofficial Precinct Ballot Ballot Count Report'
-  );
+  await findPdfPreview('Test Unofficial Precinct Ballot Ballot Count Report');
 });
 
 test('does not show party options for non-primary elections', async () => {

@@ -17,6 +17,7 @@ import { assert, err } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
 import type { Client } from '@votingworks/grout';
 import type { BallotStyleGroupId } from '@votingworks/types';
+import { expectPdfPreviewToMatchSnapshot } from '../test/pdf_preview.js';
 import {
   attachUsbDrive,
   buildTestEnvironment,
@@ -88,8 +89,9 @@ async function expectIdenticalSnapshotsAcrossExportMethods({
   reportSpec: BallotCountReportSpec;
   customSnapshotIdentifier: string;
 }) {
-  const { pdf } = await apiClient.getBallotCountReportPreview(reportSpec);
-  await expect(pdf).toMatchPdfSnapshot({
+  const { pdfPreview } =
+    await apiClient.getBallotCountReportPreview(reportSpec);
+  expectPdfPreviewToMatchSnapshot(pdfPreview, {
     customSnapshotIdentifier,
     failureThreshold: 0.0001,
   });
@@ -290,7 +292,7 @@ test('ballot count report warning', async () => {
       includeSheetCounts: false,
     })
   ).toEqual({
-    pdf: undefined,
+    pdfPreview: undefined,
     warning: { type: 'no-reports-match-filter' },
   });
 
@@ -302,7 +304,7 @@ test('ballot count report warning', async () => {
       includeSheetCounts: false,
     })
   ).toEqual({
-    pdf: undefined,
+    pdfPreview: undefined,
     warning: { type: 'content-too-large' },
   });
 });

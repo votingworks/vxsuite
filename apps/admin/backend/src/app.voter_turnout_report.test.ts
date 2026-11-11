@@ -17,6 +17,7 @@ import {
   type ElectionRegisteredVoterCounts,
 } from '@votingworks/types';
 import { zipFile } from '@votingworks/test-utils';
+import { expectPdfPreviewToMatchSnapshot } from '../test/pdf_preview.js';
 import {
   attachUsbDrive,
   buildTestEnvironment,
@@ -135,7 +136,7 @@ test('voter turnout report preview, print, and export', async () => {
 
   const preview = await apiClient.getVoterTurnoutReportPreview();
   expect(preview.warning).toBeUndefined();
-  await expect(preview.pdf).toMatchPdfSnapshot({
+  expectPdfPreviewToMatchSnapshot(preview.pdfPreview, {
     failureThreshold: 0.0001,
     customSnapshotIdentifier: 'voter-turnout-report',
   });
@@ -257,7 +258,7 @@ test('voter turnout report warning', async () => {
 
   vi.mocked(renderToPdf).mockResolvedValueOnce(err('content-too-large'));
   expect(await apiClient.getVoterTurnoutReportPreview()).toEqual({
-    pdf: undefined,
+    pdfPreview: undefined,
     warning: { type: 'content-too-large' },
   });
 });

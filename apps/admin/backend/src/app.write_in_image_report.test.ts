@@ -630,7 +630,7 @@ test('write-in image report: preview, print, and export', async () => {
     contestId: MAYOR_CONTEST_ID,
   });
   expect(preview.warning).toBeUndefined();
-  expect(preview.pdf).toBeDefined();
+  expect(preview.pdfPreview?.pages).not.toHaveLength(0);
 
   await apiClient.printWriteInImageReport({ contestId: MAYOR_CONTEST_ID });
   expect(mockPrinterHandler.getLastPrintPath()).toBeDefined();
