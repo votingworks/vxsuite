@@ -28,6 +28,8 @@ pub enum PageFormat {
     Rgba,
     /// 8-bit grayscale pixels.
     Gray,
+    /// A PNG file, RGB on a white background or RGBA on a transparent one.
+    Png,
 }
 
 impl std::str::FromStr for PageFormat {
@@ -37,6 +39,7 @@ impl std::str::FromStr for PageFormat {
         match format {
             "rgba" => Ok(Self::Rgba),
             "gray" => Ok(Self::Gray),
+            "png" => Ok(Self::Png),
             _ => Err(Error::from_reason(format!("Unknown page format: {format}"))),
         }
     }
@@ -159,12 +162,62 @@ fn render_page<'a>(
     let data = match format {
         PageFormat::Rgba => rgba,
         PageFormat::Gray => rgba_to_gray(&rgba),
+        PageFormat::Png => encode_png(&rgba, width, height, transparent)?,
     };
     Ok(RenderedPage {
         width,
         height,
         data,
     })
+}
+
+fn encode_png(rgba: &[u8], width: u16, height: u16, transparent: bool) -> Result<Vec<u8>> {
+    let mut png = Vec::new();
+    let mut encoder = png::Encoder::new(&mut png, u32::from(width), u32::from(height));
+    encoder.set_depth(png::BitDepth::Eight);
+    encoder.set_compression(png::Compression::Balanced);
+    let to_error =
+        |err: png::EncodingError| Error::from_reason(format!("PNG encoding failed: {err}"));
+    if transparent {
+        encoder.set_color(png::ColorType::Rgba);
+        encoder
+            .write_header()
+            .map_err(to_error)?
+            .write_image_data(rgba)
+            .map_err(to_error)?;
+    } else if rgba
+        .as_chunks::<4>()
+        .0
+        .iter()
+        .all(|pixel| pixel[0] == pixel[1] && pixel[1] == pixel[2])
+    {
+        encoder.set_color(png::ColorType::Grayscale);
+        let gray: Vec<u8> = rgba
+            .as_chunks::<4>()
+            .0
+            .iter()
+            .map(|pixel| pixel[0])
+            .collect();
+        encoder
+            .write_header()
+            .map_err(to_error)?
+            .write_image_data(&gray)
+            .map_err(to_error)?;
+    } else {
+        encoder.set_color(png::ColorType::Rgb);
+        let rgb: Vec<u8> = rgba
+            .as_chunks::<4>()
+            .0
+            .iter()
+            .flat_map(|pixel| [pixel[0], pixel[1], pixel[2]])
+            .collect();
+        encoder
+            .write_header()
+            .map_err(to_error)?
+            .write_image_data(&rgb)
+            .map_err(to_error)?;
+    }
+    Ok(png)
 }
 
 /// Matches `rgbToGrayscale` stored into a `Uint8ClampedArray`.
@@ -240,9 +293,9 @@ impl Task for RenderPdfPages {
 ///
 /// # Errors
 ///
-/// Fails if `format` is not `rgba` or `gray`.
+/// Fails if `format` is not `rgba`, `gray` or `png`.
 #[napi(
-    ts_args_type = "pdf: Uint8Array, pageIndices: number[], scale: number, transparent: boolean, format: 'rgba' | 'gray'",
+    ts_args_type = "pdf: Uint8Array, pageIndices: number[], scale: number, transparent: boolean, format: 'rgba' | 'gray' | 'png'",
     ts_return_type = "Promise<PdfPageImage[]>"
 )]
 #[allow(clippy::needless_pass_by_value)] // napi arguments must be owned

@@ -44,6 +44,7 @@ nix = { version = "0.31.3", features = ["fs"] }
 num_enum = "0.7.1"
 nusb = "0.2.9"
 proptest = "1.0.0"
+png = "0.18.1"
 rayon = "1.5.3"
 rusb = "0.9.3"
 serde = { version = "1.0.150", features = ["derive"] }

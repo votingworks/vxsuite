@@ -2233,6 +2233,7 @@ dependencies = [
  "napi",
  "napi-build",
  "napi-derive",
+ "png",
  "rayon",
  "vello_cpu",
 ]

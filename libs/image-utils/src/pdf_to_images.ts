@@ -1,4 +1,4 @@
-import { range } from '@votingworks/basics';
+import { assertDefined, range } from '@votingworks/basics';
 import type { GrayImageData, RgbaImageData, Size } from '@votingworks/types';
 import { createGrayImageData, createImageData } from './image_data.js';
 
@@ -96,4 +96,31 @@ export async function* pdfToImages(
       };
     }
   }
+}
+
+/** A PDF page rendered as a PNG, with the page's size in PDF points. */
+export interface PdfPagePng {
+  readonly png: Uint8Array;
+  readonly width: number;
+  readonly height: number;
+}
+
+/** Renders the pages of a PDF as PNGs on a white background. */
+export async function pdfToPngPages(
+  pdfBytes: Uint8Array,
+  { scale = 1, maxPages = Infinity }: { scale?: number; maxPages?: number } = {}
+): Promise<PdfPagePng[]> {
+  const napi = await loadNapi();
+  const sizes = (await napi.getPdfPageSizes(pdfBytes)).slice(0, maxPages);
+  const images = await napi.renderPdfPages(
+    pdfBytes,
+    range(0, sizes.length),
+    scale,
+    false,
+    'png'
+  );
+  return images.map(({ data }, i) => ({
+    png: new Uint8Array(data.buffer, data.byteOffset, data.byteLength),
+    ...assertDefined(sizes[i]),
+  }));
 }

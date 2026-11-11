@@ -22,6 +22,6 @@ export interface PdfPageSize {
  *
  * # Errors
  *
- * Fails if `format` is not `rgba` or `gray`.
+ * Fails if `format` is not `rgba`, `gray` or `png`.
  */
-export declare function renderPdfPages(pdf: Uint8Array, pageIndices: number[], scale: number, transparent: boolean, format: 'rgba' | 'gray'): Promise<PdfPageImage[]>
+export declare function renderPdfPages(pdf: Uint8Array, pageIndices: number[], scale: number, transparent: boolean, format: 'rgba' | 'gray' | 'png'): Promise<PdfPageImage[]>

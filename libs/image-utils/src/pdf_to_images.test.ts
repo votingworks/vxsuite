@@ -6,12 +6,13 @@ import { join } from 'node:path';
 import { PDFDocument } from 'pdf-lib';
 import { expect, test } from 'vitest';
 import type { ImageData } from 'canvas';
-import { isRgba } from './image_data.js';
+import { isRgba, loadImageData } from './image_data.js';
 import {
   type PdfPage,
   getPdfPageCount,
   getPdfPageSizes,
   pdfToImages,
+  pdfToPngPages,
 } from './pdf_to_images.js';
 
 async function readMsBallotPdf(): Promise<Uint8Array> {
@@ -153,4 +154,28 @@ test('can generate grayscale images', async () => {
     expect(isRgba(page)).toEqual(false);
     expect(page.data).toHaveLength(page.width * page.height);
   }
+});
+
+test('pdfToPngPages encodes the same pixels as pdfToImages', async () => {
+  const pdf = await readMsBallotPdf();
+  const pngPages = await pdfToPngPages(pdf, { scale: 2, maxPages: 2 });
+  expect(pngPages.map(({ width, height }) => ({ width, height }))).toEqual([
+    { width: 612, height: 792 },
+    { width: 612, height: 792 },
+  ]);
+
+  const rgbaPages = await iter(
+    pdfToImages(pdf, { scale: 2, maxPages: 2 })
+  ).toArray();
+  for (const [i, { png }] of pngPages.entries()) {
+    const decoded = (await loadImageData(Buffer.from(png))).unsafeUnwrap();
+    const expected = assertDefined(rgbaPages[i]).page.data;
+    expect(Buffer.from(decoded.data).equals(Buffer.from(expected))).toEqual(
+      true
+    );
+  }
+});
+
+test('pdfToPngPages renders every page by default', async () => {
+  expect(await pdfToPngPages(await readMsBallotPdf())).toHaveLength(6);
 });

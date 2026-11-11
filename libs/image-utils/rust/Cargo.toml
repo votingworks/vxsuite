@@ -10,6 +10,7 @@ crate-type = ["cdylib"]
 hayro.workspace = true
 napi.workspace = true
 napi-derive.workspace = true
+png.workspace = true
 rayon.workspace = true
 vello_cpu.workspace = true
 
