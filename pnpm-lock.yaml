@@ -4137,9 +4137,6 @@ importers:
 
   libs/image-utils:
     dependencies:
-      '@napi-rs/canvas':
-        specifier: 0.1.100
-        version: 0.1.100
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../basics
@@ -4161,9 +4158,6 @@ importers:
       pdf-lib:
         specifier: ^1.17.1
         version: 1.17.1
-      pdfjs-dist:
-        specifier: 5.4.296
-        version: 5.4.296
       pixelmatch:
         specifier: ^5.3.0
         version: 5.3.0
@@ -4171,6 +4165,9 @@ importers:
         specifier: ^0.2.6
         version: 0.2.7
     devDependencies:
+      '@napi-rs/cli':
+        specifier: ^3.5.1
+        version: 3.5.1(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)(@types/node@24.19.2)(node-addon-api@8.3.1)(supports-color@5.5.0)
       '@types/debug':
         specifier: 4.1.12
         version: 4.1.12
@@ -4201,6 +4198,9 @@ importers:
       fast-check:
         specifier: 2.23.2
         version: 2.23.2
+      sort-package-json:
+        specifier: ^1.50.0
+        version: 1.53.1
       vitest:
         specifier: 5.0.2
         version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.19.2)(@vitest/coverage-istanbul@5.0.2)(jsdom@30.1.3(@noble/hashes@1.8.0)(canvas@3.2.3))(vite@8.1.6(@types/node@24.19.2)(esbuild@0.28.1)(yaml@2.8.2))
@@ -15207,6 +15207,7 @@ snapshots:
       '@napi-rs/canvas-linux-x64-musl': 0.1.100
       '@napi-rs/canvas-win32-arm64-msvc': 0.1.100
       '@napi-rs/canvas-win32-x64-msvc': 0.1.100
+    optional: true
 
   '@napi-rs/cli@3.5.1(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)(@types/node@24.19.2)(node-addon-api@8.3.1)(supports-color@5.5.0)':
     dependencies:

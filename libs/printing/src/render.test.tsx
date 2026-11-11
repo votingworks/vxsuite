@@ -13,10 +13,10 @@ import {
   P,
   useCurrentTheme,
 } from '@votingworks/ui';
-import { parsePdf } from '@votingworks/image-utils/pdf';
+import { getPdfPageCount, getPdfPageSizes } from '@votingworks/image-utils/pdf';
 import { writeFileSync } from 'node:fs';
 import { chromium } from 'playwright';
-import { err, iter } from '@votingworks/basics';
+import { assertDefined, err, iter } from '@votingworks/basics';
 import { styled } from '../test/styled.js';
 import { PAPER_DIMENSIONS, type RenderSpec, renderToPdf } from './render.js';
 
@@ -99,11 +99,9 @@ test('by default, large content is split across multiple letter pages', async ()
     await renderToPdf({ document: <ManyHeadings count={25} /> })
   ).unsafeUnwrap();
 
-  const pdf = await parsePdf(Uint8Array.from(pdfData));
-  expect(pdf.numPages).toEqual(2);
-  for (let i = 1; i <= pdf.numPages; i += 1) {
-    const page = await pdf.getPage(i);
-    const { height, width } = page.getViewport({ scale: 1 });
+  const pageSizes = await getPdfPageSizes(pdfData);
+  expect(pageSizes).toHaveLength(2);
+  for (const { height, width } of pageSizes) {
     expect(width * PDF_SCALING).toEqual(1700); // letter
     expect(height * PDF_SCALING).toEqual(2200); // letter
   }
@@ -123,9 +121,9 @@ test('page can be longer than letter when using LetterRoll', async () => {
     })
   ).unsafeUnwrap();
 
-  const pdf = await parsePdf(pdfData);
-  expect(pdf.numPages).toEqual(1);
-  const { height, width } = (await pdf.getPage(1)).getViewport({ scale: 1 });
+  const pageSizes = await getPdfPageSizes(pdfData);
+  expect(pageSizes).toHaveLength(1);
+  const { height, width } = assertDefined(pageSizes[0]);
   expect(width * PDF_SCALING).toEqual(1700); // letter
   expect(height * PDF_SCALING).toBeGreaterThan(2200); // longer than letter
   await expect(outputPath).toMatchPdfSnapshot({
@@ -143,9 +141,9 @@ test('page can not be longer than 100 inches when using LetterRoll', async () =>
     })
   ).unsafeUnwrap();
 
-  const pdf = await parsePdf(pdfData);
-  expect(pdf.numPages).toEqual(3);
-  const { height, width } = (await pdf.getPage(1)).getViewport({ scale: 1 });
+  const pageSizes = await getPdfPageSizes(pdfData);
+  expect(pageSizes).toHaveLength(3);
+  const { height, width } = assertDefined(pageSizes[0]);
   expect(width * PDF_SCALING).toEqual(1700); // letter
   expect(height * PDF_SCALING).toEqual(20000); // maximum length
 });
@@ -160,9 +158,9 @@ test('bmd 150 page is 13.25"', async () => {
     })
   ).unsafeUnwrap();
 
-  const pdf = await parsePdf(pdfData);
-  expect(pdf.numPages).toEqual(1);
-  const { height, width } = (await pdf.getPage(1)).getViewport({ scale: 1 });
+  const pageSizes = await getPdfPageSizes(pdfData);
+  expect(pageSizes).toHaveLength(1);
+  const { height, width } = assertDefined(pageSizes[0]);
   // Setting with to exactly 1600 overflows the line and causes a blank line
   // to be printed after each actual line.
   expect(width * PDF_SCALING).toBeLessThan(1600);
@@ -211,8 +209,8 @@ test('documents of various sizes all fit on a single page when using LetterRoll'
   }
 
   const pdfData = (await renderToPdf(specs)).unsafeUnwrap();
-  const pdfs = await Promise.all(pdfData.map((data) => parsePdf(data)));
-  expect(pdfs.every((pdf) => pdf.numPages === 1)).toEqual(true);
+  const pageCounts = await Promise.all(pdfData.map(getPdfPageCount));
+  expect(pageCounts.every((pageCount) => pageCount === 1)).toEqual(true);
 });
 
 test('renders with custom margins', async () => {

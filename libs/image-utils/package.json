@@ -20,11 +20,20 @@
     },
     "./package.json": "./package.json"
   },
+  "files": [
+    "build",
+    "index.js",
+    "index.d.ts",
+    "*.node"
+  ],
   "scripts": {
     "build": "pnpm -w vx-task build $npm_package_name",
-    "build:self": "tsc --build tsconfig.build.json",
+    "build:rust-addon": "napi build --platform --release --esm --manifest-path rust/Cargo.toml --output-dir .",
+    "build:self": "pnpm build:rust-addon && pnpm build:ts",
+    "build:ts": "tsc --build tsconfig.build.json",
     "clean": "pnpm -w vx-task clean $npm_package_name",
-    "clean:self": "rm -rf build",
+    "clean:self": "cargo clean --release --package vx-image-utils && rm -rf build",
+    "install:rust-addon": "cargo fetch --manifest-path rust/Cargo.toml",
     "lint": "pnpm -w vx-task lint $npm_package_name",
     "lint:fix": "pnpm type-check && eslint --cache . --fix",
     "lint:self": "pnpm type-check && eslint --cache .",
@@ -34,7 +43,6 @@
     "type-check": "tsc --build"
   },
   "dependencies": {
-    "@napi-rs/canvas": "0.1.100",
     "@votingworks/basics": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/utils": "workspace:*",
@@ -42,11 +50,11 @@
     "debug": "4.3.4",
     "jest-image-snapshot": "^6.4.0",
     "pdf-lib": "^1.17.1",
-    "pdfjs-dist": "5.4.296",
     "pixelmatch": "^5.3.0",
     "tmp": "^0.2.6"
   },
   "devDependencies": {
+    "@napi-rs/cli": "^3.5.1",
     "@types/debug": "4.1.12",
     "@types/jest-image-snapshot": "^6.4.0",
     "@types/node": "24.19.2",
@@ -57,7 +65,15 @@
     "@votingworks/fixtures": "workspace:*",
     "eslint-plugin-vx": "workspace:*",
     "fast-check": "2.23.2",
+    "sort-package-json": "^1.50.0",
     "vitest": "5.0.2"
+  },
+  "napi": {
+    "binaryName": "vx-image-utils",
+    "targets": [
+      "aarch64-unknown-linux-gnu",
+      "x86_64-unknown-linux-gnu"
+    ]
   },
   "packageManager": "pnpm@12.16.1"
 }

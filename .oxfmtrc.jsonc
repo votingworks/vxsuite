@@ -23,6 +23,8 @@
     "libs/ballot-interpreter/index.js",
     "libs/fs/index.d.ts",
     "libs/fs/index.js",
+    "libs/image-utils/index.d.ts",
+    "libs/image-utils/index.js",
     "libs/logging/VotingWorksLoggingDocumentation.md",
     "libs/types/src/cdf/*/index.ts",
 

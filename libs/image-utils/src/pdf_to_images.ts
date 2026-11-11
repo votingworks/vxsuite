@@ -1,8 +1,6 @@
-import { Buffer } from 'node:buffer';
-import type { CanvasGradient, CanvasPattern } from 'canvas';
-import type { PDFDocumentProxy } from 'pdfjs-dist';
-import type { GrayImageData, RgbaImageData } from '@votingworks/types';
-import { createImageData, toGrayScale } from './image_data.js';
+import { range } from '@votingworks/basics';
+import type { GrayImageData, RgbaImageData, Size } from '@votingworks/types';
+import { createGrayImageData, createImageData } from './image_data.js';
 
 /**
  * A page of a PDF document.
@@ -15,132 +13,83 @@ export interface PdfPage<ImageData = RgbaImageData> {
 
 /** Options for {@link pdfToImages}. */
 export interface PdfToImagesOptions {
-  background?: string | CanvasGradient | CanvasPattern;
+  /** @default 'white' */
+  background?: 'white' | 'transparent';
   color?: 'rgba' | 'gray';
 
   /** @default 1 */
   scale?: number;
 }
 
-/**
- * Renders PDF pages as images. This function consumes the data source, leaving
- * the caller with an empty `Uint8Array` when this function resolves. Be sure to
- * clone the data if you need it afterward.
- */
+/** Loaded lazily so importing this module never loads the native addon. */
+async function loadNapi() {
+  return await import('../index.js');
+}
+
+/** Returns the size of each page of a PDF in PDF points. */
+export async function getPdfPageSizes(pdfBytes: Uint8Array): Promise<Size[]> {
+  const napi = await loadNapi();
+  return await napi.getPdfPageSizes(pdfBytes);
+}
+
+/** Returns the number of pages in a PDF. */
+export async function getPdfPageCount(pdfBytes: Uint8Array): Promise<number> {
+  return (await getPdfPageSizes(pdfBytes)).length;
+}
+
+/** Renders PDF pages as images. */
 export function pdfToImages(
   pdfBytes: Uint8Array,
   opts: PdfToImagesOptions & { color: 'rgba' }
 ): AsyncIterable<PdfPage<RgbaImageData>>;
 
-/**
- * Renders PDF pages as images. This function consumes the data source, leaving
- * the caller with an empty `Uint8Array` when this function resolves. Be sure to
- * clone the data if you need it afterward.
- */
+/** Renders PDF pages as images. */
 export function pdfToImages(
   pdfBytes: Uint8Array,
   opts: PdfToImagesOptions & { color: 'gray' }
 ): AsyncIterable<PdfPage<GrayImageData>>;
 
-/**
- * Renders PDF pages as images. This function consumes the data source, leaving
- * the caller with an empty `Uint8Array` when this function resolves. Be sure to
- * clone the data if you need it afterward.
- */
+/** Renders PDF pages as images. */
 export function pdfToImages(
   pdfBytes: Uint8Array,
   opts?: PdfToImagesOptions
 ): AsyncIterable<PdfPage>;
 
 /**
- * Renders PDF pages as images. This function consumes the data source, leaving
- * the caller with an empty `Uint8Array` when this function resolves. Be sure to
- * clone the data if you need it afterward.
+ * Renders PDF pages as images, rendering up to one page per CPU in parallel.
  */
 export async function* pdfToImages(
   pdfBytes: Uint8Array,
   opts: PdfToImagesOptions = {}
 ): AsyncIterable<PdfPage<RgbaImageData | GrayImageData>> {
-  const { background, color, scale = 1 } = opts;
-  const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
-  // Loaded lazily so importing this module never loads the native addon.
-  const { createCanvas } = await import('@napi-rs/canvas');
-  const canvas = createCanvas(0, 0);
-  const context = canvas.getContext('2d');
+  const { background = 'white', color, scale = 1 } = opts;
+  const napi = await loadNapi();
+  const pageCount = (await napi.getPdfPageSizes(pdfBytes)).length;
+  const batchSize = navigator.hardwareConcurrency;
 
-  // Consumes `pdfBytes` here:
-  const pdf = await pdfjs.getDocument({
-    // pdfjs-dist wants a `Uint8Array`, not a `Buffer`
-    data: Buffer.isBuffer(pdfBytes)
-      ? new Uint8Array(
-          pdfBytes.buffer,
-          pdfBytes.byteOffset,
-          pdfBytes.byteLength
-        )
-      : pdfBytes,
-    // Defense in depth: never evaluate JS embedded in PDFs (CVE-2024-4367).
-    isEvalSupported: false,
-  }).promise;
-
-  // Yes, 1-indexing is correct.
-  // https://github.com/mozilla/pdf.js/blob/6ffcedc24bba417694a9d0e15eaf16cadf4dad15/src/display/api.js#L2457-L2463
-  for (let i = 1; i <= pdf.numPages; i += 1) {
-    const page = await pdf.getPage(i);
-    const viewport = page.getViewport({ scale });
-
-    canvas.width = viewport.width;
-    canvas.height = viewport.height;
-
-    await page.render({
-      // pdfjs's types want a DOM canvas; it only uses the 2D drawing API.
-      canvas: canvas as unknown as HTMLCanvasElement,
-      viewport,
-      background,
-    }).promise;
-
-    const { data, width, height } = context.getImageData(
-      0,
-      0,
-      canvas.width,
-      canvas.height
+  for (let start = 0; start < pageCount; start += batchSize) {
+    const images = await napi.renderPdfPages(
+      pdfBytes,
+      range(start, Math.min(start + batchSize, pageCount)),
+      scale,
+      background === 'transparent',
+      color === 'gray' ? 'gray' : 'rgba'
     );
 
-    yield {
-      pageCount: pdf.numPages,
-      pageNumber: i,
-      page:
-        color === 'gray'
-          ? toGrayScale(data, width, height)
-          : createImageData(data, width, height),
-    };
+    for (const [offset, { data, width, height }] of images.entries()) {
+      const pixels = new Uint8ClampedArray(
+        data.buffer,
+        data.byteOffset,
+        data.byteLength
+      );
+      yield {
+        pageCount,
+        pageNumber: start + offset + 1,
+        page:
+          color === 'gray'
+            ? createGrayImageData(pixels, width, height)
+            : createImageData(pixels, width, height),
+      };
+    }
   }
-}
-
-/**
- * Parse PDF data with `pdf.js` to get a object with the number of pages and
- * viewport size, among other metadata. Useful when you want to inspect PDF
- * metadata but don't need to render the PDF.
- *
- * Consumes `pdfBytes`, replacing it with an empty array.
- */
-export async function parsePdf(
-  pdfBytes: Uint8Array
-): Promise<PDFDocumentProxy> {
-  const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
-  const pdf = await pdfjs.getDocument({
-    data: pdfBytes,
-    isEvalSupported: false,
-  }).promise;
-  return pdf;
-}
-
-/**
- * Parse PDF data with `pdf.js` to get the number of pages in the PDF. Useful
- * when you want to know how many pages are in a PDF without rendering it.
- *
- * Unlike `parsePdf`, leaves `pdfBytes` intact.
- */
-export async function getPdfPageCount(pdfBytes: Uint8Array): Promise<number> {
-  const pdf = await parsePdf(new Uint8Array(pdfBytes));
-  return pdf.numPages;
 }

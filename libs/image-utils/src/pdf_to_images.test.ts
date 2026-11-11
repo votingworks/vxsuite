@@ -3,13 +3,14 @@ import { assertDefined, iter } from '@votingworks/basics';
 import type { Size } from '@votingworks/types';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import { PDFDocument } from 'pdf-lib';
 import { expect, test } from 'vitest';
 import type { ImageData } from 'canvas';
 import { isRgba } from './image_data.js';
 import {
   type PdfPage,
   getPdfPageCount,
-  parsePdf,
+  getPdfPageSizes,
   pdfToImages,
 } from './pdf_to_images.js';
 
@@ -81,9 +82,37 @@ test('renders visible content, not blank pages', async () => {
   expect(darkPixelCount).toBeGreaterThan(1000);
 });
 
-test('parsePdf', async () => {
-  const pdf = await parsePdf(await readMsBallotPdf());
-  expect(pdf.numPages).toEqual(6);
+test('getPdfPageSizes', async () => {
+  expect(await getPdfPageSizes(await readMsBallotPdf())).toEqual(
+    Array.from({ length: 6 }, () => ({ width: 612, height: 792 }))
+  );
+});
+
+test('rejects invalid PDF data', async () => {
+  await expect(getPdfPageCount(new Uint8Array())).rejects.toThrow(
+    'Unable to load PDF'
+  );
+  await expect(
+    iter(pdfToImages(new TextEncoder().encode('not a pdf'))).toArray()
+  ).rejects.toThrow('Unable to load PDF');
+});
+
+test('can render on a transparent background', async () => {
+  const doc = await PDFDocument.create();
+  doc.addPage([100, 100]).drawRectangle({ x: 0, y: 0, width: 50, height: 100 });
+  const pdf = await doc.save();
+
+  const [opaque, transparent] = await Promise.all(
+    (['white', 'transparent'] as const).map(async (background) =>
+      assertDefined(await iter(pdfToImages(pdf, { background })).first())
+    )
+  );
+  const leftAlpha = 3;
+  const rightAlpha = 99 * 4 + 3;
+  expect(opaque?.page.data[leftAlpha]).toEqual(255);
+  expect(opaque?.page.data[rightAlpha]).toEqual(255);
+  expect(transparent?.page.data[leftAlpha]).toEqual(255);
+  expect(transparent?.page.data[rightAlpha]).toEqual(0);
 });
 
 test('getPdfPageCount', async () => {

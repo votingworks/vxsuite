@@ -1,0 +1,20 @@
+[package]
+edition = "2024"
+name = "vx-image-utils"
+version = "0.0.0"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+hayro.workspace = true
+napi.workspace = true
+napi-derive.workspace = true
+rayon.workspace = true
+vello_cpu.workspace = true
+
+[build-dependencies]
+napi-build.workspace = true
+
+[lints]
+workspace = true

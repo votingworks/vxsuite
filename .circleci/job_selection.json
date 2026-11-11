@@ -72,6 +72,7 @@
   "rustPattern": "(\\.rs|(^|/)Cargo\\.(toml|lock)|(^|/)rust-toolchain(\\.toml)?)$",
   "rootCargoPackages": [
     "@votingworks/fs",
+    "@votingworks/image-utils",
     "@votingworks/logging-utils"
   ],
   "passedJob": "ci-passed"

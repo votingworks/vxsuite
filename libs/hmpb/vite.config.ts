@@ -19,11 +19,6 @@ export default defineConfig(async (env) => {
       // ...processEnvDefines,
     },
 
-    // `pdfToImages` loads the native canvas addon lazily; keep the bundler
-    // from trying to load it for the browser.
-    optimizeDeps: { exclude: ['@napi-rs/canvas'] },
-    build: { rollupOptions: { external: ['@napi-rs/canvas'] } },
-
     resolve: {
       alias: [
         // Replace NodeJS built-in modules with polyfills.
