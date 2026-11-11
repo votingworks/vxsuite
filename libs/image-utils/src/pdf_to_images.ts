@@ -17,6 +17,9 @@ export interface PdfToImagesOptions {
   background?: 'white' | 'transparent';
   color?: 'rgba' | 'gray';
 
+  /** Renders only the first `maxPages` pages; `pageCount` is unaffected. */
+  maxPages?: number;
+
   /** @default 1 */
   scale?: number;
 }
@@ -62,15 +65,16 @@ export async function* pdfToImages(
   pdfBytes: Uint8Array,
   opts: PdfToImagesOptions = {}
 ): AsyncIterable<PdfPage<RgbaImageData | GrayImageData>> {
-  const { background = 'white', color, scale = 1 } = opts;
+  const { background = 'white', color, maxPages = Infinity, scale = 1 } = opts;
   const napi = await loadNapi();
   const pageCount = (await napi.getPdfPageSizes(pdfBytes)).length;
+  const renderCount = Math.min(pageCount, maxPages);
   const batchSize = navigator.hardwareConcurrency;
 
-  for (let start = 0; start < pageCount; start += batchSize) {
+  for (let start = 0; start < renderCount; start += batchSize) {
     const images = await napi.renderPdfPages(
       pdfBytes,
-      range(start, Math.min(start + batchSize, pageCount)),
+      range(start, Math.min(start + batchSize, renderCount)),
       scale,
       background === 'transparent',
       color === 'gray' ? 'gray' : 'rgba'

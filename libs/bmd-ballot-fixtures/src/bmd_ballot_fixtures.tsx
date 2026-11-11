@@ -145,7 +145,7 @@ export async function writeFirstBallotPageToImageFile(
   pdfData: Uint8Array
 ): Promise<string> {
   const first = assertDefined(
-    await iter(pdfToImages(pdfData, { scale: 200 / 72 })).first()
+    await iter(pdfToImages(pdfData, { scale: 200 / 72, maxPages: 1 })).first()
   );
   const file = tmp.fileSync({ postfix: '.png' });
   await writeImageData(file.name, first.page);

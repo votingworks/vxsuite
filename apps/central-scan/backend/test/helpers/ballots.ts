@@ -22,7 +22,7 @@ async function generateSheetFromPdf(
   pdfData: Uint8Array
 ): Promise<SheetOf<string>> {
   return asSheet(
-    await iter(pdfToImages(pdfData, { scale: 200 / 72 }))
+    await iter(pdfToImages(pdfData, { scale: 200 / 72, maxPages: 2 }))
       .take(2)
       .map(async ({ page }) => {
         const path = tmpNameSync({

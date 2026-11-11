@@ -40,7 +40,9 @@ rendererTest('watermark', async ({ renderer }) => {
       }
     )
   ).unsafeUnwrap();
-  const firstPage = await iter(pdfToImages(pdf, { scale: 200 / 72 })).first();
+  const firstPage = await iter(
+    pdfToImages(pdf, { scale: 200 / 72, maxPages: 1 })
+  ).first();
   expect(
     await encodeImageData(firstPage!.page, 'image/png')
   ).toMatchImageSnapshot();

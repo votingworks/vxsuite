@@ -43,7 +43,7 @@ test('scanBatch with streaked page', async () => {
           Uint8Array.from(
             await readFile(vxFamousNamesFixtures.markedBallotPath)
           ),
-          { scale: 200 / 72 }
+          { scale: 200 / 72, maxPages: 2 }
         )
       )
         .take(2)

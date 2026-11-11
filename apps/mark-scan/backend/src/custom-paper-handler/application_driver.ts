@@ -48,7 +48,7 @@ export async function printBallotChunks(
   debug('+printBallotChunks');
   const enablePrintPromise = driver.enablePrint();
   const pageInfo = await iter(
-    pdfToImages(pdfData, { scale: PRINT_DPI / SCAN_DPI })
+    pdfToImages(pdfData, { scale: PRINT_DPI / SCAN_DPI, maxPages: 1 })
   ).first();
   // A PDF must have at least 1 page but iter doesn't know this.
   // `pdfData` of length 0 will fail in `pdfToImages`.

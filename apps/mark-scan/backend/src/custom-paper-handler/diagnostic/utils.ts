@@ -46,7 +46,7 @@ export async function getDiagnosticMockBallotImagePath(): Promise<string> {
   const pdfData = await renderDiagnosticMockBallot(electionDefinition);
 
   const first = assertDefined(
-    await iter(pdfToImages(pdfData, { scale: 200 / 72 })).first()
+    await iter(pdfToImages(pdfData, { scale: 200 / 72, maxPages: 1 })).first()
   );
   assert(first.pageCount === 1);
   const file = tmp.fileSync({ postfix: '.jpg' });

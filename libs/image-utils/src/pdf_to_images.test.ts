@@ -82,6 +82,18 @@ test('renders visible content, not blank pages', async () => {
   expect(darkPixelCount).toBeGreaterThan(1000);
 });
 
+test('maxPages limits the pages rendered', async () => {
+  const pages = await iter(
+    pdfToImages(await readMsBallotPdf(), { maxPages: 2 })
+  ).toArray();
+  expect(
+    pages.map(({ pageNumber, pageCount }) => [pageNumber, pageCount])
+  ).toEqual([
+    [1, 6],
+    [2, 6],
+  ]);
+});
+
 test('getPdfPageSizes', async () => {
   expect(await getPdfPageSizes(await readMsBallotPdf())).toEqual(
     Array.from({ length: 6 }, () => ({ width: 612, height: 792 }))
