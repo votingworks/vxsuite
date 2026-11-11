@@ -65,8 +65,6 @@ vi.mock(import('@votingworks/utils'), async (importActual) => ({
   isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
 }));
 
-vi.mock('./ballot_style_reports.js');
-
 // Spy on the ballot rendering function so we can check that it's called with the
 // right arguments.
 vi.mock(import('@votingworks/hmpb'), async (importActual) => {
