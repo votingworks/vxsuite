@@ -4,7 +4,7 @@ import { lstat, mkdir, mkdtemp, rename, rm } from 'node:fs/promises';
 import { dirname, isAbsolute, join, matchesGlob, normalize } from 'node:path';
 import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
-import { createReadStream, lstatSync } from 'node:fs';
+import { lstatSync } from 'node:fs';
 import type { ExportDataError as BaseExportDataError } from '@votingworks/types';
 import { openRegularFileForWriting } from '@votingworks/fs';
 import type { MountedUsbDriveStatus, UsbDrive } from '@votingworks/usb-drive';
@@ -164,11 +164,6 @@ export class Exporter {
    * Once the promise returned by this function resolves, the data has been
    * successfully written to the USB drive and it may be safely unmounted.
    *
-   * If `machineDirectoryToWriteToFirst` is provided, data will be written to
-   * that directory first and then copied from there to the USB drive. The data
-   * written to `machineDirectoryToWriteToFirst` will be left intact for other
-   * code to use, e.g. for signature file creation.
-   *
    * If `size` is provided, the export fails before writing anything to the USB
    * drive when the drive's file system cannot hold a file that large or the
    * drive lacks the space for it.
@@ -179,25 +174,8 @@ export class Exporter {
     bucket: string,
     name: string,
     data: ExportableData,
-    {
-      machineDirectoryToWriteToFirst,
-      size,
-    }: {
-      machineDirectoryToWriteToFirst?: string;
-      size?: number;
-    } = {}
+    { size }: { size?: number } = {}
   ): Promise<ExportDataResult> {
-    const machineFilePath =
-      machineDirectoryToWriteToFirst &&
-      join(machineDirectoryToWriteToFirst, name);
-    if (machineFilePath) {
-      const result = await this.exportData(machineFilePath, data);
-      // @coverage-defer
-      if (result.isErr()) {
-        return result;
-      }
-    }
-
     const usbDriveStatus = await this.usbDrive.status();
 
     if (usbDriveStatus.status !== 'mounted') {
@@ -218,7 +196,7 @@ export class Exporter {
 
     const result = await this.exportData(
       join(usbDriveStatus.mountpoint, bucket, name),
-      machineFilePath ? createReadStream(machineFilePath) : data
+      data
     );
 
     // Exporting a file might take a while. Ensure the data is flushed to the USB

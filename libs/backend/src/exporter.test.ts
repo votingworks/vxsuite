@@ -493,25 +493,3 @@ test.each([
     expect(existsSync(join(tmpDir, 'bucket'))).toEqual(false);
   }
 );
-
-test('exportDataToUsbDrive with machineDirectoryToWriteToFirst', async () => {
-  const tmpDir = makeTemporaryDirectory();
-  usbDrive.status.expectCallWith().resolves({
-    status: 'mounted',
-    fstype: 'exfat',
-    mountpoint: UsbPartitionMountpointSchema.decode(tmpDir),
-  });
-  usbDrive.sync.expectCallWith().resolves();
-
-  const result = await exporter.exportDataToUsbDrive(
-    'bucket',
-    'test.txt',
-    Readable.from('1234'),
-    { machineDirectoryToWriteToFirst: '/tmp/abcd' }
-  );
-  const usbFilePath = join(tmpDir, 'bucket/test.txt');
-  const machineFilePath = '/tmp/abcd/test.txt';
-  expect(result).toEqual(ok([usbFilePath]));
-  expect(await readFile(usbFilePath, 'utf-8')).toEqual('1234');
-  expect(await readFile(machineFilePath, 'utf-8')).toEqual('1234');
-});
