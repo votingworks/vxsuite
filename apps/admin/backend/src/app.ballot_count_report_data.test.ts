@@ -20,6 +20,7 @@ import {
 } from '../test/app.js';
 import { addMockCvrFileToStore } from '../test/mock_cvr_file.js';
 import { seedCombinedBallotPrimaryCvrsAndAdjudications } from '../test/combined_ballot_primary_fixture.js';
+import { getCardCounts } from './reports/report_data.js';
 
 vi.setConfig({
   testTimeout: 60_000,
@@ -53,7 +54,7 @@ test('card counts', async () => {
   const { castVoteRecordExport } = electionTwoPartyPrimaryFixtures;
   const { election } = electionDefinition;
 
-  const { apiClient, auth } = buildTestEnvironment();
+  const { apiClient, auth, workspace } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
@@ -74,7 +75,7 @@ test('card counts', async () => {
   });
 
   expect(
-    await apiClient.getCardCounts({
+    getCardCounts(workspace.store, {
       filter: { ballotStyleGroupIds: ['1M'] as BallotStyleGroupId[] },
       groupBy: {},
     })
@@ -87,7 +88,7 @@ test('card counts', async () => {
   ]);
 
   expect(
-    await apiClient.getCardCounts({
+    getCardCounts(workspace.store, {
       filter: {},
       groupBy: { groupByPrecinct: true },
     })
@@ -107,7 +108,7 @@ test('card counts', async () => {
   ]);
 
   expect(
-    await apiClient.getCardCounts({
+    getCardCounts(workspace.store, {
       filter: { ballotStyleGroupIds: ['1M'] as BallotStyleGroupId[] },
       groupBy: { groupByPrecinct: true },
     })
@@ -155,14 +156,14 @@ test('combined ballot primary: card counts with party inferred from votes', asyn
   });
 
   // Overall count, no grouping
-  expect(await apiClient.getCardCounts({ filter: {}, groupBy: {} })).toEqual([
+  expect(getCardCounts(workspace.store, { filter: {}, groupBy: {} })).toEqual([
     { bmd: [2], hmpb: [7, 1], manual: 0 },
   ]);
 
   // Group by party only — collapses unassigned ballots into a single
   // NO_PARTY_ID row (rendered as "No Party").
   expect(
-    await apiClient.getCardCounts({
+    getCardCounts(workspace.store, {
       filter: {},
       groupBy: { groupByParty: true },
     })
@@ -197,7 +198,7 @@ test('combined ballot primary: card counts with party inferred from votes', asyn
   // screen's groupBy. All ballots are in precinct-1; precinct-2 gets zero-count
   // rows for each party.
   expect(
-    await apiClient.getCardCounts({
+    getCardCounts(workspace.store, {
       filter: {},
       groupBy: { groupByPrecinct: true, groupByParty: true },
     })
@@ -264,7 +265,7 @@ test('combined ballot primary: card counts with party inferred from votes', asyn
   // Ballot Count Report screen's groupBy. All ballots are 'precinct';
   // 'absentee' rows are zero.
   expect(
-    await apiClient.getCardCounts({
+    getCardCounts(workspace.store, {
       filter: {},
       groupBy: { groupByVotingMethod: true, groupByParty: true },
     })
@@ -330,7 +331,7 @@ test('combined ballot primary: card counts with party inferred from votes', asyn
   // Non-party groupings still aggregate every ballot regardless of party.
   // ballot-style-2 exists in the election but has no CVRs in this fixture.
   expect(
-    await apiClient.getCardCounts({
+    getCardCounts(workspace.store, {
       filter: {},
       groupBy: { groupByBallotStyle: true },
     })
@@ -354,7 +355,7 @@ test('combined ballot primary: card counts with party inferred from votes', asyn
   // combination). All CVRs are on ballot-style-1; ballot-style-2 gets
   // zero-count rows for each party.
   expect(
-    await apiClient.getCardCounts({
+    getCardCounts(workspace.store, {
       filter: {},
       groupBy: { groupByBallotStyle: true, groupByParty: true },
     })
@@ -421,7 +422,7 @@ test('combined ballot primary: card counts with party inferred from votes', asyn
   // primary reroute. All ballots are in batch-1 / scanner-1, so each party row
   // collapses to a single (party, batch, scanner) bucket.
   expect(
-    await apiClient.getCardCounts({
+    getCardCounts(workspace.store, {
       filter: {},
       groupBy: {
         groupByParty: true,
@@ -492,14 +493,14 @@ test('combined ballot primary: card counts with partyIds filter', async () => {
   // + 1 BMD. Crossover ballots and the flipped-to-no-party ballot
   // are excluded.
   expect(
-    await apiClient.getCardCounts({
+    getCardCounts(workspace.store, {
       filter: { partyIds: ['democratic-party'] },
       groupBy: {},
     })
   ).toEqual([{ bmd: [1], hmpb: [3], manual: 0 }]);
 
   expect(
-    await apiClient.getCardCounts({
+    getCardCounts(workspace.store, {
       filter: { partyIds: ['republican-party'] },
       groupBy: {},
     })
@@ -507,7 +508,7 @@ test('combined ballot primary: card counts with partyIds filter', async () => {
 
   // Multi-party filter — union of matching ballots.
   expect(
-    await apiClient.getCardCounts({
+    getCardCounts(workspace.store, {
       filter: { partyIds: ['democratic-party', 'libertarian-party'] },
       groupBy: {},
     })
@@ -516,7 +517,7 @@ test('combined ballot primary: card counts with partyIds filter', async () => {
   // Combined with groupByPrecinct — only precinct-1 has matching ballots;
   // precinct-2 has zero.
   expect(
-    await apiClient.getCardCounts({
+    getCardCounts(workspace.store, {
       filter: { partyIds: ['democratic-party'] },
       groupBy: { groupByPrecinct: true },
     })
@@ -538,7 +539,7 @@ test('combined ballot primary: card counts with partyIds filter', async () => {
   // Combined with groupByParty — the group expansion should only include the
   // filtered party, not the full set.
   expect(
-    await apiClient.getCardCounts({
+    getCardCounts(workspace.store, {
       filter: { partyIds: ['democratic-party'] },
       groupBy: { groupByParty: true },
     })
@@ -555,7 +556,7 @@ test('combined ballot primary: card counts with partyIds filter', async () => {
   // adjudication, these are: 1 unresolved crossover (HMPB sheet 1) +
   // 1 flipped-Dem (HMPB sheet 1) + 1 nonpartisan-only (HMPB sheet 2).
   expect(
-    await apiClient.getCardCounts({
+    getCardCounts(workspace.store, {
       filter: { partyIds: [Tabulation.NO_PARTY_ID] },
       groupBy: {},
     })
@@ -563,7 +564,7 @@ test('combined ballot primary: card counts with partyIds filter', async () => {
 
   // Real party + "No Party" — union of Dem (4) + No Party (3)
   expect(
-    await apiClient.getCardCounts({
+    getCardCounts(workspace.store, {
       filter: { partyIds: ['democratic-party', Tabulation.NO_PARTY_ID] },
       groupBy: {},
     })
@@ -572,7 +573,7 @@ test('combined ballot primary: card counts with partyIds filter', async () => {
   // "No Party" filter combined with groupByParty — only the "No Party" group
   // appears.
   expect(
-    await apiClient.getCardCounts({
+    getCardCounts(workspace.store, {
       filter: { partyIds: [Tabulation.NO_PARTY_ID] },
       groupBy: { groupByParty: true },
     })
@@ -588,7 +589,7 @@ test('combined ballot primary: card counts with partyIds filter', async () => {
   // Real party + "No Party" with groupByParty — both groups appear, real
   // parties not in the filter are omitted.
   expect(
-    await apiClient.getCardCounts({
+    getCardCounts(workspace.store, {
       filter: { partyIds: ['democratic-party', Tabulation.NO_PARTY_ID] },
       groupBy: { groupByParty: true },
     })
@@ -658,7 +659,7 @@ test('withheld unadjudicated central scan ballots still appear in ballot counts'
 
   // ballot count reports include the withheld ballots
   expect(
-    await apiClient.getCardCounts({
+    getCardCounts(workspace.store, {
       filter: {},
       groupBy: { groupByBatch: true },
     })
@@ -693,13 +694,13 @@ test('withheld unadjudicated central scan ballots still appear in ballot counts'
   // the reporting status filter separates counted from withheld ballots,
   // and only counted ballots include manual tallies
   expect(
-    await apiClient.getCardCounts({
+    getCardCounts(workspace.store, {
       filter: { reportingStatus: 'counted' },
       groupBy: {},
     })
   ).toEqual([{ bmd: [2], hmpb: [], manual: 10 }]);
   expect(
-    await apiClient.getCardCounts({
+    getCardCounts(workspace.store, {
       filter: { reportingStatus: 'notCounted' },
       groupBy: {},
     })
@@ -708,7 +709,7 @@ test('withheld unadjudicated central scan ballots still appear in ballot counts'
   // grouping by reporting status shows both rows, which sum to the ballots
   // read, with manual tallies under counted
   expect(
-    await apiClient.getCardCounts({
+    getCardCounts(workspace.store, {
       filter: {},
       groupBy: { groupByReportingStatus: true },
     })
@@ -751,13 +752,13 @@ test('reporting status filter when withholding is disabled', async () => {
 
   // every ballot is counted, none are withheld
   expect(
-    await apiClient.getCardCounts({
+    getCardCounts(workspace.store, {
       filter: { reportingStatus: 'counted' },
       groupBy: {},
     })
   ).toEqual([{ bmd: [3], hmpb: [], manual: 0 }]);
   expect(
-    await apiClient.getCardCounts({
+    getCardCounts(workspace.store, {
       filter: { reportingStatus: 'notCounted' },
       groupBy: {},
     })
@@ -765,7 +766,7 @@ test('reporting status filter when withholding is disabled', async () => {
 
   // both rows still appear, with nothing withheld
   expect(
-    await apiClient.getCardCounts({
+    getCardCounts(workspace.store, {
       filter: {},
       groupBy: { groupByReportingStatus: true },
     })
@@ -794,7 +795,7 @@ test('combined ballot primary: card counts grouped by party and reporting status
   // With withholding disabled every ballot is counted, and each party still
   // gets a not counted row
   expect(
-    await apiClient.getCardCounts({
+    getCardCounts(workspace.store, {
       filter: {},
       groupBy: { groupByParty: true, groupByReportingStatus: true },
     })
@@ -859,7 +860,7 @@ test('combined ballot primary: card counts grouped by party and reporting status
 
   // Filtering to one status while grouping by status keeps only its rows
   expect(
-    await apiClient.getCardCounts({
+    getCardCounts(workspace.store, {
       filter: { reportingStatus: 'counted' },
       groupBy: { groupByParty: true, groupByReportingStatus: true },
     })

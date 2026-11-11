@@ -23,6 +23,7 @@ import { mockFileName } from '../test/csv.js';
 import { seedCombinedBallotPrimaryWriteIns } from '../test/combined_ballot_primary_fixture.js';
 import { generateReportPath } from './util/filenames.js';
 import type { AdjudicatedContestOption } from './types.js';
+import { getElectionWriteInSummary } from './reports/report_data.js';
 
 vi.setConfig({
   testTimeout: 60_000,
@@ -350,7 +351,7 @@ test('combined ballot primary: crossover ballots write-ins on partisan contests 
       store: workspace.store,
     });
 
-  const summary = await apiClient.getElectionWriteInSummary();
+  const summary = getElectionWriteInSummary(workspace.store);
 
   // Dem-only voter's write-in on governor-democratic counts.
   expect(

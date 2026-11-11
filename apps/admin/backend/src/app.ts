@@ -118,10 +118,7 @@ import {
 import { addFileToZipStream } from './util/zip.js';
 
 import { generateTallyReportCsv } from './exports/csv_tally_report.js';
-import { tabulateFullCardCounts } from './tabulation/card_counts.js';
-import { getOverallElectionWriteInSummary } from './tabulation/write_ins.js';
 import { rootDebug } from './util/debug.js';
-import { tabulateTallyReportResults } from './tabulation/tally_reports.js';
 import { buildExporter } from './util/exporter.js';
 import {
   getCastVoteRecordsPath,
@@ -131,7 +128,12 @@ import {
 } from './cast_vote_records.js';
 import { generateBallotCountReportCsv } from './exports/csv_ballot_count_report.js';
 import { adjudicateCvr } from './adjudication.js';
-import { convertFrontendFilter as convertFrontendFilterUtil } from './util/filters.js';
+import {
+  convertFrontendFilter,
+  getCardCounts,
+  getElectionWriteInSummary,
+  getTallyReportResults,
+} from './reports/report_data.js';
 import { buildElectionResultsReport } from './util/cdf_results.js';
 import { tabulateElectionResults } from './tabulation/full_results.js';
 import {
@@ -248,58 +250,6 @@ function buildApi({
     nextUsbDriveChange.resolve();
     nextUsbDriveChange = deferred<void>();
   });
-
-  function convertFrontendFilter(
-    filter: Admin.FrontendReportingFilter
-  ): Optional<Admin.ReportingFilter> {
-    const electionId = loadCurrentElectionIdOrThrow(workspace);
-    const {
-      electionDefinition: { election },
-    } = assertDefined(store.getElection(electionId));
-    return convertFrontendFilterUtil(
-      filter,
-      election,
-      store.getScannerBatches(electionId)
-    );
-  }
-
-  async function getTallyReportResults(
-    input: Pick<TallyReportSpec, 'filter' | 'groupBy'>
-  ): Promise<Tabulation.GroupList<Admin.TallyReportResults>> {
-    const electionId = loadCurrentElectionIdOrThrow(workspace);
-    return tabulateTallyReportResults({
-      electionId,
-      store,
-      filter: convertFrontendFilter(input.filter),
-      groupBy: input.groupBy,
-    });
-  }
-
-  function getCardCounts(
-    input: Pick<BallotCountReportSpec, 'filter' | 'groupBy'>
-  ): Tabulation.GroupList<Tabulation.CardCounts> {
-    const electionId = loadCurrentElectionIdOrThrow(workspace);
-    const {
-      electionDefinition: { election },
-    } = assertDefined(store.getElection(electionId));
-    return groupMapToGroupList(
-      tabulateFullCardCounts({
-        electionId,
-        election,
-        store,
-        filter: convertFrontendFilter(input.filter),
-        groupBy: input.groupBy,
-      })
-    );
-  }
-
-  function getElectionWriteInSummary(): Tabulation.ElectionWriteInSummary {
-    const electionId = loadCurrentElectionIdOrThrow(workspace);
-    return getOverallElectionWriteInSummary({
-      electionId,
-      store,
-    });
-  }
 
   const electionDefinitionMethods = createElectionDefinitionApiMethods({
     workspace,
@@ -1275,21 +1225,12 @@ function buildApi({
       return store.getScannerBatches(loadCurrentElectionIdOrThrow(workspace));
     },
 
-    async getResultsForTallyReports(
-      input: Pick<TallyReportSpec, 'filter' | 'groupBy'> = {
-        filter: {},
-        groupBy: {},
-      }
-    ): Promise<Tabulation.GroupList<Admin.TallyReportResults>> {
-      return getTallyReportResults(input);
-    },
-
     async getTallyReportPreview(
       input: TallyReportSpec
     ): Promise<TallyReportPreview> {
       return generateTallyReportPreview({
         store,
-        allTallyReportResults: await getTallyReportResults(input),
+        allTallyReportResults: await getTallyReportResults(store, input),
         ...input,
         logger,
       });
@@ -1298,7 +1239,7 @@ function buildApi({
     async printTallyReport(input: TallyReportSpec): Promise<void> {
       return printTallyReport({
         store,
-        allTallyReportResults: await getTallyReportResults(input),
+        allTallyReportResults: await getTallyReportResults(store, input),
         ...input,
         logger,
         printer,
@@ -1310,7 +1251,7 @@ function buildApi({
     ): Promise<ExportDataResult> {
       return await exportTallyReportPdf({
         store,
-        allTallyReportResults: await getTallyReportResults(input),
+        allTallyReportResults: await getTallyReportResults(store, input),
         usbDrive: usbDriveAdapter,
         logger,
         ...input,
@@ -1343,7 +1284,7 @@ function buildApi({
         input.filename,
         generateTallyReportCsv({
           store,
-          filter: convertFrontendFilter(input.filter),
+          filter: convertFrontendFilter(store, input.filter),
           groupBy: input.groupBy,
           filename: input.filename,
         })
@@ -1419,14 +1360,8 @@ function buildApi({
       return exportFileResult;
     },
 
-    getCardCounts(
-      input: Pick<BallotCountReportSpec, 'filter' | 'groupBy'>
-    ): Array<Tabulation.GroupOf<Tabulation.CardCounts>> {
-      return getCardCounts(input);
-    },
-
     getTotalBallotCount(): number {
-      const [cardCounts] = getCardCounts({
+      const [cardCounts] = getCardCounts(store, {
         filter: {},
         groupBy: {},
       });
@@ -1439,7 +1374,7 @@ function buildApi({
     ): Promise<BallotCountReportPreview> {
       return generateBallotCountReportPreview({
         store,
-        allCardCounts: getCardCounts(input),
+        allCardCounts: getCardCounts(store, input),
         ...input,
         logger,
       });
@@ -1448,7 +1383,7 @@ function buildApi({
     async printBallotCountReport(input: BallotCountReportSpec): Promise<void> {
       return printBallotCountReport({
         store,
-        allCardCounts: getCardCounts(input),
+        allCardCounts: getCardCounts(store, input),
         ...input,
         logger,
         printer,
@@ -1460,7 +1395,7 @@ function buildApi({
     ): Promise<ExportDataResult> {
       return exportBallotCountReportPdf({
         store,
-        allCardCounts: getCardCounts(input),
+        allCardCounts: getCardCounts(store, input),
         usbDrive: usbDriveAdapter,
         logger,
         ...input,
@@ -1484,7 +1419,7 @@ function buildApi({
         input.filename,
         generateBallotCountReportCsv({
           store,
-          filter: convertFrontendFilter(input.filter),
+          filter: convertFrontendFilter(store, input.filter),
           groupBy: input.groupBy,
           includeSheetCounts: input.includeSheetCounts,
           filename: input.filename,
@@ -1503,14 +1438,10 @@ function buildApi({
       return exportFileResult;
     },
 
-    getElectionWriteInSummary(): Tabulation.ElectionWriteInSummary {
-      return getElectionWriteInSummary();
-    },
-
     async getWriteInAdjudicationReportPreview(): Promise<WriteInAdjudicationReportPreview> {
       return generateWriteInAdjudicationReportPreview({
         store,
-        electionWriteInSummary: getElectionWriteInSummary(),
+        electionWriteInSummary: getElectionWriteInSummary(store),
         logger,
       });
     },
@@ -1518,7 +1449,7 @@ function buildApi({
     async printWriteInAdjudicationReport(): Promise<void> {
       return printWriteInAdjudicationReport({
         store,
-        electionWriteInSummary: getElectionWriteInSummary(),
+        electionWriteInSummary: getElectionWriteInSummary(store),
         logger,
         printer,
       });
@@ -1529,7 +1460,7 @@ function buildApi({
     }): Promise<ExportDataResult> {
       return exportWriteInAdjudicationReportPdf({
         store,
-        electionWriteInSummary: getElectionWriteInSummary(),
+        electionWriteInSummary: getElectionWriteInSummary(store),
         usbDrive: usbDriveAdapter,
         logger,
         filename: input.filename,
@@ -1573,7 +1504,7 @@ function buildApi({
     async getVoterTurnoutReportPreview(): Promise<VoterTurnoutReportPreview> {
       return generateVoterTurnoutReportPreview({
         store,
-        cardCountsList: getCardCounts({
+        cardCountsList: getCardCounts(store, {
           filter: {},
           groupBy: { groupByPrecinct: true },
         }),
@@ -1584,7 +1515,7 @@ function buildApi({
     async printVoterTurnoutReport(): Promise<void> {
       return printVoterTurnoutReport({
         store,
-        cardCountsList: getCardCounts({
+        cardCountsList: getCardCounts(store, {
           filter: {},
           groupBy: { groupByPrecinct: true },
         }),
@@ -1598,7 +1529,7 @@ function buildApi({
     }): Promise<ExportDataResult> {
       return exportVoterTurnoutReportPdf({
         store,
-        cardCountsList: getCardCounts({
+        cardCountsList: getCardCounts(store, {
           filter: {},
           groupBy: { groupByPrecinct: true },
         }),
