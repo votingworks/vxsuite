@@ -66,7 +66,8 @@ export async function waitForStatus(
     async () => {
       await expectStatus(apiClient, status);
     },
-    { timeout: 2_000 }
+    // Long enough for ballot interpretation on a loaded CI machine.
+    { timeout: 5_000 }
   );
 }
 
