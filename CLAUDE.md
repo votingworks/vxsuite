@@ -157,12 +157,12 @@ compiler, installed via the `@typescript/native` alias (`npm:typescript@7.0.2`):
 # Type-check everything (from repo root)
 pnpm type-check
 
-# Type-check a specific package
-pnpm --filter @votingworks/<package-name> run type-check
-
-# Build (includes type checking) a package and its dependencies
-pnpm --filter @votingworks/<package-name> build
+# Type-check a specific package, tests included (lint runs type-check:self)
+pnpm --filter @votingworks/<package-name> lint
 ```
+
+A package's `type-check:self` doesn't build its dependencies, and `build` skips
+tests (`tsconfig.build.json` excludes them), so use `lint` instead.
 
 TypeScript 7 does not ship the classic JavaScript compiler API. The `typescript`
 package is therefore aliased to `@typescript/typescript6`, which provides that
@@ -203,16 +203,16 @@ Task orchestration and caching are handled by [Turborepo](https://turborepo.com)
 
 Tasks and their wiring (`turbo.json`):
 
-| Task            | Depends on    | Cached outputs                                     |
-| --------------- | ------------- | -------------------------------------------------- |
-| `build:self`    | `^build:self` | `build/**`, `*.node`                               |
-| `type-check`    | `^build:self` | `tsconfig.tsbuildinfo`                             |
-| `lint:self`     | `^build:self` | (logs only)                                        |
-| `test:run:self` | `build:self`  | `reports/**` (junit)                               |
-| `test:ci:self`  | `build:self`  | `reports/**`; hub's Postgres/migration CI steps    |
-| `clean:self`    | —             | not cached                                         |
-| `dev:server`    | `^build:self` | not cached (persistent; frontend Vite dev server)  |
-| `dev`           | `build:self`  | not cached (persistent + interruptible; a backend) |
+| Task              | Depends on    | Cached outputs                                     |
+| ----------------- | ------------- | -------------------------------------------------- |
+| `build:self`      | `^build:self` | `build/**`, `*.node`                               |
+| `type-check:self` | `^build:self` | `tsconfig.tsbuildinfo`                             |
+| `lint:self`       | `^build:self` | (logs only)                                        |
+| `test:run:self`   | `build:self`  | `reports/**` (junit)                               |
+| `test:ci:self`    | `build:self`  | `reports/**`; hub's Postgres/migration CI steps    |
+| `clean:self`      | —             | not cached                                         |
+| `dev:server`      | `^build:self` | not cached (persistent; frontend Vite dev server)  |
+| `dev`             | `build:self`  | not cached (persistent + interruptible; a backend) |
 
 Run any task directly with `turbo run <task> [--filter=<pkg>]`. Root scripts
 (`pnpm build`, `pnpm lint`, `pnpm test`, `pnpm type-check`, `pnpm clean`) wrap
@@ -241,6 +241,13 @@ Each package's `build:self` writes its incremental `tsc` build-info to
 `validate-monorepo`), so it's captured by the `build/**` output and removed
 atomically by `rm -rf build`. Keeping it there avoids a stale build-info making
 `tsc` skip re-emitting after `build/` is deleted.
+
+`build:self` and `type-check:self` run `tsc -p`, never `tsc --build`. Turbo
+already orders dependency builds, and `--build`'s up-to-date check compares only
+mtimes: Turbo restores cached outputs with fresh mtimes, so on a later cache
+miss `--build` can decide a package is current, emit nothing, and let Turbo
+cache the stale outputs under the new hash. `-p` compares file contents recorded
+in the build-info instead.
 
 **Cross-worktree cache:** Turbo automatically shares its local cache across git
 worktrees of this repo (stored under the shared `.git` directory), so artifacts

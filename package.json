@@ -16,7 +16,7 @@
     "prepare": "husky install",
     "shellcheck": "script/shellcheck",
     "test": "VX_TEST_WORKERS=2 turbo run test:run:self --concurrency=50%",
-    "type-check": "turbo run type-check",
+    "type-check": "turbo run type-check:self",
     "update-snapshots": "script/update-snapshots",
     "vx-dev": "script/vx-dev",
     "vx-task": "script/vx-task"

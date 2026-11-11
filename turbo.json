@@ -20,7 +20,7 @@
       "env": ["REACT_APP_*"],
       "outputs": ["build/**", "*.node"]
     },
-    "type-check": {
+    "type-check:self": {
       "dependsOn": ["^build:self"],
       "outputs": ["tsconfig.tsbuildinfo"]
     },

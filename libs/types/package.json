@@ -17,7 +17,7 @@
   ],
   "scripts": {
     "build": "pnpm -w vx-task build $npm_package_name",
-    "build:self": "tsc --build tsconfig.build.json",
+    "build:self": "tsc -p tsconfig.build.json",
     "cdf:ballot-definition:build-schema": "cdf-schema-builder data/cdf/ballot-definition/nist-schema.xsd src/cdf/ballot-definition/vx-schema.json > src/cdf/ballot-definition/index.ts",
     "cdf:cvr:build-schema": "cdf-schema-builder data/cdf/cast-vote-records/nist-schema.xsd src/cdf/cast-vote-records/vx-schema.json > src/cdf/cast-vote-records/index.ts",
     "cdf:err:build-schema": "cdf-schema-builder data/cdf/election-results-reporting/nist-schema.xsd data/cdf/election-results-reporting/nist-schema.json > src/cdf/election-results-reporting/index.ts",
@@ -25,12 +25,12 @@
     "clean": "pnpm -w vx-task clean $npm_package_name",
     "clean:self": "rm -rf build",
     "lint": "pnpm -w vx-task lint $npm_package_name",
-    "lint:fix": "pnpm type-check && eslint --cache . --fix",
-    "lint:self": "pnpm type-check && eslint --cache .",
+    "lint:fix": "pnpm -w vx-task deps $npm_package_name && pnpm type-check:self && eslint --cache . --fix",
+    "lint:self": "pnpm type-check:self && eslint --cache .",
     "test": "pnpm -w vx-task build $npm_package_name && vitest",
     "test:run": "pnpm -w vx-task test:run $npm_package_name",
     "test:run:self": "vitest run",
-    "type-check": "tsc --build"
+    "type-check:self": "tsc -p tsconfig.json"
   },
   "dependencies": {
     "@noble/hashes": "^1.8.0",

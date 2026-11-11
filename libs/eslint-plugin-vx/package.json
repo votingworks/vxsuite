@@ -17,17 +17,17 @@
   ],
   "scripts": {
     "build": "pnpm -w vx-task build $npm_package_name",
-    "build:self": "tsc --build",
+    "build:self": "tsc -p tsconfig.json",
     "clean": "pnpm -w vx-task clean $npm_package_name",
     "clean:self": "rm -rf build",
     "lint": "pnpm -w vx-task lint $npm_package_name",
-    "lint:fix": "pnpm type-check && eslint --cache . --fix",
-    "lint:self": "pnpm type-check && eslint --cache .",
+    "lint:fix": "pnpm -w vx-task deps $npm_package_name && pnpm type-check:self && eslint --cache . --fix",
+    "lint:self": "pnpm type-check:self && eslint --cache .",
     "test": "pnpm -w vx-task build $npm_package_name && vitest",
     "test:run": "pnpm -w vx-task test:run $npm_package_name",
     "test:run:self": "vitest run",
-    "type-check": "tsc --build",
-    "type-check:watch": "tsc --build --watch"
+    "type-check:self": "tsc -p tsconfig.json",
+    "type-check:watch": "tsc -p tsconfig.json --watch"
   },
   "dependencies": {
     "@eslint/eslintrc": "^3.3.5",

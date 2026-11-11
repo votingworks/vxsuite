@@ -22,18 +22,18 @@
   },
   "scripts": {
     "build": "pnpm -w vx-task build $npm_package_name",
-    "build:self": "tsc --build tsconfig.build.json && cp -R ./src/printer/ipp_queries ./build/printer/",
+    "build:self": "tsc -p tsconfig.build.json && cp -R ./src/printer/ipp_queries ./build/printer/",
     "clean": "pnpm -w vx-task clean $npm_package_name",
     "clean:self": "rm -rf build",
     "generate-m404-ppd": "./scripts/generate-m404-ppd",
     "postinstall": "./scripts/install-playwright-deps",
     "lint": "pnpm -w vx-task lint $npm_package_name",
-    "lint:fix": "pnpm type-check && eslint --cache . --fix",
-    "lint:self": "pnpm type-check && eslint --cache .",
+    "lint:fix": "pnpm -w vx-task deps $npm_package_name && pnpm type-check:self && eslint --cache . --fix",
+    "lint:self": "pnpm type-check:self && eslint --cache .",
     "test": "pnpm -w vx-task build $npm_package_name && TZ=America/Anchorage vitest",
     "test:run": "pnpm -w vx-task test:run $npm_package_name",
     "test:run:self": "TZ=America/Anchorage vitest run",
-    "type-check": "tsc --build"
+    "type-check:self": "tsc -p tsconfig.json"
   },
   "dependencies": {
     "@votingworks/backend": "workspace:*",

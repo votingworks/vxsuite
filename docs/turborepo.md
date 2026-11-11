@@ -14,7 +14,7 @@ From the repo root, operating on all packages:
 
 ```sh
 pnpm build        # build everything (turbo run build:self)
-pnpm type-check   # type-check everything
+pnpm type-check   # type-check everything (turbo run type-check:self)
 pnpm lint         # lint everything
 pnpm test         # run all unit tests
 pnpm clean        # remove build outputs
