@@ -25,3 +25,8 @@ export interface DuplicatePartyError {
   code: DuplicatePartyErrorCode;
   partyId: PartyId;
 }
+
+export type DuplicateContestError =
+  | 'duplicate-contest'
+  | 'duplicate-candidate'
+  | 'duplicate-option';
