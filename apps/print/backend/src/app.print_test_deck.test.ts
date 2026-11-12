@@ -87,7 +87,7 @@ async function loadMsElectionFixture(paperSize: 'letter' | 'legal'): Promise<{
         );
 
   const electionDefinition = parseElectionDefinition(
-    await readFile(join(fixtureDir, 'election.json'), 'utf-8')
+    await readFile(join(fixtureDir, 'election.json'))
   );
   const blankBallotPdf = await readFile(join(fixtureDir, 'blank-ballot.pdf'));
   return { electionDefinition, blankBallotPdf };

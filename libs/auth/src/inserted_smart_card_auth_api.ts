@@ -1,4 +1,3 @@
-import type { Optional, Result } from '@votingworks/basics';
 import type {
   BallotStyleId,
   ElectionKey,
@@ -51,14 +50,6 @@ export interface InsertedSmartCardAuthApi {
   endCardlessVoterSession(
     machineState: InsertedSmartCardAuthMachineState
   ): void;
-
-  readCardData(
-    machineState: InsertedSmartCardAuthMachineState
-  ): Promise<Result<Optional<string>, Error>>;
-  writeCardData(input: { data: string }): Promise<Result<void, Error>>;
-  clearCardData(
-    machineState: InsertedSmartCardAuthMachineState
-  ): Promise<Result<void, Error>>;
 }
 
 /**

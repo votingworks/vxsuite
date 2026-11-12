@@ -1,3 +1,4 @@
+import { Buffer } from 'node:buffer';
 import { beforeEach, describe, expect, vi } from 'vitest';
 
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
@@ -64,7 +65,7 @@ describe('populates ballot meta store', () => {
       electionDefinition: {
         ballotHash: 'unused',
         election: splitElection.election,
-        electionData: JSON.stringify(splitElection.election),
+        electionData: Buffer.from(JSON.stringify(splitElection.election)),
       },
       systemSettings: {
         ...DEFAULT_SYSTEM_SETTINGS,

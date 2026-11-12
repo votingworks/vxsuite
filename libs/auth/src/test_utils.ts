@@ -43,9 +43,6 @@ export function buildMockInsertedSmartCardAuth(
     startCardlessVoterSession: fn(),
     updateCardlessVoterBallotStyle: fn(),
     endCardlessVoterSession: fn(),
-    readCardData: fn(),
-    writeCardData: fn(),
-    clearCardData: fn(),
   };
 }
 

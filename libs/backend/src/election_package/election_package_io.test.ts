@@ -29,6 +29,7 @@ import {
   mockSessionExpiresAt,
   zipFile,
   parseElectionDefinition,
+  asStoredElectionDefinition,
 } from '@votingworks/test-utils';
 import {
   electionTwoPartyPrimaryFixtures,
@@ -150,7 +151,7 @@ test('readElectionPackageFromFile reads an election package without system setti
     (await readElectionPackageFromFile(file)).unsafeUnwrap()
   ).toEqual<ParsedElectionPackageWithHash>({
     electionPackage: {
-      electionDefinition,
+      electionDefinition: asStoredElectionDefinition(electionDefinition),
       metadata: LATEST_METADATA,
       uiStringAudioIds: {},
       systemSettings: DEFAULT_SYSTEM_SETTINGS,
@@ -177,7 +178,7 @@ test('readElectionPackageFromFile reads an election package with system settings
     (await readElectionPackageFromFile(file)).unsafeUnwrap()
   ).toEqual<ParsedElectionPackageWithHash>({
     electionPackage: {
-      electionDefinition,
+      electionDefinition: asStoredElectionDefinition(electionDefinition),
       metadata: LATEST_METADATA,
       uiStringAudioIds: {},
       systemSettings: DEFAULT_SYSTEM_SETTINGS,
@@ -225,7 +226,7 @@ test('read from file - SystemSettings.splitElectionDefinition = true', async () 
   expect(res).toEqual<Result<ParsedElectionPackageWithHash, unknown>>(
     ok({
       electionPackage: {
-        electionDefinition,
+        electionDefinition: asStoredElectionDefinition(electionDefinition),
         metadata: LATEST_METADATA,
         uiStringAudioIds: {},
         systemSettings: settings,
@@ -302,7 +303,7 @@ test('readElectionPackageFromFile loads available ui strings', async () => {
     (await readElectionPackageFromFile(file)).unsafeUnwrap()
   ).toEqual<ParsedElectionPackageWithHash>({
     electionPackage: {
-      electionDefinition,
+      electionDefinition: asStoredElectionDefinition(electionDefinition),
       metadata: LATEST_METADATA,
       uiStringAudioIds: {},
       systemSettings: DEFAULT_SYSTEM_SETTINGS,
@@ -313,7 +314,9 @@ test('readElectionPackageFromFile loads available ui strings', async () => {
 });
 
 test('readElectionPackageFromFile loads election strings from CDF', async () => {
-  const testCdfElectionData = JSON.stringify(testCdfBallotDefinition);
+  const testCdfElectionData = Buffer.from(
+    JSON.stringify(testCdfBallotDefinition)
+  );
   const pkg = await electionPackageZip({
     [ElectionPackageFileName.ELECTION]: testCdfElectionData,
   });
@@ -326,7 +329,9 @@ test('readElectionPackageFromFile loads election strings from CDF', async () => 
     (await readElectionPackageFromFile(file)).unsafeUnwrap()
   ).toEqual<ParsedElectionPackageWithHash>({
     electionPackage: {
-      electionDefinition: parseElectionDefinition(testCdfElectionData),
+      electionDefinition: asStoredElectionDefinition(
+        parseElectionDefinition(testCdfElectionData)
+      ),
       metadata: LATEST_METADATA,
       uiStringAudioIds: {},
       systemSettings: DEFAULT_SYSTEM_SETTINGS,
@@ -371,7 +376,7 @@ test('readElectionPackageFromFile loads UI string audio IDs', async () => {
     (await readElectionPackageFromFile(file)).unsafeUnwrap()
   ).toEqual<ParsedElectionPackageWithHash>({
     electionPackage: {
-      electionDefinition,
+      electionDefinition: asStoredElectionDefinition(electionDefinition),
       metadata: LATEST_METADATA,
       systemSettings: DEFAULT_SYSTEM_SETTINGS,
       uiStrings: electionDefinition.election.ballotStrings,
@@ -416,7 +421,7 @@ test('readElectionPackageFromFile ignores ballots and audio clips entries', asyn
     (await readElectionPackageFromFile(file)).unsafeUnwrap()
   ).toEqual<ParsedElectionPackageWithHash>({
     electionPackage: {
-      electionDefinition,
+      electionDefinition: asStoredElectionDefinition(electionDefinition),
       metadata: LATEST_METADATA,
       uiStringAudioIds: {},
       systemSettings: DEFAULT_SYSTEM_SETTINGS,
@@ -464,7 +469,7 @@ test('readElectionPackageFromBuffer parses registered voter counts', async () =>
     (await readElectionPackageFromBuffer(pkg)).unsafeUnwrap()
   ).toEqual<ParsedElectionPackageWithHash>({
     electionPackage: {
-      electionDefinition,
+      electionDefinition: asStoredElectionDefinition(electionDefinition),
       metadata: LATEST_METADATA,
       uiStringAudioIds: {},
       systemSettings: DEFAULT_SYSTEM_SETTINGS,
@@ -502,7 +507,7 @@ test('readElectionPackageFromFile reads metadata', async () => {
     (await readElectionPackageFromFile(file)).unsafeUnwrap()
   ).toEqual<ParsedElectionPackageWithHash>({
     electionPackage: {
-      electionDefinition,
+      electionDefinition: asStoredElectionDefinition(electionDefinition),
       metadata,
       systemSettings: DEFAULT_SYSTEM_SETTINGS,
       uiStringAudioIds: {},
@@ -548,6 +553,69 @@ test('readElectionPackageFromFile errors when given an invalid election', async 
   );
 });
 
+function electionJsonWithInvalidUtf8(): Buffer {
+  const election =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElection();
+  const [before, after] = JSON.stringify({
+    ...election,
+    title: 'PLACEHOLDER',
+  }).split('PLACEHOLDER');
+  return Buffer.concat([
+    Buffer.from(assertDefined(before)),
+    Buffer.from([0xff]),
+    Buffer.from(assertDefined(after)),
+  ]);
+}
+
+function electionJsonWithByteOrderMark(): Buffer {
+  const { electionData } =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+  return Buffer.concat([
+    Buffer.from([0xef, 0xbb, 0xbf]),
+    Buffer.from(electionData),
+  ]);
+}
+
+test.each([
+  {
+    description: 'file, invalid UTF-8',
+    electionJson: electionJsonWithInvalidUtf8,
+    read: (pkg: Buffer) =>
+      readElectionPackageFromFile(makeTemporaryFile({ content: pkg })),
+    message: /not valid/i,
+  },
+  {
+    description: 'buffer, invalid UTF-8',
+    electionJson: electionJsonWithInvalidUtf8,
+    read: readElectionPackageFromBuffer,
+    message: /not valid/i,
+  },
+  {
+    description: 'file, byte order mark',
+    electionJson: electionJsonWithByteOrderMark,
+    read: (pkg: Buffer) =>
+      readElectionPackageFromFile(makeTemporaryFile({ content: pkg })),
+    message: /JSON/,
+  },
+  {
+    description: 'buffer, byte order mark',
+    electionJson: electionJsonWithByteOrderMark,
+    read: readElectionPackageFromBuffer,
+    message: /JSON/,
+  },
+])(
+  'rejects an election.json that is not exactly its own UTF-8 text ($description)',
+  async ({ electionJson, read, message }) => {
+    const pkg = await electionPackageZip({
+      [ElectionPackageFileName.ELECTION]: electionJson(),
+    });
+
+    expect(await read(pkg)).toEqual(
+      err({ type: 'invalid-election', message: expect.stringMatching(message) })
+    );
+  }
+);
+
 test('readElectionPackageFromFile errors when given invalid system settings', async () => {
   const pkg = await electionPackageZip({
     [ElectionPackageFileName.ELECTION]:
@@ -589,7 +657,7 @@ test.each([
   async (missingFile) => {
     const electionDefinition =
       electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
-    const allFiles: Record<string, string> = {
+    const allFiles: Record<string, Buffer | string> = {
       [ElectionPackageFileName.ELECTION]: electionDefinition.electionData,
       [ElectionPackageFileName.METADATA]: JSON.stringify(LATEST_METADATA),
       [ElectionPackageFileName.SYSTEM_SETTINGS]: JSON.stringify(
@@ -630,6 +698,7 @@ function jsonlEntryZip(entryName: string, jsonl: string): ElectionPackageZip {
       assert(name === entryName);
       return Promise.resolve(Readable.from([jsonl], { objectMode: false }));
     },
+    readEntryBytes: () => fail('unexpected call to readEntryBytes'),
     readEntryText: () => fail('unexpected call to readEntryText'),
   };
 }
@@ -672,6 +741,7 @@ test('streamElectionPackageBallots yields nothing for a package without ballots'
       streamElectionPackageBallots({
         hasEntry: () => false,
         openEntryStream: () => fail('unexpected call to openEntryStream'),
+        readEntryBytes: () => fail('unexpected call to readEntryBytes'),
         readEntryText: () => fail('unexpected call to readEntryText'),
       })
     ).toArray()
@@ -717,7 +787,9 @@ test('readSignedElectionPackageFromDirectory can read an election package from a
       mockBaseLogger({ fn: vi.fn })
     )
   ).unsafeUnwrap();
-  expect(electionPackage.electionDefinition).toEqual(electionDefinition);
+  expect(electionPackage.electionDefinition).toEqual(
+    asStoredElectionDefinition(electionDefinition)
+  );
   expect(electionPackage.systemSettings).toEqual(
     safeParseSystemSettings(systemSettings.asText()).unsafeUnwrap()
   );
@@ -757,7 +829,9 @@ test("readSignedElectionPackageFromDirectory uses default system settings when s
       mockBaseLogger({ fn: vi.fn })
     )
   ).unsafeUnwrap();
-  expect(electionPackage.electionDefinition).toEqual(electionDefinition);
+  expect(electionPackage.electionDefinition).toEqual(
+    asStoredElectionDefinition(electionDefinition)
+  );
   expect(electionPackage.systemSettings).toEqual(DEFAULT_SYSTEM_SETTINGS);
 });
 
@@ -983,7 +1057,9 @@ test('configures using the most recently created election package across electio
       mockBaseLogger({ fn: vi.fn })
     )
   ).unsafeUnwrap();
-  expect(electionPackage.electionDefinition).toEqual(electionDefinition);
+  expect(electionPackage.electionDefinition).toEqual(
+    asStoredElectionDefinition(electionDefinition)
+  );
 });
 
 test('ignores hidden `.`-prefixed files, even if they are newer', async () => {
@@ -1034,7 +1110,9 @@ test('ignores hidden `.`-prefixed files, even if they are newer', async () => {
       mockBaseLogger({ fn: vi.fn })
     )
   ).unsafeUnwrap();
-  expect(electionPackage.electionDefinition).toEqual(electionDefinition);
+  expect(electionPackage.electionDefinition).toEqual(
+    asStoredElectionDefinition(electionDefinition)
+  );
   expect(electionPackage.systemSettings).toEqual(
     safeParseSystemSettings(systemSettings.asText()).unsafeUnwrap()
   );

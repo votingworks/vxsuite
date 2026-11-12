@@ -2353,7 +2353,7 @@ export class Store {
     electionId: ElectionId;
     electionPackageUrl: string;
     ballotHash: string;
-    electionData: string;
+    electionData: Buffer;
     officialBallotsUrl: string;
     sampleBallotsUrl?: string;
     testBallotsUrl?: string;
@@ -2374,7 +2374,7 @@ export class Store {
           `,
           p.electionPackageUrl,
           p.ballotHash,
-          p.electionData,
+          p.electionData.toString('utf-8'),
           p.officialBallotsUrl,
           p.sampleBallotsUrl,
           p.testBallotsUrl,

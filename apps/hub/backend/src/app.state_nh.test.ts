@@ -1,3 +1,4 @@
+import { Buffer } from 'node:buffer';
 import { assert, assertDefined, err, find } from '@votingworks/basics';
 import {
   electionPrimaryPrecinctSplitsFixtures,
@@ -66,7 +67,7 @@ test('getBallotPreviewPdf returns a ballot pdf for NH election with split precin
       jurisdictionId: nhJurisdiction.id,
       upload: {
         format: 'vxf',
-        electionFileContents: JSON.stringify(election),
+        electionFileContents: Buffer.from(JSON.stringify(election)),
       },
     })
   ).unsafeUnwrap();
@@ -130,7 +131,7 @@ test('getBallotPreviewPdf returns a ballot pdf for nh precinct with no split', a
       jurisdictionId: nhJurisdiction.id,
       upload: {
         format: 'vxf',
-        electionFileContents: JSON.stringify(election),
+        electionFileContents: Buffer.from(JSON.stringify(election)),
       },
     })
   ).unsafeUnwrap();
@@ -223,7 +224,7 @@ test.each<{
         jurisdictionId: nhJurisdiction.id,
         upload: {
           format: 'vxf',
-          electionFileContents: JSON.stringify(election),
+          electionFileContents: Buffer.from(JSON.stringify(election)),
         },
       })
     ).unsafeUnwrap();
@@ -287,7 +288,7 @@ test('ballot measure contest editing with additional contest options', async () 
       jurisdictionId: nhJurisdiction.id,
       upload: {
         format: 'vxf',
-        electionFileContents: JSON.stringify(election),
+        electionFileContents: Buffer.from(JSON.stringify(election)),
       },
     })
   ).unsafeUnwrap();
@@ -344,7 +345,7 @@ test('getBallotPreviewPdf routes Federal Office Only ballots for federalOfficeOn
       jurisdictionId: nhJurisdiction.id,
       upload: {
         format: 'vxf',
-        electionFileContents: JSON.stringify(election),
+        electionFileContents: Buffer.from(JSON.stringify(election)),
       },
     })
   ).unsafeUnwrap();
@@ -423,7 +424,10 @@ test('absentee polling places imported into an NH election are not exported', as
     await apiClient.loadElection({
       newId: 'new-election-id',
       jurisdictionId: nhJurisdiction.id,
-      upload: { format: 'vxf', electionFileContents: JSON.stringify(election) },
+      upload: {
+        format: 'vxf',
+        electionFileContents: Buffer.from(JSON.stringify(election)),
+      },
     })
   ).unsafeUnwrap();
 

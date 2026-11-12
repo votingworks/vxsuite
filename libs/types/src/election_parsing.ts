@@ -1,6 +1,6 @@
+import { createHash } from 'node:crypto';
 import { type Result, DateWithoutTime, err, ok } from '@votingworks/basics';
 import type { z } from 'zod/v4';
-import { sha256 } from './sha256.js';
 import { safeParseCdfBallotDefinition } from './cdf/ballot-definition/convert.js';
 import type * as Cdf from './cdf/ballot-definition/index.js';
 import { type Election, ElectionSchema } from './election.js';
@@ -22,8 +22,9 @@ function prettyZodError(error: z.ZodError): string {
 }
 
 /**
- * Parses `value` as an `Election` object. Supports both VXF and CDF. If given a
- * string, will attempt to parse it as JSON first.
+ * Parses `value` as an `Election` object. Supports both VXF and CDF. If given
+ * bytes, decodes them with {@link decodeElectionData}; if given a string, will
+ * attempt to parse it as JSON first.
  */
 function safeParseElectionExtended(value: unknown): Result<
   {
@@ -38,6 +39,17 @@ function safeParseElectionExtended(value: unknown): Result<
       return parsed;
     }
     return safeParseElectionExtended(parsed.ok());
+  }
+
+  // `ArrayBuffer.isView` also matches bytes from another realm (e.g. jsdom).
+  if (ArrayBuffer.isView(value)) {
+    const decoded = decodeElectionData(
+      new Uint8Array(value.buffer, value.byteOffset, value.byteLength)
+    );
+    if (decoded.isErr()) {
+      return decoded;
+    }
+    return safeParseElectionExtended(decoded.ok());
   }
 
   const vxfResult = safeParseVxfElection(value);
@@ -62,8 +74,9 @@ function safeParseElectionExtended(value: unknown): Result<
 }
 
 /**
- * Parses `value` as an `Election` object. Supports both VXF and CDF. If given a
- * string, will attempt to parse it as JSON first.
+ * Parses `value` as an `Election` object. Supports both VXF and CDF. If given
+ * bytes, decodes them with {@link decodeElectionData}; if given a string, will
+ * attempt to parse it as JSON first.
  */
 export function safeParseElection(
   value: unknown
@@ -83,7 +96,27 @@ export function parseValidatedElection(json: string): Election {
   return { ...value, date: new DateWithoutTime(value.date) };
 }
 
-// @coverage-exclude: trivial, tested via consumers.
-export function hashElectionData(data: string): string {
-  return sha256(data);
+export function hashElectionData(data: string | Uint8Array): string {
+  return createHash('sha256').update(data).digest('hex');
+}
+
+const STRICT_TEXT_DECODER = new TextDecoder('utf-8', {
+  fatal: true,
+  // eslint-disable-next-line vx/gts-identifiers
+  ignoreBOM: true,
+});
+
+/**
+ * Decodes an election file, failing on anything that would not re-encode to
+ * the same bytes (invalid UTF-8). A byte order mark is kept, so it fails to
+ * parse as JSON rather than being silently dropped from the hashed text.
+ */
+export function decodeElectionData(
+  bytes: Uint8Array
+): Result<string, TypeError> {
+  try {
+    return ok(STRICT_TEXT_DECODER.decode(bytes));
+  } catch (error) {
+    return err(error as TypeError);
+  }
 }

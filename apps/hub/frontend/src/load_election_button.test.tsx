@@ -95,7 +95,7 @@ test('single jurisdiction: VXF', async () => {
       jurisdictionId: jurisdiction.id,
       upload: {
         format: 'vxf',
-        electionFileContents: mockElectionData,
+        electionFileContents: new TextEncoder().encode(mockElectionData),
       },
     })
     .resolves(ok(newId));
@@ -201,7 +201,7 @@ test('multi-jurisdiction user sees jurisdiction selector', async () => {
       jurisdictionId: msJurisdiction.id,
       upload: {
         format: 'vxf',
-        electionFileContents: mockElectionData,
+        electionFileContents: new TextEncoder().encode(mockElectionData),
       },
     })
     .resolves(ok('test-random-id-1'));
@@ -255,7 +255,7 @@ test('shows error message on upload failure', async () => {
       jurisdictionId: jurisdiction.id,
       upload: {
         format: 'vxf',
-        electionFileContents: mockElectionData,
+        electionFileContents: new TextEncoder().encode(mockElectionData),
       },
     })
     .resolves(err(new Error('mock error message')));

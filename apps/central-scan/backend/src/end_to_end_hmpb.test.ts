@@ -4,6 +4,7 @@ import {
   mockElectionPackageFileTree,
   readCastVoteRecordExport,
 } from '@votingworks/backend';
+import { asStoredElectionDefinition } from '@votingworks/test-utils';
 import { iter, ok } from '@votingworks/basics';
 import { vxFamousNamesFixtures } from '@votingworks/hmpb';
 import { writeImageData } from '@votingworks/image-utils';
@@ -62,7 +63,7 @@ test('going through the whole process works - HMPB', async () => {
       })
     );
     expect(await apiClient.configureFromElectionPackageOnUsbDrive()).toEqual(
-      ok(electionDefinition)
+      ok(asStoredElectionDefinition(electionDefinition))
     );
     mockUsbDrive.removeUsbDrive();
 
@@ -176,7 +177,7 @@ test('ballots printed with invalid scale are rejected', async () => {
       })
     );
     expect(await apiClient.configureFromElectionPackageOnUsbDrive()).toEqual(
-      ok(electionDefinition)
+      ok(asStoredElectionDefinition(electionDefinition))
     );
     mockUsbDrive.removeUsbDrive();
 

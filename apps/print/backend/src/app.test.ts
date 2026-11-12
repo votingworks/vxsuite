@@ -538,7 +538,7 @@ test('cannot switch to test mode when the election package has no test ballots',
 test('unconfigureMachine clears election configuration', async () => {
   // Test with a cdf election for coverage
   const electionDefinition = parseElectionDefinition(
-    JSON.stringify(testCdfBallotDefinition)
+    Buffer.from(JSON.stringify(testCdfBallotDefinition))
   );
   const ballots = await buildBallotsForElection({
     electionDefinition,
@@ -1351,7 +1351,7 @@ async function buildTestBallotsForElection(
 
 async function makeMsElectionDefinition(): Promise<ElectionDefinitionWithData> {
   return parseElectionDefinition(
-    await readFile(msGeneralElectionFixtures.electionPath, 'utf-8')
+    await readFile(msGeneralElectionFixtures.electionPath)
   );
 }
 
@@ -1608,7 +1608,9 @@ test.each([
       await readFile(msGeneralElectionFixtures.electionPath, 'utf-8')
     );
     electionJson.ballotLayout.paperSize = paperSize;
-    const electionDef = parseElectionDefinition(JSON.stringify(electionJson));
+    const electionDef = parseElectionDefinition(
+      Buffer.from(JSON.stringify(electionJson))
+    );
 
     const ballots = await buildTestBallotsForElection(electionDef);
     await configureMachine({

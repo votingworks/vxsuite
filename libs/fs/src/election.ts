@@ -19,7 +19,7 @@ export const MAX_ELECTION_DEFINITION_SIZE = 100 * 1024 * 1024; // 100 MB
  */
 export type ReadElectionError =
   | { type: 'ReadFileError'; error: ReadFileError }
-  | { type: 'ParseError'; error: ZodError | SyntaxError };
+  | { type: 'ParseError'; error: ZodError | SyntaxError | TypeError };
 
 /**
  * Reads an election from a file path.
@@ -31,7 +31,6 @@ export async function readElection(
 ): Promise<Result<ElectionDefinitionWithData, ReadElectionError>> {
   const readFileResult = await readFile(electionPath, {
     maxSize: MAX_ELECTION_DEFINITION_SIZE,
-    encoding: 'utf-8',
   });
 
   if (readFileResult.isErr()) {

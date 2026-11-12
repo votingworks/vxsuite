@@ -1,3 +1,4 @@
+import { Buffer } from 'node:buffer';
 import { afterAll, describe, expect, test } from 'vitest';
 import { err, ok } from '@votingworks/basics';
 import {
@@ -421,7 +422,10 @@ describe('loadElection', () => {
       await api.loadElection({
         jurisdictionId: jurisdiction.id,
         newId: 'newElection',
-        upload: { format: 'vxf', electionFileContents },
+        upload: {
+          format: 'vxf',
+          electionFileContents: Buffer.from(electionFileContents),
+        },
       })
     ).unsafeUnwrap();
 
@@ -548,7 +552,10 @@ describe('cloneElection', () => {
       await api.loadElection({
         jurisdictionId: jurisdiction.id,
         newId: 'newElection',
-        upload: { format: 'vxf', electionFileContents },
+        upload: {
+          format: 'vxf',
+          electionFileContents: Buffer.from(electionFileContents),
+        },
       })
     ).unsafeUnwrap();
 

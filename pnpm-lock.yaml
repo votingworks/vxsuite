@@ -4871,9 +4871,6 @@ importers:
 
   libs/types:
     dependencies:
-      '@noble/hashes':
-        specifier: ^1.8.0
-        version: 1.8.0
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../basics
@@ -15537,7 +15534,8 @@ snapshots:
       - '@emnapi/core'
       - '@emnapi/runtime'
 
-  '@noble/hashes@1.8.0': {}
+  '@noble/hashes@1.8.0':
+    optional: true
 
   '@nodelib/fs.scandir@2.1.5':
     dependencies:

@@ -4,6 +4,7 @@ import {
   mockElectionPackageFileTree,
   readCastVoteRecordExport,
 } from '@votingworks/backend';
+import { asStoredElectionDefinition } from '@votingworks/test-utils';
 import { ok, sleep } from '@votingworks/basics';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import type { CVR } from '@votingworks/types';
@@ -46,7 +47,7 @@ test('going through the whole process works - BMD', async () => {
         )
       );
       expect(await apiClient.configureFromElectionPackageOnUsbDrive()).toEqual(
-        ok(electionDefinition)
+        ok(asStoredElectionDefinition(electionDefinition))
       );
       mockUsbDrive.removeUsbDrive();
 

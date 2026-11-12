@@ -2,6 +2,7 @@
  * Defines election arbitraries for `fast-check` property tests.
  */
 
+import { Buffer } from 'node:buffer';
 import fc from 'fast-check';
 import { DateTime } from 'luxon';
 import {
@@ -636,7 +637,7 @@ export function arbitraryElectionDefinition(): fc.Arbitrary<ElectionDefinitionWi
   return arbitraryElection()
     .map((election) => ({
       election,
-      electionData: JSON.stringify(election, undefined, 2),
+      electionData: Buffer.from(JSON.stringify(election, undefined, 2)),
     }))
     .map(({ election, electionData }) => ({
       election,

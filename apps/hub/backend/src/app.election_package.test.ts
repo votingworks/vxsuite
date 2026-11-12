@@ -498,7 +498,9 @@ test('Election package and ballots export', async () => {
       jurisdictionId: nonVxJurisdiction.id,
       upload: {
         format: 'vxf',
-        electionFileContents: JSON.stringify(electionWithLegalPaper),
+        electionFileContents: Buffer.from(
+          JSON.stringify(electionWithLegalPaper)
+        ),
       },
     })
   ).unsafeUnwrap();
@@ -985,7 +987,7 @@ test('export - polling places auto-generated when EDIT_POLLING_PLACES === false'
       jurisdictionId: jurisdiction.id,
       upload: {
         format: 'vxf',
-        electionFileContents: JSON.stringify(inElection),
+        electionFileContents: Buffer.from(JSON.stringify(inElection)),
       },
     })
   ).unsafeUnwrap();
@@ -1051,7 +1053,9 @@ test('export omits optional ballots if not enabled', async () => {
       jurisdictionId: nonVxJurisdiction.id,
       upload: {
         format: 'vxf',
-        electionFileContents: JSON.stringify(baseElectionDefinition.election),
+        electionFileContents: Buffer.from(
+          JSON.stringify(baseElectionDefinition.election)
+        ),
       },
     })
   ).unsafeUnwrap();
@@ -1235,7 +1239,7 @@ test('export - with `splitElectionDefinition` setting on', async () => {
     jurisdictionId: nonVxJurisdiction.id,
     upload: {
       format: 'vxf',
-      electionFileContents: electionData,
+      electionFileContents: Buffer.from(electionData),
     },
   });
 
@@ -1383,8 +1387,10 @@ test('v4.0 elections', async () => {
       jurisdictionId: v4p0Jurisdiction.id,
       upload: {
         format: 'vxf',
-        electionFileContents: JSON.stringify(
-          convertLatestElectionToV4p0(baseElectionDefinition.election)
+        electionFileContents: Buffer.from(
+          JSON.stringify(
+            convertLatestElectionToV4p0(baseElectionDefinition.election)
+          )
         ),
       },
     })

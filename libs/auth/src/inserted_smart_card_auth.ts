@@ -1,4 +1,3 @@
-import { Buffer } from 'node:buffer';
 import { randomUUID as uuid } from 'node:crypto';
 import {
   assert,
@@ -6,10 +5,8 @@ import {
   err,
   extractErrorMessage,
   ok,
-  type Optional,
   type Result,
   throwIllegalValue,
-  wrapException,
 } from '@votingworks/basics';
 import {
   LogDispositionStandardTypes,
@@ -332,41 +329,6 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
       disposition: LogDispositionStandardTypes.Success,
       message: 'Cardless voter session ended.',
     });
-  }
-
-  async readCardData(): Promise<Result<Optional<string>, Error>> {
-    let data: Optional<string>;
-    try {
-      data = (await this.card.readData()).toString('utf-8') || undefined;
-    } catch (error) {
-      return wrapException(error);
-    }
-    return ok(data);
-  }
-
-  async writeCardData(input: { data: string }): Promise<Result<void, Error>> {
-    try {
-      await this.card.writeData(Buffer.from(input.data, 'utf-8'));
-
-      // Verify that the write was in fact successful by reading the data
-      const readResult = await this.readCardData();
-      if (readResult.isErr() || readResult.ok() !== input.data) {
-        return err(new Error('Verification of write by reading data failed'));
-      }
-
-      return ok();
-    } catch (error) {
-      return wrapException(error);
-    }
-  }
-
-  async clearCardData(): Promise<Result<void, Error>> {
-    try {
-      await this.card.clearData();
-    } catch (error) {
-      return wrapException(error);
-    }
-    return ok();
   }
 
   private async checkCardReaderAndUpdateAuthStatus(

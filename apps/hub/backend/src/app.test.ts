@@ -1,3 +1,4 @@
+import { Buffer } from 'node:buffer';
 import { afterAll, afterEach, beforeEach, expect, test, vi } from 'vitest';
 import {
   DateWithoutTime,
@@ -2498,7 +2499,7 @@ test('reordering contests', async () => {
       upload: {
         format: 'vxf',
         electionFileContents:
-          electionFamousNames2021Fixtures.electionJson.asText(),
+          electionFamousNames2021Fixtures.electionJson.asBuffer(),
       },
     })
   ).unsafeUnwrap();
@@ -2685,7 +2686,7 @@ test('Finalize ballots - DEMO state', async () => {
       upload: {
         format: 'vxf',
         electionFileContents:
-          electionFamousNames2021Fixtures.electionJson.asText(),
+          electionFamousNames2021Fixtures.electionJson.asBuffer(),
       },
     })
   ).unsafeUnwrap();
@@ -2763,7 +2764,7 @@ test('Finalize ballots - NH state', async () => {
       upload: {
         format: 'vxf',
         electionFileContents:
-          electionFamousNames2021Fixtures.electionJson.asText(),
+          electionFamousNames2021Fixtures.electionJson.asBuffer(),
       },
     })
   ).unsafeUnwrap();
@@ -2805,8 +2806,8 @@ test('Finalize ballots - allows absentee polling places that cover all precincts
       jurisdictionId: nonVxJurisdiction.id,
       upload: {
         format: 'vxf',
-        electionFileContents: JSON.stringify(
-          electionGeneralFixtures.readElection()
+        electionFileContents: Buffer.from(
+          JSON.stringify(electionGeneralFixtures.readElection())
         ),
       },
     })
@@ -2846,8 +2847,8 @@ test('Finalize ballots - rejects absentee polling places that do not cover all p
       jurisdictionId: nonVxJurisdiction.id,
       upload: {
         format: 'vxf',
-        electionFileContents: JSON.stringify(
-          electionGeneralFixtures.readElection()
+        electionFileContents: Buffer.from(
+          JSON.stringify(electionGeneralFixtures.readElection())
         ),
       },
     })
@@ -2890,7 +2891,7 @@ test('Finalize ballots - rejects partial registered voter counts', async () => {
       upload: {
         format: 'vxf',
         electionFileContents:
-          electionFamousNames2021Fixtures.electionJson.asText(),
+          electionFamousNames2021Fixtures.electionJson.asBuffer(),
       },
     })
   ).unsafeUnwrap();
@@ -2950,7 +2951,7 @@ test('approve ballots', async () => {
       upload: {
         format: 'vxf',
         electionFileContents:
-          electionFamousNames2021Fixtures.electionJson.asText(),
+          electionFamousNames2021Fixtures.electionJson.asBuffer(),
       },
     })
   ).unsafeUnwrap();
@@ -3005,7 +3006,7 @@ test('cloneElection', async () => {
       upload: {
         format: 'vxf',
         electionFileContents:
-          electionFamousNames2021Fixtures.electionJson.asText(),
+          electionFamousNames2021Fixtures.electionJson.asBuffer(),
       },
       newId: srcElectionId,
       jurisdictionId: nonVxJurisdiction.id,
@@ -3253,7 +3254,7 @@ test('combined ballot primary elections', async () => {
       upload: {
         format: 'vxf',
         electionFileContents:
-          electionCombinedBallotPrimaryFixtures.electionJson.asText(),
+          electionCombinedBallotPrimaryFixtures.electionJson.asBuffer(),
       },
       newId: 'combined-ballot-primary-election',
       jurisdictionId: miJurisdiction.id,
@@ -3281,7 +3282,7 @@ test('combined ballot primary elections', async () => {
       upload: {
         format: 'vxf',
         electionFileContents:
-          electionCombinedBallotPrimaryFixtures.electionJson.asText(),
+          electionCombinedBallotPrimaryFixtures.electionJson.asBuffer(),
       },
       newId: 'not-combined-ballot-primary-election',
       jurisdictionId: nonVxJurisdiction.id,
@@ -3788,4 +3789,24 @@ test('decryptCvrBallotAuditIds', async () => {
     const contents = JSON.parse(await cvrFileEntry.async('text'));
     expect(contents.CVR[0]).toEqual(cvr.castVoteRecord);
   }
+});
+
+test('loadElection rejects an election file that is not valid UTF-8', async () => {
+  const { apiClient, auth0 } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
+  auth0.setLoggedInUser(supportUser);
+
+  const result = await apiClient.loadElection({
+    upload: {
+      format: 'vxf',
+      electionFileContents: new Uint8Array([0x7b, 0xff, 0x7d]),
+    },
+    newId: 'invalid-utf8-election',
+    jurisdictionId: nonVxJurisdiction.id,
+  });
+  expect(result.err()?.message).toMatch(/utf-8/i);
+  expect(await apiClient.listElections()).toEqual([]);
 });

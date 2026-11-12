@@ -57,9 +57,7 @@ export async function importElectionPackageForTest(
  */
 export async function createElectionPackageDbForTest(
   electionDefinition: ElectionDefinitionWithData,
-  electionRow: Partial<
-    Pick<ElectionDefinitionWithData, 'electionData' | 'ballotHash'>
-  > = {}
+  electionRow: { electionData?: string; ballotHash?: string } = {}
 ): Promise<string> {
   const dbPath = join(
     mkdtempSync(join(tmpdir(), 'election-package-db-')),

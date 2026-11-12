@@ -94,7 +94,7 @@ export const ElectionInfoUpdateSchema: z.ZodType<ElectionInfoUpdate> =
 export type ElectionUpload =
   | {
       format: 'vxf';
-      electionFileContents: string;
+      electionFileContents: Uint8Array;
     }
   | {
       format: 'ms-sems';

@@ -21,9 +21,7 @@ import { readFileSync } from 'node:fs';
 /** Imports `electionDefinition` into a temporary election package DB and returns its path. */
 export function makeInterpreterDb(
   electionDefinition: ElectionDefinitionWithData,
-  electionRow?: Partial<
-    Pick<ElectionDefinitionWithData, 'electionData' | 'ballotHash'>
-  >
+  electionRow?: { electionData?: string; ballotHash?: string }
 ): Promise<string> {
   return createElectionPackageDbForTest(electionDefinition, electionRow);
 }

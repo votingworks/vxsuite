@@ -290,7 +290,7 @@ describe('configure populates ballot meta store', () => {
       electionDefinition: {
         ballotHash: 'unused',
         election: splitElection.election,
-        electionData: JSON.stringify(splitElection.election),
+        electionData: Buffer.from(JSON.stringify(splitElection.election)),
       },
       systemSettings: {
         ...DEFAULT_SYSTEM_SETTINGS,

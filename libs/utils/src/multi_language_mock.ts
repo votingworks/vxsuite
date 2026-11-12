@@ -1,3 +1,4 @@
+import { Buffer } from 'node:buffer';
 import {
   hashElectionData,
   type Election,
@@ -27,7 +28,7 @@ export function getMockMultiLanguageElectionDefinition(
     ),
   };
 
-  const electionData = JSON.stringify(modifiedElection);
+  const electionData = Buffer.from(JSON.stringify(modifiedElection));
   const ballotHash = hashElectionData(electionData);
 
   return { ballotHash, election: modifiedElection, electionData };

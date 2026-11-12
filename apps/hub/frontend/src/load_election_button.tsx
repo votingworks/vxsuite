@@ -67,7 +67,9 @@ async function loadFileContents(
       assert(formState.electionFile);
       return {
         format: 'vxf',
-        electionFileContents: await formState.electionFile.text(),
+        electionFileContents: new Uint8Array(
+          await formState.electionFile.arrayBuffer()
+        ),
       };
     }
     case 'ms-sems': {
