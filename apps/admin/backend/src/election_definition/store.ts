@@ -14,9 +14,12 @@ import type {
   DuplicatePrecinctError,
   ElectionInfo,
   ElectionInfoUpdate,
+  PollingPlaceDelete,
+  PollingPlaceSet,
   PrecinctCreate,
   PrecinctDelete,
   PrecinctUpdate,
+  SetPollingPlaceError,
 } from '@votingworks/election-definition-backend';
 import {
   type District,
@@ -30,6 +33,9 @@ import {
   isSplitCounts,
   LanguageCodeSchema,
   type NhPrecinctSplitOptions,
+  type PollingPlace,
+  PollingPlaceSchema,
+  type PollingPlaceType,
   type Precinct,
   type PrecinctId,
   type PrecinctRegisteredVoterCountEntry,
@@ -73,6 +79,17 @@ function isDuplicatePrecinctSplitNameError(error: unknown): boolean {
     error.code === 'SQLITE_CONSTRAINT_UNIQUE' &&
     error.message.includes(
       'design_precinct_splits.precinct_id, design_precinct_splits.name'
+    )
+  );
+}
+
+function isDuplicatePollingPlaceNameError(error: unknown): boolean {
+  return (
+    error instanceof Error &&
+    'code' in error &&
+    error.code === 'SQLITE_CONSTRAINT_UNIQUE' &&
+    error.message.includes(
+      'design_polling_places.election_id, design_polling_places.name, design_polling_places.type'
     )
   );
 }
@@ -587,5 +604,123 @@ export class ElectionDefinitionStore {
       };
     }
     return counts;
+  }
+
+  listPollingPlaces(electionId: ElectionId): PollingPlace[] {
+    const placeRows = this.client.all(
+      `
+      select id, name, type
+      from design_polling_places
+      where election_id = ?
+    `,
+      electionId
+    ) as Array<{ id: string; name: string; type: PollingPlaceType }>;
+    const precinctRowsByPlaceId = iter(
+      this.client.all(
+        `
+        select
+          design_polling_places_precincts.polling_place_id as placeId,
+          design_polling_places_precincts.precinct_id as precinctId
+        from design_polling_places_precincts
+        join design_polling_places
+          on design_polling_places.id =
+            design_polling_places_precincts.polling_place_id
+        where design_polling_places.election_id = ?
+        order by design_polling_places_precincts.precinct_id
+      `,
+        electionId
+      ) as Array<{ placeId: string; precinctId: PrecinctId }>
+    ).toMap((row) => row.placeId);
+
+    return placeRows
+      .toSorted(
+        (a, b) =>
+          NATURAL_SORT_COLLATOR.compare(a.type, b.type) ||
+          NATURAL_SORT_COLLATOR.compare(a.name, b.name)
+      )
+      .map(({ id, name, type }) => ({
+        id,
+        name,
+        precincts: Object.fromEntries(
+          [...(precinctRowsByPlaceId.get(id) ?? [])].map((row) => [
+            row.precinctId,
+            { type: 'whole' } as const,
+          ])
+        ),
+        type,
+      }));
+  }
+
+  setPollingPlace(input: PollingPlaceSet): Result<void, SetPollingPlaceError> {
+    const place = unsafeParse(PollingPlaceSchema, input.place);
+    return this.client.transaction(
+      () => this.writePollingPlace(input.electionId, place),
+      (result) => result.isOk()
+    );
+  }
+
+  private writePollingPlace(
+    electionId: ElectionId,
+    place: PollingPlace
+  ): Result<void, SetPollingPlaceError> {
+    assert(
+      Object.values(place.precincts).every((p) => p.type === 'whole'),
+      'Partial precinct coverage is not supported for polling places'
+    );
+    const electionPrecinctIds = new Set(
+      (
+        this.client.all(
+          'select id from design_precincts where election_id = ?',
+          electionId
+        ) as Array<{ id: PrecinctId }>
+      ).map((row) => row.id)
+    );
+    const precinctIds = Object.keys(place.precincts);
+    if (!precinctIds.every((id) => electionPrecinctIds.has(id))) {
+      return err('invalid-precinct');
+    }
+    try {
+      this.client.run(
+        `
+        insert into design_polling_places (id, election_id, name, type)
+        values (?, ?, ?, ?)
+        on conflict (id) do update set
+          name = excluded.name,
+          type = excluded.type
+      `,
+        place.id,
+        electionId,
+        place.name,
+        place.type
+      );
+    } catch (error) {
+      if (isDuplicatePollingPlaceNameError(error)) {
+        return err('duplicate-name');
+      }
+      throw error;
+    }
+    this.client.run(
+      'delete from design_polling_places_precincts where polling_place_id = ?',
+      place.id
+    );
+    for (const precinctId of precinctIds) {
+      this.client.run(
+        'insert into design_polling_places_precincts (polling_place_id, precinct_id) values (?, ?)',
+        place.id,
+        precinctId
+      );
+    }
+    return ok();
+  }
+
+  deletePollingPlace(input: PollingPlaceDelete): void {
+    assert(
+      this.client.one(
+        'delete from design_polling_places where id = ? and election_id = ? returning id',
+        input.id,
+        input.electionId
+      ),
+      'Polling place not found'
+    );
   }
 }

@@ -18,6 +18,7 @@ import {
   type Id,
   type Election,
   type ElectionRegisteredVoterCounts,
+  type PollingPlace,
   type Precinct,
   type SystemSettings,
   type BallotCandidateOrderings,
@@ -3126,5 +3127,194 @@ describe('design precincts', () => {
     expect(
       store.electionDefinition.getRegisteredVoterCounts(electionId)
     ).toEqual({});
+  });
+});
+
+describe('design polling places', () => {
+  const electionId = 'design-election';
+
+  function setUpStore(): Store {
+    const store = Store.memoryStore(makeTemporaryDirectory());
+    store.electionDefinition.createInProgressElection({
+      electionId,
+      type: 'general',
+      date: new DateWithoutTime('2026-11-03'),
+      title: '',
+      state: 'DEMO',
+      jurisdictionName: '',
+      seal: '',
+      languageCodes: [LanguageCode.ENGLISH],
+    });
+    for (const precinct of [
+      { id: 'p1', name: 'Precinct 1', districtIds: [] },
+      { id: 'p2', name: 'Precinct 2', districtIds: [] },
+    ]) {
+      store.electionDefinition
+        .createPrecinct({ electionId, newPrecinct: precinct })
+        .unsafeUnwrap();
+    }
+    return store;
+  }
+
+  const electionDay10: PollingPlace = {
+    id: 'place-1',
+    name: 'Place 10',
+    precincts: { p2: { type: 'whole' }, p1: { type: 'whole' } },
+    type: 'election_day',
+  };
+  const electionDay2: PollingPlace = {
+    id: 'place-2',
+    name: 'Place 2',
+    precincts: {},
+    type: 'election_day',
+  };
+  const absentee: PollingPlace = {
+    id: 'place-3',
+    name: 'Place 10',
+    precincts: { p1: { type: 'whole' } },
+    type: 'absentee',
+  };
+
+  test('set, list and delete polling places', () => {
+    const store = setUpStore();
+    expect(store.electionDefinition.listPollingPlaces(electionId)).toEqual([]);
+
+    for (const place of [electionDay10, electionDay2, absentee]) {
+      expect(
+        store.electionDefinition.setPollingPlace({ electionId, place })
+      ).toEqual(ok());
+    }
+    expect(store.electionDefinition.listPollingPlaces(electionId)).toEqual([
+      absentee,
+      electionDay2,
+      electionDay10,
+    ]);
+
+    const updatedPlace: PollingPlace = {
+      ...electionDay10,
+      name: 'Place 1',
+      precincts: { p2: { type: 'whole' } },
+      type: 'early_voting',
+    };
+    expect(
+      store.electionDefinition.setPollingPlace({
+        electionId,
+        place: updatedPlace,
+      })
+    ).toEqual(ok());
+    expect(store.electionDefinition.listPollingPlaces(electionId)).toEqual([
+      absentee,
+      updatedPlace,
+      electionDay2,
+    ]);
+
+    store.electionDefinition.deletePollingPlace({
+      electionId,
+      id: absentee.id,
+    });
+    expect(store.electionDefinition.listPollingPlaces(electionId)).toEqual([
+      updatedPlace,
+      electionDay2,
+    ]);
+  });
+
+  test('polling places with a duplicate name and type are not saved', () => {
+    const store = setUpStore();
+    for (const place of [electionDay10, electionDay2]) {
+      store.electionDefinition
+        .setPollingPlace({ electionId, place })
+        .unsafeUnwrap();
+    }
+
+    expect(
+      store.electionDefinition.setPollingPlace({
+        electionId,
+        place: { ...electionDay2, id: 'place-4' },
+      })
+    ).toEqual(err('duplicate-name'));
+    expect(
+      store.electionDefinition.setPollingPlace({
+        electionId,
+        place: { ...electionDay2, name: electionDay10.name },
+      })
+    ).toEqual(err('duplicate-name'));
+    expect(store.electionDefinition.listPollingPlaces(electionId)).toEqual([
+      electionDay2,
+      electionDay10,
+    ]);
+  });
+
+  test('polling places with unknown precincts are not saved', () => {
+    const store = setUpStore();
+    store.electionDefinition
+      .setPollingPlace({ electionId, place: electionDay10 })
+      .unsafeUnwrap();
+
+    expect(
+      store.electionDefinition.setPollingPlace({
+        electionId,
+        place: {
+          ...electionDay10,
+          precincts: { p1: { type: 'whole' }, missing: { type: 'whole' } },
+        },
+      })
+    ).toEqual(err('invalid-precinct'));
+    expect(store.electionDefinition.listPollingPlaces(electionId)).toEqual([
+      electionDay10,
+    ]);
+  });
+
+  test('partial precinct coverage is not supported', () => {
+    const store = setUpStore();
+    expect(() =>
+      store.electionDefinition.setPollingPlace({
+        electionId,
+        place: {
+          ...electionDay10,
+          precincts: { p1: { type: 'partial', splitIds: ['s1'] } },
+        },
+      })
+    ).toThrow('Partial precinct coverage is not supported');
+    expect(store.electionDefinition.listPollingPlaces(electionId)).toEqual([]);
+  });
+
+  test('deleting an unknown polling place fails', () => {
+    const store = setUpStore();
+    expect(() =>
+      store.electionDefinition.deletePollingPlace({ electionId, id: 'missing' })
+    ).toThrow('Polling place not found');
+  });
+
+  test('polling places for an unknown election are not saved', () => {
+    const store = setUpStore();
+    expect(() =>
+      store.electionDefinition.setPollingPlace({
+        electionId: 'missing',
+        place: electionDay2,
+      })
+    ).toThrow();
+    expect(store.electionDefinition.listPollingPlaces('missing')).toEqual([]);
+  });
+
+  test('deleting a precinct removes it from polling places', () => {
+    const store = setUpStore();
+    store.electionDefinition
+      .setPollingPlace({ electionId, place: electionDay10 })
+      .unsafeUnwrap();
+
+    store.electionDefinition.deletePrecinct({ electionId, precinctId: 'p1' });
+    expect(store.electionDefinition.listPollingPlaces(electionId)).toEqual([
+      { ...electionDay10, precincts: { p2: { type: 'whole' } } },
+    ]);
+  });
+
+  test('deleting the election deletes its polling places', () => {
+    const store = setUpStore();
+    store.electionDefinition
+      .setPollingPlace({ electionId, place: electionDay10 })
+      .unsafeUnwrap();
+
+    store.electionDefinition.deleteInProgressElection();
+    expect(store.electionDefinition.listPollingPlaces(electionId)).toEqual([]);
   });
 });
