@@ -76,11 +76,14 @@ export async function exec(
     child.pid
   );
 
-  child.stdout.on('data', (chunk) => {
+  child.stdout.setEncoding('utf8');
+  child.stderr.setEncoding('utf8');
+
+  child.stdout.on('data', (chunk: string) => {
     stdout += chunk;
   });
 
-  child.stderr.on('data', (chunk) => {
+  child.stderr.on('data', (chunk: string) => {
     stderr += chunk;
   });
 

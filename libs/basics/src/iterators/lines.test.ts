@@ -189,3 +189,34 @@ test('stream interaction', async () => {
     '  i',
   ]);
 });
+
+test('multibyte characters split across byte chunks', async () => {
+  const family = '👨\u200d👩\u200d👧'; // man, woman, and girl joined by ZWJ
+  const chunks = [...Buffer.from(`é\n${family}\n`)].map((byte) =>
+    Uint8Array.of(byte)
+  );
+  expect(lines(chunks).toArray()).toEqual(['é', family, '']);
+  expect(await lines(iter(chunks).async()).toArray()).toEqual([
+    'é',
+    family,
+    '',
+  ]);
+});
+
+test('byte chunks interleaved with strings', () => {
+  expect(
+    lines([
+      Uint8Array.of(0xc3),
+      Uint8Array.of(0xa9),
+      'x',
+      Uint8Array.of(0xc3),
+      'y',
+    ]).toArray()
+  ).toEqual(['éx�y']);
+});
+
+test('byte chunks keep a leading BOM', () => {
+  expect(
+    lines([Uint8Array.of(0xef, 0xbb, 0xbf, 0x61, 0xc3)]).toArray()
+  ).toEqual(['\ufeffa�']); // BOM, 'a', then a replacement character
+});

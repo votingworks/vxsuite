@@ -37,6 +37,16 @@ test('failed command printing stderr', async () => {
   );
 });
 
+test('multibyte characters split across output chunks', async () => {
+  const script = [
+    'process.stdout.write(Buffer.of(0xc3), () =>',
+    '  setTimeout(() => process.stdout.write(Buffer.of(0xa9)), 50));',
+  ].join('');
+  expect(await exec('node', ['-e', script])).toEqual(
+    ok({ stdout: 'é', stderr: '' })
+  );
+});
+
 test.each([
   {
     name: 'command with string stdin',

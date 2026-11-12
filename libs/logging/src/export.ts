@@ -1,7 +1,7 @@
 import { lines } from '@votingworks/basics';
 
 export async function* filterErrorLogs(
-  inputStream: AsyncIterable<string>
+  inputStream: AsyncIterable<string | Uint8Array>
 ): AsyncIterable<string> {
   const inputLines = lines(inputStream).filter((l) => l !== '');
   for await (const line of inputLines) {
