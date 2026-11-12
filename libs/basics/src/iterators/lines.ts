@@ -11,14 +11,35 @@ function matchAllNewlines(str: string): Iterable<RegExpMatchArray> {
   return str.matchAll(/\r?\n/g);
 }
 
+function createChunkDecoder(): {
+  decode(element: ToString): string;
+  flush(): string;
+} {
+  const decoder = new TextDecoder('utf-8', {
+    // eslint-disable-next-line vx/gts-identifiers
+    ignoreBOM: true,
+  });
+  return {
+    decode(element) {
+      return element instanceof Uint8Array
+        ? decoder.decode(element, { stream: true })
+        : decoder.decode() + element.toString();
+    },
+    flush() {
+      return decoder.decode();
+    },
+  };
+}
+
 function linesSync(iterable: Iterable<ToString>): IteratorPlus<string> {
   let buffer = '';
+  const decoder = createChunkDecoder();
   return new IteratorPlusImpl(
     (function* gen() {
       let hasSeenAnyChunks = false;
 
       for (const element of iterable) {
-        const chunk = element.toString();
+        const chunk = decoder.decode(element);
         let offset = 0;
         for (const newlineMatch of matchAllNewlines(chunk)) {
           // @coverage-exclude
@@ -37,7 +58,7 @@ function linesSync(iterable: Iterable<ToString>): IteratorPlus<string> {
       }
 
       if (hasSeenAnyChunks) {
-        yield buffer;
+        yield buffer + decoder.flush();
       }
     })()
   );
@@ -47,12 +68,13 @@ function linesAsync(
   iterable: AsyncIterable<ToString>
 ): AsyncIteratorPlus<string> {
   let buffer = '';
+  const decoder = createChunkDecoder();
   return new AsyncIteratorPlusImpl(
     (async function* gen() {
       let hasSeenAnyChunks = false;
 
       for await (const element of iterable) {
-        const chunk = element.toString();
+        const chunk = decoder.decode(element);
         let offset = 0;
         for (const newlineMatch of matchAllNewlines(chunk)) {
           // @coverage-exclude
@@ -71,7 +93,7 @@ function linesAsync(
       }
 
       if (hasSeenAnyChunks) {
-        yield buffer;
+        yield buffer + decoder.flush();
       }
     })()
   );
