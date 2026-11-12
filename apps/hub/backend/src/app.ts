@@ -86,6 +86,7 @@ import {
   type DuplicatePrecinctError,
   type ElectionDefinitionMethods,
   getStateFeaturesConfig,
+  type PartiesUpdate,
   type PollingPlaceDelete,
   type PollingPlaceSet,
   type PrecinctCreate,
@@ -638,12 +639,9 @@ export function buildApi(ctx: AppContext) {
       return store.listParties(input.electionId);
     },
 
-    async updateParties(input: {
-      electionId: ElectionId;
-      deletedPartyIds?: string[];
-      newParties?: Party[];
-      updatedParties?: Party[];
-    }): Promise<Result<void, DuplicatePartyError>> {
+    async updateParties(
+      input: PartiesUpdate
+    ): Promise<Result<void, DuplicatePartyError>> {
       return store.updateParties(input);
     },
 

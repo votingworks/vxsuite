@@ -81,6 +81,7 @@ import {
   type ExternalElectionSource,
   generateId,
   getStateFeaturesConfig,
+  type PartiesUpdate,
   type SetPollingPlaceError,
   type StateCode,
 } from '@votingworks/election-definition-backend';
@@ -2039,12 +2040,9 @@ export class Store {
     );
   }
 
-  async updateParties(input: {
-    electionId: ElectionId;
-    deletedPartyIds?: string[];
-    newParties?: Party[];
-    updatedParties?: Party[];
-  }): Promise<Result<void, DuplicatePartyError>> {
+  async updateParties(
+    input: PartiesUpdate
+  ): Promise<Result<void, DuplicatePartyError>> {
     let res: Result<void, DuplicatePartyError> | undefined;
 
     await this.db.withClient((client) =>
