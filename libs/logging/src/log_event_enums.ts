@@ -273,6 +273,10 @@ export const LogEventId = {
   ElectionDefinitionPartiesUpdated: 'election-definition-parties-updated',
   TranslationsFileSaved: 'translations-file-saved',
   TranslationsFileLoaded: 'translations-file-loaded',
+  ElectionDefinitionContestCreated: 'election-definition-contest-created',
+  ElectionDefinitionContestUpdated: 'election-definition-contest-updated',
+  ElectionDefinitionContestsReordered: 'election-definition-contests-reordered',
+  ElectionDefinitionContestDeleted: 'election-definition-contest-deleted',
   ElectionDefinitionDiscarded: 'election-definition-discarded',
 } as const;
 export type LogEventId = (typeof LogEventId)[keyof typeof LogEventId];
@@ -1752,6 +1756,38 @@ const TranslationsFileLoaded: LogDetails = {
   restrictInDocumentationToApps: [AppName.VxAdmin],
 };
 
+const ElectionDefinitionContestCreated: LogDetails = {
+  eventId: LogEventId.ElectionDefinitionContestCreated,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'A user added a contest to the election definition being designed, or failed to. Success or failure indicated by disposition.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
+const ElectionDefinitionContestUpdated: LogDetails = {
+  eventId: LogEventId.ElectionDefinitionContestUpdated,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'A user edited a contest in the election definition being designed, or failed to. Success or failure indicated by disposition.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
+const ElectionDefinitionContestsReordered: LogDetails = {
+  eventId: LogEventId.ElectionDefinitionContestsReordered,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'A user reordered the contests in the election definition being designed.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
+const ElectionDefinitionContestDeleted: LogDetails = {
+  eventId: LogEventId.ElectionDefinitionContestDeleted,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'A user deleted a contest from the election definition being designed.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
 const ElectionDefinitionDiscarded: LogDetails = {
   eventId: LogEventId.ElectionDefinitionDiscarded,
   eventType: LogEventType.UserAction,
@@ -2158,6 +2194,14 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return TranslationsFileSaved;
     case LogEventId.TranslationsFileLoaded:
       return TranslationsFileLoaded;
+    case LogEventId.ElectionDefinitionContestCreated:
+      return ElectionDefinitionContestCreated;
+    case LogEventId.ElectionDefinitionContestUpdated:
+      return ElectionDefinitionContestUpdated;
+    case LogEventId.ElectionDefinitionContestsReordered:
+      return ElectionDefinitionContestsReordered;
+    case LogEventId.ElectionDefinitionContestDeleted:
+      return ElectionDefinitionContestDeleted;
     case LogEventId.ElectionDefinitionDiscarded:
       return ElectionDefinitionDiscarded;
     default:
