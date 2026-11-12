@@ -34,6 +34,7 @@ import {
   type ElectionRegisteredVoterCounts,
   LanguageCode,
   type PollingPlace,
+  pollingPlaceGenerateFromPrecinct,
   type Precinct,
   unsafeParse,
 } from '@votingworks/types';
@@ -218,10 +219,17 @@ function createElectionDefinitionApiMethods({
       input: PrecinctCreate
     ): Promise<Result<void, DuplicatePrecinctError>> {
       loadInProgressElectionInfo(input);
-      // TODO(CARO): Hub also creates an election day polling place for each new
-      // precinct when EDIT_POLLING_PLACES is on (as it is for DEMO). Add that
-      // here once VxAdmin has design polling places.
-      const result = store.electionDefinition.createPrecinct(input);
+      const { features } = assertDefined(getMachineState());
+      const result = store.electionDefinition.createPrecinct(
+        input,
+        features.EDIT_POLLING_PLACES
+          ? pollingPlaceGenerateFromPrecinct({
+              id: generateId(),
+              precinct: input.newPrecinct,
+              type: 'election_day',
+            })
+          : undefined
+      );
       if (result.isErr()) {
         await logger.logAsCurrentRole(
           LogEventId.ElectionDefinitionPrecinctCreated,

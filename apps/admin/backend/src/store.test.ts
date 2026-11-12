@@ -3308,6 +3308,65 @@ describe('design polling places', () => {
     ]);
   });
 
+  test('creating a precinct can also create a polling place for it', () => {
+    const store = setUpStore();
+    store.electionDefinition
+      .setPollingPlace({ electionId, place: electionDay2 })
+      .unsafeUnwrap();
+    const generatedPlace: PollingPlace = {
+      id: 'place-4',
+      name: 'Precinct 3',
+      precincts: { p3: { type: 'whole' } },
+      type: 'election_day',
+    };
+
+    expect(
+      store.electionDefinition.createPrecinct(
+        {
+          electionId,
+          newPrecinct: { id: 'p3', name: 'Precinct 3', districtIds: [] },
+        },
+        generatedPlace
+      )
+    ).toEqual(ok());
+    expect(
+      store.electionDefinition.createPrecinct(
+        {
+          electionId,
+          newPrecinct: { id: 'p4', name: 'Place 2', districtIds: [] },
+        },
+        {
+          id: 'place-5',
+          name: 'Place 2',
+          precincts: { p4: { type: 'whole' } },
+          type: 'election_day',
+        }
+      )
+    ).toEqual(ok());
+    expect(
+      store.electionDefinition.createPrecinct(
+        {
+          electionId,
+          newPrecinct: { id: 'p5', name: 'Precinct 1', districtIds: [] },
+        },
+        {
+          id: 'place-6',
+          name: 'Precinct 1',
+          precincts: { p5: { type: 'whole' } },
+          type: 'election_day',
+        }
+      )
+    ).toEqual(err('duplicate-precinct-name'));
+
+    expect(store.electionDefinition.listPollingPlaces(electionId)).toEqual([
+      electionDay2,
+      generatedPlace,
+    ]);
+    expect(
+      store.electionDefinition.listPrecincts(electionId).map((p) => p.id)
+    ).toEqual(['p4', 'p1', 'p2', 'p3']);
+  });
+
   test('deleting the election deletes its polling places', () => {
     const store = setUpStore();
     store.electionDefinition

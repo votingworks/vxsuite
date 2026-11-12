@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { DateWithoutTime, err, ok } from '@votingworks/basics';
 import {
   type ElectionInfoUpdate,
+  getStateFeaturesConfig,
   stateFeatureConfigs,
 } from '@votingworks/election-definition-backend';
 import { describeElectionDefinitionMethods } from '@votingworks/election-definition-backend/test-utils';
@@ -31,6 +32,17 @@ vi.mock(import('@votingworks/utils'), async (importActual) => ({
     featureFlagMock.isEnabled(flag),
 }));
 
+vi.mock(
+  import('@votingworks/election-definition-backend'),
+  async (importActual) => {
+    const actual = await importActual();
+    return {
+      ...actual,
+      getStateFeaturesConfig: vi.fn(actual.getStateFeaturesConfig),
+    };
+  }
+);
+
 const electionDefinition = readElectionGeneralDefinition();
 
 beforeEach(() => {
@@ -43,6 +55,7 @@ beforeEach(() => {
 
 afterEach(() => {
   featureFlagMock.resetFeatureFlags();
+  vi.mocked(getStateFeaturesConfig).mockReset();
   vi.unstubAllEnvs();
   vi.useRealTimers();
 });
@@ -739,5 +752,54 @@ test('rejects invalid polling places and unknown elections', async () => {
       api.deletePollingPlace({ electionId: 'missing', id: 'place-1' })
     ).rejects.toThrow('Election definition not found');
   });
+  expect(await api.listPollingPlaces({ electionId })).toEqual([]);
+});
+
+test('creating a precinct creates an election day polling place for it', async () => {
+  const { electionDefinitionApiClient: api, auth } = buildTestEnvironment();
+  mockSystemAdministratorAuth(auth);
+  const electionId = await api.createInProgressElection();
+  (
+    await api.createPrecinct({
+      electionId,
+      newPrecinct: { id: 'precinct-1', name: 'Precinct 1', districtIds: [] },
+    })
+  ).unsafeUnwrap();
+  (
+    await api.updatePrecinct({
+      electionId,
+      updatedPrecinct: {
+        id: 'precinct-1',
+        name: 'Precinct A',
+        districtIds: [],
+      },
+    })
+  ).unsafeUnwrap();
+
+  expect(await api.listPollingPlaces({ electionId })).toEqual([
+    {
+      id: expect.any(String),
+      name: 'Precinct 1',
+      precincts: { 'precinct-1': { type: 'whole' } },
+      type: 'election_day',
+    },
+  ]);
+});
+
+test('creating a precinct creates no polling place without EDIT_POLLING_PLACES', async () => {
+  vi.mocked(getStateFeaturesConfig).mockReturnValue({
+    ...stateFeatureConfigs.DEMO,
+    EDIT_POLLING_PLACES: false,
+  });
+  const { electionDefinitionApiClient: api, auth } = buildTestEnvironment();
+  mockSystemAdministratorAuth(auth);
+  const electionId = await api.createInProgressElection();
+  (
+    await api.createPrecinct({
+      electionId,
+      newPrecinct: { id: 'precinct-1', name: 'Precinct 1', districtIds: [] },
+    })
+  ).unsafeUnwrap();
+
   expect(await api.listPollingPlaces({ electionId })).toEqual([]);
 });

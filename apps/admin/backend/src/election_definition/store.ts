@@ -431,11 +431,15 @@ export class ElectionDefinitionStore {
       });
   }
 
-  createPrecinct(input: PrecinctCreate): Result<void, DuplicatePrecinctError> {
+  createPrecinct(
+    input: PrecinctCreate,
+    generatedPollingPlace?: PollingPlace
+  ): Result<void, DuplicatePrecinctError> {
     return this.writePrecinct(
       input.electionId,
       input.newPrecinct,
-      input.registeredVoterCounts
+      input.registeredVoterCounts,
+      generatedPollingPlace
     );
   }
 
@@ -458,7 +462,8 @@ export class ElectionDefinitionStore {
   private writePrecinct(
     electionId: ElectionId,
     unparsedPrecinct: Precinct,
-    unparsedRegisteredVoterCounts?: PrecinctRegisteredVoterCountEntry
+    unparsedRegisteredVoterCounts?: PrecinctRegisteredVoterCountEntry,
+    generatedPollingPlace?: PollingPlace
   ): Result<void, DuplicatePrecinctError> {
     const precinct = unsafeParse(PrecinctSchema, unparsedPrecinct);
     const registeredVoterCounts = parseRegisteredVoterCounts(
@@ -540,6 +545,17 @@ export class ElectionDefinitionStore {
               registeredVoterCounts
             );
           }
+        }
+
+        if (generatedPollingPlace) {
+          const placeResult = this.writePollingPlace(
+            electionId,
+            generatedPollingPlace
+          );
+          assert(
+            placeResult.isOk() || placeResult.err() === 'duplicate-name',
+            'Generated polling place is invalid'
+          );
         }
       })
     );
