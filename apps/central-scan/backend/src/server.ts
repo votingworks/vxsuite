@@ -7,7 +7,6 @@ import {
 } from '@votingworks/logging';
 import { DippedSmartCardAuth, JavaCard, MockFileCard } from '@votingworks/auth';
 import type { Server } from 'node:http';
-import { join } from 'node:path';
 import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
@@ -15,20 +14,17 @@ import {
 } from '@votingworks/utils';
 import { type UsbDrive, detectUsbDriveFromEnv } from '@votingworks/usb-drive';
 import { detectDevices, startCpuMetricsLogging } from '@votingworks/backend';
-import {
-  DEFAULT_DEV_DOCK_DIR,
-  useDevDockRouter,
-} from '@votingworks/dev-dock-backend';
+import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { getScanWorkspace, PORT } from './globals.js';
 import { createBatchScannerStateMachine } from './scanner.js';
-import { FujitsuScanner, ScannerMode } from './fujitsu_scanner.js';
-import { MockBatchScanner } from './mock_batch_scanner.js';
+import type { MockBatchScanner } from './mock_batch_scanner.js';
 import { createWorkspace, type Workspace } from './util/workspace.js';
 import { buildCentralScannerApp } from './app.js';
 import { getUserRole } from './util/auth.js';
 import { isCentralScanNetworkingEnabled } from './networking_config.js';
 import { startScannerNetworking } from './networking.js';
 import { startCvrSync } from './cvr_sync.js';
+import { createBatchScanner } from './create_batch_scanner.js';
 
 export interface StartOptions {
   port: number | string;
@@ -108,18 +104,12 @@ export function start({
       getUserRole(auth, resolvedWorkspace)
     );
 
-    mockBatchScanner = isFeatureFlagEnabled(
-      BooleanEnvironmentVariableName.USE_MOCK_CENTRAL_SCANNER
-    )
-      ? new MockBatchScanner(join(DEFAULT_DEV_DOCK_DIR, 'batch-images'))
-      : undefined;
-
-    const resolvedBatchScanner =
-      mockBatchScanner ??
-      new FujitsuScanner({ mode: ScannerMode.Gray, logger });
+    const createdBatchScanner = createBatchScanner({ logger });
+    const { scanner } = createdBatchScanner;
+    mockBatchScanner = createdBatchScanner.mockBatchScanner;
 
     const machine = createBatchScannerStateMachine({
-      scanner: resolvedBatchScanner,
+      scanner,
       workspace: resolvedWorkspace,
       logger,
     });
@@ -128,7 +118,7 @@ export function start({
 
     resolvedApp = buildCentralScannerApp({
       auth,
-      scanner: resolvedBatchScanner,
+      scanner,
       machine,
       logger,
       usbDrive: resolvedUsbDrive,
