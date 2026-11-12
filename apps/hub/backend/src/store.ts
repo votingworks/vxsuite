@@ -249,8 +249,6 @@ export type DuplicateContestError =
   | 'duplicate-candidate'
   | 'duplicate-option';
 
-export type SetPollingPlaceError = 'duplicate-name' | 'invalid-precinct';
-
 function straightPartyContestId(electionId: ElectionId): ContestId {
   return `${electionId}-straight-party-contest`;
 }
