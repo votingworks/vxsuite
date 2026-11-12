@@ -786,6 +786,14 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)
 **Description:** A user deleted a precinct from the election definition being designed.
 **Machines:** vx-admin
+### election-definition-polling-place-saved
+**Type:** [user-action](#user-action)
+**Description:** A user added or edited a polling place (name, type or precincts) in the election definition being designed, or failed to. Success or failure indicated by disposition.
+**Machines:** vx-admin
+### election-definition-polling-place-deleted
+**Type:** [user-action](#user-action)
+**Description:** A user deleted a polling place from the election definition being designed.
+**Machines:** vx-admin
 ### election-definition-discarded
 **Type:** [user-action](#user-action)
 **Description:** A user discarded the election definition being designed.

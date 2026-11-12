@@ -501,6 +501,10 @@ pub enum EventId {
     ElectionDefinitionPrecinctUpdated,
     #[serde(rename = "election-definition-precinct-deleted")]
     ElectionDefinitionPrecinctDeleted,
+    #[serde(rename = "election-definition-polling-place-saved")]
+    ElectionDefinitionPollingPlaceSaved,
+    #[serde(rename = "election-definition-polling-place-deleted")]
+    ElectionDefinitionPollingPlaceDeleted,
     #[serde(rename = "election-definition-discarded")]
     ElectionDefinitionDiscarded,
 }

@@ -1240,6 +1240,18 @@ eventType = "user-action"
 documentationMessage = "A user deleted a precinct from the election definition being designed."
 restrictInDocumentationToApps = ["vx-admin"]
 
+[Events.ElectionDefinitionPollingPlaceSaved]
+eventId = "election-definition-polling-place-saved"
+eventType = "user-action"
+documentationMessage = "A user added or edited a polling place (name, type or precincts) in the election definition being designed, or failed to. Success or failure indicated by disposition."
+restrictInDocumentationToApps = ["vx-admin"]
+
+[Events.ElectionDefinitionPollingPlaceDeleted]
+eventId = "election-definition-polling-place-deleted"
+eventType = "user-action"
+documentationMessage = "A user deleted a polling place from the election definition being designed."
+restrictInDocumentationToApps = ["vx-admin"]
+
 [Events.ElectionDefinitionDiscarded]
 eventId = "election-definition-discarded"
 eventType = "user-action"
