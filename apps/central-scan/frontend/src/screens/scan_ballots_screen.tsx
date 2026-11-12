@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Button, Callout, H2, Icons, Modal, P } from '@votingworks/ui';
 import type {
+  BatchErrorReason,
   BatchPauseReason,
+  BatchScannerErrorCode,
   ScanStatus,
 } from '@votingworks/central-scan-backend';
 import { format } from '@votingworks/utils';
@@ -184,6 +186,30 @@ function SheetCount({ count }: { count: number }): JSX.Element {
       </SheetCountValue>
     </div>
   );
+}
+
+function scannerErrorSubtitle(code: BatchScannerErrorCode): string {
+  switch (code) {
+    case 'jammed':
+      return `The scanner jammed. Clear the jam, discard this batch, then rescan the ballots.`;
+    case 'cover_open':
+      return `The scanner cover is open. Close it, discard this batch, then rescan the ballots.`;
+    case 'scan_failed':
+      return `The scanner failed. Check the scanner, discard this batch, then rescan the ballots.`;
+    default:
+      throwIllegalValue(code);
+  }
+}
+
+function errorSubtitle(errorReason: BatchErrorReason): string {
+  switch (errorReason.type) {
+    case 'scanner':
+      return scannerErrorSubtitle(errorReason.code);
+    case 'internal':
+      return 'Discard this batch, then rescan the ballots.';
+    default:
+      throwIllegalValue(errorReason, 'type');
+  }
 }
 
 export interface ScanBallotsScreenProps {
@@ -419,7 +445,7 @@ export function ScanBallotsScreen({
                         Error
                       </React.Fragment>
                     }
-                    subtitle="Discard this batch, then rescan the ballots."
+                    subtitle={errorSubtitle(status.errorReason)}
                     batch={batch}
                   />
                   <Button

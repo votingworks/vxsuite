@@ -255,9 +255,38 @@ test('discarding a batch keeps the confirmation open until the discard completes
   );
 });
 
+test.each([
+  {
+    code: 'jammed',
+    subtitle:
+      'The scanner jammed. Clear the jam, discard this batch, then rescan the ballots.',
+  },
+  {
+    code: 'cover_open',
+    subtitle:
+      'The scanner cover is open. Close it, discard this batch, then rescan the ballots.',
+  },
+  {
+    code: 'scan_failed',
+    subtitle:
+      'The scanner failed. Check the scanner, discard this batch, then rescan the ballots.',
+  },
+] as const)('error: explains a $code scanner error', ({ code, subtitle }) => {
+  renderScreen({
+    status: mockStatus(
+      { batches: [] },
+      { state: 'error', batchId: 'a', errorReason: { type: 'scanner', code } }
+    ),
+  });
+  screen.getByText(subtitle);
+});
+
 test('error: Discard is the only action', async () => {
   renderScreen({
-    status: mockStatus({ batches: [] }, { state: 'error', batchId: 'a' }),
+    status: mockStatus(
+      { batches: [] },
+      { state: 'error', batchId: 'a', errorReason: { type: 'internal' } }
+    ),
   });
   screen.getByText('Error');
   screen.getByText('Discard this batch, then rescan the ballots.');

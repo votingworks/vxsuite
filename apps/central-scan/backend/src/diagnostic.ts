@@ -18,7 +18,7 @@ export async function performScanDiagnostic(
   const batchControl = scanner.scanSheets();
   let sheets: ScannedSheetInfo | undefined;
   try {
-    sheets = await batchControl.scanSheet();
+    sheets = (await batchControl.scanSheet()).ok();
   } catch {
     // an error here probably means there is no paper, which is handled below
   }

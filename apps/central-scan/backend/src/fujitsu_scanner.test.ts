@@ -3,7 +3,7 @@ import { BaseLogger, LogSource } from '@votingworks/logging';
 import { HmpbBallotPaperSize } from '@votingworks/types';
 import type { ChildProcess } from 'node:child_process';
 import { type Device, isDeviceAttached } from '@votingworks/backend';
-import { sleep } from '@votingworks/basics';
+import { err, ok, sleep } from '@votingworks/basics';
 import { mockChildProcess } from '@votingworks/test-utils';
 import {
   EXPECTED_IMPRINTER_UNATTACHED_ERROR,
@@ -55,11 +55,13 @@ test('fujitsu scanner calls scanimage with fujitsu device type', async () => {
   );
 
   scanimage.emit('exit', 0, null);
-  await expect(sheets.scanSheet()).resolves.toEqual({
-    frontPath: '/tmp/image-0001.png',
-    backPath: '/tmp/image-0002.png',
-  });
-  await expect(sheets.scanSheet()).resolves.toBeUndefined();
+  await expect(sheets.scanSheet()).resolves.toEqual(
+    ok({
+      frontPath: '/tmp/image-0001.png',
+      backPath: '/tmp/image-0002.png',
+    })
+  );
+  await expect(sheets.scanSheet()).resolves.toEqual(ok(undefined));
 });
 
 test('fujitsu scanner returns ballot audit id on scans when imprinting', async () => {
@@ -89,12 +91,14 @@ test('fujitsu scanner returns ballot audit id on scans when imprinting', async (
   );
 
   scanimage.emit('exit', 0, null);
-  await expect(sheets.scanSheet()).resolves.toEqual({
-    frontPath: '/tmp/image-0001.png',
-    backPath: '/tmp/image-0002.png',
-    ballotAuditId: 'b28733b5-dc01-4901-b433-ea179942993b_1_0000',
-  });
-  await expect(sheets.scanSheet()).resolves.toBeUndefined();
+  await expect(sheets.scanSheet()).resolves.toEqual(
+    ok({
+      frontPath: '/tmp/image-0001.png',
+      backPath: '/tmp/image-0002.png',
+      ballotAuditId: 'b28733b5-dc01-4901-b433-ea179942993b_1_0000',
+    })
+  );
+  await expect(sheets.scanSheet()).resolves.toEqual(ok(undefined));
 });
 
 test('fujitsu scanner can scans with expected params on letter size election', () => {
@@ -446,10 +450,12 @@ test('fujitsu scanner requests two images at a time from scanimage', async () =>
 
   scanimage.stdout.append('/tmp/front.png\n');
   scanimage.stdout.append('/tmp/back.png\n');
-  await expect(sheetPromise).resolves.toEqual({
-    frontPath: '/tmp/front.png',
-    backPath: '/tmp/back.png',
-  });
+  await expect(sheetPromise).resolves.toEqual(
+    ok({
+      frontPath: '/tmp/front.png',
+      backPath: '/tmp/back.png',
+    })
+  );
 });
 
 test('fujitsu scanner ends the scanimage process on generator return', async () => {
@@ -513,17 +519,27 @@ test('fujitsu scanner endBatch resolves when the scanimage process has already e
   expect(await settlesBeforeNextMacrotask(sheets.endBatch())).toEqual(true);
 });
 
-test('fujitsu scanner fails if scanSheet fails', async () => {
-  const scanimage = mockChildProcess();
-  exec.mockReturnValueOnce(scanimage);
-  const scanner = new FujitsuScanner({
-    logger: new BaseLogger(LogSource.VxScanService),
-  });
-  const sheets = scanner.scanSheets();
+test.each([
+  { exitCode: 6, code: 'jammed' },
+  { exitCode: 8, code: 'cover_open' },
+  { exitCode: 1, code: 'scan_failed' },
+  { exitCode: null, code: 'scan_failed' },
+] as const)(
+  'fujitsu scanner reports $code when scanimage exits with code $exitCode',
+  async ({ exitCode, code }) => {
+    const scanimage = mockChildProcess();
+    exec.mockReturnValueOnce(scanimage);
+    const scanner = new FujitsuScanner({
+      logger: new BaseLogger(LogSource.VxScanService),
+    });
+    const sheets = scanner.scanSheets();
 
-  scanimage.emit('exit', 1, null);
-  await expect(sheets.scanSheet()).rejects.toThrowError();
-});
+    scanimage.emit('exit', exitCode, null);
+    expect(await sheets.scanSheet()).toEqual(
+      err({ code, message: `scanimage exited with code=${exitCode}` })
+    );
+  }
+);
 
 test('fujitsu scanner reports an empty tray when scanimage exits with SANE_STATUS_NO_DOCS', async () => {
   const scanimage = mockChildProcess();
@@ -534,7 +550,7 @@ test('fujitsu scanner reports an empty tray when scanimage exits with SANE_STATU
   const sheets = scanner.scanSheets();
 
   scanimage.emit('exit', 7, null);
-  expect(await sheets.scanSheet()).toBeUndefined();
+  expect(await sheets.scanSheet()).toEqual(ok(undefined));
 });
 
 test('attached based on detected USB devices', () => {

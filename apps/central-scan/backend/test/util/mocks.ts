@@ -1,13 +1,21 @@
-import { type Optional, throwIllegalValue } from '@votingworks/basics';
+import {
+  err,
+  ok,
+  type Optional,
+  type Result,
+  throwIllegalValue,
+} from '@votingworks/basics';
 import type {
   BatchControl,
   BatchScanner,
+  BatchScannerError,
   ScannedSheetInfo,
 } from '../../src/batch_scanner.js';
 
 type ScanSessionStep =
   | { type: 'sheet'; sheet: ScannedSheetInfo; onScanned: () => void }
-  | { type: 'error'; error: Error }
+  | { type: 'error'; error: BatchScannerError }
+  | { type: 'crash'; error: Error }
   | { type: 'wait'; promise: Promise<void>; onWaiting: () => void };
 
 /**
@@ -33,13 +41,24 @@ class ScannerSessionPlan {
   }
 
   /**
-   * Adds an error step to the session.
+   * Adds a step where the scanner reports an error.
    */
-  error(error: Error): this {
+  error(error: BatchScannerError): this {
     if (this.ended) {
       throw new Error('cannot add an error step to an ended session');
     }
     this.steps.push({ type: 'error', error });
+    return this;
+  }
+
+  /**
+   * Adds a step where `scanSheet` rejects unexpectedly.
+   */
+  crash(error: Error): this {
+    if (this.ended) {
+      throw new Error('cannot add a crash step to an ended session');
+    }
+    this.steps.push({ type: 'crash', error });
     return this;
   }
 
@@ -107,7 +126,9 @@ export function makeMockScanner(): MockScanner {
       }
 
       return {
-        scanSheet: async (): Promise<ScannedSheetInfo | undefined> => {
+        scanSheet: async (): Promise<
+          Result<ScannedSheetInfo | undefined, BatchScannerError>
+        > => {
           let step = session.getStep(stepIndex);
           stepIndex += 1;
           while (step?.type === 'wait') {
@@ -118,15 +139,18 @@ export function makeMockScanner(): MockScanner {
           }
 
           if (!step) {
-            return undefined;
+            return ok(undefined);
           }
 
           switch (step.type) {
             case 'sheet':
               step.onScanned();
-              return step.sheet;
+              return ok(step.sheet);
 
             case 'error':
+              return err(step.error);
+
+            case 'crash':
               throw step.error;
 
             default:

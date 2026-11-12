@@ -329,7 +329,11 @@ test('error when starting a batch', async () => {
   await machine.startBatch();
   expect(workspace.store.getBatches()).toHaveLength(1);
   const [batch] = workspace.store.getBatches();
-  expect(machine.status()).toEqual({ state: 'error', batchId: batch!.id });
+  expect(machine.status()).toEqual({
+    state: 'error',
+    batchId: batch!.id,
+    errorReason: { type: 'internal' },
+  });
   expect(existsSync(workspace.batchImagesPath(batch!.id))).toEqual(true);
   expectErrorEventLogged(logger, 'scanner unavailable');
   expect(logger.log).not.toHaveBeenCalledWith(
@@ -349,7 +353,10 @@ test('error in scanning', async () => {
   const { machine, workspace, logger } = await setup(scanner);
   await configureElection(workspace);
 
-  scanner.withNextScannerSession().error(new Error('paper jam')).end();
+  scanner
+    .withNextScannerSession()
+    .error({ code: 'jammed', message: 'paper jam' })
+    .end();
   const finishBatchSpy = vi.spyOn(workspace.store, 'finishBatch');
   await machine.startBatch();
   await waitForStatus(machine, { state: 'error' });
@@ -359,7 +366,19 @@ test('error in scanning', async () => {
     expect.objectContaining({ count: 0, endedAt: undefined })
   );
   expect(finishBatchSpy).not.toHaveBeenCalled();
-  expectErrorEventLogged(logger, 'paper jam');
+  expect(machine.status()).toEqual({
+    state: 'error',
+    batchId: batch!.id,
+    errorReason: { type: 'scanner', code: 'jammed' },
+  });
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.ScannerEvent,
+    'system',
+    expect.objectContaining({
+      message: 'Scanner reported an error: jammed (paper jam)',
+      disposition: 'failure',
+    })
+  );
 
   await machine.discardBatch();
   expect(machine.status()).toEqual({ state: 'idle' });
@@ -375,6 +394,27 @@ test('error in scanning', async () => {
   await machine.saveBatch();
   expect(machine.status()).toEqual({ state: 'idle' });
   expect(finishBatchSpy).toHaveBeenCalledWith(expect.any(String));
+});
+
+test('unexpected failure in scanning', async () => {
+  const scanner = makeMockScanner();
+  const { machine, workspace, logger } = await setup(scanner);
+  await configureElection(workspace);
+
+  scanner.withNextScannerSession().crash(new Error('daemon crashed')).end();
+  await machine.startBatch();
+  await waitForStatus(machine, { state: 'error' });
+
+  const [batch] = workspace.store.getBatches();
+  expect(machine.status()).toEqual({
+    state: 'error',
+    batchId: batch!.id,
+    errorReason: { type: 'internal' },
+  });
+  expectErrorEventLogged(logger, 'daemon crashed');
+
+  await machine.discardBatch();
+  expect(machine.status()).toEqual({ state: 'idle' });
 });
 
 test('error in interpreting', async () => {
@@ -423,7 +463,11 @@ test('error in saving', async () => {
 
   const [batch] = workspace.store.getBatches();
   await machine.saveBatch();
-  expect(machine.status()).toEqual({ state: 'error', batchId: batch!.id });
+  expect(machine.status()).toEqual({
+    state: 'error',
+    batchId: batch!.id,
+    errorReason: { type: 'internal' },
+  });
   expect(workspace.store.getBatches()[0]).toEqual(
     expect.objectContaining({ count: 0, endedAt: undefined })
   );
@@ -472,13 +516,20 @@ test('error: discard failure and success paths', async () => {
     scanner,
     new Error('scanner unresponsive')
   );
-  scanner.withNextScannerSession().error(new Error('paper jam')).end();
+  scanner
+    .withNextScannerSession()
+    .error({ code: 'jammed', message: 'paper jam' })
+    .end();
   await machine.startBatch();
   await waitForStatus(machine, { state: 'error' });
   const [batch] = workspace.store.getBatches();
 
   await machine.discardBatch();
-  expect(machine.status()).toEqual({ state: 'error', batchId: batch!.id });
+  expect(machine.status()).toEqual({
+    state: 'error',
+    batchId: batch!.id,
+    errorReason: { type: 'internal' },
+  });
   expect(endBatch).toHaveBeenCalledTimes(1);
   expect(workspace.store.getBatches()).toHaveLength(1);
   expectErrorEventLogged(logger, 'scanner unresponsive');
@@ -507,7 +558,11 @@ test('paused: discard failure and success paths', async () => {
   });
 
   await machine.discardBatch();
-  expect(machine.status()).toEqual({ state: 'error', batchId: batch!.id });
+  expect(machine.status()).toEqual({
+    state: 'error',
+    batchId: batch!.id,
+    errorReason: { type: 'internal' },
+  });
   expect(endBatch).toHaveBeenCalledTimes(1);
   expect(workspace.store.getBatches()).toHaveLength(1);
   expectErrorEventLogged(logger, 'scanner unresponsive');
@@ -536,7 +591,11 @@ test('resume: error in starting new scan session', async () => {
     throw new Error('scanner unavailable');
   });
   await machine.resumeBatch();
-  expect(machine.status()).toEqual({ state: 'error', batchId: batch!.id });
+  expect(machine.status()).toEqual({
+    state: 'error',
+    batchId: batch!.id,
+    errorReason: { type: 'internal' },
+  });
   expect(workspace.store.getBatches()[0]).toEqual(
     expect.objectContaining({ count: 0, endedAt: undefined })
   );

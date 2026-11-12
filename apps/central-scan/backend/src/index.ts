@@ -10,6 +10,7 @@ import * as server from './server.js';
 export type { Api } from './app.js';
 export type { ScanDiagnosticOutcome } from './diagnostic.js';
 export * from './types.js';
+export type { BatchScannerErrorCode } from './batch_scanner.js';
 
 loadEnvVarsFromDotenvFiles();
 

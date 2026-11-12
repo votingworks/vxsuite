@@ -1,3 +1,4 @@
+import type { Result } from '@votingworks/basics';
 import type { HmpbBallotPaperSize } from '@votingworks/types';
 
 export interface BatchScanner {
@@ -16,10 +17,17 @@ export interface ScanOptions {
 }
 
 export interface BatchControl {
-  /** Resolves to the next sheet, `undefined` once the tray is empty, or rejects on a scanner error. */
-  scanSheet(): Promise<ScannedSheetInfo | undefined>;
-  /** Stops the batch and resolves once the scanner has stopped; also called after `scanSheet` rejects. */
+  /** Resolves to the next sheet, `undefined` once the tray is empty, or an error the scanner reported. */
+  scanSheet(): Promise<Result<ScannedSheetInfo | undefined, BatchScannerError>>;
+  /** Stops the batch and resolves once the scanner has stopped; also called after `scanSheet` fails. */
   endBatch(): Promise<void>;
+}
+
+export type BatchScannerErrorCode = 'jammed' | 'cover_open' | 'scan_failed';
+
+export interface BatchScannerError {
+  readonly code: BatchScannerErrorCode;
+  readonly message: string;
 }
 
 export interface ScannedSheetInfo {
