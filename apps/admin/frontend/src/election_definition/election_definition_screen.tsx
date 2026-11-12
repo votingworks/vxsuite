@@ -10,6 +10,7 @@ import {
   DistrictsEditor,
   ElectionDefinitionContextProvider,
   ElectionInfoEditor,
+  PollingPlacesEditor,
   PrecinctsEditor,
 } from '@votingworks/election-definition-ui';
 import type { ElectionId } from '@votingworks/types';
@@ -39,12 +40,8 @@ const TabBar = styled(RouterTabBar)`
 
 function DefinitionScreen(): JSX.Element | null {
   const { electionId } = useParams<{ electionId: ElectionId }>();
-  const history = useHistory();
   const getCurrentInProgressElectionQuery =
     getCurrentInProgressElection.useQuery();
-  const infoPath = routerPaths.electionDefinitionInfo(electionId);
-  const districtsPath = routerPaths.electionDefinitionDistricts(electionId);
-  const precinctsPath = routerPaths.electionDefinitionPrecincts(electionId);
 
   if (!getCurrentInProgressElectionQuery.isSuccess) {
     return null;
@@ -52,6 +49,28 @@ function DefinitionScreen(): JSX.Element | null {
   if (getCurrentInProgressElectionQuery.data?.electionId !== electionId) {
     return <Redirect to={routerPaths.electionDefinition} />;
   }
+
+  return <DefinitionTabs electionId={electionId} />;
+}
+
+function DefinitionTabs({
+  electionId,
+}: {
+  electionId: ElectionId;
+}): JSX.Element | null {
+  const history = useHistory();
+  const getStateFeaturesQuery =
+    electionDefinitionApi.getStateFeatures.useQuery(electionId);
+  const infoPath = routerPaths.electionDefinitionInfo(electionId);
+  const districtsPath = routerPaths.electionDefinitionDistricts(electionId);
+  const precinctsPath = routerPaths.electionDefinitionPrecincts(electionId);
+  const pollingPlacesPath =
+    routerPaths.electionDefinitionPollingPlaces(electionId);
+
+  if (!getStateFeaturesQuery.isSuccess) {
+    return null;
+  }
+  const canEditPollingPlaces = !!getStateFeaturesQuery.data.EDIT_POLLING_PLACES;
 
   return (
     <NavScreenLite navItems={NAV_ITEMS} backRouterPath={routerPaths.election}>
@@ -61,6 +80,9 @@ function DefinitionScreen(): JSX.Element | null {
             { title: 'Election Info', path: infoPath },
             { title: 'Districts', path: districtsPath },
             { title: 'Precincts', path: precinctsPath },
+            ...(canEditPollingPlaces
+              ? [{ title: 'Polling Places', path: pollingPlacesPath }]
+              : []),
           ]}
         />
         <Switch>
@@ -76,6 +98,13 @@ function DefinitionScreen(): JSX.Element | null {
           <Route path={routerPaths.electionDefinitionPrecincts(':electionId')}>
             <PrecinctsEditor electionId={electionId} />
           </Route>
+          {canEditPollingPlaces && (
+            <Route
+              path={routerPaths.electionDefinitionPollingPlaces(':electionId')}
+            >
+              <PollingPlacesEditor electionId={electionId} />
+            </Route>
+          )}
           <Redirect to={infoPath} />
         </Switch>
       </Container>
