@@ -47,7 +47,7 @@ Each app typically has `frontend/`, `backend/`, and optionally
 - **API Layer:** @votingworks/grout (custom type-safe RPC)
 - **Package Manager:** pnpm v12 (workspaces)
 - **Build:** tsc (TypeScript 7 native compiler), esbuild, Vite (frontends)
-- **Node:** 24.22.1
+- **Node:** 24.22.3
 - **Rust:** Used in performance-critical libs (ballot-interpreter, pdi-scanner,
   logging)
 
