@@ -80,6 +80,7 @@ import {
   type ExternalElectionSource,
   generateId,
   getStateFeaturesConfig,
+  type SetPollingPlaceError,
   type StateCode,
 } from '@votingworks/election-definition-backend';
 import type {

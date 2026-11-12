@@ -88,6 +88,7 @@ import {
   type PrecinctCreate,
   type PrecinctDelete,
   type PrecinctUpdate,
+  type SetPollingPlaceError,
   type StateFeaturesConfig,
 } from '@votingworks/election-definition-backend';
 import type {
@@ -95,7 +96,6 @@ import type {
   DuplicateContestError,
   DuplicatePartyError,
   TestDecksTaskMetadata,
-  SetPollingPlaceError,
   Store,
 } from './store.js';
 import {
