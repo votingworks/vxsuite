@@ -9,7 +9,12 @@ import {
   throwIllegalValue,
 } from '@votingworks/basics';
 import {
+  type ContestCreate,
+  type ContestDelete,
+  type ContestsReorder,
+  type ContestUpdate,
   type DistrictsUpdate,
+  type DuplicateContestError,
   type DuplicateDistrictError,
   type DuplicatePartyError,
   type DuplicatePrecinctError,
@@ -33,6 +38,7 @@ import * as grout from '@votingworks/grout';
 import { LogEventId, type Logger } from '@votingworks/logging';
 import {
   type District,
+  type Contest,
   type ElectionId,
   type ElectionRegisteredVoterCounts,
   LanguageCode,
@@ -80,6 +86,24 @@ function describePartyError({ code, partyId }: DuplicatePartyError): string {
       return `party ${partyId} has a duplicate abbreviation`;
     default:
       throwIllegalValue(code);
+  }
+}
+
+function describeContestError(
+  error: DuplicateContestError,
+  contest: Contest
+): string {
+  switch (error) {
+    case 'duplicate-contest':
+      return contest.type === 'yesno'
+        ? 'another contest has the same district and title'
+        : 'another contest has the same district, title, seats, term and party';
+    case 'duplicate-candidate':
+      return 'two of its candidates have the same name';
+    case 'duplicate-option':
+      return 'two of its options have the same label';
+    default:
+      throwIllegalValue(error);
   }
 }
 
@@ -264,6 +288,85 @@ function createElectionDefinitionApiMethods({
         }
       );
       return result;
+    },
+
+    listContests(input: ElectionInput): Contest[] {
+      loadInProgressElectionInfo(input);
+      return store.electionDefinition.listContests(input.electionId);
+    },
+
+    async createContest(
+      input: ContestCreate
+    ): Promise<Result<void, DuplicateContestError>> {
+      loadInProgressElectionInfo(input);
+      const result = store.electionDefinition.createContest(input);
+      if (result.isErr()) {
+        await logger.logAsCurrentRole(
+          LogEventId.ElectionDefinitionContestCreated,
+          {
+            message: `Error creating contest ${input.newContest.id} in election definition ${input.electionId}: ${describeContestError(result.err(), input.newContest)}.`,
+            disposition: 'failure',
+          }
+        );
+        return result;
+      }
+      await logger.logAsCurrentRole(
+        LogEventId.ElectionDefinitionContestCreated,
+        {
+          message: `Created contest ${input.newContest.id} in election definition ${input.electionId}.`,
+          disposition: 'success',
+        }
+      );
+      return result;
+    },
+
+    async updateContest(
+      input: ContestUpdate
+    ): Promise<Result<void, DuplicateContestError>> {
+      loadInProgressElectionInfo(input);
+      const result = store.electionDefinition.updateContest(input);
+      if (result.isErr()) {
+        await logger.logAsCurrentRole(
+          LogEventId.ElectionDefinitionContestUpdated,
+          {
+            message: `Error updating contest ${input.updatedContest.id} in election definition ${input.electionId}: ${describeContestError(result.err(), input.updatedContest)}.`,
+            disposition: 'failure',
+          }
+        );
+        return result;
+      }
+      await logger.logAsCurrentRole(
+        LogEventId.ElectionDefinitionContestUpdated,
+        {
+          message: `Updated contest ${input.updatedContest.id} in election definition ${input.electionId}.`,
+          disposition: 'success',
+        }
+      );
+      return result;
+    },
+
+    async reorderContests(input: ContestsReorder): Promise<void> {
+      loadInProgressElectionInfo(input);
+      store.electionDefinition.reorderContests(input);
+      await logger.logAsCurrentRole(
+        LogEventId.ElectionDefinitionContestsReordered,
+        {
+          message: `Reordered contests in election definition ${input.electionId}.`,
+          disposition: 'success',
+        }
+      );
+    },
+
+    async deleteContest(input: ContestDelete): Promise<void> {
+      loadInProgressElectionInfo(input);
+      store.electionDefinition.deleteContest(input);
+      await logger.logAsCurrentRole(
+        LogEventId.ElectionDefinitionContestDeleted,
+        {
+          message: `Deleted contest ${input.contestId} from election definition ${input.electionId}.`,
+          disposition: 'success',
+        }
+      );
     },
 
     listPrecincts(input: ElectionInput): Precinct[] {
