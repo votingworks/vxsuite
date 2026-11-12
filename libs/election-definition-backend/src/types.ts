@@ -9,6 +9,7 @@ import {
   ElectionTypeSchema,
   type LanguageCode,
   LanguageCodeSchema,
+  type PollingPlace,
   type Precinct,
   type PrecinctId,
   type PrecinctRegisteredVoterCountEntry,
@@ -75,4 +76,14 @@ export interface PrecinctUpdate {
 export interface PrecinctDelete {
   readonly electionId: ElectionId;
   readonly precinctId: PrecinctId;
+}
+
+export interface PollingPlaceSet {
+  readonly electionId: ElectionId;
+  readonly place: PollingPlace;
+}
+
+export interface PollingPlaceDelete {
+  readonly electionId: ElectionId;
+  readonly id: string;
 }
