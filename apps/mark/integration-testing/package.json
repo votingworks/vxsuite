@@ -6,10 +6,10 @@
   "author": "VotingWorks Engineering <eng@voting.works>",
   "type": "module",
   "scripts": {
-    "build": "pnpm install && pnpm -w vx-task it-deps $npm_package_name && make build",
+    "build": "pnpm install && pnpm -w vx-task deps $npm_package_name && make build",
     "format": "oxfmt --write",
     "lint": "pnpm -w vx-task lint $npm_package_name",
-    "lint:fix": "eslint --cache --fix .",
+    "lint:fix": "pnpm -w vx-task deps $npm_package_name && eslint --cache --fix .",
     "lint:self": "eslint --cache .",
     "test": "pnpm -w vx-task it-prebuild $npm_package_name && playwright test",
     "test:watch": "pnpm -w vx-task it-prebuild $npm_package_name && playwright test --ui"

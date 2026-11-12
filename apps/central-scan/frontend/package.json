@@ -11,21 +11,21 @@
   ],
   "scripts": {
     "build": "pnpm -w vx-task build $npm_package_name",
-    "build:self": "pnpm type-check && vite build",
+    "build:self": "pnpm type-check:self && vite build",
     "clean": "pnpm -w vx-task clean $npm_package_name",
     "clean:self": "rm -rf build",
     "dev:server": "vite --clearScreen false",
     "format": "oxfmt --write",
     "lint": "pnpm -w vx-task lint $npm_package_name",
-    "lint:fix": "pnpm type-check && eslint --cache . --fix && pnpm stylelint:run:fix",
-    "lint:self": "pnpm type-check && eslint --cache . && pnpm stylelint:run",
+    "lint:fix": "pnpm -w vx-task deps $npm_package_name && pnpm type-check:self && eslint --cache . --fix && pnpm stylelint:run:fix",
+    "lint:self": "pnpm type-check:self && eslint --cache . && pnpm stylelint:run",
     "start": "pnpm -w vx-dev central-scan",
     "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}'",
     "stylelint:run:fix": "stylelint 'src/**/*.{js,jsx,ts,tsx}' --fix",
     "test": "pnpm -w vx-task build $npm_package_name && TZ=America/Anchorage vitest",
     "test:run": "pnpm -w vx-task test:run $npm_package_name",
     "test:run:self": "TZ=America/Anchorage vitest run",
-    "type-check": "tsc --build"
+    "type-check:self": "tsc -p tsconfig.json"
   },
   "browserslist": {
     "production": [

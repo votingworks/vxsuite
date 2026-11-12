@@ -26,7 +26,7 @@ case "${task}" in
     fi
     exec turbo run "${task}:self" --filter="${pkg}"
     ;;
-  it-deps) exec turbo run build:self --filter="${pkg}^..." ;;
+  deps) exec turbo run build:self --filter="${pkg}^..." ;;
   it-prebuild) exec pnpm --filter "${pkg}" build ;;
   *)
     echo "vx-task: unknown task: ${task}" >&2
