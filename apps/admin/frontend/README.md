@@ -28,3 +28,8 @@ pnpm test
 For testing multi-station flows across two machines, see
 [Testing multi-machine networking flows](../../../docs/development.md#testing-multi-machine-networking-flows)
 in the developer docs.
+
+## Backup Drives
+
+VxAdmin saves backups to an ext4-formatted drive. To prepare one, see
+[Preparing a VxAdmin Backup Drive](../../../docs/vxadmin_backup_drive_setup.md).
