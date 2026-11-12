@@ -235,16 +235,6 @@ function isForeignKeyError(
   );
 }
 
-export type DuplicatePartyErrorCode =
-  | 'duplicate-name'
-  | 'duplicate-full-name'
-  | 'duplicate-abbrev';
-
-export interface DuplicatePartyError {
-  code: DuplicatePartyErrorCode;
-  partyId: string;
-}
-
 export type DuplicateContestError =
   | 'duplicate-contest'
   | 'duplicate-candidate'

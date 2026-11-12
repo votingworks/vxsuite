@@ -15,3 +15,13 @@ export type DuplicatePrecinctError =
   | 'duplicate-split-districts';
 
 export type SetPollingPlaceError = 'duplicate-name' | 'invalid-precinct';
+
+export type DuplicatePartyErrorCode =
+  | 'duplicate-name'
+  | 'duplicate-full-name'
+  | 'duplicate-abbrev';
+
+export interface DuplicatePartyError {
+  code: DuplicatePartyErrorCode;
+  partyId: string;
+}
