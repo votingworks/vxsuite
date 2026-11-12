@@ -9,10 +9,13 @@ import { describeElectionDefinitionMethods } from '@votingworks/election-definit
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { LogEventId } from '@votingworks/logging';
 import {
+  type CandidateContest,
+  type Contest,
   LanguageCode,
   type Party,
   type PollingPlace,
   type Precinct,
+  type YesNoContest,
 } from '@votingworks/types';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import {
@@ -534,6 +537,235 @@ test('rejects invalid parties and unknown elections', async () => {
     ).rejects.toThrow('Election definition not found');
   });
   expect(await api.listParties({ electionId })).toEqual([]);
+});
+
+const mayor: CandidateContest = {
+  id: 'mayor',
+  type: 'candidate',
+  title: 'Mayor',
+  districtId: 'district-1',
+  seats: 1,
+  allowWriteIns: true,
+  candidates: [
+    {
+      id: 'candidate-1',
+      firstName: 'Ada',
+      lastName: 'Lovelace',
+      name: 'Ada Lovelace',
+    },
+  ],
+};
+
+const measure: YesNoContest = {
+  id: 'measure',
+  type: 'yesno',
+  title: 'Measure 1',
+  districtId: 'district-1',
+  description: '<p>Should we?</p>',
+  options: [
+    { id: 'measure-yes', label: 'Yes' },
+    { id: 'measure-no', label: 'No' },
+  ],
+};
+
+async function createElectionWithDistrict(
+  api: ReturnType<typeof buildTestEnvironment>['electionDefinitionApiClient']
+): Promise<string> {
+  const electionId = await api.createInProgressElection();
+  (
+    await api.updateDistricts({
+      electionId,
+      newDistricts: [{ id: 'district-1', name: 'District 1' }],
+    })
+  ).unsafeUnwrap();
+  return electionId;
+}
+
+test('edit contests', async () => {
+  const {
+    electionDefinitionApiClient: api,
+    auth,
+    logger,
+  } = buildTestEnvironment();
+  mockSystemAdministratorAuth(auth);
+  const electionId = await createElectionWithDistrict(api);
+  expect(await api.listContests({ electionId })).toEqual([]);
+
+  expect(await api.createContest({ electionId, newContest: measure })).toEqual(
+    ok()
+  );
+  expect(await api.createContest({ electionId, newContest: mayor })).toEqual(
+    ok()
+  );
+  expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
+    LogEventId.ElectionDefinitionContestCreated,
+    {
+      message: `Created contest mayor in election definition ${electionId}.`,
+      disposition: 'success',
+    }
+  );
+  expect(await api.listContests({ electionId })).toEqual([mayor, measure]);
+
+  const editedMayor: CandidateContest = { ...mayor, title: 'Mayor of Town' };
+  expect(
+    await api.updateContest({ electionId, updatedContest: editedMayor })
+  ).toEqual(ok());
+  expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
+    LogEventId.ElectionDefinitionContestUpdated,
+    {
+      message: `Updated contest mayor in election definition ${electionId}.`,
+      disposition: 'success',
+    }
+  );
+
+  await api.reorderContests({
+    electionId,
+    contestIds: [measure.id, mayor.id],
+  });
+  expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
+    LogEventId.ElectionDefinitionContestsReordered,
+    {
+      message: `Reordered contests in election definition ${electionId}.`,
+      disposition: 'success',
+    }
+  );
+  expect(await api.listContests({ electionId })).toEqual([
+    measure,
+    editedMayor,
+  ]);
+
+  await api.deleteContest({ electionId, contestId: measure.id });
+  expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
+    LogEventId.ElectionDefinitionContestDeleted,
+    {
+      message: `Deleted contest measure from election definition ${electionId}.`,
+      disposition: 'success',
+    }
+  );
+  expect(await api.listContests({ electionId })).toEqual([editedMayor]);
+});
+
+test.each([
+  {
+    conflict: { ...mayor, candidates: [] },
+    error: 'duplicate-contest',
+    description:
+      'another contest has the same district, title, seats, term and party',
+  },
+  {
+    conflict: { ...measure, description: '<p>Something else?</p>' },
+    error: 'duplicate-contest',
+    description: 'another contest has the same district and title',
+  },
+  {
+    conflict: {
+      ...mayor,
+      title: 'Other',
+      candidates: [
+        { ...mayor.candidates[0]!, id: 'candidate-2' },
+        { ...mayor.candidates[0]!, id: 'candidate-3' },
+      ],
+    },
+    error: 'duplicate-candidate',
+    description: 'two of its candidates have the same name',
+  },
+  {
+    conflict: {
+      ...measure,
+      options: [
+        { id: 'measure-yes', label: 'Yes' },
+        { id: 'measure-no', label: 'Yes' },
+      ],
+    },
+    error: 'duplicate-option',
+    description: 'two of its options have the same label',
+  },
+] as const)('rejects a contest when $description', async (spec) => {
+  const {
+    electionDefinitionApiClient: api,
+    auth,
+    logger,
+  } = buildTestEnvironment();
+  mockSystemAdministratorAuth(auth);
+  const electionId = await createElectionWithDistrict(api);
+  const otherMeasure: YesNoContest = {
+    ...measure,
+    id: 'other-measure',
+    title: 'Other Measure',
+  };
+  for (const contest of [mayor, measure, otherMeasure]) {
+    (
+      await api.createContest({ electionId, newContest: contest })
+    ).unsafeUnwrap();
+  }
+
+  const newContest: Contest = { ...spec.conflict, id: 'new-contest' };
+  expect(await api.createContest({ electionId, newContest })).toEqual(
+    err(spec.error)
+  );
+  expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
+    LogEventId.ElectionDefinitionContestCreated,
+    {
+      message: `Error creating contest new-contest in election definition ${electionId}: ${spec.description}.`,
+      disposition: 'failure',
+    }
+  );
+
+  const updatedContest: Contest = { ...spec.conflict, id: otherMeasure.id };
+  expect(await api.updateContest({ electionId, updatedContest })).toEqual(
+    err(spec.error)
+  );
+  expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
+    LogEventId.ElectionDefinitionContestUpdated,
+    {
+      message: `Error updating contest ${otherMeasure.id} in election definition ${electionId}: ${spec.description}.`,
+      disposition: 'failure',
+    }
+  );
+  expect(await api.listContests({ electionId })).toEqual([
+    mayor,
+    measure,
+    otherMeasure,
+  ]);
+});
+
+test('rejects invalid contests and unknown elections', async () => {
+  const { electionDefinitionApiClient: api, auth } = buildTestEnvironment();
+  mockSystemAdministratorAuth(auth);
+  const electionId = await createElectionWithDistrict(api);
+
+  await suppressingConsoleOutput(async () => {
+    await expect(
+      api.createContest({ electionId, newContest: { ...mayor, title: '' } })
+    ).rejects.toThrow();
+    await expect(
+      api.updateContest({ electionId, updatedContest: mayor })
+    ).rejects.toThrow('Contest not found');
+    await expect(
+      api.reorderContests({ electionId, contestIds: [mayor.id] })
+    ).rejects.toThrow('Contest list is out of date');
+    await expect(
+      api.deleteContest({ electionId, contestId: mayor.id })
+    ).rejects.toThrow('Contest not found');
+
+    const missing = { electionId: 'missing' } as const;
+    await expect(api.listContests(missing)).rejects.toThrow(
+      'Election definition not found'
+    );
+    await expect(
+      api.createContest({ ...missing, newContest: mayor })
+    ).rejects.toThrow('Election definition not found');
+    await expect(
+      api.updateContest({ ...missing, updatedContest: mayor })
+    ).rejects.toThrow('Election definition not found');
+    await expect(
+      api.reorderContests({ ...missing, contestIds: [] })
+    ).rejects.toThrow('Election definition not found');
+    await expect(
+      api.deleteContest({ ...missing, contestId: mayor.id })
+    ).rejects.toThrow('Election definition not found');
+  });
+  expect(await api.listContests({ electionId })).toEqual([]);
 });
 
 test('edit precincts', async () => {
