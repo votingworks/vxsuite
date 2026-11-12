@@ -1,4 +1,4 @@
-import type { DistrictId } from '@votingworks/types';
+import type { DistrictId, PartyId } from '@votingworks/types';
 
 export type DuplicateElectionError = 'duplicate-title-and-date';
 
@@ -23,5 +23,5 @@ export type DuplicatePartyErrorCode =
 
 export interface DuplicatePartyError {
   code: DuplicatePartyErrorCode;
-  partyId: string;
+  partyId: PartyId;
 }

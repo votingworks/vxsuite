@@ -82,6 +82,7 @@ import {
   type DistrictsUpdate,
   type DuplicateDistrictError,
   type DuplicateElectionError,
+  type DuplicatePartyError,
   type DuplicatePrecinctError,
   type ElectionDefinitionMethods,
   getStateFeaturesConfig,
@@ -96,7 +97,6 @@ import {
 import type {
   MainExportTaskMetadata,
   DuplicateContestError,
-  DuplicatePartyError,
   TestDecksTaskMetadata,
   Store,
 } from './store.js';

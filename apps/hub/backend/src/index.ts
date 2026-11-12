@@ -17,7 +17,6 @@ import {
 export type { TtsStringDefault } from './tts_strings.js';
 export type {
   BackgroundTask,
-  DuplicatePartyError,
   MainExportTaskMetadata,
   TestDecksTaskMetadata,
 } from './store.js';
@@ -40,7 +39,10 @@ export type {
   ExportQaRun,
   ExportQaStatus,
 } from './types.js';
-export type { StateFeaturesConfig } from '@votingworks/election-definition-backend';
+export type {
+  DuplicatePartyError,
+  StateFeaturesConfig,
+} from '@votingworks/election-definition-backend';
 export type { UserFeature, UserFeaturesConfig } from './features.js';
 export type { Api, AuthErrorCode, UnauthenticatedApi } from './app.js';
 export type { ConvertMsResultsError } from './convert_ms_results.js';
