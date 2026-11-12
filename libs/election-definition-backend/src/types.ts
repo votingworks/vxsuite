@@ -1,5 +1,7 @@
 import type { DateWithoutTime } from '@votingworks/basics';
 import {
+  type Contest,
+  type ContestId,
   DateWithoutTimeSchema,
   type District,
   type DistrictId,
@@ -68,6 +70,26 @@ export interface PartiesUpdate {
   readonly deletedPartyIds?: PartyId[];
   readonly newParties?: Party[];
   readonly updatedParties?: Party[];
+}
+
+export interface ContestCreate {
+  readonly electionId: ElectionId;
+  readonly newContest: Contest;
+}
+
+export interface ContestUpdate {
+  readonly electionId: ElectionId;
+  readonly updatedContest: Contest;
+}
+
+export interface ContestsReorder {
+  readonly electionId: ElectionId;
+  readonly contestIds: ContestId[];
+}
+
+export interface ContestDelete {
+  readonly electionId: ElectionId;
+  readonly contestId: ContestId;
 }
 
 export interface PrecinctCreate {
