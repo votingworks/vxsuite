@@ -75,7 +75,7 @@ function createElectionDefinitionApiMethods({
   const { store } = workspace;
 
   function loadInProgressElectionInfo(input: ElectionInput): ElectionInfo {
-    const electionInfo = store.getInProgressElection();
+    const electionInfo = store.electionDefinition.getInProgressElection();
     assert(
       electionInfo?.electionId === input.electionId,
       'Election definition not found'
@@ -85,7 +85,7 @@ function createElectionDefinitionApiMethods({
 
   const methods = {
     getCurrentInProgressElection(): ElectionInfo | null {
-      return store.getInProgressElection() ?? null;
+      return store.electionDefinition.getInProgressElection() ?? null;
     },
 
     async createInProgressElection(): Promise<ElectionId> {
@@ -96,10 +96,12 @@ function createElectionDefinitionApiMethods({
         'Cannot create an election definition while an election is configured.'
       );
       assert(
-        store.getInProgressElection() === undefined,
+        store.electionDefinition.getInProgressElection() === undefined,
         'An election definition already exists.'
       );
-      store.createInProgressElection(blankElectionInfo(electionId, stateCode));
+      store.electionDefinition.createInProgressElection(
+        blankElectionInfo(electionId, stateCode)
+      );
       await logger.logAsCurrentRole(LogEventId.ElectionDefinitionCreated, {
         message: `Created election definition ${electionId}.`,
         disposition: 'success',
@@ -109,7 +111,7 @@ function createElectionDefinitionApiMethods({
 
     async deleteElection(input: ElectionInput): Promise<void> {
       loadInProgressElectionInfo(input);
-      store.deleteInProgressElection();
+      store.electionDefinition.deleteInProgressElection();
       await logger.logAsCurrentRole(LogEventId.ElectionDefinitionDiscarded, {
         message: `Discarded election definition ${input.electionId}.`,
         disposition: 'success',
@@ -129,7 +131,7 @@ function createElectionDefinitionApiMethods({
         'Combined ballot primaries are not supported.'
       );
       loadInProgressElectionInfo(electionInfoUpdate);
-      store.updateInProgressElectionInfo(electionInfoUpdate);
+      store.electionDefinition.updateInProgressElectionInfo(electionInfoUpdate);
       await logger.logAsCurrentRole(LogEventId.ElectionDefinitionInfoUpdated, {
         message: `Updated election info for election definition ${input.electionId}.`,
         disposition: 'success',
@@ -144,14 +146,14 @@ function createElectionDefinitionApiMethods({
 
     listDistricts(input: ElectionInput): District[] {
       loadInProgressElectionInfo(input);
-      return store.listElectionDefinitionDistricts(input.electionId);
+      return store.electionDefinition.listDistricts(input.electionId);
     },
 
     async updateDistricts(
       input: DistrictsUpdate
     ): Promise<Result<void, DuplicateDistrictError>> {
       loadInProgressElectionInfo(input);
-      const result = store.updateElectionDefinitionDistricts(input);
+      const result = store.electionDefinition.updateDistricts(input);
       if (result.isErr()) {
         await logger.logAsCurrentRole(
           LogEventId.ElectionDefinitionDistrictsUpdated,
