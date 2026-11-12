@@ -1,50 +1,47 @@
 import type React from 'react';
 import styled from 'styled-components';
 import {
-  Switch,
-  Route,
   Redirect,
-  useParams,
+  Route,
+  Switch,
   useHistory,
+  useParams,
 } from 'react-router-dom';
-
-import { H1, LinkButton } from '@votingworks/ui';
-
+import type { ElectionId } from '@votingworks/types';
+import { LinkButton } from '@votingworks/ui';
+import { useElectionDefinitionApi } from './election_definition_context.js';
+import { FixedViewport, ListActionsRow } from './layout.js';
 import {
-  FixedViewport,
-  ListActionsRow,
-} from '@votingworks/election-definition-ui';
-import * as api from './api.js';
-import { ElectionNavScreen, Header } from './nav_screen.js';
-import {
-  type ElectionIdParams,
-  electionParamRoutes,
-  routes,
-} from './routes.js';
-import { useTitle } from './hooks/use_title.js';
+  type ListDetailRoutes,
+  useListDetailRoutes,
+} from './list_detail_routes.js';
 import { PollingPlaceForm } from './polling_place_form.js';
 import { PollingPlaceList } from './polling_place_list.js';
-import { PollingPlaceAudioPanel } from './polling_place_audio_panel.js';
 
-export function PollingPlacesScreen(): JSX.Element {
-  const { electionId } = useParams<ElectionIdParams>();
-  const pollingPlaceParamRoutes = electionParamRoutes.pollingPlaces;
-  useTitle(routes.election(electionId).pollingPlaces.root.title);
+export interface PollingPlacesEditorProps {
+  electionId: ElectionId;
+  isLocked?: boolean;
+  AudioPanel?: React.ComponentType;
+}
+
+interface ContentProps extends PollingPlacesEditorProps {
+  placeRoutes: ListDetailRoutes;
+}
+
+export function PollingPlacesEditor(
+  props: PollingPlacesEditorProps
+): JSX.Element {
+  const placeRoutes = useListDetailRoutes('placeId', ':stringKey');
 
   return (
-    <ElectionNavScreen electionId={electionId}>
-      <Header>
-        <H1>Polling Places</H1>
-      </Header>
-      <Switch>
-        <Route
-          path={pollingPlaceParamRoutes.view(':placeId')}
-          component={Content}
-        />
-        <Route path={pollingPlaceParamRoutes.root.path} component={Content} />
-        <Redirect to={pollingPlaceParamRoutes.root.path} />
-      </Switch>
-    </ElectionNavScreen>
+    <Switch>
+      <Route path={placeRoutes.viewPath}>
+        <Content {...props} placeRoutes={placeRoutes} />
+      </Route>
+      <Route path={placeRoutes.rootPath}>
+        <Content {...props} placeRoutes={placeRoutes} />
+      </Route>
+    </Switch>
   );
 }
 
@@ -76,20 +73,15 @@ const Body = styled.div`
   }
 `;
 
-function Content(): React.ReactNode {
-  type RouteParams = ElectionIdParams & { placeId?: string };
-  const { electionId, placeId } = useParams<RouteParams>();
+function Content(props: ContentProps): JSX.Element | null {
+  const { electionId, isLocked, AudioPanel, placeRoutes } = props;
+  const { placeId } = useParams<{ placeId?: string }>();
+  const nav = useNav(placeRoutes);
 
-  const placeRoutes = routes.election(electionId).pollingPlaces;
-  const paramRoutes = electionParamRoutes.pollingPlaces;
-  const nav = useNav(electionId);
+  const places =
+    useElectionDefinitionApi().listPollingPlaces.useQuery(electionId);
 
-  const places = api.listPollingPlaces.useQuery(electionId);
-  const finalizedAt = api.getBallotsFinalizedAt.useQuery(electionId);
-
-  if (!places.isSuccess || !finalizedAt.isSuccess) return null;
-
-  const finalized = !!finalizedAt.data;
+  if (!places.isSuccess) return null;
 
   return (
     <Viewport>
@@ -97,8 +89,8 @@ function Content(): React.ReactNode {
         <LinkButton
           variant="primary"
           icon="Add"
-          to={placeRoutes.add}
-          disabled={finalized}
+          to={placeRoutes.addUrl}
+          disabled={isLocked}
         >
           Add Polling Place
         </LinkButton>
@@ -111,72 +103,63 @@ function Content(): React.ReactNode {
           selectedId={placeId}
         />
         <Switch>
-          <Route
-            path={paramRoutes.audio({
-              placeId: ':placeId',
-              stringKey: ':stringKey',
-            })}
-          >
+          {AudioPanel && (
+            <Route path={placeRoutes.audioPath}>
+              <EditPanel>
+                <AudioPanel />
+              </EditPanel>
+            </Route>
+          )}
+
+          <Route path={placeRoutes.addPath}>
             <EditPanel>
-              <PollingPlaceAudioPanel />
+              <PollingPlaceForm
+                editing
+                electionId={electionId}
+                exit={nav.goToRoot}
+                isLocked={isLocked}
+                switchToEdit={nav.goToEdit}
+                switchToView={nav.goToView}
+              />
             </EditPanel>
           </Route>
 
-          <Route path={paramRoutes.add} component={AddForm} />
-
-          <Route path={paramRoutes.view(':placeId')} component={EditForm} />
+          <Route path={placeRoutes.viewPath}>
+            <EditForm {...props} />
+          </Route>
         </Switch>
       </Body>
     </Viewport>
   );
 }
 
-function AddForm(): JSX.Element | null {
-  const { electionId } = useParams<ElectionIdParams>();
-  const nav = useNav(electionId);
+function EditForm(props: ContentProps): JSX.Element | null {
+  const { electionId, isLocked, AudioPanel, placeRoutes } = props;
+  const { placeId } = useParams<{ placeId: string }>();
+  const nav = useNav(placeRoutes);
 
-  return (
-    <EditPanel>
-      <PollingPlaceForm
-        editing
-        electionId={electionId}
-        exit={nav.goToRoot}
-        switchToEdit={nav.goToEdit}
-        switchToView={nav.goToView}
-      />
-    </EditPanel>
-  );
-}
-
-function EditForm(): JSX.Element | null {
-  type RouteParams = ElectionIdParams & { placeId: string };
-  const { electionId, placeId } = useParams<RouteParams>();
-
-  const placesQuery = api.listPollingPlaces.useQuery(electionId);
-  const finalizedAtQuery = api.getBallotsFinalizedAt.useQuery(electionId);
-
-  const paramRoutes = electionParamRoutes.pollingPlaces;
-  const placeRoutes = routes.election(electionId).pollingPlaces;
-  const nav = useNav(electionId);
+  const placesQuery =
+    useElectionDefinitionApi().listPollingPlaces.useQuery(electionId);
 
   // @coverage-defer
-  if (!placesQuery.isSuccess || !finalizedAtQuery.isSuccess) return null;
+  if (!placesQuery.isSuccess) return null;
 
-  const pollingPlaces = placesQuery.data;
-  const savedPollingPlace = pollingPlaces.find((p) => p.id === placeId);
-  const finalized = !!finalizedAtQuery.data;
-  const canEdit = !finalized && !!savedPollingPlace;
+  const savedPollingPlace = placesQuery.data.find((p) => p.id === placeId);
+  const canEdit = !isLocked && !!savedPollingPlace;
+  const audioUrl = AudioPanel ? placeRoutes.audioUrl : undefined;
 
   return (
     <EditPanel>
       <Switch>
         {canEdit && (
-          <Route path={paramRoutes.edit(':placeId')} exact>
+          <Route path={placeRoutes.editPath} exact>
             <PollingPlaceForm
+              audioUrl={audioUrl}
               editing
               electionId={electionId}
               key={placeId}
               exit={nav.goToRoot}
+              isLocked={isLocked}
               savedPlace={savedPollingPlace}
               switchToEdit={nav.goToEdit}
               switchToView={nav.goToView}
@@ -185,12 +168,14 @@ function EditForm(): JSX.Element | null {
         )}
 
         {savedPollingPlace && (
-          <Route path={paramRoutes.view(':placeId')} exact>
+          <Route path={placeRoutes.viewPath} exact>
             <PollingPlaceForm
+              audioUrl={audioUrl}
               editing={false}
               electionId={electionId}
               key={placeId}
               exit={nav.goToRoot}
+              isLocked={isLocked}
               savedPlace={savedPollingPlace}
               switchToEdit={nav.goToEdit}
               switchToView={nav.goToView}
@@ -200,10 +185,9 @@ function EditForm(): JSX.Element | null {
 
         <Redirect
           to={
-            // @coverage-defer
             savedPollingPlace
-              ? placeRoutes.view(placeId)
-              : placeRoutes.root.path
+              ? placeRoutes.viewUrl(placeId)
+              : placeRoutes.rootUrl
           }
         />
       </Switch>
@@ -211,13 +195,12 @@ function EditForm(): JSX.Element | null {
   );
 }
 
-function useNav(electionId: string) {
+function useNav(placeRoutes: ListDetailRoutes) {
   const history = useHistory();
-  const placeRoutes = routes.election(electionId).pollingPlaces;
 
   return {
-    goToRoot: () => history.replace(placeRoutes.root.path),
-    goToEdit: (id: string) => history.replace(placeRoutes.edit(id)),
-    goToView: (id: string) => history.replace(placeRoutes.view(id)),
+    goToRoot: () => history.replace(placeRoutes.rootUrl),
+    goToEdit: (id: string) => history.replace(placeRoutes.editUrl(id)),
+    goToView: (id: string) => history.replace(placeRoutes.viewUrl(id)),
   };
 }

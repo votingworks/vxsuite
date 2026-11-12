@@ -1,5 +1,6 @@
 import { beforeEach, expect, test, vi } from 'vitest';
-import type { SetPollingPlaceError } from '@votingworks/hub-backend';
+import { makeIdFactory } from '@votingworks/test-utils';
+import type { SetPollingPlaceError } from '@votingworks/election-definition-backend';
 import {
   ElectionStringKey,
   type PollingPlace,
@@ -17,20 +18,23 @@ import {
   type MockApiClient,
   provideApi,
 } from '../test/api_helpers.js';
-import { makeIdFactory } from '../test/id_helpers.js';
 import {
   render,
   screen,
   waitFor,
   within,
 } from '../test/react_testing_library.js';
-import { PollingPlaceForm } from './polling_place_form.js';
-import { electionParamRoutes, routes } from './routes.js';
 import { withRoute } from '../test/routing_helpers.js';
+import { PollingPlaceForm } from './polling_place_form.js';
 
 const idFactory = makeIdFactory();
+
 const electionId = 'election1';
-const pollingPlaceRoutes = routes.election(electionId).pollingPlaces;
+const rootPath = `/elections/${electionId}/polling-places`;
+
+function audioUrl(params: { id: string; stringKey: string }): string {
+  return `${rootPath}/${params.id}/audio/${params.stringKey}`;
+}
 
 const precinct1 = mockPrecinctNoSplits({ id: 'p1', name: 'Precinct 1' });
 const precinct2 = mockPrecinctNoSplits({ id: 'p2', name: 'Precinct 2' });
@@ -47,7 +51,6 @@ beforeEach(() => {
 test('add polling place', async () => {
   const api = createMockApiClient();
   setMockPrecincts(api, [precinct1, precinct2, precinct3]);
-  setMockFinalizedState(api, false);
 
   const exit = vi.fn();
   const switchToView = vi.fn();
@@ -125,7 +128,6 @@ test('add polling place', async () => {
 test('view polling place', async () => {
   const api = createMockApiClient();
   setMockPrecincts(api, [precinct1, precinct2, precinct3]);
-  setMockFinalizedState(api, false);
   setMockAudioEnabled(api);
 
   const savedPlace: PollingPlace = {
@@ -139,6 +141,7 @@ test('view polling place', async () => {
   const { history } = renderForm(
     api,
     <PollingPlaceForm
+      audioUrl={audioUrl}
       editing={false}
       electionId={electionId}
       savedPlace={savedPlace}
@@ -155,8 +158,8 @@ test('view polling place', async () => {
 
   await userEvent.click(await screen.findButton('Preview or Edit Audio'));
   expect(history.location.pathname).toEqual(
-    pollingPlaceRoutes.audio({
-      placeId: savedPlace.id,
+    audioUrl({
+      id: savedPlace.id,
       stringKey: ElectionStringKey.POLLING_PLACE_NAME,
     })
   );
@@ -187,10 +190,9 @@ test('view polling place', async () => {
   expect(switchToEdit).toHaveBeenCalledOnce();
 });
 
-test('editing disabled when finalized', async () => {
+test('editing disabled when locked', async () => {
   const api = createMockApiClient();
   setMockPrecincts(api, [precinct1, precinct2, precinct3]);
-  setMockFinalizedState(api, true);
   setMockAudioEnabled(api);
 
   const savedPlace: PollingPlace = {
@@ -206,8 +208,10 @@ test('editing disabled when finalized', async () => {
   renderForm(
     api,
     <PollingPlaceForm
+      audioUrl={audioUrl}
       editing={false}
       electionId={electionId}
+      isLocked
       savedPlace={savedPlace}
       exit={unexpectedFnCall('exit')}
       switchToEdit={unexpectedFnCall('switchToEdit')}
@@ -234,7 +238,6 @@ test('editing disabled when finalized', async () => {
 test('edit polling place', async () => {
   const api = createMockApiClient();
   setMockPrecincts(api, [precinct1, precinct2, precinct3]);
-  setMockFinalizedState(api, false);
 
   const savedPlace: PollingPlace = {
     id: idFactory.next(),
@@ -309,7 +312,6 @@ test('edit polling place', async () => {
 test('handles API validation errors', async () => {
   const api = createMockApiClient();
   setMockPrecincts(api, [precinct1, precinct2, precinct3]);
-  setMockFinalizedState(api, false);
 
   const place: PollingPlace = {
     id: idFactory.next(),
@@ -351,7 +353,6 @@ test('handles API validation errors', async () => {
 test('delete polling place', async () => {
   const api = createMockApiClient();
   setMockPrecincts(api, [precinct1, precinct2, precinct3]);
-  setMockFinalizedState(api, false);
 
   const savedPlace: PollingPlace = {
     id: idFactory.next(),
@@ -399,7 +400,6 @@ test('delete polling place', async () => {
 test('bulk selection button', async () => {
   const api = createMockApiClient();
   setMockPrecincts(api, [precinct1, precinct2, precinct3]);
-  setMockFinalizedState(api, false);
 
   const savedPlace: PollingPlace = {
     id: idFactory.next(),
@@ -463,13 +463,11 @@ function mockSplit(partial: Partial<PrecinctSplit>): PrecinctSplit {
 }
 
 function renderForm(api: MockApiClient, ui: React.ReactElement) {
-  const history = createMemoryHistory({
-    initialEntries: [routes.election(electionId).pollingPlaces.root.path],
-  });
+  const history = createMemoryHistory({ initialEntries: [rootPath] });
   const result = render(
     provideApi(
       api,
-      withRoute(ui, { paramPath: electionParamRoutes.root.path, history })
+      withRoute(ui, { paramPath: '/elections/:electionId', history })
     )
   );
   return { history, result };
@@ -479,12 +477,6 @@ function setMockAudioEnabled(api: MockApiClient) {
   api.getStateFeatures
     .expectRepeatedCallsWith({ electionId })
     .resolves({ AUDIO_ENABLED: true });
-}
-
-function setMockFinalizedState(api: MockApiClient, finalized: boolean) {
-  api.getBallotsFinalizedAt
-    .expectRepeatedCallsWith({ electionId })
-    .resolves(finalized ? new Date() : null);
 }
 
 function setMockPrecincts(api: MockApiClient, precincts: Precinct[]) {

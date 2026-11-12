@@ -16,26 +16,26 @@ import {
   type Precinct,
 } from '@votingworks/types';
 import { assertDefined, find, throwIllegalValue } from '@votingworks/basics';
+import { generateId } from '@votingworks/election-definition-backend';
 
+import { InputWithAudio } from './ballot_audio/input_with_audio.js';
+import { useElectionDefinitionApi } from './election_definition_context.js';
 import {
-  Row,
-  InputGroup,
-  FieldName,
   FormBody,
   FormErrorContainer,
+  FormFixed,
   FormFooter,
-  InputWithAudio,
   FormTitle,
-} from '@votingworks/election-definition-ui';
-import { routes } from './routes.js';
-import * as api from './api.js';
-import { generateId } from './utils.js';
-import { FormFixed } from './form_fixed.js';
+} from './form_fixed.js';
+import { FieldName, InputGroup, Row } from './layout.js';
+import type { ListDetailAudioParams } from './list_detail_routes.js';
 
 export interface PollingPlaceFormProps {
+  audioUrl?: (params: ListDetailAudioParams) => string;
   editing: boolean;
   electionId: ElectionId;
   exit: () => void;
+  isLocked?: boolean;
   savedPlace?: PollingPlace;
   switchToEdit: (placeId: string) => void;
   switchToView: (placeId: string) => void;
@@ -55,24 +55,31 @@ const TYPE_OPTIONS = [
 
 export function PollingPlaceForm(
   props: PollingPlaceFormProps
-): React.ReactNode {
-  const { editing, electionId, exit, savedPlace, switchToEdit, switchToView } =
-    props;
+): JSX.Element | null {
+  const {
+    audioUrl,
+    editing,
+    electionId,
+    exit,
+    isLocked,
+    savedPlace,
+    switchToEdit,
+    switchToView,
+  } = props;
 
   const [draft, setDraft] = useState<PollingPlace>(
     savedPlace || createBlankPlace
   );
 
+  const api = useElectionDefinitionApi();
   const precinctsQuery = api.listPrecincts.useQuery(electionId);
-  const finalizedAtQuery = api.getBallotsFinalizedAt.useQuery(electionId);
 
   const setPlaceMutation = api.setPollingPlace.useMutation();
   const deletePlaceMutation = api.deletePollingPlace.useMutation();
 
-  if (!precinctsQuery.isSuccess || !finalizedAtQuery.isSuccess) return null;
+  if (!precinctsQuery.isSuccess) return null;
 
   const precincts = precinctsQuery.data;
-  const finalized = !!finalizedAtQuery.data;
 
   function onSubmit() {
     setPlaceMutation.mutate(
@@ -185,8 +192,8 @@ export function PollingPlaceForm(
         >
           <InputGroup label="Name">
             <InputWithAudio
-              audioScreenUrl={routes.election(electionId).pollingPlaces.audio({
-                placeId: draft.id,
+              audioScreenUrl={audioUrl?.({
+                id: draft.id,
                 stringKey: ElectionStringKey.POLLING_PLACE_NAME,
               })}
               autoComplete="off"
@@ -273,7 +280,7 @@ export function PollingPlaceForm(
 
       <FormErrorContainer>{errorMessage}</FormErrorContainer>
 
-      {!finalized && (
+      {!isLocked && (
         <FormFooter style={{ justifyContent: 'space-between' }}>
           {editing ? (
             <Row style={{ flexWrap: 'wrap-reverse', gap: '0.5rem' }}>
