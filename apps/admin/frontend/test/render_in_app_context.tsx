@@ -29,9 +29,9 @@ import {
 import { AppContext } from '../src/contexts/app_context.js';
 import type { Iso8601Timestamp } from '../src/config/types.js';
 import {
-  type ApiClient,
   ApiClientContext,
   createQueryClient,
+  ElectionDefinitionApiClientContext,
 } from '../src/api.js';
 import type { ApiMock } from './helpers/mock_api_client.js';
 import { SharedApiClientContext, systemCallApi } from '../src/shared_api.js';
@@ -57,28 +57,33 @@ export interface RenderInAppContextParams {
 export function renderRootElement(
   component: React.ReactNode,
   {
-    // If there's no apiClient given, we don't want to create one by default,
-    // since the apiClient needs to have assertComplete called by the test. If
+    // If there's no apiMock given, we don't want to create one by default,
+    // since the apiMock needs to have assertComplete called by the test. If
     // the test doesn't need to make API calls, then it should not pass in an
-    // apiClient here, which will cause an error if the test tries to make an
+    // apiMock here, which will cause an error if the test tries to make an
     // API call.
-    apiClient,
+    apiMock,
     queryClient = createQueryClient(),
   }: {
-    apiClient?: ApiClient;
+    apiMock?: ApiMock;
     queryClient?: QueryClient;
   } = {}
 ): RenderResult {
+  const apiClient = apiMock?.apiClient;
   return testRender(
     <TestErrorBoundary>
       <ApiClientContext.Provider value={apiClient}>
-        <SharedApiClientContext.Provider value={apiClient}>
-          <QueryClientProvider client={queryClient}>
-            <SystemCallContextProvider api={systemCallApi}>
-              {component}
-            </SystemCallContextProvider>
-          </QueryClientProvider>
-        </SharedApiClientContext.Provider>
+        <ElectionDefinitionApiClientContext.Provider
+          value={apiMock?.electionDefinitionApiClient}
+        >
+          <SharedApiClientContext.Provider value={apiClient}>
+            <QueryClientProvider client={queryClient}>
+              <SystemCallContextProvider api={systemCallApi}>
+                {component}
+              </SystemCallContextProvider>
+            </QueryClientProvider>
+          </SharedApiClientContext.Provider>
+        </ElectionDefinitionApiClientContext.Provider>
       </ApiClientContext.Provider>
     </TestErrorBoundary>
   );
@@ -131,6 +136,6 @@ export function renderInAppContext(
     >
       <Router history={history}>{component}</Router>
     </AppContext.Provider>,
-    { apiClient: apiMock?.apiClient, queryClient }
+    { apiMock, queryClient }
   );
 }

@@ -45,11 +45,12 @@ afterEach(() => {
 
 describe('election definition methods', () => {
   describeElectionDefinitionMethods(() => {
-    const { apiClient, auth } = buildTestEnvironment();
+    const { electionDefinitionApiClient, auth } = buildTestEnvironment();
     mockSystemAdministratorAuth(auth);
     return {
-      methods: apiClient,
-      createElection: () => apiClient.createInProgressElection(),
+      methods: electionDefinitionApiClient,
+      createElection: () =>
+        electionDefinitionApiClient.createInProgressElection(),
       expectedStateFeatures: {
         ...stateFeatureConfigs.DEMO,
         AUDIO_ENABLED: false,
@@ -61,36 +62,41 @@ describe('election definition methods', () => {
 
 test('is disabled when the feature flag is off', async () => {
   featureFlagMock.resetFeatureFlags();
-  const { apiClient, auth } = buildTestEnvironment();
+  const { apiClient, electionDefinitionApiClient, auth } =
+    buildTestEnvironment();
   mockSystemAdministratorAuth(auth);
 
   expect(await apiClient.isElectionDefinitionEnabled()).toEqual(false);
-  await expect(apiClient.getCurrentInProgressElection()).rejects.toThrow(
-    'election-definition:disabled'
-  );
+  await expect(
+    electionDefinitionApiClient.getCurrentInProgressElection()
+  ).rejects.toThrow('election-definition:disabled');
 });
 
 test('requires a system administrator', async () => {
-  const { apiClient, auth } = buildTestEnvironment();
+  const { electionDefinitionApiClient, auth } = buildTestEnvironment();
 
-  await expect(apiClient.getCurrentInProgressElection()).rejects.toThrow(
-    'auth:forbidden'
-  );
+  await expect(
+    electionDefinitionApiClient.getCurrentInProgressElection()
+  ).rejects.toThrow('auth:forbidden');
 
   mockElectionManagerAuth(auth, electionDefinition.election);
-  await expect(apiClient.createInProgressElection()).rejects.toThrow(
-    'auth:forbidden'
-  );
+  await expect(
+    electionDefinitionApiClient.createInProgressElection()
+  ).rejects.toThrow('auth:forbidden');
 });
 
 test('create, edit and discard an election definition', async () => {
-  const { apiClient: api, auth, logger } = buildTestEnvironment();
+  const { apiClient, electionDefinitionApiClient, auth, logger } =
+    buildTestEnvironment();
   mockSystemAdministratorAuth(auth);
 
-  expect(await api.isElectionDefinitionEnabled()).toEqual(true);
-  expect(await api.getCurrentInProgressElection()).toEqual(null);
+  expect(await apiClient.isElectionDefinitionEnabled()).toEqual(true);
+  expect(
+    await electionDefinitionApiClient.getCurrentInProgressElection()
+  ).toEqual(null);
 
-  const electionId = await api.createInProgressElection();
+  const electionId =
+    await electionDefinitionApiClient.createInProgressElection();
   expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
     LogEventId.ElectionDefinitionCreated,
     {
@@ -98,10 +104,12 @@ test('create, edit and discard an election definition', async () => {
       disposition: 'success',
     }
   );
-  expect(await api.getCurrentInProgressElection()).toEqual(
-    await api.getElectionInfo({ electionId })
-  );
-  expect(await api.getElectionInfo({ electionId })).toEqual({
+  expect(
+    await electionDefinitionApiClient.getCurrentInProgressElection()
+  ).toEqual(await electionDefinitionApiClient.getElectionInfo({ electionId }));
+  expect(
+    await electionDefinitionApiClient.getElectionInfo({ electionId })
+  ).toEqual({
     electionId,
     type: 'general',
     date: new DateWithoutTime('2026-11-05'),
@@ -111,7 +119,9 @@ test('create, edit and discard an election definition', async () => {
     seal: '',
     languageCodes: [LanguageCode.ENGLISH],
   });
-  expect(await api.getStateFeatures({ electionId })).toEqual({
+  expect(
+    await electionDefinitionApiClient.getStateFeatures({ electionId })
+  ).toEqual({
     ...stateFeatureConfigs.DEMO,
     AUDIO_ENABLED: false,
     BALLOT_LANGUAGE_CONFIG: false,
@@ -129,7 +139,9 @@ test('create, edit and discard an election definition', async () => {
     signatureCaption: 'Clerk',
     languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
   };
-  expect(await api.updateElectionInfo(electionInfoUpdate)).toEqual(ok());
+  expect(
+    await electionDefinitionApiClient.updateElectionInfo(electionInfoUpdate)
+  ).toEqual(ok());
   expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
     LogEventId.ElectionDefinitionInfoUpdated,
     {
@@ -137,11 +149,15 @@ test('create, edit and discard an election definition', async () => {
       disposition: 'success',
     }
   );
-  expect(await api.getElectionInfo({ electionId })).toEqual({
+  expect(
+    await electionDefinitionApiClient.getElectionInfo({ electionId })
+  ).toEqual({
     ...electionInfoUpdate,
     title: 'Primary Election',
   });
-  expect(await api.getCurrentInProgressElection()).toEqual({
+  expect(
+    await electionDefinitionApiClient.getCurrentInProgressElection()
+  ).toEqual({
     ...electionInfoUpdate,
     title: 'Primary Election',
   });
@@ -151,13 +167,17 @@ test('create, edit and discard an election definition', async () => {
     signatureCaption: _signatureCaption,
     ...withoutSignature
   } = electionInfoUpdate;
-  expect(await api.updateElectionInfo(withoutSignature)).toEqual(ok());
-  expect(await api.getElectionInfo({ electionId })).toEqual({
+  expect(
+    await electionDefinitionApiClient.updateElectionInfo(withoutSignature)
+  ).toEqual(ok());
+  expect(
+    await electionDefinitionApiClient.getElectionInfo({ electionId })
+  ).toEqual({
     ...withoutSignature,
     title: 'Primary Election',
   });
 
-  await api.deleteElection({ electionId });
+  await electionDefinitionApiClient.deleteElection({ electionId });
   expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
     LogEventId.ElectionDefinitionDiscarded,
     {
@@ -165,91 +185,103 @@ test('create, edit and discard an election definition', async () => {
       disposition: 'success',
     }
   );
-  expect(await api.getCurrentInProgressElection()).toEqual(null);
+  expect(
+    await electionDefinitionApiClient.getCurrentInProgressElection()
+  ).toEqual(null);
 });
 
 test('deleting an unknown election definition fails', async () => {
-  const { apiClient: api, auth } = buildTestEnvironment();
+  const { electionDefinitionApiClient, auth } = buildTestEnvironment();
   mockSystemAdministratorAuth(auth);
 
   await suppressingConsoleOutput(() =>
-    expect(api.deleteElection({ electionId: 'unknown' })).rejects.toThrow(
-      'Election definition not found'
-    )
+    expect(
+      electionDefinitionApiClient.deleteElection({ electionId: 'unknown' })
+    ).rejects.toThrow('Election definition not found')
   );
 });
 
 test('only one election definition at a time', async () => {
-  const { apiClient: api, auth } = buildTestEnvironment();
+  const { electionDefinitionApiClient, auth } = buildTestEnvironment();
   mockSystemAdministratorAuth(auth);
 
-  await api.createInProgressElection();
+  await electionDefinitionApiClient.createInProgressElection();
   await suppressingConsoleOutput(() =>
-    expect(api.createInProgressElection()).rejects.toThrow(
-      'An election definition already exists.'
-    )
+    expect(
+      electionDefinitionApiClient.createInProgressElection()
+    ).rejects.toThrow('An election definition already exists.')
   );
 });
 
 test('cannot create an election definition while configured', async () => {
-  const { apiClient: api, auth } = buildTestEnvironment();
-  await configureMachine(api, auth, electionDefinition);
+  const { apiClient, electionDefinitionApiClient, auth } =
+    buildTestEnvironment();
+  await configureMachine(apiClient, auth, electionDefinition);
   mockSystemAdministratorAuth(auth);
 
   await suppressingConsoleOutput(() =>
-    expect(api.createInProgressElection()).rejects.toThrow(
+    expect(
+      electionDefinitionApiClient.createInProgressElection()
+    ).rejects.toThrow(
       'Cannot create an election definition while an election is configured.'
     )
   );
 });
 
 test('rejects requests for another election', async () => {
-  const { apiClient: api, auth } = buildTestEnvironment();
+  const { electionDefinitionApiClient, auth } = buildTestEnvironment();
   mockSystemAdministratorAuth(auth);
 
   await suppressingConsoleOutput(() =>
-    expect(api.getElectionInfo({ electionId: 'missing' })).rejects.toThrow(
-      'Election definition not found'
-    )
+    expect(
+      electionDefinitionApiClient.getElectionInfo({ electionId: 'missing' })
+    ).rejects.toThrow('Election definition not found')
   );
 
-  await api.createInProgressElection();
+  await electionDefinitionApiClient.createInProgressElection();
   await suppressingConsoleOutput(() =>
-    expect(api.getStateFeatures({ electionId: 'missing' })).rejects.toThrow(
-      'Election definition not found'
-    )
+    expect(
+      electionDefinitionApiClient.getStateFeatures({ electionId: 'missing' })
+    ).rejects.toThrow('Election definition not found')
   );
 });
 
 test('unconfiguring removes the election definition', async () => {
-  const { apiClient: api, auth } = buildTestEnvironment();
+  const { apiClient, electionDefinitionApiClient, auth } =
+    buildTestEnvironment();
   mockSystemAdministratorAuth(auth);
-  await api.createInProgressElection();
+  await electionDefinitionApiClient.createInProgressElection();
 
-  await api.unconfigure();
-  expect(await api.getCurrentInProgressElection()).toEqual(null);
+  await apiClient.unconfigure();
+  expect(
+    await electionDefinitionApiClient.getCurrentInProgressElection()
+  ).toEqual(null);
 });
 
 test('unsupported machine state', async () => {
   vi.stubEnv('VX_MACHINE_STATE', 'MI');
-  const { apiClient: api, auth } = buildTestEnvironment();
+  const { apiClient, electionDefinitionApiClient, auth } =
+    buildTestEnvironment();
   mockSystemAdministratorAuth(auth);
 
-  expect(await api.isElectionDefinitionEnabled()).toEqual(false);
-  await expect(api.createInProgressElection()).rejects.toThrow(
-    'election-definition:disabled'
-  );
+  expect(await apiClient.isElectionDefinitionEnabled()).toEqual(false);
+  await expect(
+    electionDefinitionApiClient.createInProgressElection()
+  ).rejects.toThrow('election-definition:disabled');
 });
 
 test('rejects combined ballot primaries', async () => {
-  const { apiClient: api, auth } = buildTestEnvironment();
+  const { electionDefinitionApiClient, auth } = buildTestEnvironment();
   mockSystemAdministratorAuth(auth);
-  const electionId = await api.createInProgressElection();
-  const electionInfo = await api.getElectionInfo({ electionId });
+  const electionId =
+    await electionDefinitionApiClient.createInProgressElection();
+  const electionInfo = await electionDefinitionApiClient.getElectionInfo({
+    electionId,
+  });
 
   await suppressingConsoleOutput(() =>
     expect(
-      api.updateElectionInfo({
+      electionDefinitionApiClient.updateElectionInfo({
         ...electionInfo,
         title: 'Primary Election',
         jurisdictionName: 'Demo County',
@@ -261,13 +293,16 @@ test('rejects combined ballot primaries', async () => {
 });
 
 test('edit districts', async () => {
-  const { apiClient: api, auth, logger } = buildTestEnvironment();
+  const { electionDefinitionApiClient, auth, logger } = buildTestEnvironment();
   mockSystemAdministratorAuth(auth);
-  const electionId = await api.createInProgressElection();
-  expect(await api.listDistricts({ electionId })).toEqual([]);
+  const electionId =
+    await electionDefinitionApiClient.createInProgressElection();
+  expect(
+    await electionDefinitionApiClient.listDistricts({ electionId })
+  ).toEqual([]);
 
   expect(
-    await api.updateDistricts({
+    await electionDefinitionApiClient.updateDistricts({
       electionId,
       newDistricts: [
         { id: 'district-1', name: 'District 1' },
@@ -284,30 +319,31 @@ test('edit districts', async () => {
   );
 
   expect(
-    await api.updateDistricts({
+    await electionDefinitionApiClient.updateDistricts({
       electionId,
       deletedDistrictIds: ['district-1'],
       updatedDistricts: [{ id: 'district-2', name: 'District 1' }],
     })
   ).toEqual(ok());
-  expect(await api.listDistricts({ electionId })).toEqual([
-    { id: 'district-2', name: 'District 1' },
-  ]);
+  expect(
+    await electionDefinitionApiClient.listDistricts({ electionId })
+  ).toEqual([{ id: 'district-2', name: 'District 1' }]);
 });
 
 test('rejects duplicate district names', async () => {
-  const { apiClient: api, auth, logger } = buildTestEnvironment();
+  const { electionDefinitionApiClient, auth, logger } = buildTestEnvironment();
   mockSystemAdministratorAuth(auth);
-  const electionId = await api.createInProgressElection();
+  const electionId =
+    await electionDefinitionApiClient.createInProgressElection();
   (
-    await api.updateDistricts({
+    await electionDefinitionApiClient.updateDistricts({
       electionId,
       newDistricts: [{ id: 'district-1', name: 'District 1' }],
     })
   ).unsafeUnwrap();
 
   expect(
-    await api.updateDistricts({
+    await electionDefinitionApiClient.updateDistricts({
       electionId,
       newDistricts: [{ id: 'district-2', name: 'District 1' }],
     })
@@ -319,19 +355,20 @@ test('rejects duplicate district names', async () => {
       disposition: 'failure',
     }
   );
-  expect(await api.listDistricts({ electionId })).toEqual([
-    { id: 'district-1', name: 'District 1' },
-  ]);
+  expect(
+    await electionDefinitionApiClient.listDistricts({ electionId })
+  ).toEqual([{ id: 'district-1', name: 'District 1' }]);
 });
 
 test('rejects invalid districts', async () => {
-  const { apiClient: api, auth } = buildTestEnvironment();
+  const { electionDefinitionApiClient, auth } = buildTestEnvironment();
   mockSystemAdministratorAuth(auth);
-  const electionId = await api.createInProgressElection();
+  const electionId =
+    await electionDefinitionApiClient.createInProgressElection();
 
   await suppressingConsoleOutput(() =>
     expect(
-      api.updateDistricts({
+      electionDefinitionApiClient.updateDistricts({
         electionId,
         newDistricts: [{ id: 'district-1', name: '' }],
       })
@@ -340,16 +377,18 @@ test('rejects invalid districts', async () => {
 
   await suppressingConsoleOutput(() =>
     expect(
-      api.updateDistricts({
+      electionDefinitionApiClient.updateDistricts({
         electionId: 'missing',
         newDistricts: [{ id: 'district-1', name: 'District 1' }],
       })
     ).rejects.toThrow('Election definition not found')
   );
   await suppressingConsoleOutput(() =>
-    expect(api.listDistricts({ electionId: 'missing' })).rejects.toThrow(
-      'Election definition not found'
-    )
+    expect(
+      electionDefinitionApiClient.listDistricts({ electionId: 'missing' })
+    ).rejects.toThrow('Election definition not found')
   );
-  expect(await api.listDistricts({ electionId })).toEqual([]);
+  expect(
+    await electionDefinitionApiClient.listDistricts({ electionId })
+  ).toEqual([]);
 });

@@ -56,7 +56,12 @@ import {
   createElectionPackageZipArchive,
   type PartialElectionPackage,
 } from '@votingworks/backend';
-import type { Api, MachineMode, PeerApi } from '../src/index.js';
+import type {
+  Api,
+  ElectionDefinitionApi,
+  MachineMode,
+  PeerApi,
+} from '../src/index.js';
 import type { BaseStore } from '../src/types.js';
 import { Store } from '../src/store.js';
 import type { MachineModeController } from '../src/machine_mode.js';
@@ -211,6 +216,7 @@ export interface TestEnvironment {
   workspace: Workspace;
   app: Application;
   apiClient: grout.Client<Api>;
+  electionDefinitionApiClient: grout.Client<ElectionDefinitionApi>;
   peerApiClient: grout.Client<PeerApi>;
   peerLogger: MockBaseLogger;
   peerServer: Server;
@@ -253,6 +259,9 @@ export function buildTestEnvironment({
   const apiClient = grout.createClient<Api>({
     baseUrl,
   });
+  const electionDefinitionApiClient = grout.createClient<ElectionDefinitionApi>(
+    { baseUrl: `${baseUrl}/election-definition` }
+  );
 
   const peerLogger = mockBaseLogger({ fn: vi.fn });
   const peerApp = buildPeerApp({
@@ -274,6 +283,7 @@ export function buildTestEnvironment({
     workspace,
     app,
     apiClient,
+    electionDefinitionApiClient,
     peerApiClient,
     peerLogger,
     peerServer,

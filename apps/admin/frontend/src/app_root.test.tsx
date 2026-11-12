@@ -51,7 +51,7 @@ test('renders without crashing', async () => {
     <BrowserRouter>
       <Route path="/" render={() => <AppRoot />} />
     </BrowserRouter>,
-    { apiClient: apiMock.apiClient }
+    { apiMock }
   );
 
   await screen.findByText('VxAdmin Locked');
@@ -74,14 +74,14 @@ test('loads whether election definition is enabled when the flag is on', async (
   apiMock.apiClient.listPotentialElectionPackagesOnUsbDrive
     .expectCallWith()
     .resolves(err({ type: 'no-entity', message: 'No USB drive found' }));
-  apiMock.apiClient.getCurrentInProgressElection
+  apiMock.electionDefinitionApiClient.getCurrentInProgressElection
     .expectCallWith()
     .resolves(null);
   renderRootElement(
     <MemoryRouter initialEntries={['/election']}>
       <Route path="/" render={() => <AppRoot />} />
     </MemoryRouter>,
-    { apiClient: apiMock.apiClient }
+    { apiMock }
   );
 
   await screen.findButton('Create New Election');

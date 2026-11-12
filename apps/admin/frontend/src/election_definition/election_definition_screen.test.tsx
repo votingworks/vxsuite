@@ -110,31 +110,31 @@ function getNavItems(): Array<string | null> {
 }
 
 function expectCurrentInProgressElection(electionInfo: ElectionInfo | null) {
-  apiMock.apiClient.getCurrentInProgressElection
+  apiMock.electionDefinitionApiClient.getCurrentInProgressElection
     .expectCallWith()
     .resolves(electionInfo);
 }
 
 function expectElectionInfoQueries(electionInfo: ElectionInfo) {
-  apiMock.apiClient.getElectionInfo
+  apiMock.electionDefinitionApiClient.getElectionInfo
     .expectCallWith({ electionId })
     .resolves(electionInfo);
-  apiMock.apiClient.getStateFeatures
+  apiMock.electionDefinitionApiClient.getStateFeatures
     .expectCallWith({ electionId })
     .resolves({});
 }
 
 test('Create New Election creates an election and opens Election Info', async () => {
   apiMock.expectListPotentialElectionPackagesOnUsbDrive([]);
-  apiMock.apiClient.getCurrentInProgressElection
+  apiMock.electionDefinitionApiClient.getCurrentInProgressElection
     .expectCallWith()
     .resolves(null);
   const history = renderScreen();
 
-  apiMock.apiClient.createInProgressElection
+  apiMock.electionDefinitionApiClient.createInProgressElection
     .expectCallWith()
     .resolves(electionId);
-  apiMock.apiClient.getCurrentInProgressElection
+  apiMock.electionDefinitionApiClient.getCurrentInProgressElection
     .expectCallWith()
     .resolves(blankElectionInfo);
   expectElectionInfoQueries(blankElectionInfo);
@@ -163,10 +163,10 @@ test('Create New Election creates an election and opens Election Info', async ()
     jurisdictionName: 'Demo County',
     seal: '<svg>seal</svg>',
   };
-  apiMock.apiClient.updateElectionInfo
+  apiMock.electionDefinitionApiClient.updateElectionInfo
     .expectCallWith(updatedElectionInfo)
     .resolves(ok());
-  apiMock.apiClient.getElectionInfo
+  apiMock.electionDefinitionApiClient.getElectionInfo
     .expectCallWith({ electionId })
     .resolves(updatedElectionInfo);
   expectCurrentInProgressElection(updatedElectionInfo);
@@ -182,7 +182,7 @@ test('the Districts tab edits the election districts', async () => {
   const history = renderScreen(routerPaths.electionDefinitionInfo(electionId));
   await screen.findButton('Edit');
 
-  apiMock.apiClient.listDistricts
+  apiMock.electionDefinitionApiClient.listDistricts
     .expectCallWith({ electionId })
     .resolves([district]);
   await userEvent.click(screen.getByRole('tab', { name: 'Districts' }));
@@ -200,7 +200,7 @@ test('the Districts tab edits the election districts', async () => {
   await userEvent.clear(input);
   await userEvent.type(input, renamedDistrict.name);
 
-  apiMock.apiClient.updateDistricts
+  apiMock.electionDefinitionApiClient.updateDistricts
     .expectCallWith({
       electionId,
       deletedDistrictIds: [],
@@ -209,10 +209,10 @@ test('the Districts tab edits the election districts', async () => {
     })
     .resolves(ok());
   expectCurrentInProgressElection(generalElectionInfo);
-  apiMock.apiClient.getElectionInfo
+  apiMock.electionDefinitionApiClient.getElectionInfo
     .expectCallWith({ electionId })
     .resolves(generalElectionInfo);
-  apiMock.apiClient.listDistricts
+  apiMock.electionDefinitionApiClient.listDistricts
     .expectCallWith({ electionId })
     .resolves([renamedDistrict]);
   await userEvent.click(screen.getButton('Save'));
@@ -226,7 +226,7 @@ test('the Districts tab edits the election districts', async () => {
 
 test('an election definition in progress is shown on the Election screen', async () => {
   apiMock.expectListPotentialElectionPackagesOnUsbDrive([]);
-  apiMock.apiClient.getCurrentInProgressElection
+  apiMock.electionDefinitionApiClient.getCurrentInProgressElection
     .expectCallWith()
     .resolves(generalElectionInfo);
   const history = renderScreen();
@@ -246,7 +246,7 @@ test('an election definition in progress is shown on the Election screen', async
 
 test('an untitled election definition is shown as Untitled Election', async () => {
   apiMock.expectListPotentialElectionPackagesOnUsbDrive([]);
-  apiMock.apiClient.getCurrentInProgressElection
+  apiMock.electionDefinitionApiClient.getCurrentInProgressElection
     .expectCallWith()
     .resolves(blankElectionInfo);
   renderScreen();
@@ -272,9 +272,11 @@ test('Delete Election discards the election definition', async () => {
   within(modal).getByText(
     'Are you sure you want to delete this election? This action cannot be undone.'
   );
-  apiMock.apiClient.deleteElection.expectCallWith({ electionId }).resolves();
+  apiMock.electionDefinitionApiClient.deleteElection
+    .expectCallWith({ electionId })
+    .resolves();
   apiMock.expectListPotentialElectionPackagesOnUsbDrive([]);
-  apiMock.apiClient.getCurrentInProgressElection
+  apiMock.electionDefinitionApiClient.getCurrentInProgressElection
     .expectCallWith()
     .resolves(null);
   await userEvent.click(within(modal).getButton('Delete'));
@@ -284,7 +286,7 @@ test('Delete Election discards the election definition', async () => {
 });
 
 test('the Definition nav item opens the current election definition', async () => {
-  apiMock.apiClient.getCurrentInProgressElection
+  apiMock.electionDefinitionApiClient.getCurrentInProgressElection
     .expectCallWith()
     .resolves(generalElectionInfo);
   expectElectionInfoQueries(generalElectionInfo);
@@ -297,7 +299,7 @@ test('the Definition nav item opens the current election definition', async () =
 });
 
 test('the Definition area redirects to the Election screen without an election definition', async () => {
-  apiMock.apiClient.getCurrentInProgressElection
+  apiMock.electionDefinitionApiClient.getCurrentInProgressElection
     .expectCallWith()
     .resolves(null);
   apiMock.expectListPotentialElectionPackagesOnUsbDrive([]);

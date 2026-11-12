@@ -103,10 +103,7 @@ import type {
 } from './types.js';
 import { setRestoreState, type Workspace } from './util/workspace.js';
 import { isElectionDefinitionEnabled } from './election_definition/state.js';
-import {
-  createElectionDefinitionAccessMiddleware,
-  createElectionDefinitionApiMethods,
-} from './election_definition/api.js';
+import { buildElectionDefinitionApi } from './election_definition/api.js';
 import { getMachineConfig } from './machine_config.js';
 import { isMultiStationAdjudicationEnabled } from './multi_station_config.js';
 import type { MachineModeController } from './machine_mode.js';
@@ -251,12 +248,7 @@ function buildApi({
     nextUsbDriveChange = deferred<void>();
   });
 
-  const electionDefinitionMethods = createElectionDefinitionApiMethods({
-    workspace,
-    logger,
-  });
-
-  const methods = {
+  return grout.createApi({
     getMachineConfig,
 
     getAppMode(): AppMode {
@@ -1663,7 +1655,6 @@ function buildApi({
     },
 
     isElectionDefinitionEnabled,
-    ...electionDefinitionMethods,
 
     ...createSystemCallApi({
       usbDrive: usbDriveAdapter,
@@ -1675,16 +1666,6 @@ function buildApi({
       getAuthStatus: () =>
         auth.getAuthStatus(constructAuthMachineState(workspace.store)),
     }),
-  } as const;
-
-  return grout.createApi(methods, {
-    before: [
-      createElectionDefinitionAccessMiddleware({
-        auth,
-        workspace,
-        methods: electionDefinitionMethods,
-      }),
-    ],
   });
 }
 
@@ -1720,6 +1701,13 @@ export function buildApp({
     multiUsbDrive,
     printer,
   });
+  app.use(
+    '/api/election-definition',
+    grout.buildRouter(
+      buildElectionDefinitionApi({ auth, workspace, logger }),
+      express
+    )
+  );
   app.use('/api', grout.buildRouter(api, express));
   return app;
 }

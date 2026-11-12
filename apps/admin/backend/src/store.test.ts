@@ -2519,7 +2519,7 @@ describe('withholding unadjudicated central scan ballots from tallies', () => {
 
 test('design election round trip', () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
-  expect(store.getInProgressElection()).toEqual(undefined);
+  expect(store.electionDefinition.getInProgressElection()).toEqual(undefined);
 
   const electionInfo = {
     electionId: 'design-election',
@@ -2533,32 +2533,34 @@ test('design election round trip', () => {
     signatureCaption: 'Clerk',
     languageCodes: [LanguageCode.ENGLISH],
   } as const;
-  store.createInProgressElection({
+  store.electionDefinition.createInProgressElection({
     ...electionInfo,
     languageCodes: [...electionInfo.languageCodes],
   });
-  expect(store.getInProgressElection()).toEqual(electionInfo);
+  expect(store.electionDefinition.getInProgressElection()).toEqual(
+    electionInfo
+  );
 
   const {
     signatureImage: _signatureImage,
     signatureCaption: _signatureCaption,
     ...withoutSignature
   } = electionInfo;
-  store.updateInProgressElectionInfo({
+  store.electionDefinition.updateInProgressElectionInfo({
     ...withoutSignature,
     type: 'primary',
     title: 'Primary Election',
     languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
   });
-  expect(store.getInProgressElection()).toEqual({
+  expect(store.electionDefinition.getInProgressElection()).toEqual({
     ...withoutSignature,
     type: 'primary',
     title: 'Primary Election',
     languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
   });
 
-  store.deleteInProgressElection();
-  expect(store.getInProgressElection()).toEqual(undefined);
+  store.electionDefinition.deleteInProgressElection();
+  expect(store.electionDefinition.getInProgressElection()).toEqual(undefined);
 });
 
 test('only one design election can exist', () => {
@@ -2573,25 +2575,25 @@ test('only one design election can exist', () => {
     seal: '',
     languageCodes: [LanguageCode.ENGLISH],
   } as const;
-  store.createInProgressElection({
+  store.electionDefinition.createInProgressElection({
     ...electionInfo,
     languageCodes: [...electionInfo.languageCodes],
   });
   expect(() =>
-    store.createInProgressElection({
+    store.electionDefinition.createInProgressElection({
       ...electionInfo,
       electionId: 'another-design-election',
       languageCodes: [...electionInfo.languageCodes],
     })
   ).toThrow();
 
-  store.deleteInProgressElection();
-  store.createInProgressElection({
+  store.electionDefinition.deleteInProgressElection();
+  store.electionDefinition.createInProgressElection({
     ...electionInfo,
     electionId: 'another-design-election',
     languageCodes: [...electionInfo.languageCodes],
   });
-  expect(store.getInProgressElection()?.electionId).toEqual(
+  expect(store.electionDefinition.getInProgressElection()?.electionId).toEqual(
     'another-design-election'
   );
 });
@@ -2601,7 +2603,7 @@ describe('design districts', () => {
 
   function setUpStore(): Store {
     const store = Store.memoryStore(makeTemporaryDirectory());
-    store.createInProgressElection({
+    store.electionDefinition.createInProgressElection({
       electionId,
       type: 'general',
       date: new DateWithoutTime('2026-11-03'),
@@ -2616,10 +2618,10 @@ describe('design districts', () => {
 
   test('add, rename and delete districts', () => {
     const store = setUpStore();
-    expect(store.listDistricts(electionId)).toEqual([]);
+    expect(store.electionDefinition.listDistricts(electionId)).toEqual([]);
 
     expect(
-      store.updateDistricts({
+      store.electionDefinition.updateDistricts({
         electionId,
         newDistricts: [
           { id: 'd10', name: 'District 10' },
@@ -2628,21 +2630,21 @@ describe('design districts', () => {
         ],
       })
     ).toEqual(ok());
-    expect(store.listDistricts(electionId)).toEqual([
+    expect(store.electionDefinition.listDistricts(electionId)).toEqual([
       { id: 'd1', name: 'District 1' },
       { id: 'd2', name: 'District 2' },
       { id: 'd10', name: 'District 10' },
     ]);
 
     expect(
-      store.updateDistricts({
+      store.electionDefinition.updateDistricts({
         electionId,
         deletedDistrictIds: ['d1'],
         updatedDistricts: [{ id: 'd2', name: 'District 1' }],
         newDistricts: [{ id: 'd3', name: 'District 3' }],
       })
     ).toEqual(ok());
-    expect(store.listDistricts(electionId)).toEqual([
+    expect(store.electionDefinition.listDistricts(electionId)).toEqual([
       { id: 'd2', name: 'District 1' },
       { id: 'd3', name: 'District 3' },
       { id: 'd10', name: 'District 10' },
@@ -2655,29 +2657,34 @@ describe('design districts', () => {
       { id: 'd1', name: 'District 1' },
       { id: 'd2', name: 'District 2' },
     ];
-    store
-      .updateDistricts({ electionId, newDistricts: districts })
+    store.electionDefinition
+      .updateDistricts({
+        electionId,
+        newDistricts: districts,
+      })
       .unsafeUnwrap();
 
     expect(
-      store.updateDistricts({
+      store.electionDefinition.updateDistricts({
         electionId,
         deletedDistrictIds: ['d2'],
         newDistricts: [{ id: 'd3', name: 'District 1' }],
       })
     ).toEqual(err({ code: 'duplicate-name', districtId: 'd3' }));
     expect(
-      store.updateDistricts({
+      store.electionDefinition.updateDistricts({
         electionId,
         updatedDistricts: [{ id: 'd2', name: 'District 1' }],
       })
     ).toEqual(err({ code: 'duplicate-name', districtId: 'd2' }));
-    expect(store.listDistricts(electionId)).toEqual(districts);
+    expect(store.electionDefinition.listDistricts(electionId)).toEqual(
+      districts
+    );
   });
 
   test('rejects unknown and conflicting district ids', () => {
     const store = setUpStore();
-    store
+    store.electionDefinition
       .updateDistricts({
         electionId,
         newDistricts: [{ id: 'd1', name: 'District 1' }],
@@ -2685,25 +2692,25 @@ describe('design districts', () => {
       .unsafeUnwrap();
 
     expect(() =>
-      store.updateDistricts({
+      store.electionDefinition.updateDistricts({
         electionId,
         updatedDistricts: [{ id: 'missing', name: 'District 2' }],
       })
     ).toThrow('District not found');
     expect(() =>
-      store.updateDistricts({
+      store.electionDefinition.updateDistricts({
         electionId,
         newDistricts: [{ id: 'd1', name: 'District 2' }],
       })
     ).toThrow();
-    expect(store.listDistricts(electionId)).toEqual([
+    expect(store.electionDefinition.listDistricts(electionId)).toEqual([
       { id: 'd1', name: 'District 1' },
     ]);
   });
 
   test('rejects blank district names without saving', () => {
     const store = setUpStore();
-    store
+    store.electionDefinition
       .updateDistricts({
         electionId,
         newDistricts: [{ id: 'd1', name: 'District 1' }],
@@ -2711,33 +2718,33 @@ describe('design districts', () => {
       .unsafeUnwrap();
 
     expect(() =>
-      store.updateDistricts({
+      store.electionDefinition.updateDistricts({
         electionId,
         deletedDistrictIds: ['d1'],
         newDistricts: [{ id: 'd2', name: '' }],
       })
     ).toThrow();
     expect(() =>
-      store.updateDistricts({
+      store.electionDefinition.updateDistricts({
         electionId,
         updatedDistricts: [{ id: 'd1', name: '' }],
       })
     ).toThrow();
-    expect(store.listDistricts(electionId)).toEqual([
+    expect(store.electionDefinition.listDistricts(electionId)).toEqual([
       { id: 'd1', name: 'District 1' },
     ]);
   });
 
   test('deleting the election deletes its districts', () => {
     const store = setUpStore();
-    store
+    store.electionDefinition
       .updateDistricts({
         electionId,
         newDistricts: [{ id: 'd1', name: 'District 1' }],
       })
       .unsafeUnwrap();
 
-    store.deleteInProgressElection();
-    expect(store.listDistricts(electionId)).toEqual([]);
+    store.electionDefinition.deleteInProgressElection();
+    expect(store.electionDefinition.listDistricts(electionId)).toEqual([]);
   });
 });

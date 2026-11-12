@@ -8,14 +8,19 @@ import {
   type ApiClient,
   ApiClientContext,
   createApiClient,
+  createElectionDefinitionApiClient,
   createQueryClient,
+  type ElectionDefinitionApiClient,
+  ElectionDefinitionApiClientContext,
 } from './api.js';
 
 const defaultApiClient = createApiClient();
+const defaultElectionDefinitionApiClient = createElectionDefinitionApiClient();
 const defaultQueryClient = createQueryClient();
 
 export interface AppProps {
   apiClient?: ApiClient;
+  electionDefinitionApiClient?: ElectionDefinitionApiClient;
   queryClient?: QueryClient;
 }
 
@@ -23,19 +28,25 @@ export function App({
   // @coverage-defer
   apiClient = defaultApiClient,
   // @coverage-defer
+  electionDefinitionApiClient = defaultElectionDefinitionApiClient,
+  // @coverage-defer
   queryClient = defaultQueryClient,
 }: AppProps): JSX.Element {
   return (
     <ApiClientContext.Provider value={apiClient}>
-      <QueryClientProvider client={queryClient}>
-        <BrowserRouter>
-          <AppRoot />
-          <SessionTimeLimitTracker />
-          <LowDiskSpaceWarning />
-          <BatteryLowAlert />
-          <PrinterAlertWrapper />
-        </BrowserRouter>
-      </QueryClientProvider>
+      <ElectionDefinitionApiClientContext.Provider
+        value={electionDefinitionApiClient}
+      >
+        <QueryClientProvider client={queryClient}>
+          <BrowserRouter>
+            <AppRoot />
+            <SessionTimeLimitTracker />
+            <LowDiskSpaceWarning />
+            <BatteryLowAlert />
+            <PrinterAlertWrapper />
+          </BrowserRouter>
+        </QueryClientProvider>
+      </ElectionDefinitionApiClientContext.Provider>
     </ApiClientContext.Provider>
   );
 }
