@@ -74,6 +74,7 @@ import { type BallotTemplateId, generateBallotStyles } from '@votingworks/hmpb';
 import pg, { type DatabaseError } from 'pg';
 import {
   type DistrictsUpdate,
+  type DuplicateContestError,
   type DuplicateDistrictError,
   type DuplicateElectionError,
   type DuplicatePartyError,
