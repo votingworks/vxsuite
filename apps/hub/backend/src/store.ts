@@ -237,11 +237,6 @@ function isForeignKeyError(
   );
 }
 
-export type DuplicateContestError =
-  | 'duplicate-contest'
-  | 'duplicate-candidate'
-  | 'duplicate-option';
-
 function straightPartyContestId(electionId: ElectionId): ContestId {
   return `${electionId}-straight-party-contest`;
 }
