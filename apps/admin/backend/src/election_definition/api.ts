@@ -11,6 +11,7 @@ import {
 import {
   type DistrictsUpdate,
   type DuplicateDistrictError,
+  type DuplicatePartyError,
   type DuplicatePrecinctError,
   type ElectionDefinitionMethods,
   type ElectionInfo,
@@ -18,6 +19,7 @@ import {
   ElectionInfoUpdateSchema,
   type ElectionInput,
   generateId,
+  type PartiesUpdate,
   type PollingPlaceDelete,
   type PollingPlaceSet,
   type PrecinctCreate,
@@ -35,6 +37,7 @@ import {
   type ElectionRegisteredVoterCounts,
   LanguageCode,
   type NonEnglishLanguageCode,
+  type Party,
   type PollingPlace,
   pollingPlaceGenerateFromPrecinct,
   type Precinct,
@@ -65,6 +68,19 @@ function blankElectionInfo(
     seal: '',
     languageCodes: [LanguageCode.ENGLISH],
   };
+}
+
+function describePartyError({ code, partyId }: DuplicatePartyError): string {
+  switch (code) {
+    case 'duplicate-name':
+      return `party ${partyId} has a duplicate short name`;
+    case 'duplicate-full-name':
+      return `party ${partyId} has a duplicate full name`;
+    case 'duplicate-abbrev':
+      return `party ${partyId} has a duplicate abbreviation`;
+    default:
+      throwIllegalValue(code);
+  }
 }
 
 function describePrecinctError(error: DuplicatePrecinctError): string {
@@ -214,6 +230,36 @@ function createElectionDefinitionApiMethods({
         LogEventId.ElectionDefinitionDistrictsUpdated,
         {
           message: `Updated districts for election definition ${input.electionId}.`,
+          disposition: 'success',
+        }
+      );
+      return result;
+    },
+
+    listParties(input: ElectionInput): Party[] {
+      loadInProgressElectionInfo(input);
+      return store.electionDefinition.listParties(input.electionId);
+    },
+
+    async updateParties(
+      input: PartiesUpdate
+    ): Promise<Result<void, DuplicatePartyError>> {
+      loadInProgressElectionInfo(input);
+      const result = store.electionDefinition.updateParties(input);
+      if (result.isErr()) {
+        await logger.logAsCurrentRole(
+          LogEventId.ElectionDefinitionPartiesUpdated,
+          {
+            message: `Error updating parties for election definition ${input.electionId}: ${describePartyError(result.err())}.`,
+            disposition: 'failure',
+          }
+        );
+        return result;
+      }
+      await logger.logAsCurrentRole(
+        LogEventId.ElectionDefinitionPartiesUpdated,
+        {
+          message: `Updated parties for election definition ${input.electionId}.`,
           disposition: 'success',
         }
       );

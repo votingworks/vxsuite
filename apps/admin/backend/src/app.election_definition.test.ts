@@ -10,6 +10,7 @@ import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { LogEventId } from '@votingworks/logging';
 import {
   LanguageCode,
+  type Party,
   type PollingPlace,
   type Precinct,
 } from '@votingworks/types';
@@ -408,6 +409,131 @@ test('rejects invalid districts', async () => {
   expect(
     await electionDefinitionApiClient.listDistricts({ electionId })
   ).toEqual([]);
+});
+
+const democrats: Party = {
+  id: 'party-1',
+  name: 'Democrat',
+  fullName: 'Democratic Party',
+  abbrev: 'D',
+};
+
+test('edit parties', async () => {
+  const {
+    electionDefinitionApiClient: api,
+    auth,
+    logger,
+  } = buildTestEnvironment();
+  mockSystemAdministratorAuth(auth);
+  const electionId = await api.createInProgressElection();
+  expect(await api.listParties({ electionId })).toEqual([]);
+
+  const republicans: Party = {
+    id: 'party-2',
+    name: 'Republican',
+    fullName: 'Republican Party',
+    abbrev: 'R',
+  };
+  expect(
+    await api.updateParties({
+      electionId,
+      newParties: [republicans, democrats],
+    })
+  ).toEqual(ok());
+  expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
+    LogEventId.ElectionDefinitionPartiesUpdated,
+    {
+      message: `Updated parties for election definition ${electionId}.`,
+      disposition: 'success',
+    }
+  );
+  expect(await api.listParties({ electionId })).toEqual([
+    democrats,
+    republicans,
+  ]);
+
+  const renamedRepublicans: Party = { ...republicans, name: 'Democrat' };
+  expect(
+    await api.updateParties({
+      electionId,
+      deletedPartyIds: [democrats.id],
+      updatedParties: [renamedRepublicans],
+    })
+  ).toEqual(ok());
+  expect(await api.listParties({ electionId })).toEqual([renamedRepublicans]);
+});
+
+test.each([
+  {
+    conflict: { name: 'Democrat', fullName: 'Democratic Party', abbrev: 'D' },
+    code: 'duplicate-name',
+    description: 'short name',
+  },
+  {
+    conflict: { name: 'Other', fullName: 'Democratic Party', abbrev: 'D' },
+    code: 'duplicate-full-name',
+    description: 'full name',
+  },
+  {
+    conflict: { name: 'Other', fullName: 'Other Party', abbrev: 'D' },
+    code: 'duplicate-abbrev',
+    description: 'abbreviation',
+  },
+] as const)(
+  'rejects a party with a duplicate $description',
+  async ({ conflict, code, description }) => {
+    const {
+      electionDefinitionApiClient: api,
+      auth,
+      logger,
+    } = buildTestEnvironment();
+    mockSystemAdministratorAuth(auth);
+    const electionId = await api.createInProgressElection();
+    (
+      await api.updateParties({ electionId, newParties: [democrats] })
+    ).unsafeUnwrap();
+
+    expect(
+      await api.updateParties({
+        electionId,
+        newParties: [{ id: 'party-2', ...conflict }],
+      })
+    ).toEqual(err({ code, partyId: 'party-2' }));
+    expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
+      LogEventId.ElectionDefinitionPartiesUpdated,
+      {
+        message: `Error updating parties for election definition ${electionId}: party party-2 has a duplicate ${description}.`,
+        disposition: 'failure',
+      }
+    );
+    expect(await api.listParties({ electionId })).toEqual([democrats]);
+  }
+);
+
+test('rejects invalid parties and unknown elections', async () => {
+  const { electionDefinitionApiClient: api, auth } = buildTestEnvironment();
+  mockSystemAdministratorAuth(auth);
+  const electionId = await api.createInProgressElection();
+
+  await suppressingConsoleOutput(async () => {
+    await expect(
+      api.updateParties({
+        electionId,
+        newParties: [{ ...democrats, abbrev: '' }],
+      })
+    ).rejects.toThrow();
+    await expect(
+      api.updateParties({ electionId, updatedParties: [democrats] })
+    ).rejects.toThrow('Party not found');
+
+    await expect(api.listParties({ electionId: 'missing' })).rejects.toThrow(
+      'Election definition not found'
+    );
+    await expect(
+      api.updateParties({ electionId: 'missing', newParties: [democrats] })
+    ).rejects.toThrow('Election definition not found');
+  });
+  expect(await api.listParties({ electionId })).toEqual([]);
 });
 
 test('edit precincts', async () => {
