@@ -80,6 +80,7 @@ import {
 } from '@votingworks/auth';
 import {
   type DistrictsUpdate,
+  type DuplicateContestError,
   type DuplicateDistrictError,
   type DuplicateElectionError,
   type DuplicatePartyError,
@@ -97,7 +98,6 @@ import {
 } from '@votingworks/election-definition-backend';
 import type {
   MainExportTaskMetadata,
-  DuplicateContestError,
   TestDecksTaskMetadata,
   Store,
 } from './store.js';
