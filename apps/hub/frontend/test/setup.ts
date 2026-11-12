@@ -1,10 +1,10 @@
 import { afterAll, beforeEach, vi } from 'vitest';
+import { makeIdFactory } from '@votingworks/test-utils/id-factory';
 import '@votingworks/test-utils/vitest-setup';
 import '@votingworks/fixtures/vitest-setup';
 
 import { TextEncoder } from 'node:util';
 import { configure } from '@testing-library/react';
-import { makeIdFactory } from './id_helpers.js';
 
 configure({ reactStrictMode: true });
 

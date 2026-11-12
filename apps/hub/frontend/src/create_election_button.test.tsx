@@ -1,4 +1,5 @@
 import { expect, test, beforeEach, afterEach } from 'vitest';
+import { makeIdFactory } from '@votingworks/test-utils';
 import type React from 'react';
 import { createMemoryHistory } from 'history';
 import { ok } from '@votingworks/basics';
@@ -22,7 +23,6 @@ import {
   within,
 } from '../test/react_testing_library.js';
 import { withRoute } from '../test/routing_helpers.js';
-import { makeIdFactory } from '../test/id_helpers.js';
 
 const idFactory = makeIdFactory();
 

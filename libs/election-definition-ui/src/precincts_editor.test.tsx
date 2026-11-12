@@ -1,4 +1,5 @@
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test } from 'vitest';
+import { makeIdFactory } from '@votingworks/test-utils';
 import { Buffer } from 'node:buffer';
 import { createMemoryHistory, type MemoryHistory } from 'history';
 import { userEvent } from '@testing-library/user-event';
@@ -39,23 +40,7 @@ import {
   type PrecinctsEditorProps,
 } from './precincts_editor.js';
 
-let nextId = 0;
-vi.mock(
-  import('@votingworks/election-definition-backend'),
-  async (importActual) => ({
-    ...(await importActual()),
-    generateId: () => {
-      nextId += 1;
-      return `test-random-id-${nextId}`;
-    },
-  })
-);
-
-let expectedId = 0;
-function nextExpectedId(): string {
-  expectedId += 1;
-  return `test-random-id-${expectedId}`;
-}
+const idFactory = makeIdFactory();
 
 const electionId = 'election-1';
 const rootPath = `/elections/${electionId}/precincts`;
@@ -110,8 +95,7 @@ const precincts: Precinct[] = [
 let apiMock: MockApiClient;
 
 beforeEach(() => {
-  nextId = 0;
-  expectedId = 0;
+  idFactory.reset();
   apiMock = createMockApiClient();
   mockStateFeatures({});
   apiMock.getElectionInfo
@@ -181,9 +165,9 @@ async function navigateToPrecinctView(
 }
 
 test('adding a precinct', async () => {
-  nextExpectedId(); // Discarded by StrictMode's double render of the blank form
+  idFactory.next(); // Discarded by StrictMode's double render of the blank form
   const newPrecinct: Precinct = {
-    id: nextExpectedId(),
+    id: idFactory.next(),
     name: 'New Precinct',
     districtIds: [districts[0]!.id, districts[1]!.id],
   };
@@ -252,15 +236,15 @@ test('editing a precinct - adding splits with NH overrides', async () => {
     name: 'Changed Precinct',
     splits: [
       {
-        id: nextExpectedId(),
+        id: idFactory.next(),
         name: 'Split 1',
         districtIds: [districts[0]!.id],
       },
       {
         id: (() => {
           // Burn one ID since we're gonna delete a split
-          nextExpectedId();
-          return nextExpectedId();
+          idFactory.next();
+          return idFactory.next();
         })(),
         name: 'Split 2',
         districtIds: [districts[1]!.id],
@@ -648,12 +632,12 @@ test('error message for duplicate precinct name', async () => {
   await screen.findByRole('heading', { name: 'Add Precinct' });
   await userEvent.type(screen.getByLabelText('Name'), precincts[0]!.name);
 
-  nextExpectedId(); // Discarded by StrictMode's double render of the blank form
+  idFactory.next(); // Discarded by StrictMode's double render of the blank form
   apiMock.createPrecinct
     .expectCallWith({
       electionId,
       newPrecinct: {
-        id: nextExpectedId(),
+        id: idFactory.next(),
         name: precincts[0]!.name,
         districtIds: [],
       },
@@ -700,16 +684,16 @@ test('error message for duplicate precinct split name', async () => {
   await userEvent.type(within(split1Card!).getByLabelText('Name'), 'Split 1');
   await userEvent.type(within(split2Card!).getByLabelText('Name'), 'Split 1');
 
-  nextExpectedId(); // Discarded by StrictMode's double render of the blank form
+  idFactory.next(); // Discarded by StrictMode's double render of the blank form
   apiMock.createPrecinct
     .expectCallWith({
       electionId,
       newPrecinct: {
-        id: nextExpectedId(),
+        id: idFactory.next(),
         name: 'New Precinct',
         splits: [
-          { id: nextExpectedId(), name: 'Split 1', districtIds: [] },
-          { id: nextExpectedId(), name: 'Split 1', districtIds: [] },
+          { id: idFactory.next(), name: 'Split 1', districtIds: [] },
+          { id: idFactory.next(), name: 'Split 1', districtIds: [] },
         ],
       },
     })
@@ -759,16 +743,16 @@ test('error message for splits with the same districts', async () => {
   await userEvent.type(within(split1Card!).getByLabelText('Name'), 'Split 1');
   await userEvent.type(within(split2Card!).getByLabelText('Name'), 'Split 2');
 
-  nextExpectedId(); // Discarded by StrictMode's double render of the blank form
+  idFactory.next(); // Discarded by StrictMode's double render of the blank form
   apiMock.createPrecinct
     .expectCallWith({
       electionId,
       newPrecinct: {
-        id: nextExpectedId(),
+        id: idFactory.next(),
         name: 'New Precinct',
         splits: [
-          { id: nextExpectedId(), name: 'Split 1', districtIds: [] },
-          { id: nextExpectedId(), name: 'Split 2', districtIds: [] },
+          { id: idFactory.next(), name: 'Split 1', districtIds: [] },
+          { id: idFactory.next(), name: 'Split 2', districtIds: [] },
         ],
       },
     })
