@@ -3,6 +3,7 @@ import { DateWithoutTime, err, ok } from '@votingworks/basics';
 import {
   type ElectionId,
   LanguageCode,
+  type PollingPlace,
   type Precinct,
 } from '@votingworks/types';
 import type { ElectionDefinitionMethods } from './election_definition_methods.js';
@@ -504,6 +505,165 @@ export function describeElectionDefinitionMethods(
         electionId: 'unknown',
         precinctId: 'precinct-1',
       })
+    );
+  });
+
+  async function createElectionWithPrecincts(
+    harness: ElectionDefinitionMethodsHarness
+  ): Promise<ElectionId> {
+    const electionId = await harness.createElection();
+    for (const newPrecinct of [
+      { id: 'precinct-1', name: 'Precinct 1', districtIds: [] },
+      { id: 'precinct-2', name: 'Precinct 2', districtIds: [] },
+    ]) {
+      expect(
+        await harness.methods.createPrecinct({ electionId, newPrecinct })
+      ).toEqual(ok());
+    }
+    return electionId;
+  }
+
+  test('createPrecinct creates an election day polling place with EDIT_POLLING_PLACES', async () => {
+    const harness = await setUp();
+    const electionId = await createElectionWithPrecincts(harness);
+
+    expect(await harness.methods.listPollingPlaces({ electionId })).toEqual(
+      harness.expectedStateFeatures.EDIT_POLLING_PLACES
+        ? [
+            {
+              id: expect.any(String),
+              name: 'Precinct 1',
+              precincts: { 'precinct-1': { type: 'whole' } },
+              type: 'election_day',
+            },
+            {
+              id: expect.any(String),
+              name: 'Precinct 2',
+              precincts: { 'precinct-2': { type: 'whole' } },
+              type: 'election_day',
+            },
+          ]
+        : []
+    );
+  });
+
+  test('polling places can be set, listed and deleted', async () => {
+    const harness = await setUp();
+    const { methods } = harness;
+    const electionId = await createElectionWithPrecincts(harness);
+    const generatedPlaces = await methods.listPollingPlaces({ electionId });
+
+    const earlyVoting10: PollingPlace = {
+      id: 'place-1',
+      name: 'Place 10',
+      precincts: {
+        'precinct-2': { type: 'whole' },
+        'precinct-1': { type: 'whole' },
+      },
+      type: 'early_voting',
+    };
+    const earlyVoting2: PollingPlace = {
+      id: 'place-2',
+      name: 'Place 2',
+      precincts: {},
+      type: 'early_voting',
+    };
+    const absentee: PollingPlace = {
+      id: 'place-3',
+      name: 'Place 10',
+      precincts: { 'precinct-1': { type: 'whole' } },
+      type: 'absentee',
+    };
+    for (const place of [earlyVoting10, earlyVoting2, absentee]) {
+      expect(await methods.setPollingPlace({ electionId, place })).toEqual(
+        ok()
+      );
+    }
+    expect(await methods.listPollingPlaces({ electionId })).toEqual([
+      absentee,
+      earlyVoting2,
+      earlyVoting10,
+      ...generatedPlaces,
+    ]);
+
+    const updatedPlace: PollingPlace = {
+      ...earlyVoting10,
+      name: 'Place 1',
+      precincts: { 'precinct-2': { type: 'whole' } },
+      type: 'absentee',
+    };
+    expect(
+      await methods.setPollingPlace({ electionId, place: updatedPlace })
+    ).toEqual(ok());
+    expect(await methods.listPollingPlaces({ electionId })).toEqual([
+      updatedPlace,
+      absentee,
+      earlyVoting2,
+      ...generatedPlaces,
+    ]);
+
+    await methods.deletePollingPlace({ electionId, id: absentee.id });
+    expect(await methods.listPollingPlaces({ electionId })).toEqual([
+      updatedPlace,
+      earlyVoting2,
+      ...generatedPlaces,
+    ]);
+  });
+
+  test('polling places with a duplicate name and type or an unknown precinct are not saved', async () => {
+    const harness = await setUp();
+    const { methods } = harness;
+    const electionId = await createElectionWithPrecincts(harness);
+    const generatedPlaces = await methods.listPollingPlaces({ electionId });
+    const place: PollingPlace = {
+      id: 'place-1',
+      name: 'Town Hall',
+      precincts: { 'precinct-1': { type: 'whole' } },
+      type: 'early_voting',
+    };
+    expect(await methods.setPollingPlace({ electionId, place })).toEqual(ok());
+
+    expect(
+      await methods.setPollingPlace({
+        electionId,
+        place: { ...place, id: 'place-2', precincts: {} },
+      })
+    ).toEqual(err('duplicate-name'));
+    expect(
+      await methods.setPollingPlace({
+        electionId,
+        place: { ...place, id: 'place-2', type: 'absentee' },
+      })
+    ).toEqual(ok());
+    expect(
+      await methods.setPollingPlace({
+        electionId,
+        place: { ...place, precincts: { unknown: { type: 'whole' } } },
+      })
+    ).toEqual(err('invalid-precinct'));
+
+    expect(await methods.listPollingPlaces({ electionId })).toEqual([
+      { ...place, id: 'place-2', type: 'absentee' },
+      place,
+      ...generatedPlaces,
+    ]);
+  });
+
+  test('polling place methods reject an unknown election', async () => {
+    const { methods } = await setUp();
+    const place: PollingPlace = {
+      id: 'place-1',
+      name: 'Town Hall',
+      precincts: {},
+      type: 'election_day',
+    };
+
+    await expectRejection(methods.listPollingPlaces({ electionId: 'unknown' }));
+    await expectRejection(
+      methods.setPollingPlace({ electionId: 'unknown', place })
+    );
+    await expectRejection(
+      methods.deletePollingPlace({ electionId: 'unknown', id: 'place-1' })
     );
   });
 }

@@ -80,6 +80,7 @@ import {
   type ExternalElectionSource,
   generateId,
   getStateFeaturesConfig,
+  type SetPollingPlaceError,
   type StateCode,
 } from '@votingworks/election-definition-backend';
 import type {
@@ -248,8 +249,6 @@ export type DuplicateContestError =
   | 'duplicate-contest'
   | 'duplicate-candidate'
   | 'duplicate-option';
-
-export type SetPollingPlaceError = 'duplicate-name' | 'invalid-precinct';
 
 function straightPartyContestId(electionId: ElectionId): ContestId {
   return `${electionId}-straight-party-contest`;
@@ -3663,7 +3662,6 @@ async function insertPollingPlacePrecincts(
   place: PollingPlace
 ) {
   const precinctIds = Object.keys(place.precincts);
-  // @coverage-defer
   if (precinctIds.length === 0) return;
 
   const params = [place.id, ...precinctIds];

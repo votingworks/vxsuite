@@ -482,32 +482,6 @@ export const electionDefinitionApi = createElectionDefinitionApi(useApiClient, {
   invalidateElectionListQueries,
 });
 
-export const setPollingPlace = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.setPollingPlace, {
-      async onSuccess(result, { electionId }) {
-        if (result.isOk()) {
-          await invalidateElectionQueries(queryClient, electionId);
-        }
-      },
-    });
-  },
-} as const;
-
-export const deletePollingPlace = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.deletePollingPlace, {
-      async onSuccess(_, { electionId }) {
-        await invalidateElectionQueries(queryClient, electionId);
-      },
-    });
-  },
-} as const;
-
 export const updateParties = {
   useMutation() {
     const apiClient = useApiClient();

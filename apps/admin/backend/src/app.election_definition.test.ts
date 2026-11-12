@@ -2,12 +2,17 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { DateWithoutTime, err, ok } from '@votingworks/basics';
 import {
   type ElectionInfoUpdate,
+  getStateFeaturesConfig,
   stateFeatureConfigs,
 } from '@votingworks/election-definition-backend';
 import { describeElectionDefinitionMethods } from '@votingworks/election-definition-backend/test-utils';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { LogEventId } from '@votingworks/logging';
-import { LanguageCode, type Precinct } from '@votingworks/types';
+import {
+  LanguageCode,
+  type PollingPlace,
+  type Precinct,
+} from '@votingworks/types';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import {
   BooleanEnvironmentVariableName,
@@ -27,6 +32,17 @@ vi.mock(import('@votingworks/utils'), async (importActual) => ({
     featureFlagMock.isEnabled(flag),
 }));
 
+vi.mock(
+  import('@votingworks/election-definition-backend'),
+  async (importActual) => {
+    const actual = await importActual();
+    return {
+      ...actual,
+      getStateFeaturesConfig: vi.fn(actual.getStateFeaturesConfig),
+    };
+  }
+);
+
 const electionDefinition = readElectionGeneralDefinition();
 
 beforeEach(() => {
@@ -39,6 +55,7 @@ beforeEach(() => {
 
 afterEach(() => {
   featureFlagMock.resetFeatureFlags();
+  vi.mocked(getStateFeaturesConfig).mockReset();
   vi.unstubAllEnvs();
   vi.useRealTimers();
 });
@@ -595,4 +612,194 @@ test('rejects invalid precincts and unknown elections', async () => {
     ).rejects.toThrow('Election definition not found');
   });
   expect(await api.listPrecincts({ electionId })).toEqual([]);
+});
+
+test('edit polling places', async () => {
+  const {
+    electionDefinitionApiClient: api,
+    auth,
+    logger,
+  } = buildTestEnvironment();
+  mockSystemAdministratorAuth(auth);
+  const electionId = await api.createInProgressElection();
+  (
+    await api.createPrecinct({
+      electionId,
+      newPrecinct: { id: 'precinct-1', name: 'Precinct 1', districtIds: [] },
+    })
+  ).unsafeUnwrap();
+  const generatedPlaces = await api.listPollingPlaces({ electionId });
+
+  const place: PollingPlace = {
+    id: 'place-1',
+    name: 'Town Hall',
+    precincts: { 'precinct-1': { type: 'whole' } },
+    type: 'early_voting',
+  };
+  expect(await api.setPollingPlace({ electionId, place })).toEqual(ok());
+  expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
+    LogEventId.ElectionDefinitionPollingPlaceSaved,
+    {
+      message: `Saved polling place place-1 in election definition ${electionId}.`,
+      disposition: 'success',
+    }
+  );
+  expect(await api.listPollingPlaces({ electionId })).toEqual([
+    place,
+    ...generatedPlaces,
+  ]);
+
+  const updatedPlace: PollingPlace = {
+    ...place,
+    name: 'Library',
+    precincts: {},
+    type: 'absentee',
+  };
+  expect(
+    await api.setPollingPlace({ electionId, place: updatedPlace })
+  ).toEqual(ok());
+  expect(await api.listPollingPlaces({ electionId })).toEqual([
+    updatedPlace,
+    ...generatedPlaces,
+  ]);
+
+  await api.deletePollingPlace({ electionId, id: 'place-1' });
+  expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
+    LogEventId.ElectionDefinitionPollingPlaceDeleted,
+    {
+      message: `Deleted polling place place-1 from election definition ${electionId}.`,
+      disposition: 'success',
+    }
+  );
+  expect(await api.listPollingPlaces({ electionId })).toEqual(generatedPlaces);
+});
+
+test('rejects duplicate polling place names and unknown precincts', async () => {
+  const {
+    electionDefinitionApiClient: api,
+    auth,
+    logger,
+  } = buildTestEnvironment();
+  mockSystemAdministratorAuth(auth);
+  const electionId = await api.createInProgressElection();
+  const place: PollingPlace = {
+    id: 'place-1',
+    name: 'Town Hall',
+    precincts: {},
+    type: 'election_day',
+  };
+  (await api.setPollingPlace({ electionId, place })).unsafeUnwrap();
+
+  expect(
+    await api.setPollingPlace({
+      electionId,
+      place: { ...place, id: 'place-2' },
+    })
+  ).toEqual(err('duplicate-name'));
+  expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
+    LogEventId.ElectionDefinitionPollingPlaceSaved,
+    {
+      message: `Error saving polling place place-2 in election definition ${electionId}: another polling place of the same type has the same name.`,
+      disposition: 'failure',
+    }
+  );
+
+  expect(
+    await api.setPollingPlace({
+      electionId,
+      place: { ...place, precincts: { missing: { type: 'whole' } } },
+    })
+  ).toEqual(err('invalid-precinct'));
+  expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
+    LogEventId.ElectionDefinitionPollingPlaceSaved,
+    {
+      message: `Error saving polling place place-1 in election definition ${electionId}: one of its precincts is not in the election.`,
+      disposition: 'failure',
+    }
+  );
+  expect(await api.listPollingPlaces({ electionId })).toEqual([place]);
+});
+
+test('rejects invalid polling places and unknown elections', async () => {
+  const { electionDefinitionApiClient: api, auth } = buildTestEnvironment();
+  mockSystemAdministratorAuth(auth);
+  const electionId = await api.createInProgressElection();
+  const place: PollingPlace = {
+    id: 'place-1',
+    name: 'Town Hall',
+    precincts: {},
+    type: 'election_day',
+  };
+
+  await suppressingConsoleOutput(async () => {
+    await expect(
+      api.setPollingPlace({
+        electionId,
+        place: { ...place, type: 'mail' as PollingPlace['type'] },
+      })
+    ).rejects.toThrow();
+    await expect(
+      api.deletePollingPlace({ electionId, id: 'place-1' })
+    ).rejects.toThrow('Polling place not found');
+
+    await expect(
+      api.listPollingPlaces({ electionId: 'missing' })
+    ).rejects.toThrow('Election definition not found');
+    await expect(
+      api.setPollingPlace({ electionId: 'missing', place })
+    ).rejects.toThrow('Election definition not found');
+    await expect(
+      api.deletePollingPlace({ electionId: 'missing', id: 'place-1' })
+    ).rejects.toThrow('Election definition not found');
+  });
+  expect(await api.listPollingPlaces({ electionId })).toEqual([]);
+});
+
+test('creating a precinct creates an election day polling place for it', async () => {
+  const { electionDefinitionApiClient: api, auth } = buildTestEnvironment();
+  mockSystemAdministratorAuth(auth);
+  const electionId = await api.createInProgressElection();
+  (
+    await api.createPrecinct({
+      electionId,
+      newPrecinct: { id: 'precinct-1', name: 'Precinct 1', districtIds: [] },
+    })
+  ).unsafeUnwrap();
+  (
+    await api.updatePrecinct({
+      electionId,
+      updatedPrecinct: {
+        id: 'precinct-1',
+        name: 'Precinct A',
+        districtIds: [],
+      },
+    })
+  ).unsafeUnwrap();
+
+  expect(await api.listPollingPlaces({ electionId })).toEqual([
+    {
+      id: expect.any(String),
+      name: 'Precinct 1',
+      precincts: { 'precinct-1': { type: 'whole' } },
+      type: 'election_day',
+    },
+  ]);
+});
+
+test('creating a precinct creates no polling place without EDIT_POLLING_PLACES', async () => {
+  vi.mocked(getStateFeaturesConfig).mockReturnValue({
+    ...stateFeatureConfigs.DEMO,
+    EDIT_POLLING_PLACES: false,
+  });
+  const { electionDefinitionApiClient: api, auth } = buildTestEnvironment();
+  mockSystemAdministratorAuth(auth);
+  const electionId = await api.createInProgressElection();
+  (
+    await api.createPrecinct({
+      electionId,
+      newPrecinct: { id: 'precinct-1', name: 'Precinct 1', districtIds: [] },
+    })
+  ).unsafeUnwrap();
+
+  expect(await api.listPollingPlaces({ electionId })).toEqual([]);
 });

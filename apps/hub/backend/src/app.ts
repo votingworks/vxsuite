@@ -85,9 +85,12 @@ import {
   type DuplicatePrecinctError,
   type ElectionDefinitionMethods,
   getStateFeaturesConfig,
+  type PollingPlaceDelete,
+  type PollingPlaceSet,
   type PrecinctCreate,
   type PrecinctDelete,
   type PrecinctUpdate,
+  type SetPollingPlaceError,
   type StateFeaturesConfig,
 } from '@votingworks/election-definition-backend';
 import type {
@@ -95,7 +98,6 @@ import type {
   DuplicateContestError,
   DuplicatePartyError,
   TestDecksTaskMetadata,
-  SetPollingPlaceError,
   Store,
 } from './store.js';
 import {
@@ -1215,20 +1217,16 @@ export function buildApi(ctx: AppContext) {
       return store.listPollingPlaces(input.electionId);
     },
 
-    async setPollingPlace(input: {
-      electionId: ElectionId;
-      place: PollingPlace;
-    }): Promise<Result<void, SetPollingPlaceError>> {
+    async setPollingPlace(
+      input: PollingPlaceSet
+    ): Promise<Result<void, SetPollingPlaceError>> {
       return store.setPollingPlace(
         input.electionId,
         unsafeParse(PollingPlaceSchema, input.place)
       );
     },
 
-    deletePollingPlace(input: {
-      electionId: string;
-      id: string;
-    }): Promise<void> {
+    deletePollingPlace(input: PollingPlaceDelete): Promise<void> {
       return store.deletePollingPlace(input);
     },
 

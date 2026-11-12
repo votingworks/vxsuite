@@ -1,4 +1,5 @@
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, expect, test } from 'vitest';
+import { makeIdFactory } from '@votingworks/test-utils';
 import { userEvent } from '@testing-library/user-event';
 import { createMemoryHistory } from 'history';
 import { assertDefined, DateWithoutTime, err, ok } from '@votingworks/basics';
@@ -23,17 +24,7 @@ import {
   type DistrictsEditorProps,
 } from './districts_editor.js';
 
-let nextId = 0;
-vi.mock(
-  import('@votingworks/election-definition-backend'),
-  async (importActual) => ({
-    ...(await importActual()),
-    generateId: () => {
-      nextId += 1;
-      return `test-random-id-${nextId}`;
-    },
-  })
-);
+const idFactory = makeIdFactory();
 
 const electionId = 'election-1';
 const viewPath = `/elections/${electionId}/districts`;
@@ -53,7 +44,7 @@ const electionInfo: ElectionInfo = {
 let apiMock: MockApiClient;
 
 beforeEach(() => {
-  nextId = 0;
+  idFactory.reset();
   apiMock = createMockApiClient();
   apiMock.getElectionInfo
     .expectRepeatedCallsWith({ electionId })
@@ -78,10 +69,6 @@ function renderEditor(props: Partial<DistrictsEditorProps> = {}) {
   return history;
 }
 
-function nextDistrictId(): string {
-  return `test-random-id-${nextId + 1}`;
-}
-
 test('adding districts to empty list', async () => {
   apiMock.listDistricts.expectCallWith({ electionId }).resolves([]);
 
@@ -92,13 +79,13 @@ test('adding districts to empty list', async () => {
   );
   expect(screen.getButton('Edit Districts')).toBeDisabled();
 
-  const newDistrict1: District = { id: nextDistrictId(), name: 'District 1' };
+  const newDistrict1: District = { id: idFactory.next(), name: 'District 1' };
   await userEvent.click(screen.getButton('Add District'));
   await screen.findButton('Save');
   expect(history.location.pathname).toEqual(editPath);
   await userEvent.type(screen.getByRole('textbox'), newDistrict1.name);
 
-  const newDistrict2: District = { id: nextDistrictId(), name: 'District 2' };
+  const newDistrict2: District = { id: idFactory.next(), name: 'District 2' };
   await userEvent.click(screen.getButton('Add District'));
   await userEvent.type(screen.getAllByRole('textbox')[1]!, newDistrict2.name);
 
@@ -143,7 +130,7 @@ test('editing existing district list', async () => {
   await userEvent.clear(input);
   await userEvent.type(input, updatedDistrict.name);
 
-  const newDistrict: District = { id: nextDistrictId(), name: 'New District' };
+  const newDistrict: District = { id: idFactory.next(), name: 'New District' };
   await userEvent.click(screen.getButton('Add District'));
   {
     const inputs = screen.getAllByRole('textbox');
@@ -199,7 +186,7 @@ test('cancelling', async () => {
   await userEvent.click(await screen.findButton('Edit Districts'));
   expectDistrictInputs(savedDistricts);
 
-  const newDistrictId = nextDistrictId();
+  const newDistrictId = idFactory.next();
   await userEvent.click(screen.getButton('Delete District Saved District 2'));
   await userEvent.click(screen.getButton('Add District'));
 
@@ -229,7 +216,7 @@ test('error message for duplicate district name', async () => {
   renderEditor();
 
   await userEvent.click(await screen.findButton('Edit Districts'));
-  const newDistrict: District = { id: nextDistrictId(), name: 'District 1' };
+  const newDistrict: District = { id: idFactory.next(), name: 'District 1' };
   await userEvent.click(screen.getButton('Add District'));
   await userEvent.type(screen.getAllByRole('textbox')[1]!, newDistrict.name);
 
@@ -312,7 +299,7 @@ test('single district deletion', async () => {
   await screen.findButton('Save');
 
   await userEvent.click(screen.getButton('Delete District District 2'));
-  const newDistrict: District = { id: nextDistrictId(), name: 'District 4' };
+  const newDistrict: District = { id: idFactory.next(), name: 'District 4' };
   await userEvent.click(screen.getButton('Add District'));
   const inputs = screen.getAllByRole('textbox');
   await userEvent.type(inputs[inputs.length - 1]!, newDistrict.name);
@@ -363,7 +350,7 @@ test('multiple district deletion', async () => {
 
   await userEvent.click(screen.getButton('Delete District District 2'));
   await userEvent.click(screen.getButton('Delete District District 3'));
-  const newDistrict: District = { id: nextDistrictId(), name: 'District 4' };
+  const newDistrict: District = { id: idFactory.next(), name: 'District 4' };
   await userEvent.click(screen.getButton('Add District'));
   const inputs = screen.getAllByRole('textbox');
   await userEvent.type(inputs[inputs.length - 1]!, newDistrict.name);

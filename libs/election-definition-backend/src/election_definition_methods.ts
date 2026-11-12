@@ -3,18 +3,22 @@ import type {
   District,
   ElectionId,
   ElectionRegisteredVoterCounts,
+  PollingPlace,
   Precinct,
 } from '@votingworks/types';
 import type {
   DuplicateDistrictError,
   DuplicateElectionError,
   DuplicatePrecinctError,
+  SetPollingPlaceError,
 } from './error_types.js';
 import type { StateFeaturesConfig } from './state_features.js';
 import type {
   DistrictsUpdate,
   ElectionInfo,
   ElectionInfoUpdate,
+  PollingPlaceDelete,
+  PollingPlaceSet,
   PrecinctCreate,
   PrecinctDelete,
   PrecinctUpdate,
@@ -49,4 +53,11 @@ export interface ElectionDefinitionMethods {
   getRegisteredVoterCounts(
     input: ElectionInput
   ): MaybePromise<ElectionRegisteredVoterCounts>;
+  listPollingPlaces(
+    input: ElectionInput
+  ): MaybePromise<readonly PollingPlace[]>;
+  setPollingPlace(
+    input: PollingPlaceSet
+  ): MaybePromise<Result<void, SetPollingPlaceError>>;
+  deletePollingPlace(input: PollingPlaceDelete): MaybePromise<void>;
 }

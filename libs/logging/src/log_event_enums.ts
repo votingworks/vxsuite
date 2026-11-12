@@ -266,6 +266,10 @@ export const LogEventId = {
   ElectionDefinitionPrecinctCreated: 'election-definition-precinct-created',
   ElectionDefinitionPrecinctUpdated: 'election-definition-precinct-updated',
   ElectionDefinitionPrecinctDeleted: 'election-definition-precinct-deleted',
+  ElectionDefinitionPollingPlaceSaved:
+    'election-definition-polling-place-saved',
+  ElectionDefinitionPollingPlaceDeleted:
+    'election-definition-polling-place-deleted',
   ElectionDefinitionDiscarded: 'election-definition-discarded',
 } as const;
 export type LogEventId = (typeof LogEventId)[keyof typeof LogEventId];
@@ -1705,6 +1709,22 @@ const ElectionDefinitionPrecinctDeleted: LogDetails = {
   restrictInDocumentationToApps: [AppName.VxAdmin],
 };
 
+const ElectionDefinitionPollingPlaceSaved: LogDetails = {
+  eventId: LogEventId.ElectionDefinitionPollingPlaceSaved,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'A user added or edited a polling place (name, type or precincts) in the election definition being designed, or failed to. Success or failure indicated by disposition.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
+const ElectionDefinitionPollingPlaceDeleted: LogDetails = {
+  eventId: LogEventId.ElectionDefinitionPollingPlaceDeleted,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'A user deleted a polling place from the election definition being designed.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
 const ElectionDefinitionDiscarded: LogDetails = {
   eventId: LogEventId.ElectionDefinitionDiscarded,
   eventType: LogEventType.UserAction,
@@ -2101,6 +2121,10 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return ElectionDefinitionPrecinctUpdated;
     case LogEventId.ElectionDefinitionPrecinctDeleted:
       return ElectionDefinitionPrecinctDeleted;
+    case LogEventId.ElectionDefinitionPollingPlaceSaved:
+      return ElectionDefinitionPollingPlaceSaved;
+    case LogEventId.ElectionDefinitionPollingPlaceDeleted:
+      return ElectionDefinitionPollingPlaceDeleted;
     case LogEventId.ElectionDefinitionDiscarded:
       return ElectionDefinitionDiscarded;
     default:

@@ -1,5 +1,9 @@
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export function makeIdFactory() {
+export interface IdFactory {
+  next(): string;
+  reset(): void;
+}
+
+export function makeIdFactory(): IdFactory {
   let id = 0;
   return {
     next: () => {

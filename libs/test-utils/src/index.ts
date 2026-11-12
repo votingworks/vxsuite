@@ -10,6 +10,7 @@ export * from './election_helpers.js';
 export * from './mock_kiosk.js';
 export * from './mock_use_audio_controls.js';
 export * from './has_text_across_elements.js';
+export * from './id_factory.js';
 export * from './mock_constructor.js';
 export * from './mock_function.js';
 export * from './objects.js';

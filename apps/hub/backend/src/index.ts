@@ -19,7 +19,6 @@ export type {
   BackgroundTask,
   DuplicatePartyError,
   MainExportTaskMetadata,
-  SetPollingPlaceError,
   TestDecksTaskMetadata,
 } from './store.js';
 export type {

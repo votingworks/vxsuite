@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { makeIdFactory } from '@votingworks/test-utils';
 import { createMemoryHistory } from 'history';
 import {
   DEFAULT_SYSTEM_SETTINGS,
@@ -18,7 +19,6 @@ import {
   user,
 } from '../test/api_helpers.js';
 import { electionInfoFromElection } from '../test/fixtures.js';
-import { makeIdFactory } from '../test/id_helpers.js';
 import { withRoute } from '../test/routing_helpers.js';
 import { routes } from './routes.js';
 import { render, screen, within } from '../test/react_testing_library.js';

@@ -459,3 +459,27 @@ create table design_precinct_split_registered_voter_counts (
   foreign key (split_id) references design_precinct_splits(id)
     on delete cascade
 ) strict;
+
+create table design_polling_places (
+  id text primary key,
+  election_id text not null,
+  name text not null,
+  type text not null check (
+    type = 'absentee' or type = 'early_voting' or type = 'election_day'
+  ),
+  foreign key (election_id) references design_elections(id)
+    on delete cascade
+) strict;
+
+create unique index design_polling_places_election_id_name_type_unique_index
+  on design_polling_places (election_id, name, type);
+
+create table design_polling_places_precincts (
+  polling_place_id text not null,
+  precinct_id text not null,
+  primary key (polling_place_id, precinct_id),
+  foreign key (polling_place_id) references design_polling_places(id)
+    on delete cascade,
+  foreign key (precinct_id) references design_precincts(id)
+    on delete cascade
+) strict;

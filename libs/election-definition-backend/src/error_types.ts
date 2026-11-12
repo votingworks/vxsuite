@@ -13,3 +13,5 @@ export type DuplicatePrecinctError =
   | 'duplicate-precinct-name'
   | 'duplicate-split-name'
   | 'duplicate-split-districts';
+
+export type SetPollingPlaceError = 'duplicate-name' | 'invalid-precinct';

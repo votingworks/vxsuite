@@ -102,7 +102,9 @@ function renderPanel(
   }
 ) {
   const history = createMemoryHistory({
-    initialEntries: [pollingPlaceRoutes.audio(pathParams)],
+    initialEntries: [
+      `${pollingPlaceRoutes.view(pathParams.placeId)}/audio/${pathParams.stringKey}`,
+    ],
   });
 
   const mockApi = createMockApiClient();
@@ -123,10 +125,7 @@ function renderPanel(
         <Switch>
           <Route
             exact
-            path={pollingPlaceParamRoutes.audio({
-              placeId: ':placeId',
-              stringKey: ':stringKey',
-            })}
+            path={`${pollingPlaceParamRoutes.view(':placeId')}/audio/:stringKey`}
             component={PollingPlaceAudioPanel}
           />
           <Route exact path={pollingPlaceParamRoutes.root.path} />

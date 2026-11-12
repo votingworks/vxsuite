@@ -5,6 +5,8 @@ import { DateWithoutTime, err, ok } from '@votingworks/basics';
 import type {
   DistrictsUpdate,
   ElectionInfoUpdate,
+  PollingPlaceDelete,
+  PollingPlaceSet,
   PrecinctCreate,
   PrecinctDelete,
   PrecinctUpdate,
@@ -198,6 +200,78 @@ test('precinct mutations call invalidateElectionQueries on success', async () =>
   );
   expect(invalidateElectionQueries).toHaveBeenNthCalledWith(
     3,
+    expect.anything(),
+    'election-1'
+  );
+  apiMock.assertComplete();
+});
+
+const pollingPlaceSet: PollingPlaceSet = {
+  electionId: 'election-1',
+  place: {
+    id: 'place-1',
+    name: 'Town Hall',
+    precincts: {},
+    type: 'election_day',
+  },
+};
+const pollingPlaceDelete: PollingPlaceDelete = {
+  electionId: 'election-1',
+  id: 'place-1',
+};
+
+function PollingPlaceButtons(): JSX.Element {
+  const api = useElectionDefinitionApi();
+  const setPollingPlace = api.setPollingPlace.useMutation();
+  const deletePollingPlace = api.deletePollingPlace.useMutation();
+  return (
+    <React.Fragment>
+      <button
+        type="button"
+        onClick={() => setPollingPlace.mutate(pollingPlaceSet)}
+      >
+        Set Polling Place
+      </button>
+      <button
+        type="button"
+        onClick={() => deletePollingPlace.mutate(pollingPlaceDelete)}
+      >
+        Delete Polling Place
+      </button>
+    </React.Fragment>
+  );
+}
+
+test('polling place mutations call invalidateElectionQueries on success', async () => {
+  const apiMock = createMockApiClient();
+  const invalidateElectionQueries = vi.fn().mockResolvedValue(undefined);
+  render(
+    provideApi(apiMock, <PollingPlaceButtons />, {
+      options: { invalidateElectionQueries },
+    })
+  );
+
+  apiMock.setPollingPlace
+    .expectCallWith(pollingPlaceSet)
+    .resolves(err('duplicate-name'));
+  await userEvent.click(screen.getButton('Set Polling Place'));
+  apiMock.assertComplete();
+  expect(invalidateElectionQueries).not.toHaveBeenCalled();
+
+  apiMock.setPollingPlace.expectCallWith(pollingPlaceSet).resolves(ok());
+  await userEvent.click(screen.getButton('Set Polling Place'));
+  await waitFor(() =>
+    expect(invalidateElectionQueries).toHaveBeenCalledTimes(1)
+  );
+  apiMock.assertComplete();
+
+  apiMock.deletePollingPlace.expectCallWith(pollingPlaceDelete).resolves();
+  await userEvent.click(screen.getButton('Delete Polling Place'));
+  await waitFor(() =>
+    expect(invalidateElectionQueries).toHaveBeenCalledTimes(2)
+  );
+  expect(invalidateElectionQueries).toHaveBeenNthCalledWith(
+    2,
     expect.anything(),
     'election-1'
   );

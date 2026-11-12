@@ -18,6 +18,7 @@ import {
   getElectionInfoQueryKey,
   getRegisteredVoterCountsQueryKey,
   listDistrictsQueryKey,
+  listPollingPlacesQueryKey,
   listPrecinctsQueryKey,
 } from '@votingworks/election-definition-ui';
 import * as grout from '@votingworks/grout';
@@ -1326,6 +1327,7 @@ async function invalidateElectionQueries(
     queryClient.invalidateQueries(listDistrictsQueryKey(electionId)),
     queryClient.invalidateQueries(listPrecinctsQueryKey(electionId)),
     queryClient.invalidateQueries(getRegisteredVoterCountsQueryKey(electionId)),
+    queryClient.invalidateQueries(listPollingPlacesQueryKey(electionId)),
   ]);
 }
 

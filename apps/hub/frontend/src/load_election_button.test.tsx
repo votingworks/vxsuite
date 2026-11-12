@@ -1,4 +1,5 @@
 import { createMemoryHistory } from 'history';
+import { makeIdFactory } from '@votingworks/test-utils';
 import { userEvent } from '@testing-library/user-event';
 import { File as NodeFile } from 'node:buffer';
 import { afterEach, beforeEach, test, expect } from 'vitest';
@@ -17,7 +18,6 @@ import { withRoute } from '../test/routing_helpers.js';
 import { routes } from './routes.js';
 import { render, screen, waitFor } from '../test/react_testing_library.js';
 import { LoadElectionButton } from './load_election_button.js';
-import { makeIdFactory } from '../test/id_helpers.js';
 
 // Change global File to ensure File.text exists
 global.File = NodeFile as unknown as typeof global.File;

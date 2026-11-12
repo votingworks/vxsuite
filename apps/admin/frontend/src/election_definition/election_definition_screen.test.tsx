@@ -2,7 +2,10 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { userEvent } from '@testing-library/user-event';
 import { createMemoryHistory } from 'history';
 import { DateWithoutTime, ok } from '@votingworks/basics';
-import type { ElectionInfo } from '@votingworks/election-definition-backend';
+import type {
+  ElectionInfo,
+  StateFeaturesConfig,
+} from '@votingworks/election-definition-backend';
 import { BooleanEnvironmentVariableName } from '@votingworks/utils';
 import {
   mockElectionManagerUser,
@@ -12,6 +15,7 @@ import {
 import {
   type DippedSmartCardAuth,
   type District,
+  type PollingPlace,
   type Precinct,
   constructElectionKey,
   LanguageCode,
@@ -116,13 +120,16 @@ function expectCurrentInProgressElection(electionInfo: ElectionInfo | null) {
     .resolves(electionInfo);
 }
 
-function expectElectionInfoQueries(electionInfo: ElectionInfo) {
+function expectElectionInfoQueries(
+  electionInfo: ElectionInfo,
+  stateFeatures: StateFeaturesConfig = {}
+) {
   apiMock.electionDefinitionApiClient.getElectionInfo
     .expectCallWith({ electionId })
     .resolves(electionInfo);
   apiMock.electionDefinitionApiClient.getStateFeatures
     .expectCallWith({ electionId })
-    .resolves({});
+    .resolves(stateFeatures);
 }
 
 test('Create New Election creates an election and opens Election Info', async () => {
@@ -289,6 +296,81 @@ test('the Precincts tab edits the election precincts', async () => {
   await screen.findByRole('heading', { name: 'Precinct Info' });
   expect(history.location.pathname).toEqual(precinctPath);
   await screen.findByDisplayValue('Precinct A');
+});
+
+test('the Polling Places tab edits the election polling places', async () => {
+  const precinct: Precinct = {
+    id: 'precinct-1',
+    name: 'Precinct 1',
+    districtIds: [],
+  };
+  const place: PollingPlace = {
+    id: 'place-1',
+    name: 'Town Hall',
+    precincts: { [precinct.id]: { type: 'whole' } },
+    type: 'election_day',
+  };
+  const renamedPlace: PollingPlace = { ...place, name: 'Library' };
+  expectCurrentInProgressElection(generalElectionInfo);
+  expectElectionInfoQueries(generalElectionInfo, {
+    EDIT_POLLING_PLACES: true,
+  });
+  const history = renderScreen(routerPaths.electionDefinitionInfo(electionId));
+  await screen.findButton('Edit');
+
+  apiMock.electionDefinitionApiClient.listPollingPlaces
+    .expectCallWith({ electionId })
+    .resolves([place]);
+  apiMock.electionDefinitionApiClient.listPrecincts
+    .expectCallWith({ electionId })
+    .resolves([precinct]);
+  await userEvent.click(screen.getByRole('tab', { name: 'Polling Places' }));
+  await screen.findByRole('heading', { name: 'Polling Place Info' });
+  screen.getByRole('tab', { name: 'Polling Places', selected: true });
+  const placePath = `${routerPaths.electionDefinitionPollingPlaces(
+    electionId
+  )}/${place.id}`;
+  expect(history.location.pathname).toEqual(placePath);
+
+  await userEvent.click(screen.getButton('Edit'));
+  await screen.findByRole('heading', { name: 'Edit Polling Place' });
+  expect(history.location.pathname).toEqual(`${placePath}/edit`);
+  const input = screen.getByLabelText('Name');
+  await userEvent.clear(input);
+  await userEvent.type(input, renamedPlace.name);
+
+  apiMock.electionDefinitionApiClient.setPollingPlace
+    .expectCallWith({ electionId, place: renamedPlace })
+    .resolves(ok());
+  expectCurrentInProgressElection(generalElectionInfo);
+  apiMock.electionDefinitionApiClient.listPollingPlaces
+    .expectCallWith({ electionId })
+    .resolves([renamedPlace]);
+  apiMock.electionDefinitionApiClient.listPrecincts
+    .expectCallWith({ electionId })
+    .resolves([precinct]);
+  await userEvent.click(screen.getButton('Save'));
+
+  await screen.findByRole('heading', { name: 'Polling Place Info' });
+  expect(history.location.pathname).toEqual(placePath);
+  await screen.findByDisplayValue(renamedPlace.name);
+});
+
+test('there is no Polling Places tab without EDIT_POLLING_PLACES', async () => {
+  expectCurrentInProgressElection(generalElectionInfo);
+  expectElectionInfoQueries(generalElectionInfo);
+  const history = renderScreen(
+    routerPaths.electionDefinitionPollingPlaces(electionId)
+  );
+
+  await screen.findButton('Edit');
+  expect(history.location.pathname).toEqual(
+    routerPaths.electionDefinitionInfo(electionId)
+  );
+  screen.getByRole('tab', { name: 'Precincts' });
+  expect(
+    screen.queryByRole('tab', { name: 'Polling Places' })
+  ).not.toBeInTheDocument();
 });
 
 test('an election definition in progress is shown on the Election screen', async () => {

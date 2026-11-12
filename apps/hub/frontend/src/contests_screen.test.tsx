@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { makeIdFactory } from '@votingworks/test-utils';
 import { createMemoryHistory, type MemoryHistory } from 'history';
 import { userEvent } from '@testing-library/user-event';
 import {
@@ -53,7 +54,6 @@ import {
 import { withRoute } from '../test/routing_helpers.js';
 import { ContestsScreen } from './contests_screen.js';
 import { routes } from './routes.js';
-import { makeIdFactory } from '../test/id_helpers.js';
 import {
   ContestList,
   type ContestListProps,

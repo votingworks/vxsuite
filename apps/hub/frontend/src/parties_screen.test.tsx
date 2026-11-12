@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { makeIdFactory } from '@votingworks/test-utils';
 import { createMemoryHistory } from 'history';
 import { userEvent } from '@testing-library/user-event';
 import {
@@ -22,7 +23,6 @@ import { electionInfoFromElection } from '../test/fixtures.js';
 import { render, screen, within } from '../test/react_testing_library.js';
 import { withRoute } from '../test/routing_helpers.js';
 import { routes } from './routes.js';
-import { makeIdFactory } from '../test/id_helpers.js';
 import { PartiesScreen } from './parties_screen.js';
 import { PartyAudioPanel } from './party_audio_panel.js';
 

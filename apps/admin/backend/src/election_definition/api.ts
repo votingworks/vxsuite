@@ -17,9 +17,12 @@ import {
   ElectionInfoUpdateSchema,
   type ElectionInput,
   generateId,
+  type PollingPlaceDelete,
+  type PollingPlaceSet,
   type PrecinctCreate,
   type PrecinctDelete,
   type PrecinctUpdate,
+  type SetPollingPlaceError,
   type StateCode,
   type StateFeaturesConfig,
 } from '@votingworks/election-definition-backend';
@@ -30,6 +33,8 @@ import {
   type ElectionId,
   type ElectionRegisteredVoterCounts,
   LanguageCode,
+  type PollingPlace,
+  pollingPlaceGenerateFromPrecinct,
   type Precinct,
   unsafeParse,
 } from '@votingworks/types';
@@ -62,6 +67,17 @@ function describePrecinctError(error: DuplicatePrecinctError): string {
       return 'two of its splits have the same name';
     case 'duplicate-split-districts':
       return 'two of its splits have the same districts';
+    default:
+      throwIllegalValue(error);
+  }
+}
+
+function describePollingPlaceError(error: SetPollingPlaceError): string {
+  switch (error) {
+    case 'duplicate-name':
+      return 'another polling place of the same type has the same name';
+    case 'invalid-precinct':
+      return 'one of its precincts is not in the election';
     default:
       throwIllegalValue(error);
   }
@@ -203,10 +219,17 @@ function createElectionDefinitionApiMethods({
       input: PrecinctCreate
     ): Promise<Result<void, DuplicatePrecinctError>> {
       loadInProgressElectionInfo(input);
-      // TODO(CARO): Hub also creates an election day polling place for each new
-      // precinct when EDIT_POLLING_PLACES is on (as it is for DEMO). Add that
-      // here once VxAdmin has design polling places.
-      const result = store.electionDefinition.createPrecinct(input);
+      const { features } = assertDefined(getMachineState());
+      const result = store.electionDefinition.createPrecinct(
+        input,
+        features.EDIT_POLLING_PLACES
+          ? pollingPlaceGenerateFromPrecinct({
+              id: generateId(),
+              precinct: input.newPrecinct,
+              type: 'election_day',
+            })
+          : undefined
+      );
       if (result.isErr()) {
         await logger.logAsCurrentRole(
           LogEventId.ElectionDefinitionPrecinctCreated,
@@ -270,6 +293,48 @@ function createElectionDefinitionApiMethods({
       loadInProgressElectionInfo(input);
       return store.electionDefinition.getRegisteredVoterCounts(
         input.electionId
+      );
+    },
+
+    listPollingPlaces(input: ElectionInput): PollingPlace[] {
+      loadInProgressElectionInfo(input);
+      return store.electionDefinition.listPollingPlaces(input.electionId);
+    },
+
+    async setPollingPlace(
+      input: PollingPlaceSet
+    ): Promise<Result<void, SetPollingPlaceError>> {
+      loadInProgressElectionInfo(input);
+      const result = store.electionDefinition.setPollingPlace(input);
+      if (result.isErr()) {
+        await logger.logAsCurrentRole(
+          LogEventId.ElectionDefinitionPollingPlaceSaved,
+          {
+            message: `Error saving polling place ${input.place.id} in election definition ${input.electionId}: ${describePollingPlaceError(result.err())}.`,
+            disposition: 'failure',
+          }
+        );
+        return result;
+      }
+      await logger.logAsCurrentRole(
+        LogEventId.ElectionDefinitionPollingPlaceSaved,
+        {
+          message: `Saved polling place ${input.place.id} in election definition ${input.electionId}.`,
+          disposition: 'success',
+        }
+      );
+      return result;
+    },
+
+    async deletePollingPlace(input: PollingPlaceDelete): Promise<void> {
+      loadInProgressElectionInfo(input);
+      store.electionDefinition.deletePollingPlace(input);
+      await logger.logAsCurrentRole(
+        LogEventId.ElectionDefinitionPollingPlaceDeleted,
+        {
+          message: `Deleted polling place ${input.id} from election definition ${input.electionId}.`,
+          disposition: 'success',
+        }
       );
     },
   } as const;

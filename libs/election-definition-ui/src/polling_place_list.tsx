@@ -3,7 +3,8 @@ import styled from 'styled-components';
 
 import { Callout } from '@votingworks/ui';
 import { type PollingPlace, pollingPlaceGroups } from '@votingworks/types';
-import { Column, EntityList } from '@votingworks/election-definition-ui';
+import { EntityList } from './entity_list.js';
+import { Column } from './layout.js';
 
 const NoPollingPlaces = styled.div`
   padding: 1rem;
@@ -11,13 +12,11 @@ const NoPollingPlaces = styled.div`
 
 export interface PollingPlaceListProps {
   onSelect: (id: string) => void;
-  places: PollingPlace[];
+  places: readonly PollingPlace[];
   selectedId?: string;
 }
 
-export function PollingPlaceList(
-  props: PollingPlaceListProps
-): React.ReactNode {
+export function PollingPlaceList(props: PollingPlaceListProps): JSX.Element {
   const { onSelect, places, selectedId } = props;
 
   const groups = React.useMemo(() => pollingPlaceGroups(places), [places]);
@@ -59,7 +58,7 @@ export function PollingPlaceList(
 
 export function Sublist(
   props: PollingPlaceListProps & { title: string }
-): React.ReactNode {
+): JSX.Element | null {
   const { onSelect, places, selectedId, title } = props;
   const { Caption, Header, Item, Items, Label } = EntityList;
 
