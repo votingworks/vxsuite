@@ -18,6 +18,7 @@ import {
   type Id,
   type Election,
   type ElectionRegisteredVoterCounts,
+  type Party,
   type PollingPlace,
   type Precinct,
   type SystemSettings,
@@ -2808,6 +2809,233 @@ describe('design districts', () => {
 
     store.electionDefinition.deleteInProgressElection();
     expect(store.electionDefinition.listDistricts(electionId)).toEqual([]);
+  });
+});
+
+describe('design parties', () => {
+  const electionId = 'design-election';
+  const democrats: Party = {
+    id: 'p1',
+    name: 'Democrat',
+    fullName: 'Democratic Party',
+    abbrev: 'D',
+  };
+  const republicans: Party = {
+    id: 'p2',
+    name: 'Republican',
+    fullName: 'Republican Party',
+    abbrev: 'R',
+  };
+
+  function setUpStore(): Store {
+    const store = Store.memoryStore(makeTemporaryDirectory());
+    store.electionDefinition.createInProgressElection({
+      electionId,
+      type: 'general',
+      date: new DateWithoutTime('2026-11-03'),
+      title: '',
+      state: 'DEMO',
+      jurisdictionName: '',
+      seal: '',
+      languageCodes: [LanguageCode.ENGLISH],
+    });
+    return store;
+  }
+
+  test('add, edit and delete parties', () => {
+    const store = setUpStore();
+    expect(store.electionDefinition.listParties(electionId)).toEqual([]);
+
+    const party10: Party = {
+      id: 'p10',
+      name: 'Party 10',
+      fullName: 'Party 10 Full',
+      abbrev: 'P10',
+    };
+    const party2: Party = {
+      id: 'p3',
+      name: 'Party 2',
+      fullName: 'Party 2 Full',
+      abbrev: 'P2',
+    };
+    const greens: Party = {
+      id: 'p5',
+      name: 'green',
+      fullName: 'Green Party',
+      abbrev: 'G',
+    };
+    expect(
+      store.electionDefinition.updateParties({
+        electionId,
+        newParties: [party10, republicans, greens, party2, democrats],
+      })
+    ).toEqual(ok());
+    expect(store.electionDefinition.listParties(electionId)).toEqual([
+      democrats,
+      greens,
+      party10,
+      party2,
+      republicans,
+    ]);
+
+    const editedRepublicans: Party = {
+      id: 'p2',
+      name: 'Democrat',
+      fullName: 'Grand Old Party',
+      abbrev: 'GOP',
+    };
+    const libertarians: Party = {
+      id: 'p4',
+      name: 'Libertarian',
+      fullName: 'Libertarian Party',
+      abbrev: 'L',
+    };
+    expect(
+      store.electionDefinition.updateParties({
+        electionId,
+        deletedPartyIds: ['p1', 'p10'],
+        updatedParties: [editedRepublicans],
+        newParties: [libertarians],
+      })
+    ).toEqual(ok());
+    expect(store.electionDefinition.listParties(electionId)).toEqual([
+      editedRepublicans,
+      greens,
+      libertarians,
+      party2,
+    ]);
+  });
+
+  test.each([
+    {
+      description: 'name, full name and abbreviation',
+      conflict: { name: 'Democrat', fullName: 'Democratic Party', abbrev: 'D' },
+      code: 'duplicate-name',
+    },
+    {
+      description: 'full name and abbreviation',
+      conflict: { name: 'Other', fullName: 'Democratic Party', abbrev: 'D' },
+      code: 'duplicate-full-name',
+    },
+    {
+      description: 'abbreviation',
+      conflict: { name: 'Other', fullName: 'Other Party', abbrev: 'D' },
+      code: 'duplicate-abbrev',
+    },
+  ] as const)(
+    'a party with the same $description is rejected as $code without saving',
+    ({ conflict, code }) => {
+      const store = setUpStore();
+      store.electionDefinition
+        .updateParties({ electionId, newParties: [democrats, republicans] })
+        .unsafeUnwrap();
+
+      expect(
+        store.electionDefinition.updateParties({
+          electionId,
+          deletedPartyIds: ['p2'],
+          newParties: [{ id: 'p3', ...conflict }],
+        })
+      ).toEqual(err({ code, partyId: 'p3' }));
+      expect(
+        store.electionDefinition.updateParties({
+          electionId,
+          updatedParties: [{ id: 'p2', ...conflict }],
+        })
+      ).toEqual(err({ code, partyId: 'p2' }));
+      expect(store.electionDefinition.listParties(electionId)).toEqual([
+        democrats,
+        republicans,
+      ]);
+    }
+  );
+
+  test('rejects unknown and conflicting party ids', () => {
+    const store = setUpStore();
+    store.electionDefinition
+      .updateParties({ electionId, newParties: [democrats] })
+      .unsafeUnwrap();
+
+    expect(() =>
+      store.electionDefinition.updateParties({
+        electionId,
+        updatedParties: [{ ...republicans, id: 'missing' }],
+      })
+    ).toThrow('Party not found');
+    expect(() =>
+      store.electionDefinition.updateParties({
+        electionId,
+        newParties: [{ ...republicans, id: 'p1' }],
+      })
+    ).toThrow();
+    expect(store.electionDefinition.listParties(electionId)).toEqual([
+      democrats,
+    ]);
+  });
+
+  test.each(['name', 'fullName', 'abbrev'] as const)(
+    'rejects a blank %s without saving',
+    (field) => {
+      const store = setUpStore();
+      store.electionDefinition
+        .updateParties({ electionId, newParties: [democrats] })
+        .unsafeUnwrap();
+
+      expect(() =>
+        store.electionDefinition.updateParties({
+          electionId,
+          deletedPartyIds: ['p1'],
+          newParties: [{ ...republicans, [field]: '' }],
+        })
+      ).toThrow();
+      expect(() =>
+        store.electionDefinition.updateParties({
+          electionId,
+          updatedParties: [{ ...democrats, [field]: '' }],
+        })
+      ).toThrow();
+      expect(store.electionDefinition.listParties(electionId)).toEqual([
+        democrats,
+      ]);
+    }
+  );
+
+  test('parties for an unknown election are not saved', () => {
+    const store = setUpStore();
+    expect(() =>
+      store.electionDefinition.updateParties({
+        electionId: 'missing',
+        newParties: [democrats],
+      })
+    ).toThrow();
+    expect(store.electionDefinition.listParties('missing')).toEqual([]);
+  });
+
+  test('deleting parties for another election has no effect', () => {
+    const store = setUpStore();
+    store.electionDefinition
+      .updateParties({ electionId, newParties: [democrats] })
+      .unsafeUnwrap();
+
+    expect(
+      store.electionDefinition.updateParties({
+        electionId: 'other',
+        deletedPartyIds: [democrats.id],
+      })
+    ).toEqual(ok());
+    expect(store.electionDefinition.listParties(electionId)).toEqual([
+      democrats,
+    ]);
+  });
+
+  test('deleting the election deletes its parties', () => {
+    const store = setUpStore();
+    store.electionDefinition
+      .updateParties({ electionId, newParties: [democrats] })
+      .unsafeUnwrap();
+
+    store.electionDefinition.deleteInProgressElection();
+    expect(store.electionDefinition.listParties(electionId)).toEqual([]);
   });
 });
 

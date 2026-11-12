@@ -11,9 +11,12 @@ import type { Client as DbClient } from '@votingworks/db';
 import type {
   DistrictsUpdate,
   DuplicateDistrictError,
+  DuplicatePartyError,
+  DuplicatePartyErrorCode,
   DuplicatePrecinctError,
   ElectionInfo,
   ElectionInfoUpdate,
+  PartiesUpdate,
   PollingPlaceDelete,
   PollingPlaceSet,
   PrecinctCreate,
@@ -36,6 +39,8 @@ import {
   type LanguageCode,
   LanguageCodeSchema,
   type NhPrecinctSplitOptions,
+  type Party,
+  PartySchema,
   type PollingPlace,
   PollingPlaceSchema,
   type PollingPlaceType,
@@ -53,6 +58,7 @@ import { z } from 'zod/v4';
 import type { TranslatedString } from './translations.js';
 
 const NATURAL_SORT_COLLATOR = new Intl.Collator('en', { numeric: true });
+const ALPHABETICAL_SORT_COLLATOR = new Intl.Collator('en');
 
 const PLACEHOLDER_JURISDICTION_ID = 'jurisdiction';
 
@@ -65,6 +71,32 @@ function isDuplicateDistrictNameError(error: unknown): boolean {
       'design_districts.election_id, design_districts.name'
     )
   );
+}
+
+function extractDuplicatePartyErrorCode(
+  error: unknown
+): DuplicatePartyErrorCode | undefined {
+  if (
+    !(
+      error instanceof Error &&
+      'code' in error &&
+      error.code === 'SQLITE_CONSTRAINT_UNIQUE' &&
+      error.message.includes('design_parties.')
+    )
+  ) {
+    return undefined;
+  }
+  if (error.message.includes('design_parties.name')) {
+    return 'duplicate-name';
+  }
+  if (error.message.includes('design_parties.full_name')) {
+    return 'duplicate-full-name';
+  }
+  if (error.message.includes('design_parties.abbrev')) {
+    return 'duplicate-abbrev';
+  }
+  // @coverage-exclude: design_parties has no other unique indexes
+  return undefined;
 }
 
 function isDuplicatePrecinctNameError(error: unknown): boolean {
@@ -377,6 +409,87 @@ export class ElectionDefinitionStore {
     } catch (error) {
       if (isDuplicateDistrictNameError(error)) {
         return err({ code: 'duplicate-name', districtId: district.id });
+      }
+      throw error;
+    }
+  }
+
+  listParties(electionId: ElectionId): Party[] {
+    const parties = this.client.all(
+      `
+      select id, name, full_name as fullName, abbrev
+      from design_parties
+      where election_id = ?
+    `,
+      electionId
+    ) as Party[];
+    return parties.toSorted((a, b) =>
+      ALPHABETICAL_SORT_COLLATOR.compare(a.name, b.name)
+    );
+  }
+
+  updateParties(input: PartiesUpdate): Result<void, DuplicatePartyError> {
+    const { electionId } = input;
+    return this.client.transaction(
+      (): Result<void, DuplicatePartyError> => {
+        for (const partyId of input.deletedPartyIds ?? []) {
+          this.client.run(
+            'delete from design_parties where id = ? and election_id = ?',
+            partyId,
+            electionId
+          );
+        }
+
+        for (const p of input.updatedParties ?? []) {
+          const party = unsafeParse(PartySchema, p);
+          const result = this.writeParty(party, () =>
+            assert(
+              this.client.one(
+                'update design_parties set name = ?, full_name = ?, abbrev = ? where id = ? and election_id = ? returning id',
+                party.name,
+                party.fullName,
+                party.abbrev,
+                party.id,
+                electionId
+              ),
+              'Party not found'
+            )
+          );
+          if (result.isErr()) return result;
+        }
+
+        for (const p of input.newParties ?? []) {
+          const party = unsafeParse(PartySchema, p);
+          const result = this.writeParty(party, () =>
+            this.client.run(
+              'insert into design_parties (id, election_id, name, full_name, abbrev) values (?, ?, ?, ?, ?)',
+              party.id,
+              electionId,
+              party.name,
+              party.fullName,
+              party.abbrev
+            )
+          );
+          if (result.isErr()) return result;
+        }
+
+        return ok();
+      },
+      (result) => result.isOk()
+    );
+  }
+
+  private writeParty(
+    party: Party,
+    write: () => void
+  ): Result<void, DuplicatePartyError> {
+    try {
+      write();
+      return ok();
+    } catch (error) {
+      const code = extractDuplicatePartyErrorCode(error);
+      if (code) {
+        return err({ code, partyId: party.id });
       }
       throw error;
     }

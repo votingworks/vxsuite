@@ -403,6 +403,25 @@ create table design_districts (
 create unique index design_districts_election_id_name_unique_index
   on design_districts (election_id, name);
 
+create table design_parties (
+  id text primary key,
+  election_id text not null,
+  name text not null,
+  full_name text not null,
+  abbrev text not null,
+  foreign key (election_id) references design_elections(id)
+    on delete cascade
+) strict;
+
+create unique index design_parties_election_id_abbrev_unique_index
+  on design_parties (election_id, abbrev);
+
+create unique index design_parties_election_id_full_name_unique_index
+  on design_parties (election_id, full_name);
+
+create unique index design_parties_election_id_name_unique_index
+  on design_parties (election_id, name);
+
 create table design_precincts (
   id text primary key,
   election_id text not null,
