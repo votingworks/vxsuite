@@ -79,6 +79,10 @@ import {
   decodeQuickResultsMessage,
 } from '@votingworks/auth';
 import {
+  type ContestCreate,
+  type ContestDelete,
+  type ContestsReorder,
+  type ContestUpdate,
   type DistrictsUpdate,
   type DuplicateContestError,
   type DuplicateDistrictError,
@@ -651,33 +655,25 @@ export function buildApi(ctx: AppContext) {
       return store.listContests(input.electionId);
     },
 
-    async createContest(input: {
-      electionId: ElectionId;
-      newContest: Contest;
-    }): Promise<Result<void, DuplicateContestError>> {
+    async createContest(
+      input: ContestCreate
+    ): Promise<Result<void, DuplicateContestError>> {
       const contest = unsafeParse(ContestSchema, input.newContest);
       return store.createContest(input.electionId, contest);
     },
 
-    async updateContest(input: {
-      electionId: ElectionId;
-      updatedContest: Contest;
-    }): Promise<Result<void, DuplicateContestError>> {
+    async updateContest(
+      input: ContestUpdate
+    ): Promise<Result<void, DuplicateContestError>> {
       const contest = unsafeParse(ContestSchema, input.updatedContest);
       return store.updateContest(input.electionId, contest);
     },
 
-    async reorderContests(input: {
-      electionId: ElectionId;
-      contestIds: string[];
-    }): Promise<void> {
+    async reorderContests(input: ContestsReorder): Promise<void> {
       await store.reorderContests(input.electionId, input.contestIds);
     },
 
-    async deleteContest(input: {
-      electionId: ElectionId;
-      contestId: string;
-    }): Promise<void> {
+    async deleteContest(input: ContestDelete): Promise<void> {
       await store.deleteContest(input.electionId, input.contestId);
     },
 
