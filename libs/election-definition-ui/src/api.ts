@@ -39,6 +39,10 @@ export function listPartiesQueryKey(electionId: ElectionId): QueryKey {
   return ['listParties', electionId];
 }
 
+export function listContestsQueryKey(electionId: ElectionId): QueryKey {
+  return ['listContests', electionId];
+}
+
 export function listPrecinctsQueryKey(electionId: ElectionId): QueryKey {
   return ['listPrecincts', electionId];
 }
@@ -61,6 +65,7 @@ async function invalidateElectionDefinitionQueries(
     queryClient.invalidateQueries(getElectionInfoQueryKey(electionId)),
     queryClient.invalidateQueries(listDistrictsQueryKey(electionId)),
     queryClient.invalidateQueries(listPartiesQueryKey(electionId)),
+    queryClient.invalidateQueries(listContestsQueryKey(electionId)),
     queryClient.invalidateQueries(listPrecinctsQueryKey(electionId)),
     queryClient.invalidateQueries(getRegisteredVoterCountsQueryKey(electionId)),
     queryClient.invalidateQueries(listPollingPlacesQueryKey(electionId)),
@@ -157,6 +162,66 @@ function createReactQueryApi(
             if (result.isOk()) {
               await invalidateElectionQueries(queryClient, electionId);
             }
+          },
+        });
+      },
+    },
+    listContests: {
+      queryKey: listContestsQueryKey,
+      useQuery(electionId: ElectionId) {
+        const apiClient = getApiClient();
+        return useQuery(listContestsQueryKey(electionId), () =>
+          apiClient.listContests({ electionId })
+        );
+      },
+    },
+    createContest: {
+      useMutation() {
+        const apiClient = getApiClient();
+        const queryClient = useQueryClient();
+        return useMutation(apiClient.createContest, {
+          async onSuccess(result, { electionId }) {
+            if (result.isOk()) {
+              await invalidateElectionQueries(queryClient, electionId);
+              await queryClient.refetchQueries(
+                listContestsQueryKey(electionId)
+              );
+            }
+          },
+        });
+      },
+    },
+    updateContest: {
+      useMutation() {
+        const apiClient = getApiClient();
+        const queryClient = useQueryClient();
+        return useMutation(apiClient.updateContest, {
+          async onSuccess(result, { electionId }) {
+            if (result.isOk()) {
+              await invalidateElectionQueries(queryClient, electionId);
+            }
+          },
+        });
+      },
+    },
+    reorderContests: {
+      useMutation() {
+        const apiClient = getApiClient();
+        const queryClient = useQueryClient();
+        return useMutation(apiClient.reorderContests, {
+          async onSuccess(_, { electionId }) {
+            await invalidateElectionQueries(queryClient, electionId);
+          },
+        });
+      },
+    },
+    deleteContest: {
+      useMutation() {
+        const apiClient = getApiClient();
+        const queryClient = useQueryClient();
+        return useMutation(apiClient.deleteContest, {
+          async onSuccess(_, { electionId }) {
+            await invalidateElectionQueries(queryClient, electionId);
           },
         });
       },
