@@ -1,4 +1,5 @@
 import { describe, expect, test, vi } from 'vitest';
+import { Buffer } from 'node:buffer';
 import { iter } from '@votingworks/basics';
 import { filterErrorLogs } from './export.js';
 
@@ -25,5 +26,12 @@ describe('filterErrorLogs', () => {
     expect(results[0]).toEqual(
       '{"timeLogWritten":"2021-11-03T16:38:09.384062-07:00","source":"vx-admin-frontend","eventId":"usb-drive-detected","eventType":"application-status","user":"system","message":"i am an error","disposition":"failure"}\n'
     );
+  });
+
+  test('decodes multibyte characters split across byte chunks', async () => {
+    const line = '{"message":"café","disposition":"failure"}\n';
+    const chunks = [...Buffer.from(line)].map((byte) => Uint8Array.of(byte));
+    const results = await iter(filterErrorLogs(iter(chunks).async())).toArray();
+    expect(results).toEqual([line]);
   });
 });
