@@ -3,6 +3,7 @@ import { DateWithoutTime, err, ok } from '@votingworks/basics';
 import {
   type ElectionId,
   LanguageCode,
+  type Party,
   type PollingPlace,
   type Precinct,
 } from '@votingworks/types';
@@ -266,6 +267,167 @@ export function describeElectionDefinitionMethods(
         electionId: 'unknown',
         newDistricts: [{ id: 'district-1', name: 'District 1' }],
       })
+    );
+  });
+
+  const democrats: Party = {
+    id: 'party-1',
+    name: 'Democrat',
+    fullName: 'Democratic Party',
+    abbrev: 'D',
+  };
+  const republicans: Party = {
+    id: 'party-2',
+    name: 'Republican',
+    fullName: 'Republican Party',
+    abbrev: 'R',
+  };
+
+  test('updateParties adds, edits and deletes parties', async () => {
+    const { methods, createElection } = await setUp();
+    const electionId = await createElection();
+    expect(await methods.listParties({ electionId })).toEqual([]);
+
+    expect(
+      await methods.updateParties({
+        electionId,
+        newParties: [republicans, democrats],
+      })
+    ).toEqual(ok());
+    expect(await methods.listParties({ electionId })).toEqual([
+      democrats,
+      republicans,
+    ]);
+
+    const editedRepublicans: Party = {
+      ...republicans,
+      name: 'Democrat',
+      fullName: 'Grand Old Party',
+      abbrev: 'GOP',
+    };
+    const libertarians: Party = {
+      id: 'party-3',
+      name: 'Libertarian',
+      fullName: 'Libertarian Party',
+      abbrev: 'L',
+    };
+    expect(
+      await methods.updateParties({
+        electionId,
+        deletedPartyIds: ['party-1'],
+        updatedParties: [editedRepublicans],
+        newParties: [libertarians],
+      })
+    ).toEqual(ok());
+    expect(await methods.listParties({ electionId })).toEqual([
+      editedRepublicans,
+      libertarians,
+    ]);
+  });
+
+  test('listParties sorts by name alphabetically', async () => {
+    const { methods, createElection } = await setUp();
+    const electionId = await createElection();
+    const party2: Party = {
+      id: 'party-2',
+      name: 'Party 2',
+      fullName: 'Party 2',
+      abbrev: 'P2',
+    };
+    const party10: Party = {
+      id: 'party-10',
+      name: 'Party 10',
+      fullName: 'Party 10',
+      abbrev: 'P10',
+    };
+    expect(
+      await methods.updateParties({
+        electionId,
+        newParties: [party2, party10],
+      })
+    ).toEqual(ok());
+
+    expect(await methods.listParties({ electionId })).toEqual([
+      party10,
+      party2,
+    ]);
+  });
+
+  test.each([
+    {
+      conflict: { name: 'Democrat', fullName: 'Democratic Party', abbrev: 'D' },
+      code: 'duplicate-name',
+    },
+    {
+      conflict: { name: 'Other', fullName: 'Democratic Party', abbrev: 'D' },
+      code: 'duplicate-full-name',
+    },
+    {
+      conflict: { name: 'Other', fullName: 'Other Party', abbrev: 'D' },
+      code: 'duplicate-abbrev',
+    },
+  ] as const)(
+    'updateParties rejects $code first among duplicates without saving',
+    async ({ conflict, code }) => {
+      const { methods, createElection } = await setUp();
+      const electionId = await createElection();
+      expect(
+        await methods.updateParties({
+          electionId,
+          newParties: [democrats, republicans],
+        })
+      ).toEqual(ok());
+
+      expect(
+        await methods.updateParties({
+          electionId,
+          deletedPartyIds: ['party-2'],
+          newParties: [{ id: 'party-3', ...conflict }],
+        })
+      ).toEqual(err({ code, partyId: 'party-3' }));
+      expect(
+        await methods.updateParties({
+          electionId,
+          updatedParties: [{ id: 'party-2', ...conflict }],
+        })
+      ).toEqual(err({ code, partyId: 'party-2' }));
+      expect(await methods.listParties({ electionId })).toEqual([
+        democrats,
+        republicans,
+      ]);
+    }
+  );
+
+  test.each(['name', 'fullName', 'abbrev'] as const)(
+    'updateParties rejects a blank %s',
+    async (field) => {
+      const { methods, createElection } = await setUp();
+      const electionId = await createElection();
+
+      await expectRejection(
+        methods.updateParties({
+          electionId,
+          newParties: [{ ...democrats, [field]: '' }],
+        })
+      );
+    }
+  );
+
+  test('updateParties rejects an unknown party', async () => {
+    const { methods, createElection } = await setUp();
+    const electionId = await createElection();
+
+    await expectRejection(
+      methods.updateParties({ electionId, updatedParties: [democrats] })
+    );
+  });
+
+  test('party methods reject an unknown election', async () => {
+    const { methods } = await setUp();
+
+    await expectRejection(methods.listParties({ electionId: 'unknown' }));
+    await expectRejection(
+      methods.updateParties({ electionId: 'unknown', newParties: [democrats] })
     );
   });
 
