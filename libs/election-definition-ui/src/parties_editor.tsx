@@ -1,3 +1,37 @@
+import React from 'react';
+import { Route, useHistory } from 'react-router-dom';
+import styled from 'styled-components';
+import {
+  type DuplicatePartyError,
+  generateId,
+} from '@votingworks/election-definition-backend';
+import {
+  type ElectionId,
+  ElectionStringKey,
+  type Party,
+  type PartyId,
+} from '@votingworks/types';
+import {
+  Button,
+  Callout,
+  DesktopPalette,
+  Font,
+  useCurrentTheme,
+} from '@votingworks/ui';
+import { useAudioPanelRoutes } from './audio_panel_routes.js';
+import { useEditModeRoutes } from './edit_mode_routes.js';
+import { InputWithAudio } from './ballot_audio/input_with_audio.js';
+import { useElectionDefinitionApi } from './election_definition_context.js';
+import { FormBody, FormFixed, FormFooter } from './form_fixed.js';
+import { FixedViewport, ListActionsRow } from './layout.js';
+import { Tooltip, TooltipContainer } from './tooltip.js';
+
+export interface PartiesEditorProps {
+  electionId: ElectionId;
+  isLocked?: boolean;
+  AudioPanel?: React.ComponentType;
+}
+
 const Viewport = styled(FixedViewport)<{ hasActionsRow: boolean }>`
   display: grid;
   grid-template-rows: ${(p) => (p.hasActionsRow ? 'min-content 1fr' : '1fr')};
@@ -44,21 +78,29 @@ const PartyList = styled.div`
   }
 `;
 
-function Contents(props: { editing: boolean }): React.ReactNode {
-  const { editing } = props;
-  const { electionId } = useParams<ElectionIdParams>();
+export function PartiesEditor(props: PartiesEditorProps): JSX.Element | null {
+  const { electionId, isLocked, AudioPanel } = props;
+  const history = useHistory();
+  const editModeRoutes = useEditModeRoutes();
+  const audioRoutes = useAudioPanelRoutes(':stringKey/:subkey');
+  const editing = editModeRoutes.isEditing;
+  function audioScreenUrl(
+    stringKey: ElectionStringKey,
+    partyId: PartyId
+  ): string | undefined {
+    return AudioPanel
+      ? audioRoutes.screenUrl({ stringKey, subkey: partyId })
+      : undefined;
+  }
 
-  const [deletedIds, setDeletedPartyIds] = React.useState(new Set<string>());
+  const [deletedIds, setDeletedPartyIds] = React.useState(new Set<PartyId>());
   const [newParties, setNewParties] = React.useState<Party[]>([]);
   const [updatedParties, setUpdatedParties] = React.useState<Party[]>([]);
 
-  const history = useHistory();
-  const partiesRoutes = routes.election(electionId).parties;
-  const partyParamRoutes = routes.election(':electionId').parties;
+  const api = useElectionDefinitionApi();
 
-  const savedPartiesQuery = listParties.useQuery(electionId);
-  const ballotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
-  const getElectionInfoQuery = getElectionInfo.useQuery(electionId);
+  const savedPartiesQuery = api.listParties.useQuery(electionId);
+  const electionInfoQuery = api.getElectionInfo.useQuery(electionId);
 
   // Reset form on initial and post-save fetches:
   React.useEffect(() => {
@@ -72,13 +114,7 @@ function Contents(props: { editing: boolean }): React.ReactNode {
   const updatePartiesMutation = api.updateParties.useMutation();
   const error = updatePartiesMutation.data?.err();
 
-  if (
-    !(
-      savedPartiesQuery.isSuccess &&
-      ballotsFinalizedAtQuery.isSuccess &&
-      getElectionInfoQuery.isSuccess
-    )
-  ) {
+  if (!savedPartiesQuery.isSuccess || !electionInfoQuery.isSuccess) {
     return null;
   }
 
@@ -100,7 +136,7 @@ function Contents(props: { editing: boolean }): React.ReactNode {
 
   function setEditing(switchToEdit: boolean) {
     history.replace(
-      switchToEdit ? partiesRoutes.edit.path : partiesRoutes.root.path
+      switchToEdit ? editModeRoutes.editUrl : editModeRoutes.viewUrl
     );
   }
 
@@ -120,11 +156,10 @@ function Contents(props: { editing: boolean }): React.ReactNode {
     updateList(copy);
   }
 
-  const ballotsFinalized = !!ballotsFinalizedAtQuery.data;
-  const hasExternalSource = Boolean(getElectionInfoQuery.data.externalSource);
+  const hasExternalSource = Boolean(electionInfoQuery.data.externalSource);
   const savedParties = savedPartiesQuery.data;
   const updating = updatePartiesMutation.isLoading;
-  const disabled = ballotsFinalized || !editing || updating;
+  const disabled = !!isLocked || !editing || updating;
 
   function reset() {
     setNewParties([]);
@@ -138,7 +173,7 @@ function Contents(props: { editing: boolean }): React.ReactNode {
       {!hasExternalSource && (
         <ListActionsRow>
           <Button
-            disabled={updating || ballotsFinalized}
+            disabled={updating || isLocked}
             icon="Add"
             onPress={() => {
               setNewParties([...newParties, createBlankParty()]);
@@ -178,6 +213,7 @@ function Contents(props: { editing: boolean }): React.ReactNode {
                 <div /> {/* Delete/Audio button column */}
                 {updatedParties.map((party, i) => (
                   <PartyRow
+                    audioScreenUrl={audioScreenUrl}
                     disabled={disabled}
                     editing={editing}
                     key={party.id}
@@ -196,6 +232,7 @@ function Contents(props: { editing: boolean }): React.ReactNode {
                 ))}
                 {newParties.map((party, i) => (
                   <PartyRow
+                    audioScreenUrl={audioScreenUrl}
                     disabled={disabled}
                     editing={editing}
                     key={party.id}
@@ -215,7 +252,7 @@ function Contents(props: { editing: boolean }): React.ReactNode {
             )}
           </FormBody>
 
-          {!ballotsFinalized && !hasExternalSource && (
+          {!isLocked && !hasExternalSource && (
             <FormFooter>
               {editing ? (
                 <React.Fragment>
@@ -245,16 +282,11 @@ function Contents(props: { editing: boolean }): React.ReactNode {
           )}
         </FormFixed>
 
-        <Switch>
-          <Route
-            path={partyParamRoutes.audio({
-              stringKey: ':stringKey',
-              subkey: ':subkey',
-            })}
-            exact
-            component={PartyAudioPanel}
-          />
-        </Switch>
+        {AudioPanel && (
+          <Route path={audioRoutes.panelPath}>
+            <AudioPanel />
+          </Route>
+        )}
       </Body>
     </Viewport>
   );
@@ -267,17 +299,27 @@ const ERROR_MESSAGE: Record<DuplicatePartyError['code'], string> = {
 };
 
 function PartyRow(props: {
+  audioScreenUrl: (
+    stringKey: ElectionStringKey,
+    partyId: PartyId
+  ) => string | undefined;
   disabled?: boolean;
   editing: boolean;
   onChange: (party: Party) => void;
-  onDelete: (partyId: string) => void;
+  onDelete: (partyId: PartyId) => void;
   party: Party;
   // eslint-disable-next-line vx/gts-use-optionals -- require explicit prop
   updateError: DuplicatePartyError | undefined;
 }) {
-  const { disabled, editing, updateError, onChange, onDelete, party } = props;
-  const { electionId } = useParams<ElectionIdParams>();
-  const partiesRoutes = routes.election(electionId).parties;
+  const {
+    audioScreenUrl,
+    disabled,
+    editing,
+    updateError,
+    onChange,
+    onDelete,
+    party,
+  } = props;
 
   const hasErr = updateError?.partyId === party.id;
   const hasAbbrevErr = hasErr && updateError.code === 'duplicate-abbrev';
@@ -294,10 +336,10 @@ function PartyRow(props: {
   return (
     <React.Fragment key={party.id}>
       <InputWithAudio
-        audioScreenUrl={partiesRoutes.audio({
-          stringKey: ElectionStringKey.PARTY_FULL_NAME,
-          subkey: party.id,
-        })}
+        audioScreenUrl={audioScreenUrl(
+          ElectionStringKey.PARTY_FULL_NAME,
+          party.id
+        )}
         autoComplete="off"
         autoFocus={party.fullName === ''}
         editing={editing}
@@ -314,10 +356,7 @@ function PartyRow(props: {
       />
 
       <InputWithAudio
-        audioScreenUrl={partiesRoutes.audio({
-          stringKey: ElectionStringKey.PARTY_NAME,
-          subkey: party.id,
-        })}
+        audioScreenUrl={audioScreenUrl(ElectionStringKey.PARTY_NAME, party.id)}
         autoComplete="off"
         disabled={disabled}
         type="text"
