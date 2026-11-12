@@ -15,11 +15,9 @@ import {
   unsafeParse,
   getAllBallotLanguages,
   type Precinct,
-  type PrecinctRegisteredVoterCountEntry,
   PrecinctRegisteredVoterCountEntrySchema,
   type ElectionRegisteredVoterCounts,
   type District,
-  type PrecinctId,
   type Party,
   type Contest,
   ContestSchema,
@@ -84,15 +82,18 @@ import {
   type DistrictsUpdate,
   type DuplicateDistrictError,
   type DuplicateElectionError,
+  type DuplicatePrecinctError,
   type ElectionDefinitionMethods,
   getStateFeaturesConfig,
+  type PrecinctCreate,
+  type PrecinctDelete,
+  type PrecinctUpdate,
   type StateFeaturesConfig,
 } from '@votingworks/election-definition-backend';
 import type {
   MainExportTaskMetadata,
   DuplicateContestError,
   DuplicatePartyError,
-  DuplicatePrecinctError,
   TestDecksTaskMetadata,
   SetPollingPlaceError,
   Store,
@@ -569,11 +570,9 @@ export function buildApi(ctx: AppContext) {
       return store.listPrecincts(input.electionId);
     },
 
-    async createPrecinct(input: {
-      electionId: ElectionId;
-      newPrecinct: Precinct;
-      registeredVoterCounts?: PrecinctRegisteredVoterCountEntry;
-    }): Promise<Result<void, DuplicatePrecinctError>> {
+    async createPrecinct(
+      input: PrecinctCreate
+    ): Promise<Result<void, DuplicatePrecinctError>> {
       const precinct = unsafeParse(PrecinctSchema, input.newPrecinct);
       const registeredVoterCounts =
         input.registeredVoterCounts !== undefined
@@ -593,11 +592,9 @@ export function buildApi(ctx: AppContext) {
       return ok();
     },
 
-    async updatePrecinct(input: {
-      electionId: ElectionId;
-      updatedPrecinct: Precinct;
-      registeredVoterCounts?: PrecinctRegisteredVoterCountEntry;
-    }): Promise<Result<void, DuplicatePrecinctError>> {
+    async updatePrecinct(
+      input: PrecinctUpdate
+    ): Promise<Result<void, DuplicatePrecinctError>> {
       const precinct = unsafeParse(PrecinctSchema, input.updatedPrecinct);
       const registeredVoterCounts =
         input.registeredVoterCounts !== undefined
@@ -623,10 +620,7 @@ export function buildApi(ctx: AppContext) {
       return store.getRegisteredVoterCounts(input.electionId);
     },
 
-    async deletePrecinct(input: {
-      electionId: ElectionId;
-      precinctId: PrecinctId;
-    }): Promise<void> {
+    async deletePrecinct(input: PrecinctDelete): Promise<void> {
       await store.deletePrecinct(input.electionId, input.precinctId);
     },
 

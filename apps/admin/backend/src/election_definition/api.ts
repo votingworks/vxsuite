@@ -5,16 +5,21 @@ import {
   DateWithoutTime,
   ok,
   type Result,
+  throwIllegalValue,
 } from '@votingworks/basics';
 import {
   type DistrictsUpdate,
   type DuplicateDistrictError,
+  type DuplicatePrecinctError,
   type ElectionDefinitionMethods,
   type ElectionInfo,
   type ElectionInfoUpdate,
   ElectionInfoUpdateSchema,
   type ElectionInput,
   generateId,
+  type PrecinctCreate,
+  type PrecinctDelete,
+  type PrecinctUpdate,
   type StateCode,
   type StateFeaturesConfig,
 } from '@votingworks/election-definition-backend';
@@ -23,7 +28,9 @@ import { LogEventId, type Logger } from '@votingworks/logging';
 import {
   type District,
   type ElectionId,
+  type ElectionRegisteredVoterCounts,
   LanguageCode,
+  type Precinct,
   unsafeParse,
 } from '@votingworks/types';
 import { isSystemAdministratorAuth } from '@votingworks/utils';
@@ -45,6 +52,19 @@ function blankElectionInfo(
     seal: '',
     languageCodes: [LanguageCode.ENGLISH],
   };
+}
+
+function describePrecinctError(error: DuplicatePrecinctError): string {
+  switch (error) {
+    case 'duplicate-precinct-name':
+      return 'another precinct has the same name';
+    case 'duplicate-split-name':
+      return 'two of its splits have the same name';
+    case 'duplicate-split-districts':
+      return 'two of its splits have the same districts';
+    default:
+      throwIllegalValue(error);
+  }
 }
 
 async function requireElectionDefinitionAccess({
@@ -172,6 +192,85 @@ function createElectionDefinitionApiMethods({
         }
       );
       return result;
+    },
+
+    listPrecincts(input: ElectionInput): Precinct[] {
+      loadInProgressElectionInfo(input);
+      return store.electionDefinition.listPrecincts(input.electionId);
+    },
+
+    async createPrecinct(
+      input: PrecinctCreate
+    ): Promise<Result<void, DuplicatePrecinctError>> {
+      loadInProgressElectionInfo(input);
+      // TODO(CARO): Hub also creates an election day polling place for each new
+      // precinct when EDIT_POLLING_PLACES is on (as it is for DEMO). Add that
+      // here once VxAdmin has design polling places.
+      const result = store.electionDefinition.createPrecinct(input);
+      if (result.isErr()) {
+        await logger.logAsCurrentRole(
+          LogEventId.ElectionDefinitionPrecinctCreated,
+          {
+            message: `Error creating precinct ${input.newPrecinct.id} in election definition ${input.electionId}: ${describePrecinctError(result.err())}.`,
+            disposition: 'failure',
+          }
+        );
+        return result;
+      }
+      await logger.logAsCurrentRole(
+        LogEventId.ElectionDefinitionPrecinctCreated,
+        {
+          message: `Created precinct ${input.newPrecinct.id} in election definition ${input.electionId}.`,
+          disposition: 'success',
+        }
+      );
+      return result;
+    },
+
+    async updatePrecinct(
+      input: PrecinctUpdate
+    ): Promise<Result<void, DuplicatePrecinctError>> {
+      loadInProgressElectionInfo(input);
+      const result = store.electionDefinition.updatePrecinct(input);
+      if (result.isErr()) {
+        await logger.logAsCurrentRole(
+          LogEventId.ElectionDefinitionPrecinctUpdated,
+          {
+            message: `Error updating precinct ${input.updatedPrecinct.id} in election definition ${input.electionId}: ${describePrecinctError(result.err())}.`,
+            disposition: 'failure',
+          }
+        );
+        return result;
+      }
+      await logger.logAsCurrentRole(
+        LogEventId.ElectionDefinitionPrecinctUpdated,
+        {
+          message: `Updated precinct ${input.updatedPrecinct.id} in election definition ${input.electionId}.`,
+          disposition: 'success',
+        }
+      );
+      return result;
+    },
+
+    async deletePrecinct(input: PrecinctDelete): Promise<void> {
+      loadInProgressElectionInfo(input);
+      store.electionDefinition.deletePrecinct(input);
+      await logger.logAsCurrentRole(
+        LogEventId.ElectionDefinitionPrecinctDeleted,
+        {
+          message: `Deleted precinct ${input.precinctId} from election definition ${input.electionId}.`,
+          disposition: 'success',
+        }
+      );
+    },
+
+    getRegisteredVoterCounts(
+      input: ElectionInput
+    ): ElectionRegisteredVoterCounts {
+      loadInProgressElectionInfo(input);
+      return store.electionDefinition.getRegisteredVoterCounts(
+        input.electionId
+      );
     },
   } as const;
 

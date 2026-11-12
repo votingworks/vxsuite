@@ -13,18 +13,6 @@ export function generateId(): string {
 }
 
 /**
- * Returns a copy of the given array with the value at the specified index
- * replaced with the given value.
- */
-export function replaceAtIndex<T>(
-  array: readonly T[],
-  index: number,
-  newValue: T
-): T[] {
-  return array.map((value, i) => (i === index ? newValue : value));
-}
-
-/**
  * Downloads a file given a file path
  */
 export function downloadFile(filePath: string, fileName?: string): void {

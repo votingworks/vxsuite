@@ -17,7 +17,7 @@ import { useParams } from 'react-router-dom';
 import type { ElectionSerializationFormat } from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
 import type { BallotTemplateId } from '@votingworks/hub-backend';
-import { InputGroup } from '@votingworks/election-definition-ui';
+import { InputGroup, Column } from '@votingworks/election-definition-ui';
 import {
   exportElectionPackage,
   exportTestDecks,
@@ -35,7 +35,6 @@ import {
 import { ElectionNavScreen, Header } from './nav_screen.js';
 import { type ElectionIdParams, routes } from './routes.js';
 import { downloadFile } from './utils.js';
-import { Column } from './layout.js';
 import { useTitle } from './hooks/use_title.js';
 import { ReorderContestsByDistrictButton } from './reorder_contests_by_district_button.js';
 import { Downloads } from './downloads.js';

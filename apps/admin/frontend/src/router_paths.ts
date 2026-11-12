@@ -13,6 +13,8 @@ export const routerPaths = {
     `/election-definition/${electionId}/info`,
   electionDefinitionDistricts: (electionId: ElectionId): string =>
     `/election-definition/${electionId}/districts`,
+  electionDefinitionPrecincts: (electionId: ElectionId): string =>
+    `/election-definition/${electionId}/precincts`,
   smartcards: '/smartcards',
   tally: '/tally',
   tallyCvrs: '/tally/cvrs',

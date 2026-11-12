@@ -1222,6 +1222,24 @@ eventType = "user-action"
 documentationMessage = "A user added, renamed or deleted districts in the election definition being designed, or failed to. Success or failure indicated by disposition."
 restrictInDocumentationToApps = ["vx-admin"]
 
+[Events.ElectionDefinitionPrecinctCreated]
+eventId = "election-definition-precinct-created"
+eventType = "user-action"
+documentationMessage = "A user added a precinct to the election definition being designed, or failed to. Success or failure indicated by disposition."
+restrictInDocumentationToApps = ["vx-admin"]
+
+[Events.ElectionDefinitionPrecinctUpdated]
+eventId = "election-definition-precinct-updated"
+eventType = "user-action"
+documentationMessage = "A user edited a precinct (name, splits, districts or registered voter counts) in the election definition being designed, or failed to. Success or failure indicated by disposition."
+restrictInDocumentationToApps = ["vx-admin"]
+
+[Events.ElectionDefinitionPrecinctDeleted]
+eventId = "election-definition-precinct-deleted"
+eventType = "user-action"
+documentationMessage = "A user deleted a precinct from the election definition being designed."
+restrictInDocumentationToApps = ["vx-admin"]
+
 [Events.ElectionDefinitionDiscarded]
 eventId = "election-definition-discarded"
 eventType = "user-action"

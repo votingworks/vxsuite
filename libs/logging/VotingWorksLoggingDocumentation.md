@@ -774,6 +774,18 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)
 **Description:** A user added, renamed or deleted districts in the election definition being designed, or failed to. Success or failure indicated by disposition.
 **Machines:** vx-admin
+### election-definition-precinct-created
+**Type:** [user-action](#user-action)
+**Description:** A user added a precinct to the election definition being designed, or failed to. Success or failure indicated by disposition.
+**Machines:** vx-admin
+### election-definition-precinct-updated
+**Type:** [user-action](#user-action)
+**Description:** A user edited a precinct (name, splits, districts or registered voter counts) in the election definition being designed, or failed to. Success or failure indicated by disposition.
+**Machines:** vx-admin
+### election-definition-precinct-deleted
+**Type:** [user-action](#user-action)
+**Description:** A user deleted a precinct from the election definition being designed.
+**Machines:** vx-admin
 ### election-definition-discarded
 **Type:** [user-action](#user-action)
 **Description:** A user discarded the election definition being designed.

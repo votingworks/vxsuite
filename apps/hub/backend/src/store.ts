@@ -76,6 +76,7 @@ import {
   type DistrictsUpdate,
   type DuplicateDistrictError,
   type DuplicateElectionError,
+  type DuplicatePrecinctError,
   type ExternalElectionSource,
   generateId,
   getStateFeaturesConfig,
@@ -232,11 +233,6 @@ function isForeignKeyError(
     error.constraint === constraint
   );
 }
-
-export type DuplicatePrecinctError =
-  | 'duplicate-precinct-name'
-  | 'duplicate-split-name'
-  | 'duplicate-split-districts';
 
 export type DuplicatePartyErrorCode =
   | 'duplicate-name'

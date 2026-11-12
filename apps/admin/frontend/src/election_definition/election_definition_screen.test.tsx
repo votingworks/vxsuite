@@ -12,6 +12,7 @@ import {
 import {
   type DippedSmartCardAuth,
   type District,
+  type Precinct,
   constructElectionKey,
   LanguageCode,
 } from '@votingworks/types';
@@ -222,6 +223,72 @@ test('the Districts tab edits the election districts', async () => {
     routerPaths.electionDefinitionDistricts(electionId)
   );
   screen.getByDisplayValue('District A');
+});
+
+test('the Precincts tab edits the election precincts', async () => {
+  const district: District = { id: 'district-1', name: 'District 1' };
+  const precinct: Precinct = {
+    id: 'precinct-1',
+    name: 'Precinct 1',
+    districtIds: [district.id],
+  };
+  const renamedPrecinct: Precinct = { ...precinct, name: 'Precinct A' };
+  expectCurrentInProgressElection(generalElectionInfo);
+  expectElectionInfoQueries(generalElectionInfo);
+  const history = renderScreen(routerPaths.electionDefinitionInfo(electionId));
+  await screen.findButton('Edit');
+
+  apiMock.electionDefinitionApiClient.listPrecincts
+    .expectCallWith({ electionId })
+    .resolves([precinct]);
+  apiMock.electionDefinitionApiClient.listDistricts
+    .expectCallWith({ electionId })
+    .resolves([district]);
+  apiMock.electionDefinitionApiClient.getRegisteredVoterCounts
+    .expectCallWith({ electionId })
+    .resolves({ [precinct.id]: 100 });
+  await userEvent.click(screen.getByRole('tab', { name: 'Precincts' }));
+  await screen.findByRole('heading', { name: 'Precinct Info' });
+  screen.getByRole('tab', { name: 'Precincts', selected: true });
+  const precinctPath = `${routerPaths.electionDefinitionPrecincts(
+    electionId
+  )}/${precinct.id}`;
+  expect(history.location.pathname).toEqual(precinctPath);
+  expect(screen.getByLabelText('Registered Voters')).toHaveValue(100);
+
+  await userEvent.click(screen.getButton('Edit'));
+  await screen.findByRole('heading', { name: 'Edit Precinct' });
+  expect(history.location.pathname).toEqual(`${precinctPath}/edit`);
+  screen.getByRole('tab', { name: 'Precincts', selected: true });
+  const input = screen.getByLabelText('Name');
+  await userEvent.clear(input);
+  await userEvent.type(input, renamedPrecinct.name);
+
+  apiMock.electionDefinitionApiClient.updatePrecinct
+    .expectCallWith({
+      electionId,
+      updatedPrecinct: renamedPrecinct,
+      registeredVoterCounts: 100,
+    })
+    .resolves(ok());
+  expectCurrentInProgressElection(generalElectionInfo);
+  apiMock.electionDefinitionApiClient.getElectionInfo
+    .expectCallWith({ electionId })
+    .resolves(generalElectionInfo);
+  apiMock.electionDefinitionApiClient.listDistricts
+    .expectCallWith({ electionId })
+    .resolves([district]);
+  apiMock.electionDefinitionApiClient.listPrecincts
+    .expectCallWith({ electionId })
+    .resolves([renamedPrecinct]);
+  apiMock.electionDefinitionApiClient.getRegisteredVoterCounts
+    .expectCallWith({ electionId })
+    .resolves({ [precinct.id]: 100 });
+  await userEvent.click(screen.getButton('Save'));
+
+  await screen.findByRole('heading', { name: 'Precinct Info' });
+  expect(history.location.pathname).toEqual(precinctPath);
+  await screen.findByDisplayValue('Precinct A');
 });
 
 test('an election definition in progress is shown on the Election screen', async () => {

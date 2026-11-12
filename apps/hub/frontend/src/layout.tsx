@@ -2,11 +2,6 @@ import { Table as UiTable } from '@votingworks/ui';
 import { Row } from '@votingworks/election-definition-ui';
 import styled from 'styled-components';
 
-export const Column = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
-
 export const Form = styled.form`
   display: flex;
   flex-direction: column;

@@ -4,7 +4,7 @@ import { assert, assertDefined } from '@votingworks/basics';
 import type { Contest, District } from '@votingworks/types';
 import { Button, Modal } from '@votingworks/ui';
 
-import { Row } from '@votingworks/election-definition-ui';
+import { Row, Column } from '@votingworks/election-definition-ui';
 import {
   getBallotsFinalizedAt,
   getElectionInfo,
@@ -12,7 +12,6 @@ import {
   listDistricts,
   reorderContests,
 } from './api.js';
-import { Column } from './layout.js';
 import { reorderElement } from './utils.js';
 
 function serializeContestIds(contests: readonly Contest[]): string {

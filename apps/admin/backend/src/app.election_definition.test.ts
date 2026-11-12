@@ -7,7 +7,7 @@ import {
 import { describeElectionDefinitionMethods } from '@votingworks/election-definition-backend/test-utils';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { LogEventId } from '@votingworks/logging';
-import { LanguageCode } from '@votingworks/types';
+import { LanguageCode, type Precinct } from '@votingworks/types';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import {
   BooleanEnvironmentVariableName,
@@ -391,4 +391,208 @@ test('rejects invalid districts', async () => {
   expect(
     await electionDefinitionApiClient.listDistricts({ electionId })
   ).toEqual([]);
+});
+
+test('edit precincts', async () => {
+  const {
+    electionDefinitionApiClient: api,
+    auth,
+    logger,
+  } = buildTestEnvironment();
+  mockSystemAdministratorAuth(auth);
+  const electionId = await api.createInProgressElection();
+  (
+    await api.updateDistricts({
+      electionId,
+      newDistricts: [{ id: 'district-1', name: 'District 1' }],
+    })
+  ).unsafeUnwrap();
+  expect(await api.listPrecincts({ electionId })).toEqual([]);
+  expect(await api.getRegisteredVoterCounts({ electionId })).toEqual({});
+
+  const precinct: Precinct = {
+    id: 'precinct-1',
+    name: 'Precinct 1',
+    districtIds: ['district-1'],
+  };
+  expect(
+    await api.createPrecinct({
+      electionId,
+      newPrecinct: precinct,
+      registeredVoterCounts: 100,
+    })
+  ).toEqual(ok());
+  expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
+    LogEventId.ElectionDefinitionPrecinctCreated,
+    {
+      message: `Created precinct precinct-1 in election definition ${electionId}.`,
+      disposition: 'success',
+    }
+  );
+  expect(await api.listPrecincts({ electionId })).toEqual([precinct]);
+  expect(await api.getRegisteredVoterCounts({ electionId })).toEqual({
+    'precinct-1': 100,
+  });
+
+  const updatedPrecinct: Precinct = {
+    id: 'precinct-1',
+    name: 'Precinct 1',
+    splits: [
+      { id: 'split-1', name: 'Split 1', districtIds: ['district-1'] },
+      { id: 'split-2', name: 'Split 2', districtIds: [] },
+    ],
+  };
+  expect(
+    await api.updatePrecinct({
+      electionId,
+      updatedPrecinct,
+      registeredVoterCounts: { splits: { 'split-1': 60 } },
+    })
+  ).toEqual(ok());
+  expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
+    LogEventId.ElectionDefinitionPrecinctUpdated,
+    {
+      message: `Updated precinct precinct-1 in election definition ${electionId}.`,
+      disposition: 'success',
+    }
+  );
+  expect(await api.listPrecincts({ electionId })).toEqual([updatedPrecinct]);
+  expect(await api.getRegisteredVoterCounts({ electionId })).toEqual({
+    'precinct-1': { splits: { 'split-1': 60 } },
+  });
+
+  await api.deletePrecinct({ electionId, precinctId: 'precinct-1' });
+  expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
+    LogEventId.ElectionDefinitionPrecinctDeleted,
+    {
+      message: `Deleted precinct precinct-1 from election definition ${electionId}.`,
+      disposition: 'success',
+    }
+  );
+  expect(await api.listPrecincts({ electionId })).toEqual([]);
+  expect(await api.getRegisteredVoterCounts({ electionId })).toEqual({});
+});
+
+test('rejects duplicate precinct names and split districts', async () => {
+  const {
+    electionDefinitionApiClient: api,
+    auth,
+    logger,
+  } = buildTestEnvironment();
+  mockSystemAdministratorAuth(auth);
+  const electionId = await api.createInProgressElection();
+  (
+    await api.updateDistricts({
+      electionId,
+      newDistricts: [{ id: 'district-1', name: 'District 1' }],
+    })
+  ).unsafeUnwrap();
+  const precinct: Precinct = {
+    id: 'precinct-1',
+    name: 'Precinct 1',
+    districtIds: [],
+  };
+  (
+    await api.createPrecinct({ electionId, newPrecinct: precinct })
+  ).unsafeUnwrap();
+
+  expect(
+    await api.createPrecinct({
+      electionId,
+      newPrecinct: { id: 'precinct-2', name: 'Precinct 1', districtIds: [] },
+    })
+  ).toEqual(err('duplicate-precinct-name'));
+  expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
+    LogEventId.ElectionDefinitionPrecinctCreated,
+    {
+      message: `Error creating precinct precinct-2 in election definition ${electionId}: another precinct has the same name.`,
+      disposition: 'failure',
+    }
+  );
+
+  expect(
+    await api.updatePrecinct({
+      electionId,
+      updatedPrecinct: {
+        id: 'precinct-1',
+        name: 'Precinct 1',
+        splits: [
+          { id: 'split-1', name: 'Split', districtIds: [] },
+          { id: 'split-2', name: 'Split', districtIds: ['district-1'] },
+        ],
+      },
+    })
+  ).toEqual(err('duplicate-split-name'));
+  expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
+    LogEventId.ElectionDefinitionPrecinctUpdated,
+    {
+      message: `Error updating precinct precinct-1 in election definition ${electionId}: two of its splits have the same name.`,
+      disposition: 'failure',
+    }
+  );
+
+  expect(
+    await api.updatePrecinct({
+      electionId,
+      updatedPrecinct: {
+        id: 'precinct-1',
+        name: 'Precinct 1',
+        splits: [
+          { id: 'split-1', name: 'Split 1', districtIds: [] },
+          { id: 'split-2', name: 'Split 2', districtIds: [] },
+        ],
+      },
+    })
+  ).toEqual(err('duplicate-split-districts'));
+  expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
+    LogEventId.ElectionDefinitionPrecinctUpdated,
+    {
+      message: `Error updating precinct precinct-1 in election definition ${electionId}: two of its splits have the same districts.`,
+      disposition: 'failure',
+    }
+  );
+  expect(await api.listPrecincts({ electionId })).toEqual([precinct]);
+});
+
+test('rejects invalid precincts and unknown elections', async () => {
+  const { electionDefinitionApiClient: api, auth } = buildTestEnvironment();
+  mockSystemAdministratorAuth(auth);
+  const electionId = await api.createInProgressElection();
+  const precinct: Precinct = {
+    id: 'precinct-1',
+    name: 'Precinct 1',
+    districtIds: [],
+  };
+
+  await suppressingConsoleOutput(async () => {
+    await expect(
+      api.createPrecinct({
+        electionId,
+        newPrecinct: { ...precinct, name: '' },
+      })
+    ).rejects.toThrow();
+    await expect(
+      api.updatePrecinct({ electionId, updatedPrecinct: precinct })
+    ).rejects.toThrow('Precinct not found');
+    await expect(
+      api.deletePrecinct({ electionId, precinctId: 'precinct-1' })
+    ).rejects.toThrow('Precinct not found');
+
+    await expect(api.listPrecincts({ electionId: 'missing' })).rejects.toThrow(
+      'Election definition not found'
+    );
+    await expect(
+      api.createPrecinct({ electionId: 'missing', newPrecinct: precinct })
+    ).rejects.toThrow('Election definition not found');
+    await expect(
+      api.updatePrecinct({ electionId: 'missing', updatedPrecinct: precinct })
+    ).rejects.toThrow('Election definition not found');
+    await expect(
+      api.deletePrecinct({ electionId: 'missing', precinctId: 'precinct-1' })
+    ).rejects.toThrow('Election definition not found');
+    await expect(
+      api.getRegisteredVoterCounts({ electionId: 'missing' })
+    ).rejects.toThrow('Election definition not found');
+  });
+  expect(await api.listPrecincts({ electionId })).toEqual([]);
 });

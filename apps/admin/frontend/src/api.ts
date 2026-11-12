@@ -16,7 +16,9 @@ import {
 import {
   createElectionDefinitionApi,
   getElectionInfoQueryKey,
+  getRegisteredVoterCountsQueryKey,
   listDistrictsQueryKey,
+  listPrecinctsQueryKey,
 } from '@votingworks/election-definition-ui';
 import * as grout from '@votingworks/grout';
 import type { ElectionId } from '@votingworks/types';
@@ -1322,6 +1324,8 @@ async function invalidateElectionQueries(
     queryClient.invalidateQueries(getCurrentInProgressElection.queryKey()),
     queryClient.invalidateQueries(getElectionInfoQueryKey(electionId)),
     queryClient.invalidateQueries(listDistrictsQueryKey(electionId)),
+    queryClient.invalidateQueries(listPrecinctsQueryKey(electionId)),
+    queryClient.invalidateQueries(getRegisteredVoterCountsQueryKey(electionId)),
   ]);
 }
 

@@ -263,6 +263,9 @@ export const LogEventId = {
   ElectionDefinitionCreated: 'election-definition-created',
   ElectionDefinitionInfoUpdated: 'election-definition-info-updated',
   ElectionDefinitionDistrictsUpdated: 'election-definition-districts-updated',
+  ElectionDefinitionPrecinctCreated: 'election-definition-precinct-created',
+  ElectionDefinitionPrecinctUpdated: 'election-definition-precinct-updated',
+  ElectionDefinitionPrecinctDeleted: 'election-definition-precinct-deleted',
   ElectionDefinitionDiscarded: 'election-definition-discarded',
 } as const;
 export type LogEventId = (typeof LogEventId)[keyof typeof LogEventId];
@@ -1678,6 +1681,30 @@ const ElectionDefinitionDistrictsUpdated: LogDetails = {
   restrictInDocumentationToApps: [AppName.VxAdmin],
 };
 
+const ElectionDefinitionPrecinctCreated: LogDetails = {
+  eventId: LogEventId.ElectionDefinitionPrecinctCreated,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'A user added a precinct to the election definition being designed, or failed to. Success or failure indicated by disposition.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
+const ElectionDefinitionPrecinctUpdated: LogDetails = {
+  eventId: LogEventId.ElectionDefinitionPrecinctUpdated,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'A user edited a precinct (name, splits, districts or registered voter counts) in the election definition being designed, or failed to. Success or failure indicated by disposition.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
+const ElectionDefinitionPrecinctDeleted: LogDetails = {
+  eventId: LogEventId.ElectionDefinitionPrecinctDeleted,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'A user deleted a precinct from the election definition being designed.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
 const ElectionDefinitionDiscarded: LogDetails = {
   eventId: LogEventId.ElectionDefinitionDiscarded,
   eventType: LogEventType.UserAction,
@@ -2068,6 +2095,12 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return ElectionDefinitionInfoUpdated;
     case LogEventId.ElectionDefinitionDistrictsUpdated:
       return ElectionDefinitionDistrictsUpdated;
+    case LogEventId.ElectionDefinitionPrecinctCreated:
+      return ElectionDefinitionPrecinctCreated;
+    case LogEventId.ElectionDefinitionPrecinctUpdated:
+      return ElectionDefinitionPrecinctUpdated;
+    case LogEventId.ElectionDefinitionPrecinctDeleted:
+      return ElectionDefinitionPrecinctDeleted;
     case LogEventId.ElectionDefinitionDiscarded:
       return ElectionDefinitionDiscarded;
     default:

@@ -9,6 +9,9 @@ import {
   ElectionTypeSchema,
   type LanguageCode,
   LanguageCodeSchema,
+  type Precinct,
+  type PrecinctId,
+  type PrecinctRegisteredVoterCountEntry,
 } from '@votingworks/types';
 import { z } from 'zod/v4';
 
@@ -55,4 +58,21 @@ export interface DistrictsUpdate {
   readonly deletedDistrictIds?: DistrictId[];
   readonly newDistricts?: District[];
   readonly updatedDistricts?: District[];
+}
+
+export interface PrecinctCreate {
+  readonly electionId: ElectionId;
+  readonly newPrecinct: Precinct;
+  readonly registeredVoterCounts?: PrecinctRegisteredVoterCountEntry;
+}
+
+export interface PrecinctUpdate {
+  readonly electionId: ElectionId;
+  readonly updatedPrecinct: Precinct;
+  readonly registeredVoterCounts?: PrecinctRegisteredVoterCountEntry;
+}
+
+export interface PrecinctDelete {
+  readonly electionId: ElectionId;
+  readonly precinctId: PrecinctId;
 }

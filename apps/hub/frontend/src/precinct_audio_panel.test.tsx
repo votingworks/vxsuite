@@ -146,7 +146,9 @@ function renderPanel(
   ttsString: { stringKey: ElectionStringKey; subkey: string }
 ) {
   const history = createMemoryHistory({
-    initialEntries: [precinctRoutes.audio({ ...ttsString, precinctId })],
+    initialEntries: [
+      `${precinctRoutes.view(precinctId).path}/audio/${ttsString.stringKey}/${ttsString.subkey}`,
+    ],
   });
 
   const mockApi = createMockApiClient();
@@ -167,11 +169,7 @@ function renderPanel(
         <Switch>
           <Route
             exact
-            path={precinctParamRoutes.audio({
-              precinctId: ':precinctId',
-              stringKey: ':stringKey',
-              subkey: ':subkey',
-            })}
+            path={`${precinctParamRoutes.view(':precinctId').path}/audio/:stringKey/:subkey`}
             component={PrecinctAudioPanel}
           />
           <Route exact path={precinctParamRoutes.view(':precinctId').path} />

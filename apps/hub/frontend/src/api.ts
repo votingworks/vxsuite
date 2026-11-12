@@ -482,47 +482,6 @@ export const electionDefinitionApi = createElectionDefinitionApi(useApiClient, {
   invalidateElectionListQueries,
 });
 
-export const createPrecinct = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.createPrecinct, {
-      async onSuccess(result, { electionId }) {
-        if (result.isOk()) {
-          await invalidateElectionQueries(queryClient, electionId);
-          await queryClient.refetchQueries(listPrecincts.queryKey(electionId));
-        }
-      },
-    });
-  },
-} as const;
-
-export const updatePrecinct = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.updatePrecinct, {
-      async onSuccess(result, { electionId }) {
-        if (result.isOk()) {
-          await invalidateElectionQueries(queryClient, electionId);
-        }
-      },
-    });
-  },
-} as const;
-
-export const deletePrecinct = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.deletePrecinct, {
-      async onSuccess(_, { electionId }) {
-        await invalidateElectionQueries(queryClient, electionId);
-      },
-    });
-  },
-} as const;
-
 export const setPollingPlace = {
   useMutation() {
     const apiClient = useApiClient();

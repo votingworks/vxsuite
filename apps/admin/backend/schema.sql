@@ -402,3 +402,60 @@ create table design_districts (
 
 create unique index design_districts_election_id_name_unique_index
   on design_districts (election_id, name);
+
+create table design_precincts (
+  id text primary key,
+  election_id text not null,
+  name text not null,
+  foreign key (election_id) references design_elections(id)
+    on delete cascade
+) strict;
+
+create unique index design_precincts_election_id_name_unique_index
+  on design_precincts (election_id, name);
+
+create table design_precinct_splits (
+  id text primary key,
+  precinct_id text not null,
+  name text not null,
+  nh_options text not null,
+  foreign key (precinct_id) references design_precincts(id)
+    on delete cascade
+) strict;
+
+create unique index design_precinct_splits_precinct_id_name_unique_index
+  on design_precinct_splits (precinct_id, name);
+
+create table design_districts_precincts (
+  district_id text not null,
+  precinct_id text not null,
+  primary key (district_id, precinct_id),
+  foreign key (district_id) references design_districts(id)
+    on delete cascade,
+  foreign key (precinct_id) references design_precincts(id)
+    on delete cascade
+) strict;
+
+create table design_districts_precinct_splits (
+  district_id text not null,
+  precinct_split_id text not null,
+  primary key (district_id, precinct_split_id),
+  foreign key (district_id) references design_districts(id)
+    on delete cascade,
+  foreign key (precinct_split_id) references design_precinct_splits(id)
+    on delete cascade
+) strict;
+
+create table design_precinct_registered_voter_counts (
+  precinct_id text primary key,
+  count integer not null,
+  foreign key (precinct_id) references design_precincts(id)
+    on delete cascade
+) strict;
+
+create table design_precinct_split_registered_voter_counts (
+  split_id text primary key,
+  count integer not null,
+  foreign key (split_id) references design_precinct_splits(id)
+    on delete cascade
+) strict;

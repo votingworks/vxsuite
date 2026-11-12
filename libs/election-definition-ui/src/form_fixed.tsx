@@ -1,4 +1,4 @@
-import { cssThemedScrollbars, DesktopPalette } from '@votingworks/ui';
+import { cssThemedScrollbars, DesktopPalette, H2 } from '@votingworks/ui';
 import styled, { css } from 'styled-components';
 
 export const FormBody = styled.div`
@@ -77,4 +77,13 @@ export const FormFixed = styled.form<FormFixedProps>`
         ${cssFormViewMode}
       }
     `}
+`;
+
+export const FormTitle = styled(H2)`
+  /*
+   * Offset the vertical flex gap a bit to keep this visually attached to the
+   * rest of the form body.
+   */
+  margin-bottom: -0.25rem;
+  padding: 0;
 `;
