@@ -422,6 +422,70 @@ create unique index design_parties_election_id_full_name_unique_index
 create unique index design_parties_election_id_name_unique_index
   on design_parties (election_id, name);
 
+create table design_contests (
+  id text primary key,
+  election_id text not null,
+  title text not null,
+  type text not null check (type in ('candidate', 'yesno')),
+  district_id text not null,
+  seats integer,
+  allow_write_ins integer,
+  party_id text,
+  term_description text,
+  description text,
+  yes_option_id text,
+  yes_option_label text,
+  no_option_id text,
+  no_option_label text,
+  additional_options text,
+  ballot_order integer not null,
+  foreign key (election_id) references design_elections(id)
+    on delete cascade,
+  foreign key (district_id) references design_districts(id)
+    on delete cascade,
+  foreign key (party_id) references design_parties(id)
+    on delete set null
+) strict;
+
+create unique index design_contests_unique_index
+  on design_contests (
+    district_id,
+    title,
+    ifnull(seats, 0),
+    ifnull(term_description, ''),
+    ifnull(party_id, '')
+  );
+
+create table design_candidates (
+  id text primary key,
+  contest_id text not null,
+  first_name text,
+  middle_name text,
+  last_name text,
+  designation text,
+  ballot_order integer not null,
+  foreign key (contest_id) references design_contests(id)
+    on delete cascade
+) strict;
+
+create unique index design_candidates_unique_index
+  on design_candidates (
+    contest_id,
+    ifnull(first_name, ''),
+    ifnull(middle_name, ''),
+    ifnull(last_name, '')
+  );
+
+create table design_candidates_parties (
+  candidate_id text not null,
+  party_id text not null,
+  primary key (candidate_id, party_id),
+  foreign key (candidate_id) references design_candidates(id)
+    on delete cascade,
+  foreign key (party_id) references design_parties(id)
+    on delete cascade
+) strict;
+
 create table design_precincts (
   id text primary key,
   election_id text not null,
