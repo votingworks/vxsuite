@@ -3662,7 +3662,6 @@ async function insertPollingPlacePrecincts(
   place: PollingPlace
 ) {
   const precinctIds = Object.keys(place.precincts);
-  // @coverage-defer
   if (precinctIds.length === 0) return;
 
   const params = [place.id, ...precinctIds];
