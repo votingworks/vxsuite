@@ -49,7 +49,7 @@ import {
   performScanDiagnostic,
   type ScanDiagnosticOutcome,
 } from './diagnostic.js';
-import type { BatchScanner } from './fujitsu_scanner.js';
+import type { BatchScanner } from './batch_scanner.js';
 
 export interface AppOptions {
   auth: DippedSmartCardAuthApi;

@@ -19,7 +19,7 @@ import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { createWorkspace, type Workspace } from './util/workspace.js';
 import { makeMockScanner, type MockScanner } from '../test/util/mocks.js';
-import type { BatchScanner } from './fujitsu_scanner.js';
+import type { BatchScanner } from './batch_scanner.js';
 import {
   type BatchScannerStateMachine,
   cleanLogData,

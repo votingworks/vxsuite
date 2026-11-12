@@ -33,7 +33,7 @@ import type {
   BatchControl,
   BatchScanner,
   ScannedSheetInfo,
-} from './fujitsu_scanner.js';
+} from './batch_scanner.js';
 import type { Workspace } from './util/workspace.js';
 import {
   describeValidationError,

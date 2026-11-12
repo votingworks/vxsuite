@@ -12,6 +12,12 @@ import { LogEventId, type BaseLogger } from '@votingworks/logging';
 import { isDeviceAttached } from '@votingworks/backend';
 import { streamExecFile } from './exec.js';
 import { StreamLines } from './util/stream_lines.js';
+import type {
+  BatchControl,
+  BatchScanner,
+  ScannedSheetInfo,
+  ScanOptions,
+} from './batch_scanner.js';
 
 const debug = makeDebug('scan:scanner');
 
@@ -28,29 +34,6 @@ const MAX_PREFIX_LENGTH =
 
 export const EXPECTED_IMPRINTER_UNATTACHED_ERROR =
   'attempted to set readonly option endorser';
-
-export interface ScannedSheetInfo {
-  frontPath: string;
-  backPath: string;
-  ballotAuditId?: string;
-}
-
-export interface BatchControl {
-  scanSheet(): Promise<ScannedSheetInfo | undefined>;
-  endBatch(): Promise<void>;
-}
-
-export interface ScanOptions {
-  directory?: string;
-  pageSize?: HmpbBallotPaperSize;
-  imprintIdPrefix?: string; // Prefix for the audit ID to imprint on the ballot, an undefined value means no imprinting
-}
-
-export interface BatchScanner {
-  isAttached(): boolean;
-  isImprinterDetected(): Promise<boolean>;
-  scanSheets(options?: ScanOptions): BatchControl;
-}
 
 export const ScannerImageFormat = {
   JPEG: 'jpeg',
