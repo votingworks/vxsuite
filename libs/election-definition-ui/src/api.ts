@@ -45,6 +45,10 @@ export function getRegisteredVoterCountsQueryKey(
   return ['getRegisteredVoterCounts', electionId];
 }
 
+export function listPollingPlacesQueryKey(electionId: ElectionId): QueryKey {
+  return ['listPollingPlaces', electionId];
+}
+
 async function invalidateElectionDefinitionQueries(
   queryClient: QueryClient,
   electionId: ElectionId
@@ -54,6 +58,7 @@ async function invalidateElectionDefinitionQueries(
     queryClient.invalidateQueries(listDistrictsQueryKey(electionId)),
     queryClient.invalidateQueries(listPrecinctsQueryKey(electionId)),
     queryClient.invalidateQueries(getRegisteredVoterCountsQueryKey(electionId)),
+    queryClient.invalidateQueries(listPollingPlacesQueryKey(electionId)),
   ]);
 }
 
@@ -181,6 +186,39 @@ function createReactQueryApi(
         const apiClient = getApiClient();
         const queryClient = useQueryClient();
         return useMutation(apiClient.deletePrecinct, {
+          async onSuccess(_, { electionId }) {
+            await invalidateElectionQueries(queryClient, electionId);
+          },
+        });
+      },
+    },
+    listPollingPlaces: {
+      queryKey: listPollingPlacesQueryKey,
+      useQuery(electionId: ElectionId) {
+        const apiClient = getApiClient();
+        return useQuery(listPollingPlacesQueryKey(electionId), () =>
+          apiClient.listPollingPlaces({ electionId })
+        );
+      },
+    },
+    setPollingPlace: {
+      useMutation() {
+        const apiClient = getApiClient();
+        const queryClient = useQueryClient();
+        return useMutation(apiClient.setPollingPlace, {
+          async onSuccess(result, { electionId }) {
+            if (result.isOk()) {
+              await invalidateElectionQueries(queryClient, electionId);
+            }
+          },
+        });
+      },
+    },
+    deletePollingPlace: {
+      useMutation() {
+        const apiClient = getApiClient();
+        const queryClient = useQueryClient();
+        return useMutation(apiClient.deletePollingPlace, {
           async onSuccess(_, { electionId }) {
             await invalidateElectionQueries(queryClient, electionId);
           },
