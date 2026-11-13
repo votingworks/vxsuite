@@ -74,6 +74,7 @@ import { type BallotTemplateId, generateBallotStyles } from '@votingworks/hmpb';
 import pg, { type DatabaseError } from 'pg';
 import {
   type DistrictsUpdate,
+  type DuplicateContestError,
   type DuplicateDistrictError,
   type DuplicateElectionError,
   type DuplicatePartyError,
@@ -81,6 +82,7 @@ import {
   type ExternalElectionSource,
   generateId,
   getStateFeaturesConfig,
+  hasDuplicateOptionLabels,
   type PartiesUpdate,
   type SetPollingPlaceError,
   type StateCode,
@@ -237,11 +239,6 @@ function isForeignKeyError(
   );
 }
 
-export type DuplicateContestError =
-  | 'duplicate-contest'
-  | 'duplicate-candidate'
-  | 'duplicate-option';
-
 function straightPartyContestId(electionId: ElectionId): ContestId {
   return `${electionId}-straight-party-contest`;
 }
@@ -373,11 +370,6 @@ async function insertParty(
     party.fullName,
     party.abbrev
   );
-}
-
-function hasDuplicateOptionLabels(contest: YesNoContest): boolean {
-  const labels = contest.options.map((option) => option.label);
-  return new Set(labels).size !== labels.length;
 }
 
 async function insertContest(
@@ -1979,6 +1971,9 @@ export class Store {
     if (isDuplicateKeyError(error, 'parties_election_id_abbrev_unique_index')) {
       return err({ code: 'duplicate-abbrev', partyId });
     }
+    if (isDuplicateKeyError(error, 'contests_unique_index')) {
+      return err({ code: 'duplicate-contest', partyId });
+    }
     throw error;
   }
 
@@ -2029,15 +2024,20 @@ export class Store {
     client: Client,
     electionId: ElectionId,
     partyId: string
-  ): Promise<void> {
-    await client.query(
-      `
-        delete from parties
-        where id = $1 and election_id = $2
-      `,
-      partyId,
-      electionId
-    );
+  ): Promise<Result<void, DuplicatePartyError>> {
+    try {
+      await client.query(
+        `
+          delete from parties
+          where id = $1 and election_id = $2
+        `,
+        partyId,
+        electionId
+      );
+      return ok();
+    } catch (error) {
+      return this.handlePartyError(partyId, error);
+    }
   }
 
   async updateParties(
@@ -2048,7 +2048,9 @@ export class Store {
     await this.db.withClient((client) =>
       client.withTransaction(async () => {
         for (const id of input.deletedPartyIds || []) {
-          await this.deleteParty(client, input.electionId, id);
+          res = await this.deleteParty(client, input.electionId, id);
+
+          if (res.isErr()) return false;
         }
 
         for (const p of input.updatedParties || []) {

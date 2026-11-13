@@ -1,30 +1,44 @@
 import {
   assert,
+  assertDefined,
   DateWithoutTime,
   err,
   ok,
   iter,
   type Result,
+  throwIllegalValue,
   uniqueDeep,
 } from '@votingworks/basics';
-import type { Client as DbClient } from '@votingworks/db';
-import type {
-  DistrictsUpdate,
-  DuplicateDistrictError,
-  DuplicatePartyError,
-  DuplicatePartyErrorCode,
-  DuplicatePrecinctError,
-  ElectionInfo,
-  ElectionInfoUpdate,
-  PartiesUpdate,
-  PollingPlaceDelete,
-  PollingPlaceSet,
-  PrecinctCreate,
-  PrecinctDelete,
-  PrecinctUpdate,
-  SetPollingPlaceError,
+import type { Bindable, Client as DbClient } from '@votingworks/db';
+import {
+  type ContestCreate,
+  type ContestDelete,
+  type ContestsReorder,
+  type ContestUpdate,
+  type DistrictsUpdate,
+  type DuplicateContestError,
+  type DuplicateDistrictError,
+  type DuplicatePartyError,
+  type DuplicatePartyErrorCode,
+  type DuplicatePrecinctError,
+  type ElectionInfo,
+  type ElectionInfoUpdate,
+  hasDuplicateOptionLabels,
+  type PartiesUpdate,
+  type PollingPlaceDelete,
+  type PollingPlaceSet,
+  type PrecinctCreate,
+  type PrecinctDelete,
+  type PrecinctUpdate,
+  type SetPollingPlaceError,
 } from '@votingworks/election-definition-backend';
 import {
+  type Candidate,
+  type CandidateContest,
+  type CandidateId,
+  type Contest,
+  type ContestId,
+  ContestSchema,
   type District,
   type DistrictId,
   DistrictSchema,
@@ -40,6 +54,7 @@ import {
   LanguageCodeSchema,
   type NhPrecinctSplitOptions,
   type Party,
+  type PartyId,
   PartySchema,
   type PollingPlace,
   PollingPlaceSchema,
@@ -53,6 +68,8 @@ import {
   type PrecinctSplitId,
   unsafeParse,
   unsafeParseJson,
+  type YesNoContest,
+  YesNoOptionSchema,
 } from '@votingworks/types';
 import { z } from 'zod/v4';
 import type { TranslatedString } from './translations.js';
@@ -76,6 +93,9 @@ function isDuplicateDistrictNameError(error: unknown): boolean {
 function extractDuplicatePartyErrorCode(
   error: unknown
 ): DuplicatePartyErrorCode | undefined {
+  if (isDuplicateContestError(error)) {
+    return 'duplicate-contest';
+  }
   if (
     !(
       error instanceof Error &&
@@ -97,6 +117,24 @@ function extractDuplicatePartyErrorCode(
   }
   // @coverage-exclude: design_parties has no other unique indexes
   return undefined;
+}
+
+function isDuplicateContestError(error: unknown): boolean {
+  return (
+    error instanceof Error &&
+    'code' in error &&
+    error.code === 'SQLITE_CONSTRAINT_UNIQUE' &&
+    error.message.includes("index 'design_contests_unique_index'")
+  );
+}
+
+function isDuplicateCandidateError(error: unknown): boolean {
+  return (
+    error instanceof Error &&
+    'code' in error &&
+    error.code === 'SQLITE_CONSTRAINT_UNIQUE' &&
+    error.message.includes("index 'design_candidates_unique_index'")
+  );
 }
 
 function isDuplicatePrecinctNameError(error: unknown): boolean {
@@ -154,6 +192,96 @@ function hasDuplicateSplitDistricts(precinct: Precinct): boolean {
     uniqueDeep(precinct.splits, (split) => split.districtIds.toSorted())
       .length !== precinct.splits.length
   );
+}
+
+function catchDuplicateContests(
+  write: () => void
+): Result<void, DuplicateContestError> {
+  try {
+    write();
+    return ok();
+  } catch (error) {
+    if (isDuplicateContestError(error)) {
+      return err('duplicate-contest');
+    }
+    if (isDuplicateCandidateError(error)) {
+      return err('duplicate-candidate');
+    }
+    throw error;
+  }
+}
+
+interface ContestRow {
+  id: ContestId;
+  title: string;
+  type: 'candidate' | 'yesno';
+  districtId: DistrictId;
+  seats: number | null;
+  allowWriteIns: number | null;
+  partyId: PartyId | null;
+  termDescription: string | null;
+  description: string | null;
+  yesOptionId: string | null;
+  yesOptionLabel: string | null;
+  noOptionId: string | null;
+  noOptionLabel: string | null;
+  additionalOptions: string | null;
+}
+
+interface CandidateRow {
+  id: CandidateId;
+  contestId: ContestId;
+  firstName: string | null;
+  middleName: string | null;
+  lastName: string | null;
+  designation: string | null;
+}
+
+interface CandidatePartyRow {
+  candidateId: CandidateId;
+  partyId: PartyId;
+  partyName: string;
+}
+
+function contestColumnValues(
+  contest: CandidateContest | YesNoContest
+): Bindable[] {
+  switch (contest.type) {
+    case 'candidate':
+      return [
+        contest.title,
+        contest.type,
+        contest.districtId,
+        contest.seats,
+        contest.allowWriteIns ? 1 : 0,
+        contest.partyId ?? null,
+        contest.termDescription ?? null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+      ];
+    case 'yesno':
+      return [
+        contest.title,
+        contest.type,
+        contest.districtId,
+        null,
+        null,
+        null,
+        null,
+        contest.description,
+        contest.options[0].id,
+        contest.options[0].label,
+        contest.options[1].id,
+        contest.options[1].label,
+        JSON.stringify(contest.options.slice(2)),
+      ];
+    default:
+      throwIllegalValue(contest, 'type');
+  }
 }
 
 function catchDuplicatePrecinctNames(
@@ -263,7 +391,7 @@ export class ElectionDefinitionStore {
       precincts: this.listPrecincts(electionId),
       pollingPlaces: this.listPollingPlaces(electionId),
       parties: this.listParties(electionId),
-      contests: [],
+      contests: this.listContests(electionId),
       ballotStyles: [],
       ballotLayout: {
         paperSize: HmpbBallotPaperSize.Letter,
@@ -433,16 +561,19 @@ export class ElectionDefinitionStore {
     return this.client.transaction(
       (): Result<void, DuplicatePartyError> => {
         for (const partyId of input.deletedPartyIds ?? []) {
-          this.client.run(
-            'delete from design_parties where id = ? and election_id = ?',
-            partyId,
-            electionId
+          const result = this.writeParty(partyId, () =>
+            this.client.run(
+              'delete from design_parties where id = ? and election_id = ?',
+              partyId,
+              electionId
+            )
           );
+          if (result.isErr()) return result;
         }
 
         for (const p of input.updatedParties ?? []) {
           const party = unsafeParse(PartySchema, p);
-          const result = this.writeParty(party, () =>
+          const result = this.writeParty(party.id, () =>
             assert(
               this.client.one(
                 'update design_parties set name = ?, full_name = ?, abbrev = ? where id = ? and election_id = ? returning id',
@@ -460,7 +591,7 @@ export class ElectionDefinitionStore {
 
         for (const p of input.newParties ?? []) {
           const party = unsafeParse(PartySchema, p);
-          const result = this.writeParty(party, () =>
+          const result = this.writeParty(party.id, () =>
             this.client.run(
               'insert into design_parties (id, election_id, name, full_name, abbrev) values (?, ?, ?, ?, ?)',
               party.id,
@@ -480,7 +611,7 @@ export class ElectionDefinitionStore {
   }
 
   private writeParty(
-    party: Party,
+    partyId: PartyId,
     write: () => void
   ): Result<void, DuplicatePartyError> {
     try {
@@ -489,10 +620,330 @@ export class ElectionDefinitionStore {
     } catch (error) {
       const code = extractDuplicatePartyErrorCode(error);
       if (code) {
-        return err({ code, partyId: party.id });
+        return err({ code, partyId });
       }
       throw error;
     }
+  }
+
+  listContests(electionId: ElectionId): Contest[] {
+    const contestRows = this.client.all(
+      `
+      select
+        id,
+        title,
+        type,
+        district_id as districtId,
+        seats,
+        allow_write_ins as allowWriteIns,
+        party_id as partyId,
+        term_description as termDescription,
+        description,
+        yes_option_id as yesOptionId,
+        yes_option_label as yesOptionLabel,
+        no_option_id as noOptionId,
+        no_option_label as noOptionLabel,
+        additional_options as additionalOptions
+      from design_contests
+      where election_id = ?
+      order by ballot_order
+    `,
+      electionId
+    ) as ContestRow[];
+    const candidateRowsByContestId = iter(
+      this.client.all(
+        `
+        select
+          design_candidates.id,
+          design_candidates.contest_id as contestId,
+          design_candidates.first_name as firstName,
+          design_candidates.middle_name as middleName,
+          design_candidates.last_name as lastName,
+          design_candidates.designation
+        from design_candidates
+        join design_contests
+          on design_contests.id = design_candidates.contest_id
+        where design_contests.election_id = ?
+        order by design_candidates.ballot_order
+      `,
+        electionId
+      ) as CandidateRow[]
+    ).toMap((row) => row.contestId);
+    const partyRowsByCandidateId = iter(
+      (
+        this.client.all(
+          `
+          select
+            design_candidates_parties.candidate_id as candidateId,
+            design_parties.id as partyId,
+            design_parties.name as partyName
+          from design_candidates_parties
+          join design_parties
+            on design_parties.id = design_candidates_parties.party_id
+          where design_parties.election_id = ?
+        `,
+          electionId
+        ) as CandidatePartyRow[]
+      ).toSorted((a, b) =>
+        ALPHABETICAL_SORT_COLLATOR.compare(a.partyName, b.partyName)
+      )
+    ).toMap((row) => row.candidateId);
+
+    function candidateFromRow(row: CandidateRow): Candidate {
+      const partyIds = [...(partyRowsByCandidateId.get(row.id) ?? [])].map(
+        (partyRow) => partyRow.partyId
+      );
+      return {
+        id: row.id,
+        firstName: row.firstName ?? undefined,
+        middleName: row.middleName ?? undefined,
+        lastName: row.lastName ?? undefined,
+        designation: row.designation ?? undefined,
+        name: [row.firstName, row.middleName, row.lastName]
+          .filter(Boolean)
+          .join(' '),
+        partyIds: partyIds.length > 0 ? partyIds : undefined,
+      };
+    }
+
+    return contestRows.map((row): Contest => {
+      switch (row.type) {
+        case 'candidate':
+          return {
+            id: row.id,
+            title: row.title,
+            type: row.type,
+            districtId: row.districtId,
+            seats: assertDefined(row.seats),
+            allowWriteIns: assertDefined(row.allowWriteIns) === 1,
+            partyId: row.partyId ?? undefined,
+            termDescription: row.termDescription ?? undefined,
+            candidates: [...(candidateRowsByContestId.get(row.id) ?? [])].map(
+              candidateFromRow
+            ),
+          };
+        case 'yesno':
+          return {
+            id: row.id,
+            title: row.title,
+            type: row.type,
+            districtId: row.districtId,
+            description: assertDefined(row.description),
+            options: [
+              {
+                id: assertDefined(row.yesOptionId),
+                label: assertDefined(row.yesOptionLabel),
+              },
+              {
+                id: assertDefined(row.noOptionId),
+                label: assertDefined(row.noOptionLabel),
+              },
+              ...unsafeParseJson(
+                assertDefined(row.additionalOptions),
+                z.array(YesNoOptionSchema)
+              ),
+            ],
+          };
+        default:
+          return throwIllegalValue(row.type);
+      }
+    });
+  }
+
+  createContest(input: ContestCreate): Result<void, DuplicateContestError> {
+    const { electionId } = input;
+    return this.writeContest(input.newContest, (contest) => {
+      const { ballotOrder } = this.client.one(
+        'select ifnull(max(ballot_order) + 1, 0) as ballotOrder from design_contests where election_id = ?',
+        electionId
+      ) as { ballotOrder: number };
+      this.client.run(
+        `
+        insert into design_contests (
+          id,
+          election_id,
+          ballot_order,
+          title,
+          type,
+          district_id,
+          seats,
+          allow_write_ins,
+          party_id,
+          term_description,
+          description,
+          yes_option_id,
+          yes_option_label,
+          no_option_id,
+          no_option_label,
+          additional_options
+        ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `,
+        contest.id,
+        electionId,
+        ballotOrder,
+        ...contestColumnValues(contest)
+      );
+      this.reorderContestsAfterInsertion(electionId, contest);
+    });
+  }
+
+  /**
+   * Updates the order of contests to include the new contest so that all
+   * candidate contests still precede all ballot measure contests.
+   */
+  private reorderContestsAfterInsertion(
+    electionId: ElectionId,
+    contest: CandidateContest | YesNoContest
+  ): void {
+    if (contest.type !== 'candidate') {
+      return;
+    }
+    const { firstBallotMeasureOrder } = this.client.one(
+      `
+      select min(ballot_order) as firstBallotMeasureOrder
+      from design_contests
+      where election_id = ? and type = 'yesno'
+    `,
+      electionId
+    ) as { firstBallotMeasureOrder: number | null };
+    if (firstBallotMeasureOrder === null) {
+      return;
+    }
+    this.client.run(
+      'update design_contests set ballot_order = ballot_order + 1 where election_id = ? and ballot_order >= ? and id != ?',
+      electionId,
+      firstBallotMeasureOrder,
+      contest.id
+    );
+    this.client.run(
+      'update design_contests set ballot_order = ? where id = ?',
+      firstBallotMeasureOrder,
+      contest.id
+    );
+  }
+
+  updateContest(input: ContestUpdate): Result<void, DuplicateContestError> {
+    const { electionId } = input;
+    return this.writeContest(input.updatedContest, (contest) => {
+      assert(
+        this.client.one(
+          `
+          update design_contests set
+            title = ?,
+            type = ?,
+            district_id = ?,
+            seats = ?,
+            allow_write_ins = ?,
+            party_id = ?,
+            term_description = ?,
+            description = ?,
+            yes_option_id = ?,
+            yes_option_label = ?,
+            no_option_id = ?,
+            no_option_label = ?,
+            additional_options = ?
+          where id = ? and election_id = ?
+          returning id
+        `,
+          ...contestColumnValues(contest),
+          contest.id,
+          electionId
+        ),
+        'Contest not found'
+      );
+    });
+  }
+
+  private writeContest(
+    unparsedContest: Contest,
+    writeContestRow: (contest: CandidateContest | YesNoContest) => void
+  ): Result<void, DuplicateContestError> {
+    const contest = unsafeParse(ContestSchema, unparsedContest);
+    assert(
+      contest.type !== 'straight-party',
+      'Straight party contests are not supported'
+    );
+    if (contest.type === 'yesno' && hasDuplicateOptionLabels(contest)) {
+      return err('duplicate-option');
+    }
+    return catchDuplicateContests(() =>
+      this.client.transaction(() => {
+        writeContestRow(contest);
+        this.client.run(
+          'delete from design_candidates where contest_id = ?',
+          contest.id
+        );
+        if (contest.type !== 'candidate') {
+          return;
+        }
+        for (const [index, candidate] of contest.candidates.entries()) {
+          this.client.run(
+            `
+            insert into design_candidates (
+              id,
+              contest_id,
+              first_name,
+              middle_name,
+              last_name,
+              designation,
+              ballot_order
+            ) values (?, ?, ?, ?, ?, ?, ?)
+          `,
+            candidate.id,
+            contest.id,
+            candidate.firstName ?? null,
+            candidate.middleName ?? null,
+            candidate.lastName ?? null,
+            candidate.designation ?? null,
+            index
+          );
+          for (const partyId of candidate.partyIds ?? []) {
+            this.client.run(
+              'insert into design_candidates_parties (candidate_id, party_id) values (?, ?)',
+              candidate.id,
+              partyId
+            );
+          }
+        }
+      })
+    );
+  }
+
+  reorderContests(input: ContestsReorder): void {
+    const { electionId, contestIds } = input;
+    this.client.transaction(() => {
+      const { contestCount } = this.client.one(
+        'select count(*) as contestCount from design_contests where election_id = ?',
+        electionId
+      ) as { contestCount: number };
+      assert(
+        contestIds.length === contestCount &&
+          new Set(contestIds).size === contestIds.length,
+        'Contest list is out of date'
+      );
+      for (const [index, contestId] of contestIds.entries()) {
+        assert(
+          this.client.one(
+            'update design_contests set ballot_order = ? where id = ? and election_id = ? returning id',
+            index,
+            contestId,
+            electionId
+          ),
+          `Contest not found: ${contestId}`
+        );
+      }
+    });
+  }
+
+  deleteContest(input: ContestDelete): void {
+    assert(
+      this.client.one(
+        'delete from design_contests where id = ? and election_id = ? returning id',
+        input.contestId,
+        input.electionId
+      ),
+      'Contest not found'
+    );
   }
 
   listPrecincts(electionId: ElectionId): Precinct[] {

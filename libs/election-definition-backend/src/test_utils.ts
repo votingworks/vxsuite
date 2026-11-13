@@ -1,11 +1,14 @@
 import { expect, test, vi } from 'vitest';
 import { DateWithoutTime, err, ok } from '@votingworks/basics';
 import {
+  type Candidate,
+  type CandidateContest,
   type ElectionId,
   LanguageCode,
   type Party,
   type PollingPlace,
   type Precinct,
+  type YesNoContest,
 } from '@votingworks/types';
 import type { ElectionDefinitionMethods } from './election_definition_methods.js';
 import type { StateFeaturesConfig } from './state_features.js';
@@ -428,6 +431,446 @@ export function describeElectionDefinitionMethods(
     await expectRejection(methods.listParties({ electionId: 'unknown' }));
     await expectRejection(
       methods.updateParties({ electionId: 'unknown', newParties: [democrats] })
+    );
+  });
+
+  async function createElectionForContests(
+    harness: ElectionDefinitionMethodsHarness
+  ): Promise<ElectionId> {
+    const electionId = await createElectionWithDistricts(harness);
+    expect(
+      await harness.methods.updateParties({
+        electionId,
+        newParties: [democrats, republicans],
+      })
+    ).toEqual(ok());
+    return electionId;
+  }
+
+  const ada: Candidate = {
+    id: 'candidate-1',
+    firstName: 'Ada',
+    middleName: 'B.',
+    lastName: 'Lovelace',
+    name: 'Ada B. Lovelace',
+    designation: 'Incumbent',
+    partyIds: [republicans.id, democrats.id],
+  };
+  const grace: Candidate = {
+    id: 'candidate-2',
+    firstName: 'Grace',
+    lastName: 'Hopper',
+    name: 'Grace Hopper',
+  };
+  const alan: Candidate = {
+    id: 'candidate-3',
+    firstName: 'Alan',
+    lastName: 'Turing',
+    name: 'Alan Turing',
+    partyIds: [democrats.id],
+  };
+  const mayor: CandidateContest = {
+    id: 'mayor',
+    type: 'candidate',
+    title: 'Mayor',
+    districtId: 'district-1',
+    seats: 1,
+    allowWriteIns: true,
+    termDescription: '4 years',
+    candidates: [ada, grace],
+  };
+  const listedMayor: CandidateContest = {
+    ...mayor,
+    candidates: [{ ...ada, partyIds: [democrats.id, republicans.id] }, grace],
+  };
+  const council: CandidateContest = {
+    id: 'council',
+    type: 'candidate',
+    title: 'City Council',
+    districtId: 'district-2',
+    seats: 2,
+    allowWriteIns: false,
+    partyId: democrats.id,
+    candidates: [alan],
+  };
+  const measure: YesNoContest = {
+    id: 'measure',
+    type: 'yesno',
+    title: 'Measure 1',
+    districtId: 'district-1',
+    description: '<p>Should we?</p>',
+    options: [
+      { id: 'measure-yes', label: 'Yes' },
+      { id: 'measure-no', label: 'No' },
+    ],
+  };
+
+  test('createContest puts candidate contests before ballot measures', async () => {
+    const harness = await setUp();
+    const { methods } = harness;
+    const electionId = await createElectionForContests(harness);
+    expect(await methods.listContests({ electionId })).toEqual([]);
+
+    for (const contest of [measure, mayor, council]) {
+      expect(
+        await methods.createContest({ electionId, newContest: contest })
+      ).toEqual(ok());
+    }
+    expect(await methods.listContests({ electionId })).toEqual([
+      listedMayor,
+      council,
+      measure,
+    ]);
+  });
+
+  test('updateContest edits a contest in place', async () => {
+    const harness = await setUp();
+    const { methods } = harness;
+    const electionId = await createElectionForContests(harness);
+    for (const contest of [mayor, council, measure]) {
+      expect(
+        await methods.createContest({ electionId, newContest: contest })
+      ).toEqual(ok());
+    }
+
+    const editedMayor: CandidateContest = {
+      ...mayor,
+      title: 'Mayor of the City',
+      seats: 2,
+      allowWriteIns: false,
+      partyId: republicans.id,
+      termDescription: undefined,
+      candidates: [
+        {
+          id: 'candidate-2',
+          firstName: 'Grace',
+          middleName: 'M.',
+          lastName: 'Hopper',
+          name: 'Grace M. Hopper',
+          partyIds: [republicans.id],
+        },
+        {
+          id: 'candidate-4',
+          firstName: 'Katherine',
+          lastName: 'Johnson',
+          name: 'Katherine Johnson',
+        },
+      ],
+    };
+    const editedMeasure: YesNoContest = {
+      ...measure,
+      title: 'Measure 2',
+      description: '<p>Should we not?</p>',
+      options: [
+        { id: 'measure-yes', label: 'For' },
+        { id: 'measure-no', label: 'Against' },
+        { id: 'measure-abstain', label: 'Abstain' },
+      ],
+    };
+    expect(
+      await methods.updateContest({ electionId, updatedContest: editedMayor })
+    ).toEqual(ok());
+    expect(
+      await methods.updateContest({
+        electionId,
+        updatedContest: editedMeasure,
+      })
+    ).toEqual(ok());
+    expect(await methods.listContests({ electionId })).toEqual([
+      editedMayor,
+      council,
+      editedMeasure,
+    ]);
+  });
+
+  test('reorderContests and deleteContest', async () => {
+    const harness = await setUp();
+    const { methods } = harness;
+    const electionId = await createElectionForContests(harness);
+    for (const contest of [mayor, council, measure]) {
+      expect(
+        await methods.createContest({ electionId, newContest: contest })
+      ).toEqual(ok());
+    }
+
+    await methods.reorderContests({
+      electionId,
+      contestIds: [measure.id, council.id, mayor.id],
+    });
+    expect(await methods.listContests({ electionId })).toEqual([
+      measure,
+      council,
+      listedMayor,
+    ]);
+
+    await methods.deleteContest({ electionId, contestId: council.id });
+    expect(await methods.listContests({ electionId })).toEqual([
+      measure,
+      listedMayor,
+    ]);
+  });
+
+  test('reorderContests rejects an out of date contest list', async () => {
+    const harness = await setUp();
+    const { methods } = harness;
+    const electionId = await createElectionForContests(harness);
+    for (const contest of [mayor, council]) {
+      expect(
+        await methods.createContest({ electionId, newContest: contest })
+      ).toEqual(ok());
+    }
+
+    await expectRejection(
+      methods.reorderContests({ electionId, contestIds: [council.id] })
+    );
+    await expectRejection(
+      methods.reorderContests({
+        electionId,
+        contestIds: [council.id, mayor.id, measure.id],
+      })
+    );
+    expect(await methods.listContests({ electionId })).toEqual([
+      listedMayor,
+      council,
+    ]);
+  });
+
+  const otherMeasure: YesNoContest = {
+    ...measure,
+    id: 'other-measure',
+    title: 'Other Measure',
+    options: [
+      { id: 'other-measure-yes', label: 'Yes' },
+      { id: 'other-measure-no', label: 'No' },
+    ],
+  };
+
+  test.each([
+    {
+      description: 'the same district, title, seats, term and party',
+      existing: mayor,
+      conflict: { ...mayor, candidates: [] },
+      error: 'duplicate-contest',
+    },
+    {
+      description: 'the same district, title and seats and no term or party',
+      conflict: {
+        ...council,
+        title: mayor.title,
+        districtId: mayor.districtId,
+        seats: mayor.seats,
+        allowWriteIns: true,
+        partyId: undefined,
+        termDescription: undefined,
+        candidates: [],
+      },
+      error: 'duplicate-contest',
+      existing: { ...mayor, termDescription: undefined },
+    },
+    {
+      description: 'the same district and title as a ballot measure',
+      conflict: { ...measure, options: otherMeasure.options },
+      error: 'duplicate-contest',
+      existing: measure,
+    },
+    {
+      description: 'two candidates with the same name',
+      conflict: {
+        ...council,
+        candidates: [
+          {
+            id: 'candidate-5',
+            firstName: 'Ada',
+            lastName: 'Lovelace',
+            name: 'Ada Lovelace',
+          },
+          {
+            id: 'candidate-6',
+            firstName: 'Ada',
+            lastName: 'Lovelace',
+            name: 'Ada Lovelace',
+          },
+        ],
+      },
+      error: 'duplicate-candidate',
+      existing: mayor,
+    },
+    {
+      description: 'two options with the same label',
+      conflict: {
+        ...measure,
+        title: 'Measure 3',
+        options: [
+          { id: 'measure-3-yes', label: 'Yes' },
+          { id: 'measure-3-no', label: 'Yes' },
+        ],
+      },
+      error: 'duplicate-option',
+      existing: mayor,
+    },
+  ] as const)(
+    'a contest with $description is rejected as $error without saving',
+    async ({ existing, conflict, error }) => {
+      const harness = await setUp();
+      const { methods } = harness;
+      const electionId = await createElectionForContests(harness);
+      for (const contest of [existing, otherMeasure]) {
+        expect(
+          await methods.createContest({ electionId, newContest: contest })
+        ).toEqual(ok());
+      }
+      const contests = await methods.listContests({ electionId });
+
+      expect(
+        await methods.createContest({
+          electionId,
+          newContest: { ...conflict, id: 'new-contest' },
+        })
+      ).toEqual(err(error));
+      expect(
+        await methods.updateContest({
+          electionId,
+          updatedContest: { ...conflict, id: otherMeasure.id },
+        })
+      ).toEqual(err(error));
+      expect(await methods.listContests({ electionId })).toEqual(contests);
+    }
+  );
+
+  test('contests differing only by term, seats or party are not duplicates', async () => {
+    const harness = await setUp();
+    const { methods } = harness;
+    const electionId = await createElectionForContests(harness);
+    const contests: CandidateContest[] = [
+      { ...mayor, candidates: [] },
+      { ...mayor, id: 'mayor-2', termDescription: undefined, candidates: [] },
+      { ...mayor, id: 'mayor-3', seats: 2, candidates: [] },
+      { ...mayor, id: 'mayor-4', partyId: democrats.id, candidates: [] },
+    ];
+    for (const contest of contests) {
+      expect(
+        await methods.createContest({ electionId, newContest: contest })
+      ).toEqual(ok());
+    }
+    expect(await methods.listContests({ electionId })).toEqual(contests);
+  });
+
+  test('deleting a district or party updates its contests', async () => {
+    const harness = await setUp();
+    const { methods } = harness;
+    const electionId = await createElectionForContests(harness);
+    for (const contest of [mayor, council, measure]) {
+      expect(
+        await methods.createContest({ electionId, newContest: contest })
+      ).toEqual(ok());
+    }
+
+    expect(
+      await methods.updateParties({
+        electionId,
+        deletedPartyIds: [democrats.id],
+      })
+    ).toEqual(ok());
+    expect(await methods.listContests({ electionId })).toEqual([
+      {
+        ...mayor,
+        candidates: [{ ...ada, partyIds: [republicans.id] }, grace],
+      },
+      {
+        ...council,
+        partyId: undefined,
+        candidates: [{ ...alan, partyIds: undefined }],
+      },
+      measure,
+    ]);
+
+    expect(
+      await methods.updateDistricts({
+        electionId,
+        deletedDistrictIds: ['district-1'],
+      })
+    ).toEqual(ok());
+    expect(await methods.listContests({ electionId })).toEqual([
+      {
+        ...council,
+        partyId: undefined,
+        candidates: [{ ...alan, partyIds: undefined }],
+      },
+    ]);
+  });
+
+  test('updateParties rejects deleting a party that would make two contests the same', async () => {
+    const harness = await setUp();
+    const { methods } = harness;
+    const electionId = await createElectionForContests(harness);
+    const democraticMayor: CandidateContest = {
+      ...mayor,
+      partyId: democrats.id,
+      candidates: [],
+    };
+    const nonpartisanMayor: CandidateContest = {
+      ...mayor,
+      id: 'nonpartisan-mayor',
+      candidates: [],
+    };
+    for (const contest of [democraticMayor, nonpartisanMayor]) {
+      expect(
+        await methods.createContest({ electionId, newContest: contest })
+      ).toEqual(ok());
+    }
+
+    expect(
+      await methods.updateParties({
+        electionId,
+        deletedPartyIds: [democrats.id],
+      })
+    ).toEqual(err({ code: 'duplicate-contest', partyId: democrats.id }));
+    expect(await methods.listParties({ electionId })).toEqual([
+      democrats,
+      republicans,
+    ]);
+    expect(await methods.listContests({ electionId })).toEqual([
+      democraticMayor,
+      nonpartisanMayor,
+    ]);
+  });
+
+  test('contest methods reject invalid and unknown contests', async () => {
+    const harness = await setUp();
+    const { methods } = harness;
+    const electionId = await createElectionForContests(harness);
+
+    await expectRejection(
+      methods.createContest({
+        electionId,
+        newContest: { ...mayor, title: '' },
+      })
+    );
+    await expectRejection(
+      methods.updateContest({ electionId, updatedContest: mayor })
+    );
+    await expectRejection(
+      methods.deleteContest({ electionId, contestId: mayor.id })
+    );
+    expect(await methods.listContests({ electionId })).toEqual([]);
+  });
+
+  test('contest methods reject an unknown election', async () => {
+    const { methods } = await setUp();
+    const electionId = 'unknown';
+
+    await expectRejection(methods.listContests({ electionId }));
+    await expectRejection(
+      methods.createContest({ electionId, newContest: mayor })
+    );
+    await expectRejection(
+      methods.updateContest({ electionId, updatedContest: mayor })
+    );
+    await expectRejection(
+      methods.reorderContests({ electionId, contestIds: [mayor.id] })
+    );
+    await expectRejection(
+      methods.deleteContest({ electionId, contestId: mayor.id })
     );
   });
 

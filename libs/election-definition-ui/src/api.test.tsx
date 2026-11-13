@@ -3,6 +3,10 @@ import { expect, test, vi } from 'vitest';
 import { userEvent } from '@testing-library/user-event';
 import { DateWithoutTime, err, ok } from '@votingworks/basics';
 import type {
+  ContestCreate,
+  ContestDelete,
+  ContestsReorder,
+  ContestUpdate,
   DistrictsUpdate,
   ElectionInfoUpdate,
   PartiesUpdate,
@@ -161,6 +165,115 @@ test('updateParties calls invalidateElectionQueries on success', async () => {
       expect.anything(),
       'election-1'
     )
+  );
+  apiMock.assertComplete();
+});
+
+const yesNoContest: ContestCreate['newContest'] = {
+  id: 'contest-1',
+  type: 'yesno',
+  title: 'Measure 1',
+  districtId: 'district-1',
+  description: 'Should we?',
+  options: [
+    { id: 'option-yes', label: 'Yes' },
+    { id: 'option-no', label: 'No' },
+  ],
+};
+const contestCreate: ContestCreate = {
+  electionId: 'election-1',
+  newContest: yesNoContest,
+};
+const contestUpdate: ContestUpdate = {
+  electionId: 'election-1',
+  updatedContest: yesNoContest,
+};
+const contestsReorder: ContestsReorder = {
+  electionId: 'election-1',
+  contestIds: ['contest-1'],
+};
+const contestDelete: ContestDelete = {
+  electionId: 'election-1',
+  contestId: 'contest-1',
+};
+
+function ContestButtons(): JSX.Element {
+  const api = useElectionDefinitionApi();
+  const createContest = api.createContest.useMutation();
+  const updateContest = api.updateContest.useMutation();
+  const reorderContests = api.reorderContests.useMutation();
+  const deleteContest = api.deleteContest.useMutation();
+  return (
+    <React.Fragment>
+      <button type="button" onClick={() => createContest.mutate(contestCreate)}>
+        Create Contest
+      </button>
+      <button type="button" onClick={() => updateContest.mutate(contestUpdate)}>
+        Update Contest
+      </button>
+      <button
+        type="button"
+        onClick={() => reorderContests.mutate(contestsReorder)}
+      >
+        Reorder Contests
+      </button>
+      <button type="button" onClick={() => deleteContest.mutate(contestDelete)}>
+        Delete Contest
+      </button>
+    </React.Fragment>
+  );
+}
+
+test('contest mutations call invalidateElectionQueries on success', async () => {
+  const apiMock = createMockApiClient();
+  const invalidateElectionQueries = vi.fn().mockResolvedValue(undefined);
+  render(
+    provideApi(apiMock, <ContestButtons />, {
+      options: { invalidateElectionQueries },
+    })
+  );
+
+  apiMock.createContest
+    .expectCallWith(contestCreate)
+    .resolves(err('duplicate-contest'));
+  await userEvent.click(screen.getButton('Create Contest'));
+  apiMock.updateContest
+    .expectCallWith(contestUpdate)
+    .resolves(err('duplicate-option'));
+  await userEvent.click(screen.getButton('Update Contest'));
+  apiMock.assertComplete();
+  expect(invalidateElectionQueries).not.toHaveBeenCalled();
+
+  apiMock.createContest.expectCallWith(contestCreate).resolves(ok());
+  await userEvent.click(screen.getButton('Create Contest'));
+  await waitFor(() =>
+    expect(invalidateElectionQueries).toHaveBeenCalledTimes(1)
+  );
+  apiMock.assertComplete();
+
+  apiMock.updateContest.expectCallWith(contestUpdate).resolves(ok());
+  await userEvent.click(screen.getButton('Update Contest'));
+  await waitFor(() =>
+    expect(invalidateElectionQueries).toHaveBeenCalledTimes(2)
+  );
+  apiMock.assertComplete();
+
+  apiMock.reorderContests.expectCallWith(contestsReorder).resolves();
+  await userEvent.click(screen.getButton('Reorder Contests'));
+  await waitFor(() =>
+    expect(invalidateElectionQueries).toHaveBeenCalledTimes(3)
+  );
+  apiMock.assertComplete();
+
+  apiMock.deleteContest.expectCallWith(contestDelete).resolves();
+  await userEvent.click(screen.getButton('Delete Contest'));
+  await waitFor(() =>
+    expect(invalidateElectionQueries).toHaveBeenCalledTimes(4)
+  );
+  expect(invalidateElectionQueries).toHaveBeenNthCalledWith(
+    4,
+    expect.anything(),
+    'election-1'
   );
   apiMock.assertComplete();
 });

@@ -7,6 +7,7 @@ import {
 } from 'react-router-dom';
 import styled from 'styled-components';
 import {
+  ContestsEditor,
   DistrictsEditor,
   ElectionDefinitionContextProvider,
   ElectionInfoEditor,
@@ -37,6 +38,10 @@ const TabBar = styled(RouterTabBar)`
   border-color: ${DesktopPalette.Gray30};
   gap: 1rem;
   padding: 1rem 1rem 0;
+
+  > button {
+    min-width: 0;
+  }
 `;
 
 function DefinitionScreen(): JSX.Element | null {
@@ -68,6 +73,7 @@ function DefinitionTabs({
   const pollingPlacesPath =
     routerPaths.electionDefinitionPollingPlaces(electionId);
   const partiesPath = routerPaths.electionDefinitionParties(electionId);
+  const contestsPath = routerPaths.electionDefinitionContests(electionId);
 
   if (!getStateFeaturesQuery.isSuccess) {
     return null;
@@ -86,6 +92,7 @@ function DefinitionTabs({
               ? [{ title: 'Polling Places', path: pollingPlacesPath }]
               : []),
             { title: 'Parties', path: partiesPath },
+            { title: 'Contests', path: contestsPath },
           ]}
         />
         <Switch>
@@ -110,6 +117,9 @@ function DefinitionTabs({
           )}
           <Route path={routerPaths.electionDefinitionParties(':electionId')}>
             <PartiesEditor electionId={electionId} />
+          </Route>
+          <Route path={routerPaths.electionDefinitionContests(':electionId')}>
+            <ContestsEditor electionId={electionId} />
           </Route>
           <Redirect to={infoPath} />
         </Switch>

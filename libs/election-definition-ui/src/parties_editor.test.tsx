@@ -262,6 +262,32 @@ test.each<{
   expect(screen.queryByText(expectedMessage)).not.toBeInTheDocument();
 });
 
+test('error message when deleting a party would make two contests the same', async () => {
+  apiMock.listParties.expectCallWith({ electionId }).resolves(savedParties);
+
+  renderEditor();
+  await userEvent.click(await screen.findButton('Edit Parties'));
+  const deletedParty = savedParties[1]!;
+  await userEvent.click(
+    screen.getButton(`Delete Party ${deletedParty.fullName}`)
+  );
+
+  const expectedMessage =
+    'Deleting this party would make two contests the same. Change one of the contests before deleting the party.';
+  expectUpdate({
+    electionId,
+    deletedPartyIds: [deletedParty.id],
+    updatedParties: [savedParties[0]!, savedParties[2]!],
+  }).resolves(err({ code: 'duplicate-contest', partyId: deletedParty.id }));
+  await userEvent.click(screen.getButton('Save'));
+  await screen.findByText(expectedMessage);
+
+  await userEvent.click(screen.getButton('Cancel'));
+  await screen.findButton('Edit Parties');
+  expect(screen.queryByText(expectedMessage)).not.toBeInTheDocument();
+  expectPartyInputs(savedParties);
+});
+
 test('audio editing', async () => {
   apiMock.listParties.expectCallWith({ electionId }).resolves(savedParties);
   apiMock.getStateFeatures

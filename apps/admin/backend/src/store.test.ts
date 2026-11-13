@@ -22,6 +22,7 @@ import {
   type PollingPlace,
   type Precinct,
   type SystemSettings,
+  type YesNoContest,
   type BallotCandidateOrderings,
   type BallotPositions,
   type CandidateOrderings,
@@ -2654,6 +2655,26 @@ test('getElection assembles the in-progress election', () => {
   store.electionDefinition
     .updateParties({ electionId: 'design-election', newParties: [party] })
     .unsafeUnwrap();
+  const contest: CandidateContest = {
+    id: 'contest-1',
+    type: 'candidate',
+    title: 'Mayor',
+    districtId: 'district-1',
+    seats: 1,
+    allowWriteIns: true,
+    candidates: [
+      {
+        id: 'candidate-1',
+        firstName: 'Ada',
+        lastName: 'Lovelace',
+        name: 'Ada Lovelace',
+        partyIds: [party.id],
+      },
+    ],
+  };
+  store.electionDefinition
+    .createContest({ electionId: 'design-election', newContest: contest })
+    .unsafeUnwrap();
 
   expect(store.electionDefinition.getElection('design-election')).toEqual({
     id: 'design-election',
@@ -2668,7 +2689,7 @@ test('getElection assembles the in-progress election', () => {
     precincts: [precinct],
     pollingPlaces: [pollingPlace],
     parties: [party],
-    contests: [],
+    contests: [contest],
     ballotStyles: [],
     ballotLayout: { paperSize: 'letter', metadataEncoding: 'qr-code' },
     ballotStrings: {},
@@ -3062,6 +3083,553 @@ describe('design parties', () => {
 
     store.electionDefinition.deleteInProgressElection();
     expect(store.electionDefinition.listParties(electionId)).toEqual([]);
+  });
+});
+
+describe('design contests', () => {
+  const electionId = 'design-election';
+  const democrats: Party = {
+    id: 'party-d',
+    name: 'Democrat',
+    fullName: 'Democratic Party',
+    abbrev: 'D',
+  };
+  const republicans: Party = {
+    id: 'party-r',
+    name: 'Republican',
+    fullName: 'Republican Party',
+    abbrev: 'R',
+  };
+  const mayor: CandidateContest = {
+    id: 'mayor',
+    type: 'candidate',
+    title: 'Mayor',
+    districtId: 'district-1',
+    seats: 1,
+    allowWriteIns: true,
+    termDescription: '4 years',
+    candidates: [
+      {
+        id: 'candidate-1',
+        firstName: 'Ada',
+        middleName: 'B.',
+        lastName: 'Lovelace',
+        name: 'Ada B. Lovelace',
+        designation: 'Incumbent',
+        partyIds: [republicans.id, democrats.id],
+      },
+      {
+        id: 'candidate-2',
+        firstName: 'Grace',
+        lastName: 'Hopper',
+        name: 'Grace Hopper',
+      },
+    ],
+  };
+  const council: CandidateContest = {
+    id: 'council',
+    type: 'candidate',
+    title: 'City Council',
+    districtId: 'district-2',
+    seats: 2,
+    allowWriteIns: false,
+    partyId: democrats.id,
+    candidates: [
+      {
+        id: 'candidate-3',
+        firstName: 'Alan',
+        lastName: 'Turing',
+        name: 'Alan Turing',
+        partyIds: [democrats.id],
+      },
+    ],
+  };
+  const measure: YesNoContest = {
+    id: 'measure',
+    type: 'yesno',
+    title: 'Measure 1',
+    districtId: 'district-1',
+    description: '<p>Should we?</p>',
+    options: [
+      { id: 'measure-yes', label: 'Yes' },
+      { id: 'measure-no', label: 'No' },
+    ],
+  };
+
+  const listedMayor: CandidateContest = {
+    ...mayor,
+    candidates: [
+      { ...mayor.candidates[0]!, partyIds: [democrats.id, republicans.id] },
+      mayor.candidates[1]!,
+    ],
+  };
+  const otherMeasure: YesNoContest = {
+    ...measure,
+    id: 'other-measure',
+    title: 'Other Measure',
+    options: [
+      { id: 'other-measure-yes', label: 'Yes' },
+      { id: 'other-measure-no', label: 'No' },
+    ],
+  };
+
+  function setUpStore(): Store {
+    const store = Store.memoryStore(makeTemporaryDirectory());
+    store.electionDefinition.createInProgressElection({
+      electionId,
+      type: 'primary',
+      date: new DateWithoutTime('2026-11-03'),
+      title: '',
+      state: 'DEMO',
+      jurisdictionName: '',
+      seal: '',
+      languageCodes: [LanguageCode.ENGLISH],
+    });
+    store.electionDefinition
+      .updateDistricts({
+        electionId,
+        newDistricts: [
+          { id: 'district-1', name: 'District 1' },
+          { id: 'district-2', name: 'District 2' },
+        ],
+      })
+      .unsafeUnwrap();
+    store.electionDefinition
+      .updateParties({ electionId, newParties: [democrats, republicans] })
+      .unsafeUnwrap();
+    return store;
+  }
+
+  test('add, edit and delete contests', () => {
+    const store = setUpStore();
+    expect(store.electionDefinition.listContests(electionId)).toEqual([]);
+
+    expect(
+      store.electionDefinition.createContest({ electionId, newContest: mayor })
+    ).toEqual(ok());
+    expect(
+      store.electionDefinition.createContest({
+        electionId,
+        newContest: measure,
+      })
+    ).toEqual(ok());
+    expect(store.electionDefinition.listContests(electionId)).toEqual([
+      listedMayor,
+      measure,
+    ]);
+
+    const editedMayor: CandidateContest = {
+      ...mayor,
+      title: 'Mayor of the City',
+      seats: 2,
+      allowWriteIns: false,
+      partyId: republicans.id,
+      termDescription: undefined,
+      candidates: [
+        {
+          id: 'candidate-2',
+          firstName: 'Grace',
+          middleName: 'M.',
+          lastName: 'Hopper',
+          name: 'Grace M. Hopper',
+          partyIds: [republicans.id],
+        },
+        {
+          id: 'candidate-4',
+          firstName: 'Katherine',
+          lastName: 'Johnson',
+          name: 'Katherine Johnson',
+        },
+      ],
+    };
+    const editedMeasure: YesNoContest = {
+      ...measure,
+      title: 'Measure 2',
+      description: '<p>Should we not?</p>',
+      options: [
+        { id: 'measure-yes', label: 'For' },
+        { id: 'measure-no', label: 'Against' },
+        { id: 'measure-abstain', label: 'Abstain' },
+      ],
+    };
+    expect(
+      store.electionDefinition.updateContest({
+        electionId,
+        updatedContest: editedMayor,
+      })
+    ).toEqual(ok());
+    expect(
+      store.electionDefinition.updateContest({
+        electionId,
+        updatedContest: editedMeasure,
+      })
+    ).toEqual(ok());
+    expect(store.electionDefinition.listContests(electionId)).toEqual([
+      editedMayor,
+      editedMeasure,
+    ]);
+
+    store.electionDefinition.deleteContest({ electionId, contestId: mayor.id });
+    expect(store.electionDefinition.listContests(electionId)).toEqual([
+      editedMeasure,
+    ]);
+  });
+
+  test('candidate names are joined from the name parts given', () => {
+    const store = setUpStore();
+    const contest: CandidateContest = {
+      ...council,
+      candidates: [{ id: 'candidate-5', middleName: 'Cher', name: 'Cher' }],
+    };
+    store.electionDefinition
+      .createContest({ electionId, newContest: contest })
+      .unsafeUnwrap();
+
+    expect(store.electionDefinition.listContests(electionId)).toEqual([
+      contest,
+    ]);
+  });
+
+  test('changing a contest type replaces its fields', () => {
+    const store = setUpStore();
+    store.electionDefinition
+      .createContest({ electionId, newContest: mayor })
+      .unsafeUnwrap();
+
+    const mayorMeasure: YesNoContest = { ...measure, id: mayor.id };
+    store.electionDefinition
+      .updateContest({ electionId, updatedContest: mayorMeasure })
+      .unsafeUnwrap();
+    expect(store.electionDefinition.listContests(electionId)).toEqual([
+      mayorMeasure,
+    ]);
+
+    store.electionDefinition
+      .updateContest({ electionId, updatedContest: mayor })
+      .unsafeUnwrap();
+    expect(store.electionDefinition.listContests(electionId)).toEqual([
+      listedMayor,
+    ]);
+  });
+
+  test('candidate contests go before ballot measures and edits keep their position', () => {
+    const store = setUpStore();
+    const measure2: YesNoContest = {
+      ...measure,
+      id: 'measure-2',
+      title: 'Measure 2',
+      options: [
+        { id: 'measure-2-yes', label: 'Yes' },
+        { id: 'measure-2-no', label: 'No' },
+      ],
+    };
+    for (const contest of [measure, mayor, measure2, council]) {
+      store.electionDefinition
+        .createContest({ electionId, newContest: contest })
+        .unsafeUnwrap();
+    }
+    expect(
+      store.electionDefinition.listContests(electionId).map((c) => c.id)
+    ).toEqual([mayor.id, council.id, measure.id, measure2.id]);
+
+    store.electionDefinition
+      .updateContest({
+        electionId,
+        updatedContest: { ...mayor, title: 'Mayor of the City' },
+      })
+      .unsafeUnwrap();
+    expect(
+      store.electionDefinition.listContests(electionId).map((c) => c.id)
+    ).toEqual([mayor.id, council.id, measure.id, measure2.id]);
+  });
+
+  test('reorder contests', () => {
+    const store = setUpStore();
+    for (const contest of [mayor, council, measure]) {
+      store.electionDefinition
+        .createContest({ electionId, newContest: contest })
+        .unsafeUnwrap();
+    }
+
+    store.electionDefinition.reorderContests({
+      electionId,
+      contestIds: [measure.id, mayor.id, council.id],
+    });
+    expect(
+      store.electionDefinition.listContests(electionId).map((c) => c.id)
+    ).toEqual([measure.id, mayor.id, council.id]);
+
+    expect(() =>
+      store.electionDefinition.reorderContests({
+        electionId,
+        contestIds: [mayor.id, council.id],
+      })
+    ).toThrow('Contest list is out of date');
+    expect(() =>
+      store.electionDefinition.reorderContests({
+        electionId,
+        contestIds: [mayor.id, mayor.id, council.id],
+      })
+    ).toThrow('Contest list is out of date');
+    expect(() =>
+      store.electionDefinition.reorderContests({
+        electionId,
+        contestIds: [council.id, mayor.id, 'missing'],
+      })
+    ).toThrow('Contest not found: missing');
+    expect(
+      store.electionDefinition.listContests(electionId).map((c) => c.id)
+    ).toEqual([measure.id, mayor.id, council.id]);
+  });
+
+  test.each([
+    {
+      description:
+        'a candidate contest with the same district, title, seats, term and party',
+      existing: mayor,
+      conflict: { ...mayor, id: 'mayor-2', candidates: [] },
+      error: 'duplicate-contest',
+    },
+    {
+      description:
+        'a candidate contest with the same district, title and seats and no term or party',
+      existing: { ...mayor, termDescription: undefined },
+      conflict: {
+        ...mayor,
+        id: 'mayor-2',
+        termDescription: undefined,
+        candidates: [],
+      },
+      error: 'duplicate-contest',
+    },
+    {
+      description: 'a ballot measure with the same district and title',
+      existing: measure,
+      conflict: {
+        ...measure,
+        id: 'measure-2',
+        options: [
+          { id: 'measure-2-yes', label: 'Yes' },
+          { id: 'measure-2-no', label: 'No' },
+        ],
+      },
+      error: 'duplicate-contest',
+    },
+    {
+      description: 'candidates with the same names',
+      existing: council,
+      conflict: {
+        ...mayor,
+        candidates: [
+          mayor.candidates[1]!,
+          { ...mayor.candidates[1]!, id: 'candidate-5' },
+        ],
+      },
+      error: 'duplicate-candidate',
+    },
+    {
+      description: 'options with the same label',
+      existing: council,
+      conflict: {
+        ...measure,
+        options: [
+          { id: 'measure-yes', label: 'Yes' },
+          { id: 'measure-no', label: 'Yes' },
+        ],
+      },
+      error: 'duplicate-option',
+    },
+  ] as const)(
+    'rejects $description as $error without saving',
+    ({ existing, conflict, error }) => {
+      const store = setUpStore();
+      for (const contest of [existing, otherMeasure]) {
+        store.electionDefinition
+          .createContest({ electionId, newContest: contest })
+          .unsafeUnwrap();
+      }
+      const before = store.electionDefinition.listContests(electionId);
+
+      expect(
+        store.electionDefinition.createContest({
+          electionId,
+          newContest: conflict,
+        })
+      ).toEqual(err(error));
+      expect(store.electionDefinition.listContests(electionId)).toEqual(before);
+    }
+  );
+
+  test('edits are checked for duplicates without saving', () => {
+    const store = setUpStore();
+    for (const contest of [mayor, council, measure]) {
+      store.electionDefinition
+        .createContest({ electionId, newContest: contest })
+        .unsafeUnwrap();
+    }
+    const before = store.electionDefinition.listContests(electionId);
+
+    expect(
+      store.electionDefinition.updateContest({
+        electionId,
+        updatedContest: { ...mayor, id: council.id, candidates: [] },
+      })
+    ).toEqual(err('duplicate-contest'));
+    expect(
+      store.electionDefinition.updateContest({
+        electionId,
+        updatedContest: {
+          ...council,
+          candidates: [
+            council.candidates[0]!,
+            { ...council.candidates[0]!, id: 'candidate-5' },
+          ],
+        },
+      })
+    ).toEqual(err('duplicate-candidate'));
+    expect(
+      store.electionDefinition.updateContest({
+        electionId,
+        updatedContest: {
+          ...measure,
+          options: [
+            { id: 'measure-yes', label: 'No' },
+            { id: 'measure-no', label: 'No' },
+          ],
+        },
+      })
+    ).toEqual(err('duplicate-option'));
+    expect(store.electionDefinition.listContests(electionId)).toEqual(before);
+  });
+
+  test('contests that differ only by term, seats or party are allowed', () => {
+    const store = setUpStore();
+    const variants: CandidateContest[] = [
+      { ...mayor, candidates: [] },
+      { ...mayor, id: 'mayor-2', termDescription: undefined, candidates: [] },
+      { ...mayor, id: 'mayor-3', seats: 2, candidates: [] },
+      { ...mayor, id: 'mayor-4', partyId: democrats.id, candidates: [] },
+    ];
+    for (const contest of variants) {
+      expect(
+        store.electionDefinition.createContest({
+          electionId,
+          newContest: contest,
+        })
+      ).toEqual(ok());
+    }
+    expect(store.electionDefinition.listContests(electionId)).toHaveLength(4);
+  });
+
+  test('rejects invalid, unknown and conflicting contests', () => {
+    const store = setUpStore();
+    store.electionDefinition
+      .createContest({ electionId, newContest: mayor })
+      .unsafeUnwrap();
+    const before = store.electionDefinition.listContests(electionId);
+
+    expect(() =>
+      store.electionDefinition.createContest({
+        electionId,
+        newContest: { ...council, title: '' },
+      })
+    ).toThrow();
+    expect(() =>
+      store.electionDefinition.createContest({
+        electionId,
+        newContest: { ...council, id: mayor.id },
+      })
+    ).toThrow();
+    expect(() =>
+      store.electionDefinition.createContest({
+        electionId,
+        newContest: { ...council, districtId: 'missing' },
+      })
+    ).toThrow();
+    expect(() =>
+      store.electionDefinition.createContest({
+        electionId,
+        newContest: {
+          id: 'straight-party',
+          type: 'straight-party',
+          title: 'Straight Party',
+          districtId: 'district-1',
+          optionIds: [democrats.id],
+        },
+      })
+    ).toThrow('Straight party contests are not supported');
+    expect(() =>
+      store.electionDefinition.updateContest({
+        electionId,
+        updatedContest: council,
+      })
+    ).toThrow('Contest not found');
+    expect(() =>
+      store.electionDefinition.updateContest({
+        electionId: 'other',
+        updatedContest: mayor,
+      })
+    ).toThrow('Contest not found');
+    expect(() =>
+      store.electionDefinition.deleteContest({
+        electionId,
+        contestId: council.id,
+      })
+    ).toThrow('Contest not found');
+    expect(store.electionDefinition.listContests(electionId)).toEqual(before);
+  });
+
+  test('deleting a district deletes its contests', () => {
+    const store = setUpStore();
+    for (const contest of [mayor, council, measure]) {
+      store.electionDefinition
+        .createContest({ electionId, newContest: contest })
+        .unsafeUnwrap();
+    }
+
+    store.electionDefinition
+      .updateDistricts({ electionId, deletedDistrictIds: ['district-1'] })
+      .unsafeUnwrap();
+    expect(store.electionDefinition.listContests(electionId)).toEqual([
+      council,
+    ]);
+  });
+
+  test('deleting a party removes it from contests and candidates', () => {
+    const store = setUpStore();
+    for (const contest of [mayor, council]) {
+      store.electionDefinition
+        .createContest({ electionId, newContest: contest })
+        .unsafeUnwrap();
+    }
+
+    store.electionDefinition
+      .updateParties({ electionId, deletedPartyIds: [democrats.id] })
+      .unsafeUnwrap();
+    expect(store.electionDefinition.listContests(electionId)).toEqual([
+      {
+        ...mayor,
+        candidates: [
+          { ...mayor.candidates[0]!, partyIds: [republicans.id] },
+          mayor.candidates[1]!,
+        ],
+      },
+      {
+        ...council,
+        partyId: undefined,
+        candidates: [{ ...council.candidates[0]!, partyIds: undefined }],
+      },
+    ]);
+  });
+
+  test('deleting the election deletes its contests', () => {
+    const store = setUpStore();
+    store.electionDefinition
+      .createContest({ electionId, newContest: mayor })
+      .unsafeUnwrap();
+
+    store.electionDefinition.deleteInProgressElection();
+    expect(store.electionDefinition.listContests(electionId)).toEqual([]);
   });
 });
 

@@ -22,7 +22,12 @@ import { useAudioPanelRoutes } from './audio_panel_routes.js';
 import { useEditModeRoutes } from './edit_mode_routes.js';
 import { InputWithAudio } from './ballot_audio/input_with_audio.js';
 import { useElectionDefinitionApi } from './election_definition_context.js';
-import { FormBody, FormFixed, FormFooter } from './form_fixed.js';
+import {
+  FormBody,
+  FormErrorContainer,
+  FormFixed,
+  FormFooter,
+} from './form_fixed.js';
 import { FixedViewport, ListActionsRow } from './layout.js';
 import { Tooltip, TooltipContainer } from './tooltip.js';
 
@@ -77,6 +82,14 @@ const PartyList = styled.div`
     padding: 0.6rem 0.75rem;
   }
 `;
+
+const ERROR_MESSAGE: Record<DuplicatePartyError['code'], string> = {
+  'duplicate-abbrev': 'There is already a party with the same abbreviation.',
+  'duplicate-full-name': 'There is already a party with the same full name.',
+  'duplicate-name': 'There is already a party with the same short name.',
+  'duplicate-contest':
+    'Deleting this party would make two contests the same. Change one of the contests before deleting the party.',
+};
 
 export function PartiesEditor(props: PartiesEditorProps): JSX.Element | null {
   const { electionId, isLocked, AudioPanel } = props;
@@ -252,6 +265,14 @@ export function PartiesEditor(props: PartiesEditorProps): JSX.Element | null {
             )}
           </FormBody>
 
+          <FormErrorContainer>
+            {error?.code === 'duplicate-contest' && (
+              <Callout icon="Danger" color="danger">
+                {ERROR_MESSAGE[error.code]}
+              </Callout>
+            )}
+          </FormErrorContainer>
+
           {!isLocked && !hasExternalSource && (
             <FormFooter>
               {editing ? (
@@ -291,12 +312,6 @@ export function PartiesEditor(props: PartiesEditorProps): JSX.Element | null {
     </Viewport>
   );
 }
-
-const ERROR_MESSAGE: Record<DuplicatePartyError['code'], string> = {
-  'duplicate-abbrev': 'There is already a party with the same abbreviation.',
-  'duplicate-full-name': 'There is already a party with the same full name.',
-  'duplicate-name': 'There is already a party with the same short name.',
-};
 
 function PartyRow(props: {
   audioScreenUrl: (

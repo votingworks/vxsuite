@@ -5,11 +5,7 @@ import type {
   UserFeaturesConfig,
   ResultsReportingPath,
 } from '@votingworks/hub-backend';
-import type {
-  ElectionId,
-  ElectionStringKey,
-  SystemSettings,
-} from '@votingworks/types';
+import type { ElectionId, SystemSettings } from '@votingworks/types';
 import type { Route } from '@votingworks/ui';
 
 export const resultsRoutes = {
@@ -72,20 +68,6 @@ export const routes = {
           title: 'Contests',
           path: `${root}/contests`,
         },
-        add: {
-          title: 'Add Contest',
-          path: `${root}/contests/add`,
-        },
-        audio: (p: {
-          contestId: ':contestId' | (string & {});
-          stringKey: ':stringKey' | ElectionStringKey;
-          subkey: ':subkey' | (string & {});
-        }) =>
-          `${root}/contests/${p.contestId}/audio/${p.stringKey}/${p.subkey}`,
-        edit: (contestId: string) => ({
-          title: 'Edit Contest',
-          path: `${root}/contests/${contestId}/edit`,
-        }),
         view: (contestId: string) => ({
           title: 'Edit Contest',
           path: `${root}/contests/${contestId}`,

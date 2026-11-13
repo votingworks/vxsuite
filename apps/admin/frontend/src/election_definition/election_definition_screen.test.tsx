@@ -13,6 +13,7 @@ import {
   mockSystemAdministratorUser,
 } from '@votingworks/test-utils';
 import {
+  type CandidateContest,
   type DippedSmartCardAuth,
   type District,
   type Party,
@@ -427,6 +428,92 @@ test('the Parties tab edits the election parties', async () => {
     routerPaths.electionDefinitionParties(electionId)
   );
   screen.getByDisplayValue(editedParty.abbrev);
+});
+
+test('the Contests tab edits the election contests', async () => {
+  const district: District = { id: 'district-1', name: 'District 1' };
+  const contest: CandidateContest = {
+    id: 'contest-1',
+    type: 'candidate',
+    title: 'Mayor',
+    districtId: district.id,
+    seats: 1,
+    allowWriteIns: true,
+    candidates: [
+      {
+        id: 'candidate-1',
+        firstName: 'Ada',
+        lastName: 'Lovelace',
+        name: 'Ada Lovelace',
+      },
+    ],
+  };
+  const editedContest: CandidateContest = { ...contest, title: 'Governor' };
+  expectCurrentInProgressElection(generalElectionInfo);
+  expectElectionInfoQueries(generalElectionInfo);
+  const history = renderScreen(routerPaths.electionDefinitionInfo(electionId));
+  await screen.findButton('Edit');
+
+  apiMock.electionDefinitionApiClient.listContests
+    .expectCallWith({ electionId })
+    .resolves([contest]);
+  apiMock.electionDefinitionApiClient.listDistricts
+    .expectCallWith({ electionId })
+    .resolves([district]);
+  apiMock.electionDefinitionApiClient.listParties
+    .expectCallWith({ electionId })
+    .resolves([]);
+  await userEvent.click(screen.getByRole('tab', { name: 'Contests' }));
+  await screen.findByRole('heading', { name: 'Contest Info' });
+  screen.getByRole('tab', { name: 'Contests', selected: true });
+  expect(history.location.pathname).toEqual(
+    `${routerPaths.electionDefinitionContests(electionId)}/${contest.id}`
+  );
+
+  await userEvent.click(screen.getButton('Edit'));
+  await screen.findByRole('heading', { name: 'Edit Contest' });
+  screen.getByRole('tab', { name: 'Contests', selected: true });
+  const titleInput = screen.getByLabelText('Title');
+  await userEvent.clear(titleInput);
+  await userEvent.type(titleInput, editedContest.title);
+
+  apiMock.electionDefinitionApiClient.updateContest
+    .expectCallWith({
+      electionId,
+      updatedContest: {
+        ...editedContest,
+        candidates: [
+          {
+            ...contest.candidates[0]!,
+            middleName: undefined,
+            designation: undefined,
+            partyIds: undefined,
+          },
+        ],
+      },
+    })
+    .resolves(ok());
+  expectCurrentInProgressElection(generalElectionInfo);
+  apiMock.electionDefinitionApiClient.getElectionInfo
+    .expectCallWith({ electionId })
+    .resolves(generalElectionInfo);
+  apiMock.electionDefinitionApiClient.listContests
+    .expectCallWith({ electionId })
+    .resolves([editedContest]);
+  apiMock.electionDefinitionApiClient.listDistricts
+    .expectCallWith({ electionId })
+    .resolves([district]);
+  apiMock.electionDefinitionApiClient.listParties
+    .expectCallWith({ electionId })
+    .resolves([]);
+  await userEvent.click(screen.getButton('Save'));
+
+  await screen.findByRole('heading', { name: 'Contest Info' });
+  expect(history.location.pathname).toEqual(
+    `${routerPaths.electionDefinitionContests(electionId)}/${contest.id}`
+  );
+  expect(screen.getByLabelText('Title')).toHaveValue(editedContest.title);
+  expect(screen.queryButton(/preview or edit audio/i)).not.toBeInTheDocument();
 });
 
 test('an election definition in progress is shown on the Election screen', async () => {

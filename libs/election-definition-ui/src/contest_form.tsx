@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { useHistory } from 'react-router-dom';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import type { z } from 'zod/v4';
 
 import {
@@ -36,35 +35,25 @@ import {
   Table,
 } from '@votingworks/ui';
 
+import { generateId } from '@votingworks/election-definition-backend';
+
+import { AudioLinkButton } from './ballot_audio/audio_link_button.js';
+import { InputWithAudio } from './ballot_audio/input_with_audio.js';
+import { RichTextEditorWithAudio } from './ballot_audio/rich_text_editor_with_audio.js';
+import { useElectionDefinitionApi } from './election_definition_context.js';
 import {
-  TooltipContainer,
-  Tooltip,
-  InputGroup,
-  Row,
-  FieldName,
+  cssFormViewMode,
   FormBody,
   FormErrorContainer,
+  FormFixed,
   FormFooter,
-  InputWithAudio,
-  AudioLinkButton,
   FormTitle,
-  Column,
-  replaceAtIndex,
-} from '@votingworks/election-definition-ui';
-import {
-  getBallotsFinalizedAt,
-  getElectionInfo,
-  listDistricts,
-  listParties,
-  createContest,
-  updateContest,
-  deleteContest,
-  getStateFeatures,
-} from './api.js';
-import { FormFixed } from './form_fixed.js';
-import { routes } from './routes.js';
-import { generateId } from './utils.js';
-import { RichTextEditorWithAudio } from './ballot_audio/rich_text_editor_with_audio.js';
+} from './form_fixed.js';
+import { Column, FieldName, InputGroup, Row } from './layout.js';
+import type { ListDetailAudioParams } from './list_detail_routes.js';
+import { Tooltip, TooltipContainer } from './tooltip.js';
+import { StyledRichTextEditor } from './rich_text_editor.js';
+import { replaceAtIndex } from './utils.js';
 
 const Form = styled(FormFixed)`
   .search-select,
@@ -80,6 +69,14 @@ const Form = styled(FormFixed)`
       ${(p) => p.theme.colors.outline};
     padding: 0.6rem 0.75rem;
   }
+
+  ${(p) =>
+    !p.editing &&
+    css`
+      ${StyledRichTextEditor} {
+        ${cssFormViewMode}
+      }
+    `}
 `;
 
 const InputRow = styled.div`
@@ -125,14 +122,29 @@ const CandidateInputTable = styled(Table)`
 `;
 
 export interface ContestFormProps {
+  audioUrl?: (params: ListDetailAudioParams) => string;
   editing: boolean;
   electionId: ElectionId;
+  exit: () => void;
+  isLocked?: boolean;
   savedContest?: Contest;
+  switchToEdit: (contestId: ContestId) => void;
+  switchToView: (contestId: ContestId) => void;
   title: React.ReactNode;
 }
 
 export function ContestForm(props: ContestFormProps): React.ReactNode {
-  const { editing, electionId, savedContest, title } = props;
+  const {
+    audioUrl,
+    editing,
+    electionId,
+    exit,
+    isLocked,
+    savedContest,
+    switchToEdit,
+    switchToView,
+    title,
+  } = props;
   const [contest, setContest] = useState<DraftContest>(
     savedContest
       ? draftContestFromContest(savedContest)
@@ -140,26 +152,22 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
         // so it will only be called on initial render.
         createBlankCandidateContest
   );
-  const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
-  const getElectionInfoQuery = getElectionInfo.useQuery(electionId);
-  const listDistrictsQuery = listDistricts.useQuery(electionId);
-  const listPartiesQuery = listParties.useQuery(electionId);
-  const getStateFeaturesQuery = getStateFeatures.useQuery(electionId);
-  const createContestMutation = createContest.useMutation();
-  const updateContestMutation = updateContest.useMutation();
-  const deleteContestMutation = deleteContest.useMutation();
-  const history = useHistory();
-  const contestRoutes = routes.election(electionId).contests;
+  const api = useElectionDefinitionApi();
+  const getElectionInfoQuery = api.getElectionInfo.useQuery(electionId);
+  const listDistrictsQuery = api.listDistricts.useQuery(electionId);
+  const listPartiesQuery = api.listParties.useQuery(electionId);
+  const getStateFeaturesQuery = api.getStateFeatures.useQuery(electionId);
+  const createContestMutation = api.createContest.useMutation();
+  const updateContestMutation = api.updateContest.useMutation();
+  const deleteContestMutation = api.deleteContest.useMutation();
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
   const [validationErrorMessage, setValidationErrorMessage] = useState<
     string | null
   >(null);
 
-  // @coverage-exclude
   if (
     !getElectionInfoQuery.isSuccess ||
     !listDistrictsQuery.isSuccess ||
-    !getBallotsFinalizedAtQuery.isSuccess ||
     !listPartiesQuery.isSuccess ||
     !getStateFeaturesQuery.isSuccess
   ) {
@@ -168,23 +176,18 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
   const electionInfo = getElectionInfoQuery.data;
   const districts = listDistrictsQuery.data;
   const parties = listPartiesQuery.data;
-  const isFinalized = !!getBallotsFinalizedAtQuery.data;
   const hasExternalSource = Boolean(electionInfo.externalSource);
   const features = getStateFeaturesQuery.data;
 
-  function goBackToContestsList() {
-    history.replace(contestRoutes.root.path);
-  }
-
-  function setEditing(switchToEdit: boolean) {
+  function setEditing(shouldEdit: boolean) {
     // @coverage-defer
-    if (!savedContest) return goBackToContestsList();
+    if (!savedContest) return exit();
 
-    history.replace(
-      switchToEdit
-        ? contestRoutes.edit(savedContest.id).path
-        : contestRoutes.view(savedContest.id).path
-    );
+    if (shouldEdit) {
+      switchToEdit(savedContest.id);
+    } else {
+      switchToView(savedContest.id);
+    }
   }
 
   function onSubmit() {
@@ -218,7 +221,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
           onSuccess: (result) => {
             // @coverage-defer
             if (result.isOk()) {
-              history.replace(contestRoutes.view(formContest.id).path);
+              switchToView(formContest.id);
             }
           },
         }
@@ -229,7 +232,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
   function onDelete() {
     deleteContestMutation.mutate(
       { electionId, contestId: contest.id },
-      { onSuccess: goBackToContestsList }
+      { onSuccess: exit }
     );
   }
 
@@ -340,8 +343,8 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
 
         <InputGroup label="Title">
           <InputWithAudio
-            audioScreenUrl={contestRoutes.audio({
-              contestId: contest.id,
+            audioScreenUrl={audioUrl?.({
+              id: contest.id,
               stringKey: ElectionStringKey.CONTEST_TITLE,
               subkey: contest.id,
             })}
@@ -360,6 +363,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
         <InputGroup label="District">
           <SearchSelect
             aria-label="District"
+            menuPortalTarget={document.body}
             disabled={disabled || hasExternalSource}
             value={contest.districtId || undefined}
             onChange={(value) => {
@@ -429,6 +433,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
               <InputGroup label="Party">
                 <SearchSelect
                   aria-label="Party"
+                  menuPortalTarget={document.body}
                   disabled={disabled || hasExternalSource}
                   options={[
                     { value: '', label: 'No Party Affiliation' },
@@ -468,8 +473,8 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
               </InputGroup>
               <InputGroup label="Term">
                 <InputWithAudio
-                  audioScreenUrl={contestRoutes.audio({
-                    contestId: contest.id,
+                  audioScreenUrl={audioUrl?.({
+                    id: contest.id,
                     stringKey: ElectionStringKey.CONTEST_TERM,
                     subkey: contest.id,
                   })}
@@ -596,6 +601,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
                         <TD>
                           <SearchSelect
                             aria-label={`Candidate ${index + 1} Party`}
+                            menuPortalTarget={document.body}
                             disabled={disabled || hasExternalSource}
                             options={[
                               {
@@ -691,24 +697,26 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
                               </Tooltip>
                             </TooltipContainer>
                           ) : (
-                            <AudioLinkButton
-                              aria-label={`Preview or Edit Audio: ${joinCandidateName(
-                                candidate
-                              )}`}
-                              buttonClassName="icon-button"
-                              to={contestRoutes.audio({
-                                contestId: contest.id,
-                                stringKey: ElectionStringKey.CANDIDATE_NAME,
-                                subkey: candidate.id,
-                              })}
-                              tooltip={
-                                <React.Fragment>
-                                  Preview/Edit Audio
-                                  <br />
-                                  {joinCandidateName(candidate)}
-                                </React.Fragment>
-                              }
-                            />
+                            audioUrl && (
+                              <AudioLinkButton
+                                aria-label={`Preview or Edit Audio: ${joinCandidateName(
+                                  candidate
+                                )}`}
+                                buttonClassName="icon-button"
+                                to={audioUrl({
+                                  id: contest.id,
+                                  stringKey: ElectionStringKey.CANDIDATE_NAME,
+                                  subkey: candidate.id,
+                                })}
+                                tooltip={
+                                  <React.Fragment>
+                                    Preview/Edit Audio
+                                    <br />
+                                    {joinCandidateName(candidate)}
+                                  </React.Fragment>
+                                }
+                              />
+                            )
                           )}
                         </TD>
                       </tr>
@@ -747,8 +755,8 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
               <RichTextEditorWithAudio
                 // Reset editor to saved content after canceling
                 key={`description-${editing}`}
-                audioScreenUrl={contestRoutes.audio({
-                  contestId: contest.id,
+                audioScreenUrl={audioUrl?.({
+                  id: contest.id,
                   stringKey: ElectionStringKey.CONTEST_DESCRIPTION,
                   subkey: contest.id,
                 })}
@@ -765,8 +773,8 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
               <FieldName>Options</FieldName>
               <Column style={{ gap: '0.5rem' }}>
                 <InputWithAudio
-                  audioScreenUrl={contestRoutes.audio({
-                    contestId: contest.id,
+                  audioScreenUrl={audioUrl?.({
+                    id: contest.id,
                     stringKey: ElectionStringKey.CONTEST_OPTION_LABEL,
                     subkey: contest.yesOption.id,
                   })}
@@ -786,8 +794,8 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
                   autoComplete="off"
                 />
                 <InputWithAudio
-                  audioScreenUrl={contestRoutes.audio({
-                    contestId: contest.id,
+                  audioScreenUrl={audioUrl?.({
+                    id: contest.id,
                     stringKey: ElectionStringKey.CONTEST_OPTION_LABEL,
                     subkey: contest.noOption.id,
                   })}
@@ -902,7 +910,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
 
       <FormErrorContainer>{errorMessage}</FormErrorContainer>
 
-      {!isFinalized && contest.type !== 'straight-party' && (
+      {!isLocked && contest.type !== 'straight-party' && (
         <FormFooter style={{ justifyContent: 'space-between' }}>
           <PrimaryFormActions disabled={disabled} editing={editing} />
 

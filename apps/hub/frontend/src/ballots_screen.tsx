@@ -30,10 +30,8 @@ import {
   getBallotTemplate,
   updateBallotLayoutSettings,
   listBallotStyles,
-  listPrecincts,
   getElectionInfo,
-  listParties,
-  getStateFeatures,
+  electionDefinitionApi,
 } from './api.js';
 import { Form, FormActionsRow, NestedTr } from './layout.js';
 import { ElectionNavScreen, Header } from './nav_screen.js';
@@ -65,7 +63,8 @@ function BallotDesignForm({
 
   const updateBallotLayoutSettingsMutation =
     updateBallotLayoutSettings.useMutation();
-  const getStateFeaturesQuery = getStateFeatures.useQuery(electionId);
+  const getStateFeaturesQuery =
+    electionDefinitionApi.getStateFeatures.useQuery(electionId);
 
   // @coverage-exclude
   if (!getStateFeaturesQuery.isSuccess) {
@@ -186,9 +185,11 @@ const BallotStylesTable = styled(Table)`
 function BallotStylesTab(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
   const getElectionInfoQuery = getElectionInfo.useQuery(electionId);
-  const listPrecinctsQuery = listPrecincts.useQuery(electionId);
+  const listPrecinctsQuery =
+    electionDefinitionApi.listPrecincts.useQuery(electionId);
   const listBallotStylesQuery = listBallotStyles.useQuery(electionId);
-  const listPartiesQuery = listParties.useQuery(electionId);
+  const listPartiesQuery =
+    electionDefinitionApi.listParties.useQuery(electionId);
   const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
 
   if (
