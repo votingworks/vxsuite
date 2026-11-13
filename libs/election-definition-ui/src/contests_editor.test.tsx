@@ -8,12 +8,12 @@ import {
   BallotStyleIdSchema,
   type Candidate,
   type CandidateContest,
-  DEFAULT_SYSTEM_SETTINGS,
   DistrictIdSchema,
   type Election,
   type ElectionId,
   ElectionStringKey,
   HmpbBallotPaperSize,
+  LanguageCode,
   PartyIdSchema,
   PrecinctIdSchema,
   type StraightPartyContest,
@@ -28,21 +28,16 @@ import {
   find,
   ok,
 } from '@votingworks/basics';
-import type { StateFeaturesConfig } from '@votingworks/hub-backend';
+import type {
+  ElectionInfo,
+  StateFeaturesConfig,
+} from '@votingworks/election-definition-backend';
+import { readElectionGeneral } from '@votingworks/fixtures';
 import {
   type MockApiClient,
   createMockApiClient,
-  mockUserFeatures,
-  jurisdiction,
   provideApi,
-  user,
-  mockStateFeatures,
 } from '../test/api_helpers.js';
-import {
-  electionInfoFromElection,
-  generalElectionRecord,
-  makeElectionRecord,
-} from '../test/fixtures.js';
 import {
   act,
   fireEvent,
@@ -52,22 +47,21 @@ import {
   within,
 } from '../test/react_testing_library.js';
 import { withRoute } from '../test/routing_helpers.js';
-import { ContestsScreen } from './contests_screen.js';
-import { routes } from './routes.js';
+import { ContestsEditor, type ContestsEditorProps } from './contests_editor.js';
 import {
   ContestList,
   type ContestListProps,
   type ReorderParams,
 } from './contest_list.js';
-import { ContestAudioPanel } from './contest_audio_panel.js';
 
 vi.mock('./contest_list.js');
 const MockContestList = vi.mocked(ContestList);
 const MOCK_CONTEST_LIST_ID = 'MockContestList';
 
-vi.mock('./contest_audio_panel.js');
-const MockContestAudioPanel = vi.mocked(ContestAudioPanel);
 const MOCK_AUDIO_PANEL_ID = 'MockContestAudioPanel';
+function MockAudioPanel(): JSX.Element {
+  return <div data-testid={MOCK_AUDIO_PANEL_ID} />;
+}
 
 let apiMock: MockApiClient;
 
@@ -76,123 +70,186 @@ const idFactory = makeIdFactory();
 beforeEach(() => {
   apiMock = createMockApiClient();
   idFactory.reset();
-  apiMock.getUser.expectCallWith().resolves(user);
-  mockUserFeatures(apiMock);
 
   MockContestList.mockReturnValue(<div data-testid={MOCK_CONTEST_LIST_ID} />);
-
-  MockContestAudioPanel.mockReturnValue(
-    <div data-testid={MOCK_AUDIO_PANEL_ID} />
-  );
 });
 
 afterEach(() => {
   apiMock.assertComplete();
 });
 
-function renderScreen(electionId: ElectionId, features?: StateFeaturesConfig) {
-  const { path } = routes.election(electionId).contests.root;
-  const history = createMemoryHistory({ initialEntries: [path] });
-  mockStateFeatures(apiMock, electionId, features);
+function rootPath(electionId: ElectionId): string {
+  return `/elections/${electionId}/contests`;
+}
+
+function viewPath(electionId: ElectionId, contestId: string): string {
+  return `${rootPath(electionId)}/${contestId}`;
+}
+
+function editPath(electionId: ElectionId, contestId: string): string {
+  return `${viewPath(electionId, contestId)}/edit`;
+}
+
+function audioPath(
+  electionId: ElectionId,
+  p: { contestId: string; stringKey: ElectionStringKey; subkey: string }
+): string {
+  return `${viewPath(electionId, p.contestId)}/audio/${p.stringKey}/${p.subkey}`;
+}
+
+function renderScreen(
+  electionId: ElectionId,
+  features?: StateFeaturesConfig,
+  props: Partial<ContestsEditorProps> = {}
+) {
+  const history = createMemoryHistory({
+    initialEntries: [rootPath(electionId)],
+  });
+  apiMock.getStateFeatures
+    .expectRepeatedCallsWith({ electionId })
+    .resolves(features ?? {});
   render(
     provideApi(
       apiMock,
-      withRoute(<ContestsScreen />, {
-        paramPath: routes.election(':electionId').contests.root.path,
-        path,
-        history,
-      })
+      withRoute(
+        <ContestsEditor
+          electionId={electionId}
+          AudioPanel={MockAudioPanel}
+          {...props}
+        />,
+        { paramPath: '/elections/:electionId/contests', history }
+      )
     )
   );
   return history;
 }
 
-const electionWithNoContestsRecord = makeElectionRecord(
-  {
-    id: generalElectionRecord(jurisdiction.id).election.id,
-    title: 'Test General Election',
-    type: 'general',
-    date: DateWithoutTime.today(),
-    state: 'CA',
-    jurisdiction: { id: 'test-county', name: 'Test County' },
-    districts: [
-      {
-        id: unsafeParse(DistrictIdSchema, 'test-district-1'),
-        name: 'Test District 1',
-      },
-      {
-        id: unsafeParse(DistrictIdSchema, 'test-district-2'),
-        name: 'Test District 2',
-      },
-    ],
-    precincts: [
-      {
-        id: 'test-precinct-1',
-        name: 'Test Precinct 1',
-        districtIds: [unsafeParse(DistrictIdSchema, 'test-district-1')],
-      },
-      {
-        id: 'test-precinct-2',
-        name: 'Test Precinct 2',
-        districtIds: [],
-      },
-    ],
-    pollingPlaces: [
-      {
-        id: 'test-polling-place-1',
-        name: 'Test Polling Place 1',
-        precincts: { 'test-precinct-1': { type: 'whole' } },
-        type: 'election_day',
-      },
-      {
-        id: 'test-polling-place-2',
-        name: 'Test Polling Place 2',
-        precincts: { 'test-precinct-2': { type: 'whole' } },
-        type: 'election_day',
-      },
-    ],
-    ballotStyles: [
-      {
-        id: unsafeParse(BallotStyleIdSchema, 'test-ballot-style-1'),
-        groupId: unsafeParse(BallotStyleGroupIdSchema, 'test-ballot-group-1'),
-        districts: [unsafeParse(DistrictIdSchema, 'test-district-1')],
-        precincts: [unsafeParse(PrecinctIdSchema, 'test-precinct-1')],
-        partyId: unsafeParse(PartyIdSchema, 'test-party-1'),
-        languages: ['en'],
-      },
-      {
-        id: unsafeParse(BallotStyleIdSchema, 'test-ballot-style-2'),
-        groupId: unsafeParse(BallotStyleGroupIdSchema, 'test-ballot-group-2'),
-        districts: [unsafeParse(DistrictIdSchema, 'test-district-1')],
-        precincts: [unsafeParse(PrecinctIdSchema, 'test-precinct-1')],
-        partyId: unsafeParse(PartyIdSchema, 'test-party-2'),
-        languages: ['en'],
-      },
-    ],
-    contests: [],
-    ballotLayout: {
-      metadataEncoding: 'qr-code',
-      paperSize: HmpbBallotPaperSize.Letter,
+function splitCandidateName(candidate: Candidate): Candidate {
+  const [firstPart, ...middleParts] = candidate.name.split(' ');
+  return {
+    ...candidate,
+    firstName: firstPart || undefined,
+    lastName: middleParts.pop() || undefined,
+    middleName: middleParts.join(' ') || undefined,
+  };
+}
+
+function makeElectionRecord(election: Election): { election: Election } {
+  return {
+    election: {
+      ...election,
+      contests: election.contests.map((contest) =>
+        contest.type === 'candidate'
+          ? {
+              ...contest,
+              candidates: contest.candidates.map(splitCandidateName),
+            }
+          : contest
+      ),
     },
-    ballotStrings: {},
-    parties: [
-      {
-        id: unsafeParse(PartyIdSchema, 'test-party-1'),
-        name: 'Party 1',
-        fullName: 'Test Party 1',
-        abbrev: 'TP1',
-      },
-      {
-        id: unsafeParse(PartyIdSchema, 'test-party-2'),
-        name: 'Party 2',
-        fullName: 'Test Party 2',
-        abbrev: 'TP2',
-      },
-    ],
-    seal: '',
+  };
+}
+
+function generalElectionRecord(): { election: Election } {
+  return makeElectionRecord(readElectionGeneral());
+}
+
+function electionInfoFromElection(election: Election): ElectionInfo {
+  return {
+    electionId: election.id,
+    title: election.title,
+    date: election.date,
+    type: election.type,
+    state: election.state,
+    jurisdictionName: election.jurisdiction.name,
+    seal: election.seal,
+    languageCodes: [LanguageCode.ENGLISH],
+  };
+}
+
+const electionWithNoContestsRecord = makeElectionRecord({
+  id: generalElectionRecord().election.id,
+  title: 'Test General Election',
+  type: 'general',
+  date: DateWithoutTime.today(),
+  state: 'CA',
+  jurisdiction: { id: 'test-county', name: 'Test County' },
+  districts: [
+    {
+      id: unsafeParse(DistrictIdSchema, 'test-district-1'),
+      name: 'Test District 1',
+    },
+    {
+      id: unsafeParse(DistrictIdSchema, 'test-district-2'),
+      name: 'Test District 2',
+    },
+  ],
+  precincts: [
+    {
+      id: 'test-precinct-1',
+      name: 'Test Precinct 1',
+      districtIds: [unsafeParse(DistrictIdSchema, 'test-district-1')],
+    },
+    {
+      id: 'test-precinct-2',
+      name: 'Test Precinct 2',
+      districtIds: [],
+    },
+  ],
+  pollingPlaces: [
+    {
+      id: 'test-polling-place-1',
+      name: 'Test Polling Place 1',
+      precincts: { 'test-precinct-1': { type: 'whole' } },
+      type: 'election_day',
+    },
+    {
+      id: 'test-polling-place-2',
+      name: 'Test Polling Place 2',
+      precincts: { 'test-precinct-2': { type: 'whole' } },
+      type: 'election_day',
+    },
+  ],
+  ballotStyles: [
+    {
+      id: unsafeParse(BallotStyleIdSchema, 'test-ballot-style-1'),
+      groupId: unsafeParse(BallotStyleGroupIdSchema, 'test-ballot-group-1'),
+      districts: [unsafeParse(DistrictIdSchema, 'test-district-1')],
+      precincts: [unsafeParse(PrecinctIdSchema, 'test-precinct-1')],
+      partyId: unsafeParse(PartyIdSchema, 'test-party-1'),
+      languages: ['en'],
+    },
+    {
+      id: unsafeParse(BallotStyleIdSchema, 'test-ballot-style-2'),
+      groupId: unsafeParse(BallotStyleGroupIdSchema, 'test-ballot-group-2'),
+      districts: [unsafeParse(DistrictIdSchema, 'test-district-1')],
+      precincts: [unsafeParse(PrecinctIdSchema, 'test-precinct-1')],
+      partyId: unsafeParse(PartyIdSchema, 'test-party-2'),
+      languages: ['en'],
+    },
+  ],
+  contests: [],
+  ballotLayout: {
+    metadataEncoding: 'qr-code',
+    paperSize: HmpbBallotPaperSize.Letter,
   },
-  jurisdiction.id
-);
+  ballotStrings: {},
+  parties: [
+    {
+      id: unsafeParse(PartyIdSchema, 'test-party-1'),
+      name: 'Party 1',
+      fullName: 'Test Party 1',
+      abbrev: 'TP1',
+    },
+    {
+      id: unsafeParse(PartyIdSchema, 'test-party-2'),
+      name: 'Party 2',
+      fullName: 'Test Party 2',
+      abbrev: 'TP2',
+    },
+  ],
+  seal: '',
+});
 
 const straightPartyContest: StraightPartyContest = {
   id: 'straight-party-contest',
@@ -239,9 +296,6 @@ function expectOtherElectionApiCalls(election: Election) {
   apiMock.getElectionInfo
     .expectCallWith({ electionId })
     .resolves(electionInfoFromElection(election));
-  apiMock.getSystemSettings
-    .expectOptionalRepeatedCallsWith({ electionId })
-    .resolves(DEFAULT_SYSTEM_SETTINGS);
   apiMock.listDistricts
     .expectCallWith({ electionId })
     .resolves(election.districts);
@@ -249,25 +303,28 @@ function expectOtherElectionApiCalls(election: Election) {
 }
 
 test('auto-selects first available contest, if any', async () => {
-  const { election } = generalElectionRecord(jurisdiction.id);
+  const { election } = generalElectionRecord();
   const { contests } = election;
   const electionId = election.id;
 
   apiMock.listContests.expectCallWith({ electionId }).resolves(contests);
-  apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
   expectOtherElectionApiCalls(election);
 
   const history = renderScreen(electionId);
   await expectViewModeContest(history, electionId, contests[0]!);
+  expectContestListProps({ selectedId: contests[0]!.id });
+
+  act(() => MockContestList.mock.lastCall![0].onSelect(contests[1]!.id));
+  await expectViewModeContest(history, electionId, contests[1]!);
+  expectContestListProps({ selectedId: contests[1]!.id });
 });
 
 test('renders contest list on all sub-views', async () => {
-  const { election } = generalElectionRecord(jurisdiction.id);
+  const { election } = generalElectionRecord();
   const { contests } = election;
   const electionId = election.id;
 
   apiMock.listContests.expectCallWith({ electionId }).resolves(contests);
-  apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
   expectOtherElectionApiCalls(election);
 
   const history = renderScreen(electionId);
@@ -292,7 +349,6 @@ test('displays read-only straight party contest', async () => {
   apiMock.listContests
     .expectCallWith({ electionId })
     .resolves(election.contests);
-  apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
   expectOtherElectionApiCalls(election);
 
   const history = renderScreen(electionId);
@@ -366,12 +422,12 @@ test('adding a candidate contest (general election)', async () => {
 
   apiMock.listContests.expectCallWith({ electionId }).resolves([]);
   expectOtherElectionApiCalls(election);
-  apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
 
   const history = renderScreen(electionId);
 
-  await screen.findByRole('heading', { name: 'Contests' });
-  screen.getByText("You haven't added any contests to this election yet.");
+  await screen.findByText(
+    "You haven't added any contests to this election yet."
+  );
 
   // Add contest
   await userEvent.click(screen.getByRole('button', { name: 'Add Contest' }));
@@ -461,128 +517,125 @@ test('adding a candidate contest (general election)', async () => {
 });
 
 test('editing a candidate contest (primary election)', async () => {
-  const electionRecord = makeElectionRecord(
-    {
-      id: electionWithNoContestsRecord.election.id,
-      title: 'Test Primary Election',
-      type: 'primary',
-      date: DateWithoutTime.today(),
-      state: 'CA',
-      jurisdiction: { id: 'test-county', name: 'Test County' },
-      districts: [
-        {
-          id: unsafeParse(DistrictIdSchema, 'test-district-1'),
-          name: 'Test District 1',
-        },
-        {
-          id: unsafeParse(DistrictIdSchema, 'test-district-2'),
-          name: 'Test District 2',
-        },
-      ],
-      precincts: [
-        {
-          id: 'test-precinct-1',
-          name: 'Test Precinct 1',
-          districtIds: [unsafeParse(DistrictIdSchema, 'test-district-1')],
-        },
-        {
-          id: 'test-precinct-2',
-          name: 'Test Precinct 2',
-          districtIds: [],
-        },
-      ],
-      pollingPlaces: [
-        {
-          id: 'test-polling-place-1',
-          name: 'Test Polling Place 1',
-          precincts: { 'test-precinct-1': { type: 'whole' } },
-          type: 'election_day',
-        },
-        {
-          id: 'test-polling-place-2',
-          name: 'Test Polling Place 2',
-          precincts: { 'test-precinct-2': { type: 'whole' } },
-          type: 'election_day',
-        },
-      ],
-      ballotStyles: [
-        {
-          id: unsafeParse(BallotStyleIdSchema, 'test-ballot-style-1'),
-          groupId: unsafeParse(BallotStyleGroupIdSchema, 'test-ballot-group-1'),
-          districts: [unsafeParse(DistrictIdSchema, 'test-district-1')],
-          precincts: [unsafeParse(PrecinctIdSchema, 'test-precinct-1')],
-          partyId: unsafeParse(PartyIdSchema, 'test-party-1'),
-          languages: ['en'],
-        },
-        {
-          id: unsafeParse(BallotStyleIdSchema, 'test-ballot-style-2'),
-          groupId: unsafeParse(BallotStyleGroupIdSchema, 'test-ballot-group-2'),
-          districts: [unsafeParse(DistrictIdSchema, 'test-district-1')],
-          precincts: [unsafeParse(PrecinctIdSchema, 'test-precinct-1')],
-          partyId: unsafeParse(PartyIdSchema, 'test-party-2'),
-          languages: ['en'],
-        },
-      ],
-      parties: [
-        {
-          id: unsafeParse(PartyIdSchema, 'test-party-1'),
-          name: 'Test Party 1',
-          fullName: 'Test Party 1',
-          abbrev: 'TP1',
-        },
-        {
-          id: unsafeParse(PartyIdSchema, 'test-party-2'),
-          name: 'Test Party 2',
-          fullName: 'Test Party 2',
-          abbrev: 'TP2',
-        },
-      ],
-      contests: [
-        {
-          id: 'test-contest-1',
-          type: 'candidate',
-          title: 'Test Contest 1',
-          districtId: unsafeParse(DistrictIdSchema, 'test-district-1'),
-          seats: 1,
-          partyId: unsafeParse(PartyIdSchema, 'test-party-1'),
-          allowWriteIns: false,
-          candidates: [
-            {
-              id: 'test-candidate-1',
-              name: 'Test Candidate 1',
-              firstName: 'Test',
-              middleName: 'Candidate',
-              lastName: '1',
-              partyIds: [unsafeParse(PartyIdSchema, 'test-party-1')],
-            },
-            {
-              id: 'test-candidate-2',
-              name: 'Test Candidate 2',
-              firstName: 'Test',
-              middleName: 'Candidate',
-              lastName: '2',
-              partyIds: [unsafeParse(PartyIdSchema, 'test-party-1')],
-            },
-            {
-              id: 'test-candidate-3',
-              name: 'Test Candidate 3',
-              firstName: 'Test',
-              middleName: 'Candidate',
-              lastName: '3',
-              partyIds: [unsafeParse(PartyIdSchema, 'test-party-1')],
-            },
-          ],
-        },
-      ],
-      seal: '',
-      ballotLayout: {
-        metadataEncoding: 'qr-code',
-        paperSize: HmpbBallotPaperSize.Letter,
+  const electionRecord = makeElectionRecord({
+    id: electionWithNoContestsRecord.election.id,
+    title: 'Test Primary Election',
+    type: 'primary',
+    date: DateWithoutTime.today(),
+    state: 'CA',
+    jurisdiction: { id: 'test-county', name: 'Test County' },
+    districts: [
+      {
+        id: unsafeParse(DistrictIdSchema, 'test-district-1'),
+        name: 'Test District 1',
       },
-      ballotStrings: {},
+      {
+        id: unsafeParse(DistrictIdSchema, 'test-district-2'),
+        name: 'Test District 2',
+      },
+    ],
+    precincts: [
+      {
+        id: 'test-precinct-1',
+        name: 'Test Precinct 1',
+        districtIds: [unsafeParse(DistrictIdSchema, 'test-district-1')],
+      },
+      {
+        id: 'test-precinct-2',
+        name: 'Test Precinct 2',
+        districtIds: [],
+      },
+    ],
+    pollingPlaces: [
+      {
+        id: 'test-polling-place-1',
+        name: 'Test Polling Place 1',
+        precincts: { 'test-precinct-1': { type: 'whole' } },
+        type: 'election_day',
+      },
+      {
+        id: 'test-polling-place-2',
+        name: 'Test Polling Place 2',
+        precincts: { 'test-precinct-2': { type: 'whole' } },
+        type: 'election_day',
+      },
+    ],
+    ballotStyles: [
+      {
+        id: unsafeParse(BallotStyleIdSchema, 'test-ballot-style-1'),
+        groupId: unsafeParse(BallotStyleGroupIdSchema, 'test-ballot-group-1'),
+        districts: [unsafeParse(DistrictIdSchema, 'test-district-1')],
+        precincts: [unsafeParse(PrecinctIdSchema, 'test-precinct-1')],
+        partyId: unsafeParse(PartyIdSchema, 'test-party-1'),
+        languages: ['en'],
+      },
+      {
+        id: unsafeParse(BallotStyleIdSchema, 'test-ballot-style-2'),
+        groupId: unsafeParse(BallotStyleGroupIdSchema, 'test-ballot-group-2'),
+        districts: [unsafeParse(DistrictIdSchema, 'test-district-1')],
+        precincts: [unsafeParse(PrecinctIdSchema, 'test-precinct-1')],
+        partyId: unsafeParse(PartyIdSchema, 'test-party-2'),
+        languages: ['en'],
+      },
+    ],
+    parties: [
+      {
+        id: unsafeParse(PartyIdSchema, 'test-party-1'),
+        name: 'Test Party 1',
+        fullName: 'Test Party 1',
+        abbrev: 'TP1',
+      },
+      {
+        id: unsafeParse(PartyIdSchema, 'test-party-2'),
+        name: 'Test Party 2',
+        fullName: 'Test Party 2',
+        abbrev: 'TP2',
+      },
+    ],
+    contests: [
+      {
+        id: 'test-contest-1',
+        type: 'candidate',
+        title: 'Test Contest 1',
+        districtId: unsafeParse(DistrictIdSchema, 'test-district-1'),
+        seats: 1,
+        partyId: unsafeParse(PartyIdSchema, 'test-party-1'),
+        allowWriteIns: false,
+        candidates: [
+          {
+            id: 'test-candidate-1',
+            name: 'Test Candidate 1',
+            firstName: 'Test',
+            middleName: 'Candidate',
+            lastName: '1',
+            partyIds: [unsafeParse(PartyIdSchema, 'test-party-1')],
+          },
+          {
+            id: 'test-candidate-2',
+            name: 'Test Candidate 2',
+            firstName: 'Test',
+            middleName: 'Candidate',
+            lastName: '2',
+            partyIds: [unsafeParse(PartyIdSchema, 'test-party-1')],
+          },
+          {
+            id: 'test-candidate-3',
+            name: 'Test Candidate 3',
+            firstName: 'Test',
+            middleName: 'Candidate',
+            lastName: '3',
+            partyIds: [unsafeParse(PartyIdSchema, 'test-party-1')],
+          },
+        ],
+      },
+    ],
+    seal: '',
+    ballotLayout: {
+      metadataEncoding: 'qr-code',
+      paperSize: HmpbBallotPaperSize.Letter,
     },
-    jurisdiction.id
-  );
+    ballotStrings: {},
+  });
   const { election } = electionRecord;
   const electionId = election.id;
   const savedContest = election.contests.find(
@@ -627,7 +680,6 @@ test('editing a candidate contest (primary election)', async () => {
     .expectCallWith({ electionId })
     .resolves(election.contests);
   expectOtherElectionApiCalls(election);
-  apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
 
   const history = renderScreen(electionId);
 
@@ -808,12 +860,12 @@ test.each(nameTestSpecs)(
 
     apiMock.listContests.expectCallWith({ electionId }).resolves([]);
     expectOtherElectionApiCalls(election);
-    apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
 
     const history = renderScreen(electionId);
 
-    await screen.findByRole('heading', { name: 'Contests' });
-    screen.getByText("You haven't added any contests to this election yet.");
+    await screen.findByText(
+      "You haven't added any contests to this election yet."
+    );
 
     // Add contest
     await userEvent.click(screen.getByRole('button', { name: 'Add Contest' }));
@@ -886,7 +938,7 @@ test.each(nameTestSpecs)(
 );
 
 test('editing a candidate designation is not shown when flag is off', async () => {
-  const electionRecord = generalElectionRecord(jurisdiction.id);
+  const electionRecord = generalElectionRecord();
   const { election } = electionRecord;
   const electionId = election.id;
 
@@ -894,7 +946,6 @@ test('editing a candidate designation is not shown when flag is off', async () =
     .expectCallWith({ electionId })
     .resolves(election.contests);
   expectOtherElectionApiCalls(election);
-  apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
 
   // Flag is off by default but this is more readable
   const history = renderScreen(electionId, { CANDIDATE_DESIGNATIONS: false });
@@ -911,7 +962,7 @@ test('editing a candidate designation is not shown when flag is off', async () =
 });
 
 test('editing a candidate designation', async () => {
-  const electionRecord = generalElectionRecord(jurisdiction.id);
+  const electionRecord = generalElectionRecord();
   const { election } = electionRecord;
   const electionId = election.id;
   const savedContest: CandidateContest = {
@@ -945,7 +996,6 @@ test('editing a candidate designation', async () => {
 
   apiMock.listContests.expectCallWith({ electionId }).resolves([savedContest]);
   expectOtherElectionApiCalls(election);
-  apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
 
   const history = renderScreen(electionId, { CANDIDATE_DESIGNATIONS: true });
   await navigateToContestEdit(history, electionId, savedContest.id);
@@ -980,7 +1030,7 @@ test('editing a candidate designation', async () => {
 });
 
 test('adding a ballot measure', async () => {
-  const electionRecord = generalElectionRecord(jurisdiction.id);
+  const electionRecord = generalElectionRecord();
   const { election } = electionRecord;
   const electionId = election.id;
   idFactory.next(); // Discarded by StrictMode's double render of the blank form
@@ -1008,7 +1058,6 @@ test('adding a ballot measure', async () => {
     .expectCallWith({ electionId })
     .resolves(election.contests);
   expectOtherElectionApiCalls(election);
-  apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
 
   const history = renderScreen(electionId);
 
@@ -1073,7 +1122,7 @@ test('adding a ballot measure', async () => {
 });
 
 test('editing a ballot measure', async () => {
-  const electionRecord = generalElectionRecord(jurisdiction.id);
+  const electionRecord = generalElectionRecord();
   const { election } = electionRecord;
   const electionId = election.id;
   const savedContest = election.contests.find(
@@ -1107,7 +1156,6 @@ test('editing a ballot measure', async () => {
     .expectCallWith({ electionId })
     .resolves(election.contests);
   expectOtherElectionApiCalls(election);
-  apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
 
   const history = renderScreen(electionId);
 
@@ -1176,7 +1224,7 @@ test('editing a ballot measure', async () => {
 });
 
 test('features.ADDITIONAL_BALLOT_MEASURE_OPTIONS enables adding/removing additional options', async () => {
-  const electionRecord = generalElectionRecord(jurisdiction.id);
+  const electionRecord = generalElectionRecord();
   const { election } = electionRecord;
   const electionId = election.id;
   const savedContest = election.contests.find(
@@ -1187,7 +1235,6 @@ test('features.ADDITIONAL_BALLOT_MEASURE_OPTIONS enables adding/removing additio
     .expectCallWith({ electionId })
     .resolves(election.contests);
   expectOtherElectionApiCalls(election);
-  apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
 
   const history = renderScreen(electionId, {
     ADDITIONAL_BALLOT_MEASURE_OPTIONS: true,
@@ -1279,7 +1326,7 @@ test('features.ADDITIONAL_BALLOT_MEASURE_OPTIONS enables adding/removing additio
 });
 
 test('reordering contests', async () => {
-  const electionRecord = generalElectionRecord(jurisdiction.id);
+  const electionRecord = generalElectionRecord();
   const { election } = electionRecord;
   const electionId = election.id;
 
@@ -1287,7 +1334,6 @@ test('reordering contests', async () => {
     .expectCallWith({ electionId })
     .resolves(election.contests);
   expectOtherElectionApiCalls(election);
-  apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
 
   let reorder: ((params: ReorderParams) => void) | undefined;
   MockContestList.mockImplementation((props) => {
@@ -1346,7 +1392,7 @@ test('reordering contests', async () => {
 });
 
 test('deleting a contest', async () => {
-  const electionRecord = generalElectionRecord(jurisdiction.id);
+  const electionRecord = generalElectionRecord();
   const { election } = electionRecord;
   const electionId = election.id;
   const [savedContest] = election.contests;
@@ -1355,12 +1401,9 @@ test('deleting a contest', async () => {
     .expectCallWith({ electionId })
     .resolves(election.contests);
   expectOtherElectionApiCalls(election);
-  apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
 
   const history = renderScreen(electionId);
-
-  const contestRoutes = routes.election(electionId).contests;
-  history.replace(contestRoutes.edit(savedContest!.id).path);
+  history.replace(editPath(electionId, savedContest!.id));
   await screen.findByRole('heading', { name: 'Edit Contest' });
 
   apiMock.deleteContest
@@ -1385,7 +1428,7 @@ test('deleting a contest', async () => {
 });
 
 test('editing contests is restricted for elections with external source', async () => {
-  const electionRecord = generalElectionRecord(jurisdiction.id);
+  const electionRecord = generalElectionRecord();
   const { election } = electionRecord;
   const electionId = election.id;
 
@@ -1399,7 +1442,6 @@ test('editing contests is restricted for elections with external source', async 
   apiMock.listContests
     .expectCallWith({ electionId })
     .resolves(election.contests);
-  apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
 
   // Override getElectionInfo to return an election with external source
   apiMock.getElectionInfo.expectRepeatedCallsWith({ electionId }).resolves({
@@ -1407,9 +1449,6 @@ test('editing contests is restricted for elections with external source', async 
     externalSource: 'ms-sems',
   });
 
-  apiMock.getSystemSettings
-    .expectOptionalRepeatedCallsWith({ electionId })
-    .resolves(DEFAULT_SYSTEM_SETTINGS);
   apiMock.listDistricts
     .expectCallWith({ electionId })
     .resolves(election.districts);
@@ -1497,32 +1536,23 @@ test('editing contests is restricted for elections with external source', async 
 });
 
 test('changing contests is disabled when ballots are finalized', async () => {
-  const electionRecord = generalElectionRecord(jurisdiction.id);
+  const electionRecord = generalElectionRecord();
   const { election } = electionRecord;
   const electionId = election.id;
-  // Mock needed for react-flip-toolkit
-  window.matchMedia = vi.fn().mockImplementation(() => ({
-    matches: false,
-  }));
 
   apiMock.listContests
     .expectCallWith({ electionId })
     .resolves(election.contests);
   expectOtherElectionApiCalls(election);
-  apiMock.getBallotsFinalizedAt
-    .expectCallWith({ electionId })
-    .resolves(new Date());
 
-  const history = renderScreen(electionId);
+  const history = renderScreen(electionId, undefined, { isLocked: true });
 
-  await screen.findByRole('heading', { name: 'Contests' });
+  await screen.findButton('Add Contest');
 
   expect(
     screen.getByRole('button', { name: 'Reorder Contests' })
   ).toBeDisabled();
   expect(screen.getByRole('button', { name: 'Add Contest' })).toBeDisabled();
-
-  const contestRoutes = routes.election(electionId).contests;
   const [, contest2, contest3] = election.contests;
 
   await navigateToContestView(history, electionId, contest2!.id);
@@ -1532,7 +1562,7 @@ test('changing contests is disabled when ballots are finalized', async () => {
   expect(screen.queryButton('Delete Contest')).not.toBeInTheDocument();
 
   // Accessing `/edit` route when finalized should redirect to "view" route:
-  history.replace(contestRoutes.edit(contest3!.id).path);
+  history.replace(editPath(electionId, contest3!.id));
   await waitFor(() => expectViewModeContest(history, electionId, contest3!));
   expect(screen.queryButton('Edit')).not.toBeInTheDocument();
   expect(screen.queryButton('Save')).not.toBeInTheDocument();
@@ -1541,7 +1571,7 @@ test('changing contests is disabled when ballots are finalized', async () => {
 });
 
 test('cancelling', async () => {
-  const electionRecord = generalElectionRecord(jurisdiction.id);
+  const electionRecord = generalElectionRecord();
   const { election } = electionRecord;
   const electionId = election.id;
 
@@ -1549,7 +1579,6 @@ test('cancelling', async () => {
     .expectCallWith({ electionId })
     .resolves(election.contests);
   expectOtherElectionApiCalls(election);
-  apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
 
   const history = renderScreen(electionId);
 
@@ -1586,19 +1615,16 @@ test('cancelling', async () => {
 
   // Cancel edit contest
   await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
-  expect(history.location.pathname).toEqual(
-    routes.election(electionId).contests.view(contest.id).path
-  );
+  expect(history.location.pathname).toEqual(viewPath(electionId, contest.id));
   expect(screen.getByLabelText('Title')).toHaveValue(contest.title);
   descriptionEditor = within(
     screen.getByText('Description').parentElement!
   ).getByTestId('rich-text-editor');
   within(descriptionEditor).getByText(contest.description);
-  await screen.findByRole('heading', { name: 'Contests' });
 });
 
 test('error messages for duplicate candidate contest/candidates', async () => {
-  const electionRecord = generalElectionRecord(jurisdiction.id);
+  const electionRecord = generalElectionRecord();
   const { election } = electionRecord;
   const electionId = election.id;
 
@@ -1606,7 +1632,6 @@ test('error messages for duplicate candidate contest/candidates', async () => {
     .expectCallWith({ electionId })
     .resolves(election.contests);
   expectOtherElectionApiCalls(election);
-  apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
 
   const history = renderScreen(electionId);
   await expectViewModeContest(history, electionId, election.contests[0]!);
@@ -1645,7 +1670,7 @@ test('error messages for duplicate candidate contest/candidates', async () => {
 });
 
 test('error messages for duplicate ballot measure', async () => {
-  const electionRecord = generalElectionRecord(jurisdiction.id);
+  const electionRecord = generalElectionRecord();
   const { election } = electionRecord;
   const electionId = election.id;
   const ballotMeasureContest = find(
@@ -1657,7 +1682,6 @@ test('error messages for duplicate ballot measure', async () => {
     .expectCallWith({ electionId })
     .resolves(election.contests);
   expectOtherElectionApiCalls(election);
-  apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
 
   const history = renderScreen(electionId);
   await expectViewModeContest(history, electionId, election.contests[0]!);
@@ -1689,7 +1713,7 @@ test('error messages for duplicate ballot measure', async () => {
 });
 
 test('error messages for candidate contest with no candidates and write-ins disallowed', async () => {
-  const electionRecord = generalElectionRecord(jurisdiction.id);
+  const electionRecord = generalElectionRecord();
   const { election } = electionRecord;
   const electionId = election.id;
   const candidateContest = find(
@@ -1701,7 +1725,6 @@ test('error messages for candidate contest with no candidates and write-ins disa
     .expectCallWith({ electionId })
     .resolves(election.contests);
   expectOtherElectionApiCalls(election);
-  apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
 
   const history = renderScreen(electionId);
   await expectViewModeContest(history, electionId, election.contests[0]!);
@@ -1727,7 +1750,7 @@ test('error messages for candidate contest with no candidates and write-ins disa
 });
 
 test('disables form and shows edit button when in "view" mode', async () => {
-  const electionRecord = generalElectionRecord(jurisdiction.id);
+  const electionRecord = generalElectionRecord();
   const { election } = electionRecord;
   const electionId = election.id;
   const [savedContest] = election.contests;
@@ -1736,8 +1759,6 @@ test('disables form and shows edit button when in "view" mode', async () => {
     .expectCallWith({ electionId })
     .resolves(election.contests);
   expectOtherElectionApiCalls(election);
-
-  apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
 
   const history = renderScreen(electionId);
   await navigateToContestView(history, electionId, savedContest!.id);
@@ -1769,7 +1790,7 @@ test('disables form and shows edit button when in "view" mode', async () => {
 });
 
 describe('audio editing', () => {
-  const electionRecord = generalElectionRecord(jurisdiction.id);
+  const electionRecord = generalElectionRecord();
   const { election } = electionRecord;
   const electionId = election.id;
 
@@ -1804,7 +1825,6 @@ describe('audio editing', () => {
   );
 
   test(`configures audio edit buttons for candidates`, async () => {
-    apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     expectOtherElectionApiCalls(election);
 
     apiMock.listContests
@@ -1823,7 +1843,7 @@ describe('audio editing', () => {
 
     await screen.findByTestId(MOCK_AUDIO_PANEL_ID);
     expect(history.location.pathname).toEqual(
-      routes.election(electionId).contests.audio({
+      audioPath(electionId, {
         contestId: candidateContest.id,
         stringKey: ElectionStringKey.CANDIDATE_NAME,
         subkey: 'candidate-2',
@@ -1873,9 +1893,6 @@ describe('audio editing', () => {
   ] as AudioEnabledInputSpec[]) {
     test(`configures audio edit button for ${spec.inputLabel}`, async () => {
       expectOtherElectionApiCalls(election);
-      apiMock.getBallotsFinalizedAt
-        .expectCallWith({ electionId })
-        .resolves(null);
 
       apiMock.listContests
         .expectCallWith({ electionId })
@@ -1891,7 +1908,7 @@ describe('audio editing', () => {
 
       await screen.findByTestId(MOCK_AUDIO_PANEL_ID);
       expect(history.location.pathname).toEqual(
-        routes.election(electionId).contests.audio({
+        audioPath(electionId, {
           contestId: spec.contest.id,
           stringKey: spec.stringKey,
           subkey: spec.subkey,
@@ -1902,7 +1919,6 @@ describe('audio editing', () => {
 
   test('configures audio edit buttons for option labels', async () => {
     expectOtherElectionApiCalls(election);
-    apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
 
     apiMock.listContests
       .expectCallWith({ electionId })
@@ -1918,7 +1934,7 @@ describe('audio editing', () => {
     await userEvent.click(yesAudioButton);
     await screen.findByTestId(MOCK_AUDIO_PANEL_ID);
     expect(history.location.pathname).toEqual(
-      routes.election(electionId).contests.audio({
+      audioPath(electionId, {
         contestId: yesNoContest.id,
         stringKey: ElectionStringKey.CONTEST_OPTION_LABEL,
         subkey: yesNoContest.options[0].id,
@@ -1933,13 +1949,55 @@ describe('audio editing', () => {
     await userEvent.click(noAudioButton);
     await screen.findByTestId(MOCK_AUDIO_PANEL_ID);
     expect(history.location.pathname).toEqual(
-      routes.election(electionId).contests.audio({
+      audioPath(electionId, {
         contestId: yesNoContest.id,
         stringKey: ElectionStringKey.CONTEST_OPTION_LABEL,
         subkey: yesNoContest.options[1].id,
       })
     );
   });
+});
+
+test('omits audio buttons without an audio panel', async () => {
+  const { election } = generalElectionRecord();
+  const electionId = election.id;
+  const candidateContest = find(
+    election.contests,
+    (contest): contest is CandidateContest => contest.type === 'candidate'
+  );
+  const yesNoContest = find(
+    election.contests,
+    (contest): contest is YesNoContest => contest.type === 'yesno'
+  );
+  expectOtherElectionApiCalls(election);
+  apiMock.listContests
+    .expectCallWith({ electionId })
+    .resolves([candidateContest, yesNoContest]);
+
+  const history = renderScreen(
+    electionId,
+    { AUDIO_ENABLED: true },
+    { AudioPanel: undefined }
+  );
+  await navigateToContestView(history, electionId, candidateContest.id);
+  await screen.findByText('Candidates');
+  expect(screen.queryButton(/preview or edit audio/i)).not.toBeInTheDocument();
+
+  await navigateToContestView(history, electionId, yesNoContest.id);
+  within(screen.getByText('Description').parentElement!).getByText(/.+/, {
+    selector: '.tiptap p',
+  });
+  expect(screen.queryButton(/preview or edit audio/i)).not.toBeInTheDocument();
+
+  history.replace(
+    audioPath(electionId, {
+      contestId: yesNoContest.id,
+      stringKey: ElectionStringKey.CONTEST_TITLE,
+      subkey: yesNoContest.id,
+    })
+  );
+  await screen.findByRole('heading', { name: 'Contest Info' });
+  expect(screen.queryByTestId(MOCK_AUDIO_PANEL_ID)).not.toBeInTheDocument();
 });
 
 function expectContestListItems(contests: readonly Contest[]) {
@@ -1958,9 +2016,7 @@ async function expectViewModeContest(
 ) {
   await screen.findByRole('heading', { name: 'Contest Info' });
   expect(screen.getByLabelText('Title')).toHaveValue(contest.title);
-  expect(history.location.pathname).toEqual(
-    routes.election(electionId).contests.view(contest.id).path
-  );
+  expect(history.location.pathname).toEqual(viewPath(electionId, contest.id));
 }
 
 async function navigateToContestEdit(
@@ -1968,7 +2024,7 @@ async function navigateToContestEdit(
   electionId: string,
   contestId: string
 ) {
-  history.replace(routes.election(electionId).contests.edit(contestId).path);
+  history.replace(editPath(electionId, contestId));
   await screen.findByRole('heading', { name: 'Edit Contest' });
 }
 
@@ -1977,7 +2033,7 @@ async function navigateToContestView(
   electionId: string,
   contestId: string
 ) {
-  history.replace(routes.election(electionId).contests.view(contestId).path);
+  history.replace(viewPath(electionId, contestId));
   await screen.findByRole('heading', { name: 'Contest Info' });
 }
 

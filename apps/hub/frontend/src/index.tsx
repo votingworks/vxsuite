@@ -2,8 +2,8 @@ import * as Sentry from '@sentry/browser';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { assert, isArray, isPlainObject, isString } from '@votingworks/basics';
+import { tiptapErrorContextBox } from '@votingworks/election-definition-ui';
 import { App } from './app.js';
-import { tiptapErrorContextBox } from './rich_text_editor.js';
 
 function isTiptapError(event: Sentry.ErrorEvent): boolean {
   const extraArgs = event.extra?.['arguments'];

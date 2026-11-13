@@ -482,60 +482,6 @@ export const electionDefinitionApi = createElectionDefinitionApi(useApiClient, {
   invalidateElectionListQueries,
 });
 
-export const createContest = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.createContest, {
-      async onSuccess(result, { electionId }) {
-        // @coverage-defer
-        if (result.isOk()) {
-          await invalidateElectionQueries(queryClient, electionId);
-          await queryClient.refetchQueries(listContests.queryKey(electionId));
-        }
-      },
-    });
-  },
-} as const;
-
-export const updateContest = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.updateContest, {
-      async onSuccess(result, { electionId }) {
-        if (result.isOk()) {
-          await invalidateElectionQueries(queryClient, electionId);
-        }
-      },
-    });
-  },
-} as const;
-
-export const reorderContests = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.reorderContests, {
-      async onSuccess(_, { electionId }) {
-        await invalidateElectionQueries(queryClient, electionId);
-      },
-    });
-  },
-} as const;
-
-export const deleteContest = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.deleteContest, {
-      async onSuccess(_, { electionId }) {
-        await invalidateElectionQueries(queryClient, electionId);
-      },
-    });
-  },
-} as const;
-
 export const updateBallotLayoutSettings = {
   useMutation() {
     const apiClient = useApiClient();

@@ -29,13 +29,11 @@ import {
   Icons,
   richTextStyles,
 } from '@votingworks/ui';
-import {
-  ImageInputButton,
-  type NormalizeParams,
-} from '@votingworks/election-definition-ui';
 import styled from 'styled-components';
 import React, { useState } from 'react';
 import { Buffer } from 'node:buffer';
+import { ImageInputButton } from './image_input.js';
+import type { NormalizeParams } from './image_normalization.js';
 
 const ControlGroup = styled.div`
   display: flex;

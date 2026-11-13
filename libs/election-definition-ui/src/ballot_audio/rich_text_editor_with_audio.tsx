@@ -1,14 +1,12 @@
 import type React from 'react';
 import styled from 'styled-components';
 
-import {
-  AudioLinkButton,
-  type TooltipProps,
-} from '@votingworks/election-definition-ui';
+import type { TooltipProps } from '../tooltip.js';
 import { RichTextEditor } from '../rich_text_editor.js';
+import { AudioLinkButton } from './audio_link_button.js';
 
 export type RickTextEditorWithAudioProps = {
-  audioScreenUrl: string;
+  audioScreenUrl?: string;
   editing: boolean;
   tooltipPlacement?: TooltipProps['attachTo'];
 } & React.ComponentProps<typeof RichTextEditor>;
@@ -56,13 +54,14 @@ export function RichTextEditorWithAudio(
 ): React.ReactNode {
   const { editing, audioScreenUrl, tooltipPlacement, ...rest } = props;
 
-  const audioEnabled = !editing && !!rest.initialHtmlContent;
+  const audioEnabled =
+    !!audioScreenUrl && !editing && !!rest.initialHtmlContent;
 
   return (
     <RichTextEditorWithAudioContainer aria-disabled={rest.disabled}>
       <StyledRichTextEditor {...rest} audioEnabled={audioEnabled} />
 
-      {audioEnabled && (
+      {audioScreenUrl && audioEnabled && (
         <ButtonContainer>
           <AudioLinkButton
             aria-label="Preview or Edit Audio"

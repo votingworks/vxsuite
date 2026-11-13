@@ -1,7 +1,7 @@
 import type { Contest, District, Party } from '@votingworks/types';
 import { afterEach, expect, test, vi } from 'vitest';
 import { createMemoryHistory, type MemoryHistory } from 'history';
-import { Router, Route } from 'react-router-dom';
+import { Router, Route, useHistory, useParams } from 'react-router-dom';
 import { assert, typedAs } from '@votingworks/basics';
 import { userEvent } from '@testing-library/user-event';
 import {
@@ -15,7 +15,6 @@ import {
   type ReorderParams,
 } from './contest_list.js';
 import { render, screen, within } from '../test/react_testing_library.js';
-import { routes } from './routes.js';
 
 const district1: District = { id: 'district1', name: 'District 1' };
 const district2: District = { id: 'district2', name: 'District 2' };
@@ -70,8 +69,11 @@ const straightPartyContest = typedAs<Partial<Contest>>({
 }) as Contest;
 
 const electionId = 'election1';
-const contestRoutes = routes.election(electionId).contests;
-const contestParamRoutes = routes.election(':electionId').contests;
+const rootPath = `/elections/${electionId}/contests`;
+
+function viewPath(contestId: string): string {
+  return `${rootPath}/${contestId}`;
+}
 let mockApi: MockApiClient | undefined;
 
 afterEach(() => {
@@ -205,16 +207,12 @@ test('navigates on select', async () => {
 
   await userEvent.click(getOption(yesNoContest2, district2));
   getOption(yesNoContest2, district2, { selected: true });
-  expect(history.location.pathname).toEqual(
-    contestRoutes.view(yesNoContest2.id).path
-  );
+  expect(history.location.pathname).toEqual(viewPath(yesNoContest2.id));
 
   await userEvent.click(getOption(candidateContest1, district1));
   getOption(candidateContest1, district1, { selected: true });
   getOption(yesNoContest2, district2, { selected: false });
-  expect(history.location.pathname).toEqual(
-    contestRoutes.view(candidateContest1.id).path
-  );
+  expect(history.location.pathname).toEqual(viewPath(candidateContest1.id));
 });
 
 test('omits ballot measure section if empty', async () => {
@@ -358,7 +356,7 @@ function getSublist(container: Element | null) {
 
 function newHistory(initialRoute?: string) {
   return createMemoryHistory({
-    initialEntries: [initialRoute || contestRoutes.root.path],
+    initialEntries: [initialRoute || rootPath],
   });
 }
 
@@ -370,20 +368,38 @@ function newMockApi(p: { districts: District[]; parties?: Party[] }) {
   return mockApi;
 }
 
+type RenderListProps = Pick<
+  ContestListProps,
+  'contests' | 'reorder' | 'reordering'
+>;
+
+function ContestListWithRoutes(props: RenderListProps) {
+  const { contestId } = useParams<{ contestId?: string }>();
+  const history = useHistory();
+  return (
+    <ContestList
+      {...props}
+      electionId={electionId}
+      onSelect={(id) => history.push(viewPath(id))}
+      selectedId={contestId}
+    />
+  );
+}
+
 function renderList(
   api: MockApiClient,
   history: MemoryHistory,
-  props: ContestListProps
+  props: RenderListProps
 ) {
   return render(
     provideApi(
       api,
       <Router history={history}>
-        <Route exact path={contestParamRoutes.view(':contestId').path}>
-          <ContestList {...props} />
+        <Route exact path={viewPath(':contestId')}>
+          <ContestListWithRoutes {...props} />
         </Route>
-        <Route exact path={contestParamRoutes.root.path}>
-          <ContestList {...props} />
+        <Route exact path={rootPath}>
+          <ContestListWithRoutes {...props} />
         </Route>
       </Router>
     )
