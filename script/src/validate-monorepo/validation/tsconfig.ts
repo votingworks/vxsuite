@@ -128,10 +128,8 @@ export function* checkTsconfig(
       };
     }
 
-    // Keep the incremental build-info file inside `build/` so it's removed
-    // atomically with `rm -rf build`. If it sat beside `build/`, deleting
-    // `build/` alone would leave a stale build-info that makes `tsc` skip
-    // re-emitting, leaving an empty output.
+    // `composite` forces a build-info file; keeping it in `build/` means
+    // `build:self`'s `rm -rf build` discards it, so builds never trust it.
     if (tsBuildInfoFile !== 'build/tsconfig.build.tsbuildinfo') {
       yield {
         kind: 'InvalidPropertyValue',

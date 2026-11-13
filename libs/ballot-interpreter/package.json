@@ -35,7 +35,7 @@
     "test:run": "pnpm -w vx-task test:run $npm_package_name",
     "test:run:self": "pnpm test:rust-addon && vitest run",
     "test:rust-addon": "cargo test --manifest-path rust/Cargo.toml",
-    "type-check:self": "tsc -p tsconfig.json"
+    "type-check:self": "rm -f tsconfig.tsbuildinfo && tsc -p tsconfig.json"
   },
   "dependencies": {
     "@votingworks/ballot-encoder": "workspace:*",

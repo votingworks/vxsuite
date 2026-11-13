@@ -54,7 +54,7 @@
     "test:ci:self": "pnpm db:migrations:ci-validate && TZ=America/Anchorage ./scripts/test_ci.sh",
     "test:run": "pnpm -w vx-task test:run $npm_package_name",
     "test:run:self": "TZ=America/Anchorage vitest run",
-    "type-check:self": "tsc -p tsconfig.json"
+    "type-check:self": "rm -f tsconfig.tsbuildinfo && tsc -p tsconfig.json"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1151.0",
