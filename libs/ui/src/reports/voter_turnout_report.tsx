@@ -1,9 +1,12 @@
-import type {
-  ElectionDefinition,
-  ElectionRegisteredVoterCounts,
-  PrecinctRegisteredVoterCountEntry,
-  Tabulation,
+import {
+  type ElectionDefinition,
+  type ElectionRegisteredVoterCounts,
+  getTotalRegisteredVoterCount,
+  isSplitCounts,
+  type PrecinctRegisteredVoterCountEntry,
+  type Tabulation,
 } from '@votingworks/types';
+import { iter } from '@votingworks/basics';
 import { getBallotCount } from '@votingworks/utils';
 import { ThemeProvider } from 'styled-components';
 import React from 'react';
@@ -74,8 +77,10 @@ const TurnoutGrid = styled.div`
 `;
 
 function sumRegisteredVoters(entry: PrecinctRegisteredVoterCountEntry): number {
-  if (typeof entry === 'number') return entry;
-  return Object.values(entry.splits).reduce((acc, n) => acc + n, 0);
+  if (!isSplitCounts(entry)) return getTotalRegisteredVoterCount(entry);
+  return iter(Object.values(entry.splits))
+    .map(getTotalRegisteredVoterCount)
+    .sum();
 }
 
 function formatTurnoutPercent(

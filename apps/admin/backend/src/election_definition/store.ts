@@ -31,6 +31,7 @@ import {
   type ElectionType,
   hasSplits,
   isPrecinctCount,
+  getTotalRegisteredVoterCount,
   isSplitCounts,
   HmpbBallotPaperSize,
   type LanguageCode,
@@ -569,7 +570,7 @@ export class ElectionDefinitionStore {
               this.client.run(
                 'insert into design_precinct_split_registered_voter_counts (split_id, count) values (?, ?)',
                 id,
-                splitCount
+                getTotalRegisteredVoterCount(splitCount)
               );
             }
           }
@@ -588,7 +589,7 @@ export class ElectionDefinitionStore {
             this.client.run(
               'insert into design_precinct_registered_voter_counts (precinct_id, count) values (?, ?)',
               precinct.id,
-              registeredVoterCounts
+              getTotalRegisteredVoterCount(registeredVoterCounts)
             );
           }
         }
