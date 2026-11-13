@@ -74,8 +74,9 @@ function buildApi({
       };
     },
 
-    async setVolume(input: { volumePct: number }): Promise<void> {
-      await audioPlayer?.setVolume(input.volumePct);
+    // TODO: Remove and handle headphone volume control client-side.
+    async setHeadphoneVolume(input: { volumePct: number }): Promise<void> {
+      await audioPlayer?.setHeadphoneVolume(input.volumePct);
     },
 
     async playSound(input: { name: SoundName }): Promise<void> {

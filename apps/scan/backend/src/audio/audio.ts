@@ -3,9 +3,7 @@ import type { Logger } from '@votingworks/logging';
 
 export type AudioCard = analogAndHdmi.AudioCard;
 
-export type AudioPlayer = analogAndHdmi.Player<SoundName>;
-
-export type AudioPlayerInterface = analogAndHdmi.PlayerInterface<SoundName>;
+export type AudioPlayer = analogAndHdmi.PlayerInterface<SoundName>;
 
 export type SoundName = 'alarm' | 'error' | 'success' | 'warning';
 

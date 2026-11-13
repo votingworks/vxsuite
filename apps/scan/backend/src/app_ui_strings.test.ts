@@ -32,7 +32,7 @@ import {
   buildMockLogger,
   createPrecinctScannerStateMachineMock,
 } from '../test/helpers/shared_helpers.js';
-import { type AudioPlayer, getMockAudioPlayer } from './audio/audio.js';
+import { getMockAudioPlayer } from './audio/audio.js';
 
 const mockFeatureFlagger = getFeatureFlagMock();
 
@@ -41,7 +41,7 @@ vi.mock(import('@votingworks/utils'), async (importActual) => ({
   isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
 }));
 
-const mockAudioPlayer = getMockAudioPlayer() as AudioPlayer;
+const mockAudioPlayer = getMockAudioPlayer();
 
 const store = Store.memoryStore();
 let workspace: Workspace;

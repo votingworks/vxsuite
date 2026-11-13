@@ -19,7 +19,7 @@ import { buildApi, buildApp } from './app.js';
 import { PORT } from './globals.js';
 import type { Workspace } from './util/workspace.js';
 import * as scanner from './scanner.js';
-import { type AudioPlayerInterface, newAudioPlayer } from './audio/audio.js';
+import { type AudioPlayer, newAudioPlayer } from './audio/audio.js';
 
 export interface StartOptions {
   auth: InsertedSmartCardAuthApi;
@@ -28,7 +28,7 @@ export interface StartOptions {
   port?: number | string;
   usbDrive?: UsbDrive;
   printer: FujitsuThermalPrinterInterface;
-  audioPlayer?: AudioPlayerInterface;
+  audioPlayer?: AudioPlayer;
 }
 
 /**
