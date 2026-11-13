@@ -468,13 +468,15 @@ fn emit(event: Event) {
 }
 
 /// Swallows panics so they never unwind into C.
-fn guarded(body: impl FnOnce()) {
-    let _ = catch_unwind(AssertUnwindSafe(body));
+fn guarded(callback: &str, body: impl FnOnce()) {
+    if catch_unwind(AssertUnwindSafe(body)).is_err() {
+        tracing::error!("callback `{callback}` panicked and its event was dropped");
+    }
 }
 
 unsafe extern "C" fn log_trampoline(str_: *mut c_char) {
     unsafe {
-        guarded(|| {
+        guarded("LogFunctionCB", || {
             if str_.is_null() {
                 return;
             }
@@ -487,7 +489,7 @@ unsafe extern "C" fn log_trampoline(str_: *mut c_char) {
 
 unsafe extern "C" fn control_trampoline(p: *mut ffi::ScannerControl_t) {
     unsafe {
-        guarded(|| {
+        guarded("ScannerControlCB", || {
             if p.is_null() {
                 return;
             }
@@ -500,12 +502,14 @@ unsafe extern "C" fn control_trampoline(p: *mut ffi::ScannerControl_t) {
 }
 
 unsafe extern "C" fn operational_state_trampoline(state: c_int) {
-    guarded(|| emit(Event::OperationalState(state)));
+    guarded("currentOperationalState", || {
+        emit(Event::OperationalState(state));
+    });
 }
 
 unsafe extern "C" fn image_trampoline(info: *mut ffi::ImageInfo_t, data: *mut u8) {
     unsafe {
-        guarded(|| match Image::from_raw(info, data) {
+        guarded("ImageCB", || match Image::from_raw(info, data) {
             Ok(image) => emit(Event::Image(image)),
             Err(incompatible) => emit(Event::IncompatibleImage(incompatible)),
         });
