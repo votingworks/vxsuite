@@ -59,15 +59,19 @@ pub fn decode<T: DeserializeOwned>(payload: &[u8]) -> Result<T> {
 }
 
 /// Wraps a payload in a frame header.
+///
+/// # Panics
+/// If the payload exceeds [`MAX_FRAME_PAYLOAD`]; only images get that large, and they use
+/// [`encode_image_frame_prefix`].
 #[must_use]
 pub fn encode_frame(frame_type: u8, payload: &[u8]) -> Vec<u8> {
+    let length = u32::try_from(payload.len())
+        .ok()
+        .filter(|&length| length <= MAX_FRAME_PAYLOAD)
+        .expect("non-image frames are far below `MAX_FRAME_PAYLOAD`");
     let mut frame = Vec::with_capacity(FRAME_HEADER_LENGTH + payload.len());
     frame.push(frame_type);
-    frame.extend_from_slice(
-        &u32::try_from(payload.len())
-            .unwrap_or(u32::MAX)
-            .to_le_bytes(),
-    );
+    frame.extend_from_slice(&length.to_le_bytes());
     frame.extend_from_slice(payload);
     frame
 }
