@@ -64,7 +64,7 @@ export async function start({
   const audioPlayer = isIntegrationTest()
     ? // @coverage-exclude
       getMockAudioPlayer()
-    : await newAudioPlayer(logger);
+    : await newAudioPlayer({ logger });
 
   const context: Context = {
     audioPlayer,

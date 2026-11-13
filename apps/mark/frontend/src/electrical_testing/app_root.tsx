@@ -20,7 +20,7 @@ import {
   setCardReaderTaskRunning,
   setPrinterTaskRunning,
   setUsbDriveTaskRunning,
-  setVolume,
+  setHeadphoneVolume,
   systemCallApi,
   useApiClient,
 } from './api.js';
@@ -97,7 +97,7 @@ function AudioControls({
   setCalibratingHeadphones: (calibrating: boolean) => void;
   playingSpeakerSound: boolean;
 }): JSX.Element {
-  const setVolumeMutation = setVolume.useMutation();
+  const setVolumeMutation = setHeadphoneVolume.useMutation();
 
   return (
     <AudioControlsContainer>

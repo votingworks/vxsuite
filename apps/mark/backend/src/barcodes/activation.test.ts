@@ -4,7 +4,6 @@ import {
   describe,
   expect,
   type Mock,
-  type Mocked,
   test,
   vi,
 } from 'vitest';
@@ -47,7 +46,7 @@ import { getUserRole } from '../util/auth.js';
 import type { BarcodeReader } from './types.js';
 import type { BallotStyleQrCode } from './ballot_style_qr_code.js';
 import type { BarcodePrintRequest } from './activation_mode.js';
-import { getMockAudioPlayer, type Player } from '../audio/player.js';
+import { getMockAudioPlayer } from '../audio/player.js';
 import { encodeBallotStyleQrCode } from '../../test/barcode_helpers.js';
 import { configureStore } from '../../test/store_helpers.js';
 
@@ -580,7 +579,7 @@ describe('setUpBarcodeActivation', () => {
   });
 
   test('requests a ballot print in ballot printing mode', async () => {
-    const mockAudioPlayer = getMockAudioPlayer() as Mocked<Player>;
+    const mockAudioPlayer = getMockAudioPlayer();
     const mockPlay = vi.spyOn(mockAudioPlayer, 'play');
     await configureStore(workspace.store, {
       electionDefinition,
