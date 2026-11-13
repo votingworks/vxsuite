@@ -82,6 +82,7 @@ import {
   type ExternalElectionSource,
   generateId,
   getStateFeaturesConfig,
+  hasDuplicateOptionLabels,
   type PartiesUpdate,
   type SetPollingPlaceError,
   type StateCode,
@@ -369,11 +370,6 @@ async function insertParty(
     party.fullName,
     party.abbrev
   );
-}
-
-function hasDuplicateOptionLabels(contest: YesNoContest): boolean {
-  const labels = contest.options.map((option) => option.label);
-  return new Set(labels).size !== labels.length;
 }
 
 async function insertContest(
