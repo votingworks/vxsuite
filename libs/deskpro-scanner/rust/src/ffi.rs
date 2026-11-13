@@ -410,12 +410,11 @@ impl Symbols {
     /// If the library cannot be opened or is missing an entry point.
     pub unsafe fn load(path: &Path) -> Result<Self, LoadError> {
         // SAFETY: caller's contract.
-        let library: &'static libloading::Library = Box::leak(Box::new(
+        let library: libloading::Library =
             unsafe { libloading::Library::new(path) }.map_err(|source| LoadError::Open {
                 path: path.to_owned(),
                 source,
-            })?,
-        ));
+            })?;
 
         let symbols = Self {
             ScannerConnect: resolve!(library, path, ScannerConnect),
@@ -449,6 +448,7 @@ impl Symbols {
             GetLastLogs: resolve!(library, path, GetLastLogs),
             GetAllLogs: resolve!(library, path, GetAllLogs),
         };
+        std::mem::forget(library);
         vendor_heap::install(symbols.AllocBuffer, symbols.FreeBuffer);
         Ok(symbols)
     }
