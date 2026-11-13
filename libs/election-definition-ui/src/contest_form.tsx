@@ -363,6 +363,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
         <InputGroup label="District">
           <SearchSelect
             aria-label="District"
+            menuPortalTarget={document.body}
             disabled={disabled || hasExternalSource}
             value={contest.districtId || undefined}
             onChange={(value) => {
@@ -432,6 +433,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
               <InputGroup label="Party">
                 <SearchSelect
                   aria-label="Party"
+                  menuPortalTarget={document.body}
                   disabled={disabled || hasExternalSource}
                   options={[
                     { value: '', label: 'No Party Affiliation' },
@@ -599,6 +601,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
                         <TD>
                           <SearchSelect
                             aria-label={`Candidate ${index + 1} Party`}
+                            menuPortalTarget={document.body}
                             disabled={disabled || hasExternalSource}
                             options={[
                               {
