@@ -9,7 +9,7 @@
   "types": "build/index.d.ts",
   "scripts": {
     "build": "pnpm -w vx-task build $npm_package_name",
-    "build:self": "tsc -p tsconfig.build.json",
+    "build:self": "rm -rf build && tsc -p tsconfig.build.json",
     "clean": "pnpm -w vx-task clean $npm_package_name",
     "clean:self": "rm -rf build",
     "lint": "pnpm -w vx-task lint $npm_package_name",

@@ -19,7 +19,7 @@
     "benchmark": "bin/run-benchmarks ${BENCH_ENV:-default}",
     "benchmark:compare": "vitest bench --compare bench-results/${BENCH_ENV:-default}.json",
     "build": "pnpm -w vx-task build $npm_package_name",
-    "build:self": "tsc -p tsconfig.build.json && cp -R ./src/fonts ./build",
+    "build:self": "rm -rf build && tsc -p tsconfig.build.json && cp -R ./src/fonts ./build",
     "clean": "pnpm -w vx-task clean $npm_package_name",
     "clean:self": "rm -rf build",
     "format": "oxfmt --write",

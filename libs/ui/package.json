@@ -23,7 +23,7 @@
   "scripts": {
     "build": "pnpm -w vx-task build $npm_package_name",
     "build:app-strings-catalog": "i18next && ./scripts/finalize-app-strings-catalog",
-    "build:self": "tsc -p tsconfig.build.json && pnpm build:app-strings-catalog",
+    "build:self": "rm -rf build && tsc -p tsconfig.build.json && pnpm build:app-strings-catalog",
     "check:app-strings-catalog": "./scripts/check-app-strings-catalog",
     "clean": "pnpm -w vx-task clean $npm_package_name",
     "clean:self": "rm -rf build",

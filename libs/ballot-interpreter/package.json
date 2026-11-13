@@ -23,7 +23,7 @@
     "benchmark": "cd benchmarks && vitest",
     "build": "pnpm -w vx-task build $npm_package_name",
     "build:rust-addon": "napi build --platform --release --esm --manifest-path rust/Cargo.toml --output-dir .",
-    "build:self": "pnpm build:rust-addon && pnpm build:ts",
+    "build:self": "rm -rf build && pnpm build:rust-addon && pnpm build:ts",
     "build:ts": "tsc -p tsconfig.build.json",
     "clean": "pnpm -w vx-task clean $npm_package_name",
     "clean:self": "cargo clean --manifest-path rust/Cargo.toml --release --package ballot-interpreter && rm -rf build",

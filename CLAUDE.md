@@ -249,6 +249,15 @@ miss `--build` can decide a package is current, emit nothing, and let Turbo
 cache the stale outputs under the new hash. `-p` compares file contents recorded
 in the build-info instead.
 
+`build:self` also starts with `rm -rf build`, so every Turbo cache miss compiles
+the package from scratch. TypeScript 7.0's incremental build can skip
+re-emitting a module whose inferred declarations depend on a changed import when
+a global declaration file (e.g. `types/env.d.ts`) changes in the same build, and
+it records that module as current, so later builds never repair it (fixed in 7.1
+by
+[microsoft/typescript-go#4665](https://github.com/microsoft/typescript-go/pull/4665)).
+Starting clean also drops outputs of deleted source files.
+
 **Cross-worktree cache:** Turbo automatically shares its local cache across git
 worktrees of this repo (stored under the shared `.git` directory), so artifacts
 built in one worktree are reused in another with no configuration. The cache is

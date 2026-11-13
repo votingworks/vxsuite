@@ -18,7 +18,7 @@
   ],
   "scripts": {
     "build": "pnpm -w vx-task build $npm_package_name",
-    "build:self": "tsc -p tsconfig.build.json && ./scripts/copy_build_assets.sh",
+    "build:self": "rm -rf build && tsc -p tsconfig.build.json && ./scripts/copy_build_assets.sh",
     "clean": "pnpm -w vx-task clean $npm_package_name",
     "clean:self": "rm -rf build",
     "dev": "NODE_ENV=development pnpm start",
