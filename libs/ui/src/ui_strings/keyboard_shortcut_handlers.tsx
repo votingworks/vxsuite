@@ -42,6 +42,7 @@ export function KeyboardShortcutHandlers(): React.ReactNode {
         case Keybinding.PLAYBACK_RATE_UP:
           audioControls.increasePlaybackRate();
           break;
+        case Keybinding.TOGGLE_PAUSE.toLowerCase():
         case Keybinding.TOGGLE_PAUSE:
           audioControls.togglePause();
           break;
