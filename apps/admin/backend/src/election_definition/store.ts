@@ -33,6 +33,7 @@ import {
   isPrecinctCount,
   isSplitCounts,
   HmpbBallotPaperSize,
+  type LanguageCode,
   LanguageCodeSchema,
   type NhPrecinctSplitOptions,
   type PollingPlace,
@@ -49,6 +50,7 @@ import {
   unsafeParseJson,
 } from '@votingworks/types';
 import { z } from 'zod/v4';
+import type { TranslatedString } from './translations.js';
 
 const NATURAL_SORT_COLLATOR = new Intl.Collator('en', { numeric: true });
 
@@ -782,5 +784,69 @@ export class ElectionDefinitionStore {
       ),
       'Polling place not found'
     );
+  }
+
+  /**
+   * Loads the saved translations for the given language code. Note that these
+   * translations may be outdated if the English election content has changed
+   * since they were saved. To ensure outdated translations are not used, use
+   * `translations.loadStringsAndTranslations` instead of calling this method directly.
+   */
+  getTranslations(
+    electionId: ElectionId,
+    languageCode: LanguageCode
+  ): Array<Omit<TranslatedString, 'context'>> {
+    const rows = this.client.all(
+      `
+      select
+        key,
+        english_text as "englishText",
+        translated_text as "translatedText"
+      from design_translations
+      where election_id = ? and language_code = ?
+      `,
+      electionId,
+      languageCode
+    ) as Array<{
+      key: string;
+      englishText: string;
+      translatedText: string | null;
+    }>;
+    return rows.map((row) => ({
+      ...row,
+      translatedText: row.translatedText ?? undefined,
+    }));
+  }
+
+  updateTranslations(
+    electionId: ElectionId,
+    languageCode: LanguageCode,
+    translations: Array<Omit<TranslatedString, 'context'>>
+  ): void {
+    this.client.transaction(() => {
+      this.client.run(
+        `delete from design_translations where election_id = ? and language_code = ?`,
+        electionId,
+        languageCode
+      );
+      for (const translation of translations) {
+        this.client.run(
+          `
+          insert into design_translations (
+            election_id,
+            language_code,
+            key,
+            english_text,
+            translated_text
+          ) values (?, ?, ?, ?, ?)
+          `,
+          electionId,
+          languageCode,
+          translation.key,
+          translation.englishText,
+          translation.translatedText ?? null
+        );
+      }
+    });
   }
 }
