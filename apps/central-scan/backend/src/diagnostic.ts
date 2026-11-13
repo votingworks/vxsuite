@@ -1,6 +1,6 @@
 import { LogEventId, type Logger } from '@votingworks/logging';
 import { runBlankPaperDiagnostic } from '@votingworks/ballot-interpreter';
-import type { BatchScanner, ScannedSheetInfo } from './fujitsu_scanner.js';
+import type { BatchScanner, ScannedSheetInfo } from './batch_scanner.js';
 import type { Store } from './store.js';
 
 export type ScanDiagnosticOutcome = 'no-paper' | 'pass' | 'fail';

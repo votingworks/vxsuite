@@ -17,7 +17,7 @@ import { expect, test, vi } from 'vitest';
 import { mockElectionManagerAuth } from '../test/helpers/auth.js';
 import { generateBmdBallotFixture } from '../test/helpers/ballots.js';
 import { waitForStatus, withApp } from '../test/helpers/setup_app.js';
-import type { ScannedSheetInfo } from './fujitsu_scanner.js';
+import type { ScannedSheetInfo } from './batch_scanner.js';
 
 // we need more time for ballot interpretation
 vi.setConfig({

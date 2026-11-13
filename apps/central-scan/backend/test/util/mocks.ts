@@ -3,7 +3,7 @@ import type {
   BatchControl,
   BatchScanner,
   ScannedSheetInfo,
-} from '../../src/fujitsu_scanner.js';
+} from '../../src/batch_scanner.js';
 
 type ScanSessionStep =
   | { type: 'sheet'; sheet: ScannedSheetInfo; onScanned: () => void }

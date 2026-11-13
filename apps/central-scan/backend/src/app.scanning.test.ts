@@ -30,7 +30,7 @@ import {
   waitForStatus,
   withApp,
 } from '../test/helpers/setup_app.js';
-import type { ScannedSheetInfo } from './fujitsu_scanner.js';
+import type { ScannedSheetInfo } from './batch_scanner.js';
 
 const jurisdiction = TEST_JURISDICTION;
 
