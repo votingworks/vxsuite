@@ -2655,6 +2655,26 @@ test('getElection assembles the in-progress election', () => {
   store.electionDefinition
     .updateParties({ electionId: 'design-election', newParties: [party] })
     .unsafeUnwrap();
+  const contest: CandidateContest = {
+    id: 'contest-1',
+    type: 'candidate',
+    title: 'Mayor',
+    districtId: 'district-1',
+    seats: 1,
+    allowWriteIns: true,
+    candidates: [
+      {
+        id: 'candidate-1',
+        firstName: 'Ada',
+        lastName: 'Lovelace',
+        name: 'Ada Lovelace',
+        partyIds: [party.id],
+      },
+    ],
+  };
+  store.electionDefinition
+    .createContest({ electionId: 'design-election', newContest: contest })
+    .unsafeUnwrap();
 
   expect(store.electionDefinition.getElection('design-election')).toEqual({
     id: 'design-election',
@@ -2669,7 +2689,7 @@ test('getElection assembles the in-progress election', () => {
     precincts: [precinct],
     pollingPlaces: [pollingPlace],
     parties: [party],
-    contests: [],
+    contests: [contest],
     ballotStyles: [],
     ballotLayout: { paperSize: 'letter', metadataEncoding: 'qr-code' },
     ballotStrings: {},
