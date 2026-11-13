@@ -33,8 +33,8 @@ import {
   getTestDecks,
   getBallotTemplate,
   decryptCvrBallotAuditIds,
-  getStateFeatures,
   getSystemSettings,
+  electionDefinitionApi,
 } from './api.js';
 import { ElectionNavScreen, Header } from './nav_screen.js';
 import { type ElectionIdParams, routes } from './routes.js';
@@ -60,7 +60,8 @@ export function ExportScreen(): JSX.Element | null {
   const [shouldExportTestBallots, setShouldExportTestBallots] = useState(false);
   useTitle(routes.election(electionId).export.title);
   const getUserFeaturesQuery = getUserFeatures.useQuery();
-  const getStateFeaturesQuery = getStateFeatures.useQuery(electionId);
+  const getStateFeaturesQuery =
+    electionDefinitionApi.getStateFeatures.useQuery(electionId);
   const getElectionInfoQuery = getElectionInfo.useQuery(electionId);
   const electionPackageQuery = getElectionPackage.useQuery(electionId);
   const exportElectionPackageMutation = exportElectionPackage.useMutation();
