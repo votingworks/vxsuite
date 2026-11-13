@@ -799,6 +799,42 @@ export function describeElectionDefinitionMethods(
     ]);
   });
 
+  test('updateParties rejects deleting a party that would make two contests the same', async () => {
+    const harness = await setUp();
+    const { methods } = harness;
+    const electionId = await createElectionForContests(harness);
+    const democraticMayor: CandidateContest = {
+      ...mayor,
+      partyId: democrats.id,
+      candidates: [],
+    };
+    const nonpartisanMayor: CandidateContest = {
+      ...mayor,
+      id: 'nonpartisan-mayor',
+      candidates: [],
+    };
+    for (const contest of [democraticMayor, nonpartisanMayor]) {
+      expect(
+        await methods.createContest({ electionId, newContest: contest })
+      ).toEqual(ok());
+    }
+
+    expect(
+      await methods.updateParties({
+        electionId,
+        deletedPartyIds: [democrats.id],
+      })
+    ).toEqual(err({ code: 'duplicate-contest', partyId: democrats.id }));
+    expect(await methods.listParties({ electionId })).toEqual([
+      democrats,
+      republicans,
+    ]);
+    expect(await methods.listContests({ electionId })).toEqual([
+      democraticMayor,
+      nonpartisanMayor,
+    ]);
+  });
+
   test('contest methods reject invalid and unknown contests', async () => {
     const harness = await setUp();
     const { methods } = harness;

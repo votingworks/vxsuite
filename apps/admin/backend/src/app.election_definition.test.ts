@@ -513,6 +513,52 @@ test.each([
   }
 );
 
+test('rejects deleting a party that would make two contests the same', async () => {
+  const {
+    electionDefinitionApiClient: api,
+    auth,
+    logger,
+  } = buildTestEnvironment();
+  mockSystemAdministratorAuth(auth);
+  const electionId = await api.createInProgressElection();
+  (
+    await api.updateDistricts({
+      electionId,
+      newDistricts: [{ id: 'district-1', name: 'District 1' }],
+    })
+  ).unsafeUnwrap();
+  (
+    await api.updateParties({ electionId, newParties: [democrats] })
+  ).unsafeUnwrap();
+  const contest: CandidateContest = {
+    id: 'mayor',
+    type: 'candidate',
+    title: 'Mayor',
+    districtId: 'district-1',
+    seats: 1,
+    allowWriteIns: true,
+    candidates: [],
+  };
+  for (const newContest of [
+    { ...contest, partyId: democrats.id },
+    { ...contest, id: 'nonpartisan-mayor' },
+  ]) {
+    (await api.createContest({ electionId, newContest })).unsafeUnwrap();
+  }
+
+  expect(
+    await api.updateParties({ electionId, deletedPartyIds: [democrats.id] })
+  ).toEqual(err({ code: 'duplicate-contest', partyId: democrats.id }));
+  expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
+    LogEventId.ElectionDefinitionPartiesUpdated,
+    {
+      message: `Error updating parties for election definition ${electionId}: deleting party ${democrats.id} would make two contests the same.`,
+      disposition: 'failure',
+    }
+  );
+  expect(await api.listParties({ electionId })).toEqual([democrats]);
+});
+
 test('rejects invalid parties and unknown elections', async () => {
   const { electionDefinitionApiClient: api, auth } = buildTestEnvironment();
   mockSystemAdministratorAuth(auth);

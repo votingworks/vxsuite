@@ -19,7 +19,8 @@ export type SetPollingPlaceError = 'duplicate-name' | 'invalid-precinct';
 export type DuplicatePartyErrorCode =
   | 'duplicate-name'
   | 'duplicate-full-name'
-  | 'duplicate-abbrev';
+  | 'duplicate-abbrev'
+  | 'duplicate-contest';
 
 export interface DuplicatePartyError {
   code: DuplicatePartyErrorCode;

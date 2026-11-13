@@ -93,6 +93,9 @@ function isDuplicateDistrictNameError(error: unknown): boolean {
 function extractDuplicatePartyErrorCode(
   error: unknown
 ): DuplicatePartyErrorCode | undefined {
+  if (isDuplicateContestError(error)) {
+    return 'duplicate-contest';
+  }
   if (
     !(
       error instanceof Error &&
@@ -558,16 +561,19 @@ export class ElectionDefinitionStore {
     return this.client.transaction(
       (): Result<void, DuplicatePartyError> => {
         for (const partyId of input.deletedPartyIds ?? []) {
-          this.client.run(
-            'delete from design_parties where id = ? and election_id = ?',
-            partyId,
-            electionId
+          const result = this.writeParty(partyId, () =>
+            this.client.run(
+              'delete from design_parties where id = ? and election_id = ?',
+              partyId,
+              electionId
+            )
           );
+          if (result.isErr()) return result;
         }
 
         for (const p of input.updatedParties ?? []) {
           const party = unsafeParse(PartySchema, p);
-          const result = this.writeParty(party, () =>
+          const result = this.writeParty(party.id, () =>
             assert(
               this.client.one(
                 'update design_parties set name = ?, full_name = ?, abbrev = ? where id = ? and election_id = ? returning id',
@@ -585,7 +591,7 @@ export class ElectionDefinitionStore {
 
         for (const p of input.newParties ?? []) {
           const party = unsafeParse(PartySchema, p);
-          const result = this.writeParty(party, () =>
+          const result = this.writeParty(party.id, () =>
             this.client.run(
               'insert into design_parties (id, election_id, name, full_name, abbrev) values (?, ?, ?, ?, ?)',
               party.id,
@@ -605,7 +611,7 @@ export class ElectionDefinitionStore {
   }
 
   private writeParty(
-    party: Party,
+    partyId: PartyId,
     write: () => void
   ): Result<void, DuplicatePartyError> {
     try {
@@ -614,7 +620,7 @@ export class ElectionDefinitionStore {
     } catch (error) {
       const code = extractDuplicatePartyErrorCode(error);
       if (code) {
-        return err({ code, partyId: party.id });
+        return err({ code, partyId });
       }
       throw error;
     }
