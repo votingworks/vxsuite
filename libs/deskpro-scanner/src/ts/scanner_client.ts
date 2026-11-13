@@ -1,0 +1,389 @@
+import { Buffer } from 'node:buffer';
+import { spawn } from 'node:child_process';
+import { EventEmitter } from 'node:events';
+import { join } from 'node:path';
+import type { Readable, Writable } from 'node:stream';
+import makeDebug from 'debug';
+import {
+  deferred,
+  type Deferred,
+  type Result,
+  err,
+  extractErrorMessage,
+  ok,
+} from '@votingworks/basics';
+import {
+  type Command,
+  type DaemonEvent,
+  type ErrorCodeName,
+  FRAME_HEADER_LENGTH,
+  FrameType,
+  type Hello,
+  type ImprinterSide,
+  ProtocolError,
+  type ResponseBody,
+  type ScannedImage,
+  type Status,
+  decodeEvent,
+  decodeFrameHeader,
+  decodeHello,
+  decodeImage,
+  decodeResponse,
+  encodeCommand,
+  encodeFrame,
+} from './protocol.js';
+import { PACKAGE_ROOT } from './package_root.js';
+
+const debug = makeDebug('deskpro-scanner');
+
+/** Where `build:self` puts `deskproctl`; turbo hides `CARGO_TARGET_DIR`, so this never follows it. */
+export const DEFAULT_DAEMON_PATH = join(
+  PACKAGE_ROOT,
+  'target/release/deskproctl'
+);
+
+/** A byte pipe to a `deskproctl` process or to {@link createMockDaemon}. */
+export interface Transport {
+  readonly incoming: Readable;
+  readonly outgoing: Writable;
+  /** Called with a reason when the far end goes away, even if it already has. */
+  onClose(listener: (reason: string) => void): void;
+  close(): void;
+}
+
+/** How long `deskproctl` gets to disconnect from the scanner after SIGTERM before SIGKILL. */
+export const DAEMON_KILL_GRACE_MS = 15_000;
+
+/** Runs `deskproctl` as a child process and exposes its stdio as a {@link Transport}. */
+export function spawnDaemon(daemonPath = DEFAULT_DAEMON_PATH): Transport {
+  const child = spawn(daemonPath, [], { stdio: ['pipe', 'pipe', 'inherit'] });
+  const closeListeners: Array<(reason: string) => void> = [];
+  let closedReason: string | undefined;
+  function notifyClose(reason: string): void {
+    // @coverage-exclude: Node may emit `error` after `exit`, e.g. for a failed kill.
+    if (closedReason !== undefined) return;
+    closedReason = reason;
+    for (const listener of closeListeners) {
+      listener(reason);
+    }
+  }
+  child.on('error', (error) => notifyClose(error.message));
+  child.on('exit', (code, signal) =>
+    notifyClose(`deskproctl exited with code ${code}, signal ${signal}`)
+  );
+  let terminating = false;
+  function terminate(): void {
+    if (terminating || closedReason !== undefined) return;
+    terminating = true;
+    child.kill('SIGTERM');
+    const escalate = setTimeout(
+      () => child.kill('SIGKILL'),
+      DAEMON_KILL_GRACE_MS
+    );
+    child.once('exit', () => clearTimeout(escalate));
+  }
+  child.stdin.on('error', (error) => {
+    debug('deskproctl stdin: %s', error.message);
+    terminate();
+  });
+  return {
+    incoming: child.stdout,
+    outgoing: child.stdin,
+    onClose(listener) {
+      if (closedReason === undefined) {
+        closeListeners.push(listener);
+      } else {
+        listener(closedReason);
+      }
+    },
+    close: terminate,
+  };
+}
+
+/** Why a command failed. */
+export interface ScannerError {
+  readonly code: ErrorCodeName | 'daemonExited' | 'protocol';
+  readonly message: string;
+}
+
+/** The result of a command. */
+export type ScannerResult<T> = Result<T, ScannerError>;
+
+/** Events emitted by {@link ScannerClient}. */
+export interface ScannerClientEvents {
+  image: [ScannedImage];
+  event: [DaemonEvent];
+  /** The transport went away. Every pending command has already been rejected. */
+  close: [string];
+}
+
+/**
+ * Drives `deskproctl` over the binary protocol. To recover from a daemon failure, stop this
+ * client and construct a new one.
+ */
+export class ScannerClient extends EventEmitter<ScannerClientEvents> {
+  private buffer = Buffer.alloc(0);
+  private readonly unread: Buffer[] = [];
+  private unreadLength = 0;
+  /** Bytes the read buffer must hold before the next frame can be decoded. */
+  private bytesNeeded = FRAME_HEADER_LENGTH;
+  private nextCommandId = 1;
+  private readonly pending = new Map<
+    number,
+    Deferred<ScannerResult<ResponseBody>>
+  >();
+  private closed?: ScannerError;
+  private transportClosed = false;
+  private started = false;
+  private helloWaiter?: Deferred<ScannerResult<Hello>>;
+  private readonly transport: Transport;
+
+  constructor(transport: Transport = spawnDaemon()) {
+    super();
+    this.transport = transport;
+  }
+
+  /** Waits for the daemon's hello frame. */
+  start(): Promise<ScannerResult<Hello>> {
+    if (this.started) {
+      return Promise.resolve(
+        err({ code: 'other', message: 'already started' })
+      );
+    }
+    this.started = true;
+
+    const helloReceived = deferred<ScannerResult<Hello>>();
+    this.helloWaiter = helloReceived;
+
+    this.transport.incoming.on('data', (chunk: Buffer) => {
+      if (this.closed) return;
+      this.unread.push(chunk);
+      this.unreadLength += chunk.length;
+      if (this.buffer.length + this.unreadLength < this.bytesNeeded) return;
+      this.buffer = Buffer.concat([this.buffer, ...this.unread]);
+      this.unread.length = 0;
+      this.unreadLength = 0;
+      try {
+        this.drainFrames();
+      } catch (error) {
+        if (!(error instanceof ProtocolError)) throw error;
+        this.fail({ code: 'protocol', message: error.message });
+        this.transport.close();
+      }
+    });
+
+    this.transport.onClose((reason) => {
+      if (this.transportClosed) return;
+      this.transportClosed = true;
+      this.fail({ code: 'daemonExited', message: reason });
+      this.emit('close', reason);
+    });
+
+    return helloReceived.promise;
+  }
+
+  /** Stops the daemon, which disconnects from the scanner first. Safe to call more than once. */
+  stop(): void {
+    this.transport.close();
+  }
+
+  connect(appId: string): Promise<ScannerResult<void>> {
+    return this.expectOk({ kind: 'connect', appId });
+  }
+
+  disconnect(): Promise<ScannerResult<void>> {
+    return this.expectOk({ kind: 'disconnect' });
+  }
+
+  /** Asks the daemon to exit cleanly, rather than killing it. */
+  exit(): Promise<ScannerResult<void>> {
+    return this.expectOk({ kind: 'exit' });
+  }
+
+  async getStatus(): Promise<ScannerResult<Status>> {
+    return unwrap(
+      await this.send({ kind: 'getStatus' }),
+      'status',
+      (body) => body.status
+    );
+  }
+
+  async getVersions(): Promise<
+    ScannerResult<{ api: string; scanner: string }>
+  > {
+    return unwrap(
+      await this.send({ kind: 'getVersions' }),
+      'versions',
+      ({ api, scanner }) => ({ api, scanner })
+    );
+  }
+
+  /** The active profile, as the driver's `Section_field = value` text. */
+  async getProfile(): Promise<ScannerResult<string>> {
+    return unwrap(
+      await this.send({ kind: 'getProfile' }),
+      'profile',
+      (body) => body.profile
+    );
+  }
+
+  setProfile(profile: string): Promise<ScannerResult<void>> {
+    return this.expectOk({ kind: 'setProfile', profile });
+  }
+
+  setReady(ready: boolean): Promise<ScannerResult<void>> {
+    return this.expectOk({ kind: 'setReady', ready });
+  }
+
+  scanStart(): Promise<ScannerResult<void>> {
+    return this.expectOk({ kind: 'scanStart' });
+  }
+
+  scanStop(): Promise<ScannerResult<void>> {
+    return this.expectOk({ kind: 'scanStop' });
+  }
+
+  /** Stops the feeder without ending the batch. */
+  scanPause(): Promise<ScannerResult<void>> {
+    return this.expectOk({ kind: 'scanPause' });
+  }
+
+  scanResume(): Promise<ScannerResult<void>> {
+    return this.expectOk({ kind: 'scanResume' });
+  }
+
+  setImprinterText(
+    side: ImprinterSide,
+    text: string
+  ): Promise<ScannerResult<void>> {
+    return this.expectOk({ kind: 'setImprinterText', side, text });
+  }
+
+  setCounter(index: number, value: number): Promise<ScannerResult<void>> {
+    return this.expectOk({ kind: 'setCounter', index, value });
+  }
+
+  setNumberOfSheets(count: number): Promise<ScannerResult<void>> {
+    return this.expectOk({ kind: 'setNumberOfSheets', count });
+  }
+
+  private async expectOk(command: Command): Promise<ScannerResult<void>> {
+    return unwrap(await this.send(command), 'ok', () => undefined);
+  }
+
+  private send(command: Command): Promise<ScannerResult<ResponseBody>> {
+    if (this.closed) {
+      return Promise.resolve(err(this.closed));
+    }
+
+    const id = this.nextCommandId;
+    this.nextCommandId += 1;
+    let payload: Buffer;
+    try {
+      payload = encodeCommand(id, command);
+    } catch (error) {
+      return Promise.resolve(
+        err({ code: 'badRequest', message: extractErrorMessage(error) })
+      );
+    }
+
+    const pending = deferred<ScannerResult<ResponseBody>>();
+    this.pending.set(id, pending);
+    debug('command %d: %o', id, command);
+    this.transport.outgoing.write(encodeFrame(FrameType.Command, payload));
+    return pending.promise;
+  }
+
+  /** Pulls every complete frame out of the read buffer. */
+  private drainFrames(): void {
+    for (;;) {
+      if (this.buffer.length < FRAME_HEADER_LENGTH) {
+        this.bytesNeeded = FRAME_HEADER_LENGTH;
+        return;
+      }
+      const { length } = decodeFrameHeader(this.buffer);
+      this.bytesNeeded = FRAME_HEADER_LENGTH + length;
+      if (this.buffer.length < this.bytesNeeded) return;
+
+      // Copy the smaller side so neither the next frame nor a large image pins the other.
+      let frame = this.buffer.subarray(0, this.bytesNeeded);
+      const rest = this.buffer.subarray(this.bytesNeeded);
+      if (rest.length < frame.length) {
+        this.buffer = Buffer.from(rest);
+      } else {
+        frame = Buffer.from(frame);
+        this.buffer = rest;
+      }
+      this.handleFrame(frame.readUInt8(0), frame.subarray(FRAME_HEADER_LENGTH));
+    }
+  }
+
+  private handleFrame(frameType: number, payload: Buffer): void {
+    switch (frameType) {
+      case FrameType.Hello: {
+        const hello = decodeHello(payload);
+        this.helloWaiter?.resolve(ok(hello));
+        return;
+      }
+
+      case FrameType.Response: {
+        const response = decodeResponse(payload);
+        const pending = this.pending.get(response.id);
+        if (!pending) {
+          throw new ProtocolError(
+            `response for unknown command id ${response.id}`
+          );
+        }
+        this.pending.delete(response.id);
+        const { body } = response;
+        pending.resolve(
+          body.kind === 'error'
+            ? err({ code: body.code, message: body.message })
+            : ok(body)
+        );
+        return;
+      }
+
+      case FrameType.Event:
+        this.emit('event', decodeEvent(payload));
+        return;
+
+      case FrameType.Image:
+        this.emit('image', decodeImage(payload));
+        return;
+
+      default:
+        throw new ProtocolError(`unknown frame type ${frameType}`);
+    }
+  }
+
+  /** Rejects everything outstanding and refuses anything new. */
+  private fail(error: ScannerError): void {
+    if (this.closed) return;
+    this.closed = error;
+    for (const pending of this.pending.values()) {
+      pending.resolve(err(error));
+    }
+    this.pending.clear();
+    this.helloWaiter?.resolve(err(error));
+  }
+}
+
+/** Narrows a response to the kind a command expects, or reports a protocol error. */
+function unwrap<K extends ResponseBody['kind'], T>(
+  result: ScannerResult<ResponseBody>,
+  kind: K,
+  extract: (body: Extract<ResponseBody, { kind: K }>) => T
+): ScannerResult<T> {
+  if (result.isErr()) {
+    return result;
+  }
+  const body = result.ok();
+  if (body.kind !== kind) {
+    return err({
+      code: 'protocol',
+      message: `expected a ${kind} response, got ${body.kind}`,
+    });
+  }
+  return ok(extract(body as Extract<ResponseBody, { kind: K }>));
+}

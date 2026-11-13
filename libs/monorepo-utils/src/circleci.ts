@@ -171,11 +171,13 @@ function generateTestJobForNodeJsPackage(
 // - ballot-interpreter: libs/ballot-interpreter/rust/Cargo.toml (types-rs is a path dep)
 // - types-rs: libs/types-rs/Cargo.toml
 // - pdi-scanner: libs/pdi-scanner/rust/Cargo.toml
+// - deskpro-scanner: libs/deskpro-scanner/rust/Cargo.toml
 const RUST_WORKSPACE_DIRS = [
   '.',
   'libs/ballot-interpreter/rust',
   'libs/types-rs',
   'libs/pdi-scanner/rust',
+  'libs/deskpro-scanner/rust',
 ];
 
 function generateTestJobForRustCrates(): string[] {
@@ -513,7 +515,7 @@ ${turboCacheRestoreSteps('            ').join('\n')}
       - restore_cache:
           name: Restore Cargo Cache
           key:
-            cargo-cache-{{ checksum ".circleci/continue_config.yml" }}-{{ checksum "Cargo.lock" }}-{{ checksum "libs/ballot-interpreter/rust/Cargo.lock" }}-{{ checksum "libs/pdi-scanner/rust/Cargo.lock" }}
+            cargo-cache-{{ checksum ".circleci/continue_config.yml" }}-{{ checksum "Cargo.lock" }}-{{ checksum "libs/ballot-interpreter/rust/Cargo.lock" }}-{{ checksum "libs/pdi-scanner/rust/Cargo.lock" }}-{{ checksum "libs/deskpro-scanner/rust/Cargo.lock" }}
       - run:
           name: Install Rust Toolchain
           command: rustup toolchain install
@@ -523,7 +525,7 @@ ${turboCacheRestoreSteps('            ').join('\n')}
       - save_cache:
           name: Save Cargo Cache
           key:
-            cargo-cache-{{ checksum ".circleci/continue_config.yml" }}-{{ checksum "Cargo.lock" }}-{{ checksum "libs/ballot-interpreter/rust/Cargo.lock" }}-{{ checksum "libs/pdi-scanner/rust/Cargo.lock" }}
+            cargo-cache-{{ checksum ".circleci/continue_config.yml" }}-{{ checksum "Cargo.lock" }}-{{ checksum "libs/ballot-interpreter/rust/Cargo.lock" }}-{{ checksum "libs/pdi-scanner/rust/Cargo.lock" }}-{{ checksum "libs/deskpro-scanner/rust/Cargo.lock" }}
           paths:
             - /root/.cargo
 `.trim();
