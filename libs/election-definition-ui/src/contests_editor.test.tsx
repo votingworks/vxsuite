@@ -497,7 +497,7 @@ test('adding a candidate contest (general election)', async () => {
       (p) => p.id === candidate.partyIds?.[0]
     );
     if (party) {
-      await userEvent.click(within(row).getByText(party.name));
+      await userEvent.click(screen.getByRole('option', { name: party.name }));
     }
   }
 
@@ -771,7 +771,7 @@ test('editing a candidate contest (primary election)', async () => {
   );
   await userEvent.click(partySelect);
   await userEvent.click(
-    within(candidateRows[2]!).getByText('No Party Affiliation')
+    screen.getByRole('option', { name: 'No Party Affiliation' })
   );
 
   // Remove candidate 1
