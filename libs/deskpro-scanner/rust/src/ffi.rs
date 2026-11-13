@@ -322,9 +322,10 @@ pub struct Symbols {
     pub ScanContinue: unsafe extern "C" fn() -> u32,
     pub GetScannerVersion: unsafe extern "C" fn(*mut *mut c_char) -> u32,
     pub GetApiVersion: unsafe extern "C" fn(*mut *mut c_char) -> u32,
-    pub SetCB_LogFunctionCB: unsafe extern "C" fn(*mut c_void) -> u32,
-    pub SetCB_ScannerControlCB: unsafe extern "C" fn(*mut c_void) -> u32,
-    pub SetCB_ImageCB: unsafe extern "C" fn(*mut c_void) -> u32,
+    // The header takes `void*`; `Option<fn>` has the same ABI, with `None` as null.
+    pub SetCB_LogFunctionCB: unsafe extern "C" fn(Option<LogFunctionCB>) -> u32,
+    pub SetCB_ScannerControlCB: unsafe extern "C" fn(Option<ScannerControlCB>) -> u32,
+    pub SetCB_ImageCB: unsafe extern "C" fn(Option<ImageCB>) -> u32,
     pub AllocBuffer: unsafe extern "C" fn(i32) -> *mut c_void,
     pub FreeBuffer: unsafe extern "C" fn(*mut c_void) -> u32,
 

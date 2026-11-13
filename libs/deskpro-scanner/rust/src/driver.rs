@@ -684,17 +684,15 @@ impl Driver {
         unsafe {
             check(
                 "SetCB_LogFunctionCB",
-                (symbols.SetCB_LogFunctionCB)(log_trampoline as ffi::LogFunctionCB as *mut c_void),
+                (symbols.SetCB_LogFunctionCB)(Some(log_trampoline)),
             )?;
             check(
                 "SetCB_ScannerControlCB",
-                (symbols.SetCB_ScannerControlCB)(
-                    control_trampoline as ffi::ScannerControlCB as *mut c_void,
-                ),
+                (symbols.SetCB_ScannerControlCB)(Some(control_trampoline)),
             )?;
             check(
                 "SetCB_ImageCB",
-                (symbols.SetCB_ImageCB)(image_trampoline as ffi::ImageCB as *mut c_void),
+                (symbols.SetCB_ImageCB)(Some(image_trampoline)),
             )?;
             check(
                 "ScannerConnect",
@@ -873,11 +871,11 @@ impl fmt::Debug for Driver {
 
 impl Drop for Driver {
     fn drop(&mut self) {
-        // SAFETY: plain calls. Only the log callback may be unset with null; the other
+        // SAFETY: plain calls. Only the log callback may be unset; the other
         // trampolines become no-ops once the sender is gone.
         unsafe {
             let _ = (self.symbols.ScannerDisconnect)();
-            let _ = (self.symbols.SetCB_LogFunctionCB)(ptr::null_mut());
+            let _ = (self.symbols.SetCB_LogFunctionCB)(None);
         }
         Self::clear_events();
     }
