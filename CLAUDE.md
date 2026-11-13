@@ -206,7 +206,7 @@ Tasks and their wiring (`turbo.json`):
 | Task              | Depends on    | Cached outputs                                     |
 | ----------------- | ------------- | -------------------------------------------------- |
 | `build:self`      | `^build:self` | `build/**`, `*.node`                               |
-| `type-check:self` | `^build:self` | `tsconfig.tsbuildinfo`                             |
+| `type-check:self` | `^build:self` | (logs only)                                        |
 | `lint:self`       | `^build:self` | (logs only)                                        |
 | `test:run:self`   | `build:self`  | `reports/**` (junit)                               |
 | `test:ci:self`    | `build:self`  | `reports/**`; hub's Postgres/migration CI steps    |
@@ -236,18 +236,21 @@ directly with the args. `validate-monorepo` enforces that any package defining a
 prefixes `pnpm -w vx-task build $npm_package_name` and then execs `vitest`
 directly, so deps are built once up front while the watcher keeps its native UI.
 
-Each package's `build:self` writes its incremental `tsc` build-info to
-`build/tsconfig.build.tsbuildinfo` (inside `build/`, enforced by
-`validate-monorepo`), so it's captured by the `build/**` output and removed
-atomically by `rm -rf build`. Keeping it there avoids a stale build-info making
-`tsc` skip re-emitting after `build/` is deleted.
-
 `build:self` and `type-check:self` run `tsc -p`, never `tsc --build`. Turbo
 already orders dependency builds, and `--build`'s up-to-date check compares only
-mtimes: Turbo restores cached outputs with fresh mtimes, so on a later cache
-miss `--build` can decide a package is current, emit nothing, and let Turbo
-cache the stale outputs under the new hash. `-p` compares file contents recorded
-in the build-info instead.
+mtimes, which Turbo's cache restores (fresh mtimes) defeat.
+
+Neither task trusts `tsc`'s incremental build-info. `composite` (required by
+project references) forces `tsc` to write one, but `build:self` starts with
+`rm -rf build` (its build-info is `build/tsconfig.build.tsbuildinfo`, enforced
+by `validate-monorepo`) and `type-check:self` with `rm -f tsconfig.tsbuildinfo`,
+which Turbo doesn't cache, so every cache miss compiles from scratch. TypeScript
+7.0's incremental build can skip re-checking and re-emitting a module whose
+inferred declarations depend on a changed import when a global declaration file
+(e.g. `types/env.d.ts`) changes in the same build, and records the module as
+current, so later builds never repair it (fixed in 7.1 by
+[microsoft/typescript-go#4665](https://github.com/microsoft/typescript-go/pull/4665)).
+Starting clean also drops outputs of deleted source files.
 
 **Cross-worktree cache:** Turbo automatically shares its local cache across git
 worktrees of this repo (stored in the main checkout's `.turbo/cache`, i.e.

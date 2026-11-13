@@ -22,7 +22,7 @@
     },
     "type-check:self": {
       "dependsOn": ["^build:self"],
-      "outputs": ["tsconfig.tsbuildinfo"]
+      "outputs": []
     },
     "lint:self": {
       "dependsOn": ["^build:self"]

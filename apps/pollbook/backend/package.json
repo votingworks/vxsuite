@@ -20,7 +20,7 @@
   ],
   "scripts": {
     "build": "pnpm -w vx-task build $npm_package_name",
-    "build:self": "tsc -p tsconfig.build.json",
+    "build:self": "rm -rf build && tsc -p tsconfig.build.json",
     "clean": "pnpm -w vx-task clean $npm_package_name",
     "clean:self": "rm -rf build",
     "dev": "NODE_ENV=development pnpm start",
@@ -32,7 +32,7 @@
     "test": "pnpm -w vx-task build $npm_package_name && TZ=America/Anchorage vitest",
     "test:run": "pnpm -w vx-task test:run $npm_package_name",
     "test:run:self": "TZ=America/Anchorage vitest run",
-    "type-check:self": "tsc -p tsconfig.json"
+    "type-check:self": "rm -f tsconfig.tsbuildinfo && tsc -p tsconfig.json"
   },
   "dependencies": {
     "@types/luxon": "^3.0.0",

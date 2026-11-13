@@ -18,8 +18,8 @@
   "scripts": {
     "build": "pnpm -w vx-task build $npm_package_name",
     "build:rust-addon": "cargo build --manifest-path rust/Cargo.toml --release --offline",
-    "build:self": "pnpm build:rust-addon && pnpm build:ts",
-    "build:ts": "tsc --build tsconfig.build.json",
+    "build:self": "rm -rf build && pnpm build:rust-addon && pnpm build:ts",
+    "build:ts": "tsc -p tsconfig.build.json",
     "clean": "pnpm -w vx-task clean $npm_package_name",
     "clean:self": "cargo clean --manifest-path rust/Cargo.toml --release --package deskpro-scanner && rm -rf build",
     "diag": "cargo run --manifest-path rust/Cargo.toml --release --offline --example deskpro-diag --",
