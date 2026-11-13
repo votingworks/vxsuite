@@ -1,53 +1,46 @@
 import React, { useState } from 'react';
-import { Button, LinkButton, SearchSelect, H1, Callout } from '@votingworks/ui';
-import { Redirect, Route, Switch, useParams } from 'react-router-dom';
-import type { ContestId, Contest } from '@votingworks/types';
+import { Button, LinkButton, SearchSelect, Callout } from '@votingworks/ui';
+import {
+  Redirect,
+  Route,
+  Switch,
+  useHistory,
+  useParams,
+} from 'react-router-dom';
+import type { Contest, ContestId, ElectionId } from '@votingworks/types';
 import styled from 'styled-components';
+import { useElectionDefinitionApi } from './election_definition_context.js';
+import { FixedViewport, ListActionsRow, Row } from './layout.js';
 import {
-  FixedViewport,
-  Row,
-  ListActionsRow,
-} from '@votingworks/election-definition-ui';
-import { ElectionNavScreen, Header } from './nav_screen.js';
-import {
-  type ElectionIdParams,
-  electionParamRoutes,
-  routes,
-} from './routes.js';
-import {
-  getBallotsFinalizedAt,
-  getElectionInfo,
-  listContests,
-  listDistricts,
-  listParties,
-  reorderContests,
-} from './api.js';
+  type ListDetailRoutes,
+  useListDetailRoutes,
+} from './list_detail_routes.js';
 import { reorderElement } from './utils.js';
-import { useTitle } from './hooks/use_title.js';
 import { ContestForm } from './contest_form.js';
 import { ContestList } from './contest_list.js';
-import { ContestAudioPanel } from './contest_audio_panel.js';
 
-export function ContestsScreen(): JSX.Element {
-  const { electionId } = useParams<ElectionIdParams>();
-  const contestParamRoutes = electionParamRoutes.contests;
+export interface ContestsEditorProps {
+  electionId: ElectionId;
+  isLocked?: boolean;
+  AudioPanel?: React.ComponentType;
+}
 
-  useTitle(routes.election(electionId).contests.root.title);
+interface ContentProps extends ContestsEditorProps {
+  contestRoutes: ListDetailRoutes;
+}
+
+export function ContestsEditor(props: ContestsEditorProps): JSX.Element {
+  const contestRoutes = useListDetailRoutes('contestId', ':stringKey/:subkey');
 
   return (
-    <ElectionNavScreen electionId={electionId}>
-      <Header>
-        <H1>Contests</H1>
-      </Header>
-      <Switch>
-        <Route
-          path={contestParamRoutes.view(':contestId').path}
-          component={Content}
-        />
-        <Route path={contestParamRoutes.root.path} component={Content} />
-        <Redirect to={contestParamRoutes.root.path} />
-      </Switch>
-    </ElectionNavScreen>
+    <Switch>
+      <Route path={contestRoutes.viewPath}>
+        <Content {...props} contestRoutes={contestRoutes} />
+      </Route>
+      <Route path={contestRoutes.rootPath}>
+        <Content {...props} contestRoutes={contestRoutes} />
+      </Route>
+    </Switch>
   );
 }
 
@@ -89,17 +82,17 @@ const NoContests = styled.div`
   padding: 1rem;
 `;
 
-function Content(): JSX.Element | null {
-  const { contestId, electionId } = useParams<
-    ElectionIdParams & { contestId?: string }
-  >();
+function Content(props: ContentProps): JSX.Element | null {
+  const { electionId, isLocked, AudioPanel, contestRoutes } = props;
+  const { contestId } = useParams<{ contestId?: ContestId }>();
+  const history = useHistory();
+  const api = useElectionDefinitionApi();
 
-  const listContestsQuery = listContests.useQuery(electionId);
-  const getElectionInfoQuery = getElectionInfo.useQuery(electionId);
-  const listDistrictsQuery = listDistricts.useQuery(electionId);
-  const listPartiesQuery = listParties.useQuery(electionId);
-  const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
-  const reorderContestsMutation = reorderContests.useMutation();
+  const listContestsQuery = api.listContests.useQuery(electionId);
+  const getElectionInfoQuery = api.getElectionInfo.useQuery(electionId);
+  const listDistrictsQuery = api.listDistricts.useQuery(electionId);
+  const listPartiesQuery = api.listParties.useQuery(electionId);
+  const reorderContestsMutation = api.reorderContests.useMutation();
 
   const [filterDistrictId, setFilterDistrictId] = useState(FILTER_ALL);
   const [filterPartyId, setFilterPartyId] = useState(FILTER_ALL);
@@ -111,8 +104,7 @@ function Content(): JSX.Element | null {
       listContestsQuery.isSuccess &&
       getElectionInfoQuery.isSuccess &&
       listDistrictsQuery.isSuccess &&
-      listPartiesQuery.isSuccess &&
-      getBallotsFinalizedAtQuery.isSuccess
+      listPartiesQuery.isSuccess
     )
   ) {
     return null;
@@ -122,11 +114,7 @@ function Content(): JSX.Element | null {
   const electionInfo = getElectionInfoQuery.data;
   const districts = listDistrictsQuery.data;
   const parties = listPartiesQuery.data;
-  const ballotsFinalizedAt = getBallotsFinalizedAtQuery.data;
   const hasExternalSource = Boolean(electionInfo.externalSource);
-
-  const contestRoutes = routes.election(electionId).contests;
-  const contestParamRoutes = electionParamRoutes.contests;
 
   const filteredContests = contests.filter((contest) => {
     const matchesDistrict =
@@ -146,7 +134,7 @@ function Content(): JSX.Element | null {
     filterDistrictId === FILTER_ALL &&
     filterPartyId === FILTER_ALL &&
     contests.length > 0 &&
-    !ballotsFinalizedAt &&
+    !isLocked &&
     !hasExternalSource;
   const isReordering = reorderedContests !== undefined;
 
@@ -159,7 +147,7 @@ function Content(): JSX.Element | null {
   const defaultContestRoute =
     !contestId && contestsToShow.length > 0
       ? // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        contestRoutes.view(contestsToShow[0]!.id).path
+        contestRoutes.viewUrl(contestsToShow[0]!.id)
       : null;
 
   function onSaveReorderedContests(updatedContests: readonly Contest[]) {
@@ -183,8 +171,8 @@ function Content(): JSX.Element | null {
           <LinkButton
             variant="primary"
             icon="Add"
-            to={contestRoutes.add.path}
-            disabled={isReordering || !!ballotsFinalizedAt}
+            to={contestRoutes.addUrl}
+            disabled={isReordering || isLocked}
           >
             Add Contest
           </LinkButton>
@@ -286,6 +274,9 @@ function Content(): JSX.Element | null {
         ) : (
           <ContestList
             contests={contestsToShow}
+            electionId={electionId}
+            onSelect={(id) => history.push(contestRoutes.viewUrl(id))}
+            selectedId={contestId}
             reordering={isReordering}
             reorder={(params) => {
               // @coverage-defer
@@ -300,25 +291,23 @@ function Content(): JSX.Element | null {
         )}
 
         <Switch>
-          <Route
-            path={contestParamRoutes.audio({
-              contestId: ':contestId',
-              stringKey: ':stringKey',
-              subkey: ':subkey',
-            })}
-          >
-            <EditPanel>
-              <ContestAudioPanel />
-            </EditPanel>
+          {AudioPanel && (
+            <Route path={contestRoutes.audioPath}>
+              <EditPanel>
+                <AudioPanel />
+              </EditPanel>
+            </Route>
+          )}
+          <Route path={contestRoutes.addPath}>
+            <AddContestForm
+              contestRoutes={contestRoutes}
+              electionId={electionId}
+              isLocked={isLocked}
+            />
           </Route>
-          <Route
-            path={contestParamRoutes.add.path}
-            component={AddContestForm}
-          />
-          <Route
-            path={contestParamRoutes.view(':contestId').path}
-            component={EditContestForm}
-          />
+          <Route path={contestRoutes.viewPath}>
+            <EditContestForm {...props} />
+          </Route>
           {defaultContestRoute && <Redirect to={defaultContestRoute} />}
         </Switch>
       </Body>
@@ -326,44 +315,56 @@ function Content(): JSX.Element | null {
   );
 }
 
-function AddContestForm(): JSX.Element | null {
-  const { electionId } = useParams<ElectionIdParams>();
+function AddContestForm(props: Omit<ContentProps, 'AudioPanel'>): JSX.Element {
+  const { electionId, isLocked, contestRoutes } = props;
+  const nav = useNav(contestRoutes);
   return (
     <EditPanel>
-      <ContestForm electionId={electionId} editing title="Add Contest" />
+      <ContestForm
+        editing
+        electionId={electionId}
+        exit={nav.goToRoot}
+        isLocked={isLocked}
+        switchToEdit={nav.goToEdit}
+        switchToView={nav.goToView}
+        title="Add Contest"
+      />
     </EditPanel>
   );
 }
 
-function EditContestForm(): JSX.Element | null {
-  const { electionId, contestId } = useParams<
-    ElectionIdParams & { contestId: ContestId }
-  >();
-  const listContestsQuery = listContests.useQuery(electionId);
-  const finalizedAt = getBallotsFinalizedAt.useQuery(electionId);
-
-  const contestParamRoutes = electionParamRoutes.contests;
-  const contestRoutes = routes.election(electionId).contests;
+function EditContestForm(props: ContentProps): JSX.Element | null {
+  const { electionId, isLocked, AudioPanel, contestRoutes } = props;
+  const { contestId } = useParams<{ contestId: ContestId }>();
+  const nav = useNav(contestRoutes);
+  const listContestsQuery =
+    useElectionDefinitionApi().listContests.useQuery(electionId);
 
   // @coverage-exclude
-  if (!listContestsQuery.isSuccess || !finalizedAt.isSuccess) {
+  if (!listContestsQuery.isSuccess) {
     return null;
   }
 
   const contests = listContestsQuery.data;
   const savedContest = contests.find((c) => c.id === contestId);
-  const canEdit = !finalizedAt.data && !!savedContest;
+  const canEdit = !isLocked && !!savedContest;
+  const audioUrl = AudioPanel ? contestRoutes.audioUrl : undefined;
 
   return (
     <EditPanel>
       <Switch>
         {canEdit && (
-          <Route path={contestParamRoutes.edit(':contestId').path} exact>
+          <Route path={contestRoutes.editPath} exact>
             <ContestForm
-              electionId={electionId}
-              key={contestId}
+              audioUrl={audioUrl}
               editing
+              electionId={electionId}
+              exit={nav.goToRoot}
+              isLocked={isLocked}
+              key={contestId}
               savedContest={savedContest}
+              switchToEdit={nav.goToEdit}
+              switchToView={nav.goToView}
               title="Edit Contest"
             />
           </Route>
@@ -374,12 +375,17 @@ function EditContestForm(): JSX.Element | null {
          * have a stale tab), so we fall through to the redirect below.
          */}
         {savedContest && (
-          <Route exact path={contestParamRoutes.view(':contestId').path}>
+          <Route exact path={contestRoutes.viewPath}>
             <ContestForm
+              audioUrl={audioUrl}
               editing={false}
               electionId={electionId}
+              exit={nav.goToRoot}
+              isLocked={isLocked}
               key={contestId}
               savedContest={savedContest}
+              switchToEdit={nav.goToEdit}
+              switchToView={nav.goToView}
               title="Contest Info"
             />
           </Route>
@@ -389,11 +395,21 @@ function EditContestForm(): JSX.Element | null {
           to={
             // @coverage-defer
             savedContest
-              ? contestRoutes.view(contestId).path
-              : contestRoutes.root.path
+              ? contestRoutes.viewUrl(contestId)
+              : contestRoutes.rootUrl
           }
         />
       </Switch>
     </EditPanel>
   );
+}
+
+function useNav(contestRoutes: ListDetailRoutes) {
+  const history = useHistory();
+
+  return {
+    goToRoot: () => history.replace(contestRoutes.rootUrl),
+    goToEdit: (id: ContestId) => history.replace(contestRoutes.editUrl(id)),
+    goToView: (id: ContestId) => history.replace(contestRoutes.viewUrl(id)),
+  };
 }

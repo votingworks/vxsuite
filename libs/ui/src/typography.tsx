@@ -196,7 +196,7 @@ export function Caption(props: FontProps): JSX.Element {
  * Some props to override theme styles for use without a theme
  * (e.g. in HMPBs).
  */
-interface RichTextProps {
+export interface RichTextProps {
   tableBorderWidth?: string;
   tableBorderColor?: string;
   tableHeaderBackgroundColor?: string;

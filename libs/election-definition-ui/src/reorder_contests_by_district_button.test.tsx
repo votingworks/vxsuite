@@ -2,27 +2,22 @@ import { afterEach, beforeEach, expect, test } from 'vitest';
 import { within } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { DateWithoutTime } from '@votingworks/basics';
-import type { ElectionInfo } from '@votingworks/hub-backend';
+import type { ElectionInfo } from '@votingworks/election-definition-backend';
 import {
   type CandidateContest,
   type Contest,
   type District,
   DistrictIdSchema,
-  HmpbBallotPaperSize,
+  LanguageCode,
   unsafeParse,
   type YesNoContest,
 } from '@votingworks/types';
 
 import {
   createMockApiClient,
-  jurisdiction,
   type MockApiClient,
   provideApi,
 } from '../test/api_helpers.js';
-import {
-  electionInfoFromElection,
-  makeElectionRecord,
-} from '../test/fixtures.js';
 import { render, screen, waitFor } from '../test/react_testing_library.js';
 import {
   reorderContestsByDistrict,
@@ -98,105 +93,68 @@ const testContestsInBcaOrder: readonly Contest[] = [
   yesNoContest(testDistrictA.id, 1),
 ];
 
-const testElectionRecord = makeElectionRecord(
-  {
-    id: 'test-election-id',
-    ballotLayout: {
-      metadataEncoding: 'qr-code',
-      paperSize: HmpbBallotPaperSize.Letter,
-    },
-    ballotStrings: {},
-    ballotStyles: [],
-    contests: testContests,
-    jurisdiction: { id: 'test-county', name: 'Test County' },
-    date: DateWithoutTime.today(),
-    districts: testDistricts,
-    parties: [],
-    precincts: [
-      {
-        id: 'test-precinct',
-        name: 'Test Precinct',
-        districtIds: testDistricts.map((d) => d.id),
-      },
-    ],
-    pollingPlaces: [
-      {
-        id: 'test-polling-place',
-        name: 'Test Polling Place',
-        precincts: { 'test-precinct': { type: 'whole' } },
-        type: 'election_day',
-      },
-    ],
-    seal: '',
-    state: 'CA',
-    title: 'Test Election',
-    type: 'general',
-  },
-  jurisdiction.id
-);
+const testElectionId = 'test-election-id';
+const testElectionInfo: ElectionInfo = {
+  electionId: testElectionId,
+  type: 'general',
+  date: DateWithoutTime.today(),
+  title: 'Test Election',
+  state: 'CA',
+  jurisdictionName: 'Test County',
+  seal: '',
+  languageCodes: [LanguageCode.ENGLISH],
+};
 
-const testElection = testElectionRecord.election;
-const testElectionId = testElection.id;
-const testElectionInfo = electionInfoFromElection(testElection);
-
-function renderButton() {
+function renderButton(isLocked?: boolean) {
   return render(
     provideApi(
       apiMock,
-      <ReorderContestsByDistrictButton electionId={testElectionId} />
+      <ReorderContestsByDistrictButton
+        electionId={testElectionId}
+        isLocked={isLocked}
+      />
     )
   );
 }
 
 test.each<{
   description: string;
-  ballotsFinalizedAt: Date | null;
+  isLocked?: boolean;
   electionInfo: ElectionInfo;
   contests: readonly Contest[];
   shouldButtonBeEnabled: boolean;
 }>([
   {
     description: 'button enabled',
-    ballotsFinalizedAt: null,
     electionInfo: testElectionInfo,
-    contests: testElection.contests,
+    contests: testContests,
     shouldButtonBeEnabled: true,
   },
   {
     description: 'button disabled when ballots finalized',
-    ballotsFinalizedAt: new Date(),
+    isLocked: true,
     electionInfo: testElectionInfo,
-    contests: testElection.contests,
+    contests: testContests,
     shouldButtonBeEnabled: false,
   },
   {
     description: 'button disabled when election has external source',
-    ballotsFinalizedAt: null,
     electionInfo: {
       ...testElectionInfo,
       externalSource: 'ms-sems',
     },
-    contests: testElection.contests,
+    contests: testContests,
     shouldButtonBeEnabled: false,
   },
   {
     description: 'button disabled when no contests',
-    ballotsFinalizedAt: null,
     electionInfo: testElectionInfo,
     contests: [],
     shouldButtonBeEnabled: false,
   },
 ])(
   'button enable/disable logic - $description',
-  async ({
-    ballotsFinalizedAt,
-    electionInfo,
-    contests,
-    shouldButtonBeEnabled,
-  }) => {
-    apiMock.getBallotsFinalizedAt
-      .expectCallWith({ electionId: testElectionId })
-      .resolves(ballotsFinalizedAt);
+  async ({ isLocked, electionInfo, contests, shouldButtonBeEnabled }) => {
     apiMock.getElectionInfo
       .expectCallWith({ electionId: testElectionId })
       .resolves(electionInfo);
@@ -207,7 +165,7 @@ test.each<{
       .expectCallWith({ electionId: testElectionId })
       .resolves(testDistricts);
 
-    renderButton();
+    renderButton(isLocked);
 
     const button = await screen.findByRole('button', {
       name: 'Reorder Contests by District',
@@ -221,9 +179,6 @@ test.each<{
 );
 
 test('reorders districts and saves', async () => {
-  apiMock.getBallotsFinalizedAt
-    .expectCallWith({ electionId: testElectionId })
-    .resolves(null);
   apiMock.getElectionInfo
     .expectCallWith({ electionId: testElectionId })
     .resolves(testElectionInfo);
@@ -298,9 +253,6 @@ test('reorders districts and saves', async () => {
 });
 
 test('initial district order is based on the order of appearance in contests', async () => {
-  apiMock.getBallotsFinalizedAt
-    .expectCallWith({ electionId: testElectionId })
-    .resolves(null);
   apiMock.getElectionInfo
     .expectCallWith({ electionId: testElectionId })
     .resolves(testElectionInfo);
