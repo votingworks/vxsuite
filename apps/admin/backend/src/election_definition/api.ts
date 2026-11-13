@@ -111,7 +111,7 @@ function createElectionDefinitionApiMethods({
   const { store } = workspace;
 
   function loadInProgressElectionInfo(input: ElectionInput): ElectionInfo {
-    const electionInfo = store.electionDefinition.getInProgressElection();
+    const electionInfo = store.electionDefinition.getElectionInfo();
     assert(
       electionInfo?.electionId === input.electionId,
       'Election definition not found'
@@ -121,7 +121,7 @@ function createElectionDefinitionApiMethods({
 
   const methods = {
     getCurrentInProgressElection(): ElectionInfo | null {
-      return store.electionDefinition.getInProgressElection() ?? null;
+      return store.electionDefinition.getElectionInfo() ?? null;
     },
 
     async createInProgressElection(): Promise<ElectionId> {
@@ -132,7 +132,7 @@ function createElectionDefinitionApiMethods({
         'Cannot create an election definition while an election is configured.'
       );
       assert(
-        store.electionDefinition.getInProgressElection() === undefined,
+        store.electionDefinition.getElectionInfo() === undefined,
         'An election definition already exists.'
       );
       store.electionDefinition.createInProgressElection(

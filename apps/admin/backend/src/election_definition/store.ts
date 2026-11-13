@@ -25,12 +25,14 @@ import {
   type District,
   type DistrictId,
   DistrictSchema,
+  type Election,
   type ElectionId,
   type ElectionRegisteredVoterCounts,
   type ElectionType,
   hasSplits,
   isPrecinctCount,
   isSplitCounts,
+  HmpbBallotPaperSize,
   LanguageCodeSchema,
   type NhPrecinctSplitOptions,
   type PollingPlace,
@@ -49,6 +51,8 @@ import {
 import { z } from 'zod/v4';
 
 const NATURAL_SORT_COLLATOR = new Intl.Collator('en', { numeric: true });
+
+const PLACEHOLDER_JURISDICTION_ID = 'jurisdiction';
 
 function isDuplicateDistrictNameError(error: unknown): boolean {
   return (
@@ -145,7 +149,7 @@ export class ElectionDefinitionStore {
     this.client = client;
   }
 
-  getInProgressElection(): ElectionInfo | undefined {
+  getElectionInfo(): ElectionInfo | undefined {
     const row = this.client.one(
       `
       select
@@ -192,6 +196,46 @@ export class ElectionDefinitionStore {
         row.languageCodes,
         z.array(LanguageCodeSchema)
       ),
+    };
+  }
+
+  // TODO fill this method in after all election entities are added to the store
+  getElection(electionId: ElectionId): Election | undefined {
+    const electionInfo = this.getElectionInfo();
+    if (electionInfo?.electionId !== electionId) {
+      return undefined;
+    }
+    return {
+      id: electionInfo.electionId,
+      type: electionInfo.type,
+      title: electionInfo.title,
+      date: electionInfo.date,
+      state: electionInfo.state,
+      jurisdiction: {
+        id: PLACEHOLDER_JURISDICTION_ID,
+        name: electionInfo.jurisdictionName,
+      },
+      seal: electionInfo.seal,
+      ...(electionInfo.signatureImage !== undefined &&
+      electionInfo.signatureCaption !== undefined
+        ? {
+            signature: {
+              image: electionInfo.signatureImage,
+              caption: electionInfo.signatureCaption,
+            },
+          }
+        : {}),
+      districts: this.listDistricts(electionId),
+      precincts: [],
+      pollingPlaces: [],
+      parties: [],
+      contests: [],
+      ballotStyles: [],
+      ballotLayout: {
+        paperSize: HmpbBallotPaperSize.Letter,
+        metadataEncoding: 'qr-code',
+      },
+      ballotStrings: {},
     };
   }
 
