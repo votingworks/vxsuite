@@ -259,6 +259,9 @@ importers:
       '@votingworks/grout':
         specifier: workspace:*
         version: link:../../../libs/grout
+      '@votingworks/hmpb':
+        specifier: workspace:*
+        version: link:../../../libs/hmpb
       '@votingworks/image-utils':
         specifier: workspace:*
         version: link:../../../libs/image-utils
@@ -283,6 +286,9 @@ importers:
       '@votingworks/utils':
         specifier: workspace:*
         version: link:../../../libs/utils
+      csv-parse:
+        specifier: ^7.0.2
+        version: 7.0.2
       csv-stringify:
         specifier: ^6.4.0
         version: 6.4.0
@@ -359,9 +365,6 @@ importers:
       '@votingworks/test-utils':
         specifier: workspace:*
         version: link:../../../libs/test-utils
-      csv-parse:
-        specifier: ^7.0.2
-        version: 7.0.2
       esbuild:
         specifier: 0.28.1
         version: 0.28.1
