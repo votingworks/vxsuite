@@ -12,6 +12,7 @@ import {
   type MiddlewareMethodCall,
   UserError,
 } from './server.js';
+import { serialize } from './serialization.js';
 
 function createTestApp(api: AnyApi) {
   const app = express();
@@ -112,6 +113,41 @@ test('client throws ServerError for unexpected RPC method errors', async () => {
   expect(consoleErrorSpy).toHaveBeenCalledTimes(4);
   expect(consoleErrorSpy).toHaveBeenCalledWith(new Error('Unexpected error'));
   expect(consoleErrorSpy).toHaveBeenCalledWith('Not even an Error');
+
+  server.close();
+});
+
+test('sends Connection: close on 500 errors but not 400 errors', async () => {
+  vi.spyOn(console, 'error').mockReturnValue();
+  const api = createApi({
+    async throwUnexpectedError(): Promise<number> {
+      throw new Error('Unexpected error');
+    },
+    async throwUserError(): Promise<void> {
+      throw new UserError('Expected error');
+    },
+  });
+
+  const { server, baseUrl } = createTestApp(api);
+
+  const unexpectedErrorResponse = await fetch(
+    `${baseUrl}/throwUnexpectedError`,
+    {
+      method: 'POST',
+      body: serialize(undefined),
+      headers: { 'Content-type': 'application/json' },
+    }
+  );
+  expect(unexpectedErrorResponse.status).toEqual(500);
+  expect(unexpectedErrorResponse.headers.get('Connection')).toEqual('close');
+
+  const userErrorResponse = await fetch(`${baseUrl}/throwUserError`, {
+    method: 'POST',
+    body: serialize(undefined),
+    headers: { 'Content-type': 'application/json' },
+  });
+  expect(userErrorResponse.status).toEqual(400);
+  expect(userErrorResponse.headers.get('Connection')).toEqual('keep-alive');
 
   server.close();
 });
