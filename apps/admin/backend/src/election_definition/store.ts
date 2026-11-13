@@ -25,12 +25,15 @@ import {
   type District,
   type DistrictId,
   DistrictSchema,
+  type Election,
   type ElectionId,
   type ElectionRegisteredVoterCounts,
   type ElectionType,
   hasSplits,
   isPrecinctCount,
   isSplitCounts,
+  HmpbBallotPaperSize,
+  type LanguageCode,
   LanguageCodeSchema,
   type NhPrecinctSplitOptions,
   type PollingPlace,
@@ -47,8 +50,11 @@ import {
   unsafeParseJson,
 } from '@votingworks/types';
 import { z } from 'zod/v4';
+import type { TranslatedString } from './translations.js';
 
 const NATURAL_SORT_COLLATOR = new Intl.Collator('en', { numeric: true });
+
+const PLACEHOLDER_JURISDICTION_ID = 'jurisdiction';
 
 function isDuplicateDistrictNameError(error: unknown): boolean {
   return (
@@ -145,7 +151,7 @@ export class ElectionDefinitionStore {
     this.client = client;
   }
 
-  getInProgressElection(): ElectionInfo | undefined {
+  getElectionInfo(): ElectionInfo | undefined {
     const row = this.client.one(
       `
       select
@@ -192,6 +198,46 @@ export class ElectionDefinitionStore {
         row.languageCodes,
         z.array(LanguageCodeSchema)
       ),
+    };
+  }
+
+  // TODO fill this method in after all election entities are added to the store
+  getElection(electionId: ElectionId): Election | undefined {
+    const electionInfo = this.getElectionInfo();
+    if (electionInfo?.electionId !== electionId) {
+      return undefined;
+    }
+    return {
+      id: electionInfo.electionId,
+      type: electionInfo.type,
+      title: electionInfo.title,
+      date: electionInfo.date,
+      state: electionInfo.state,
+      jurisdiction: {
+        id: PLACEHOLDER_JURISDICTION_ID,
+        name: electionInfo.jurisdictionName,
+      },
+      seal: electionInfo.seal,
+      ...(electionInfo.signatureImage !== undefined &&
+      electionInfo.signatureCaption !== undefined
+        ? {
+            signature: {
+              image: electionInfo.signatureImage,
+              caption: electionInfo.signatureCaption,
+            },
+          }
+        : {}),
+      districts: this.listDistricts(electionId),
+      precincts: [],
+      pollingPlaces: [],
+      parties: [],
+      contests: [],
+      ballotStyles: [],
+      ballotLayout: {
+        paperSize: HmpbBallotPaperSize.Letter,
+        metadataEncoding: 'qr-code',
+      },
+      ballotStrings: {},
     };
   }
 
@@ -738,5 +784,69 @@ export class ElectionDefinitionStore {
       ),
       'Polling place not found'
     );
+  }
+
+  /**
+   * Loads the saved translations for the given language code. Note that these
+   * translations may be outdated if the English election content has changed
+   * since they were saved. To ensure outdated translations are not used, use
+   * `translations.loadStringsAndTranslations` instead of calling this method directly.
+   */
+  getTranslations(
+    electionId: ElectionId,
+    languageCode: LanguageCode
+  ): Array<Omit<TranslatedString, 'context'>> {
+    const rows = this.client.all(
+      `
+      select
+        key,
+        english_text as "englishText",
+        translated_text as "translatedText"
+      from design_translations
+      where election_id = ? and language_code = ?
+      `,
+      electionId,
+      languageCode
+    ) as Array<{
+      key: string;
+      englishText: string;
+      translatedText: string | null;
+    }>;
+    return rows.map((row) => ({
+      ...row,
+      translatedText: row.translatedText ?? undefined,
+    }));
+  }
+
+  updateTranslations(
+    electionId: ElectionId,
+    languageCode: LanguageCode,
+    translations: Array<Omit<TranslatedString, 'context'>>
+  ): void {
+    this.client.transaction(() => {
+      this.client.run(
+        `delete from design_translations where election_id = ? and language_code = ?`,
+        electionId,
+        languageCode
+      );
+      for (const translation of translations) {
+        this.client.run(
+          `
+          insert into design_translations (
+            election_id,
+            language_code,
+            key,
+            english_text,
+            translated_text
+          ) values (?, ?, ?, ?, ?)
+          `,
+          electionId,
+          languageCode,
+          translation.key,
+          translation.englishText,
+          translation.translatedText ?? null
+        );
+      }
+    });
   }
 }

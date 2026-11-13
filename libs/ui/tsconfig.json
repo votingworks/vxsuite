@@ -4,7 +4,7 @@
     "composite": true,
     "paths": { "@fixtures/*": ["../fixtures/data/*"] }
   },
-  "include": ["scripts", "src", "test", ".storybook/*"],
+  "include": ["scripts", "src", "src/**/*.json", "test", ".storybook/*"],
   "exclude": [],
   "references": [
     { "path": "../coverage-check/tsconfig.build.json" },

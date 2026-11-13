@@ -483,3 +483,12 @@ create table design_polling_places_precincts (
   foreign key (precinct_id) references design_precincts(id)
     on delete cascade
 ) strict;
+
+create table design_translations (
+  election_id text not null references design_elections(id) on delete cascade,
+  language_code text not null,
+  key text not null,
+  english_text text not null,
+  translated_text text,
+  primary key (election_id, language_code, key)
+) strict;

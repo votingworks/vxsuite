@@ -270,6 +270,8 @@ export const LogEventId = {
     'election-definition-polling-place-saved',
   ElectionDefinitionPollingPlaceDeleted:
     'election-definition-polling-place-deleted',
+  TranslationsFileSaved: 'translations-file-saved',
+  TranslationsFileLoaded: 'translations-file-loaded',
   ElectionDefinitionDiscarded: 'election-definition-discarded',
 } as const;
 export type LogEventId = (typeof LogEventId)[keyof typeof LogEventId];
@@ -1725,6 +1727,22 @@ const ElectionDefinitionPollingPlaceDeleted: LogDetails = {
   restrictInDocumentationToApps: [AppName.VxAdmin],
 };
 
+const TranslationsFileSaved: LogDetails = {
+  eventId: LogEventId.TranslationsFileSaved,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'A user saved a translations file for the election definition being designed, or failed to. Success or failure indicated by disposition.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
+const TranslationsFileLoaded: LogDetails = {
+  eventId: LogEventId.TranslationsFileLoaded,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'A user loaded a translations file for the election definition being designed, or failed to. Success or failure indicated by disposition.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
 const ElectionDefinitionDiscarded: LogDetails = {
   eventId: LogEventId.ElectionDefinitionDiscarded,
   eventType: LogEventType.UserAction,
@@ -2125,6 +2143,10 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return ElectionDefinitionPollingPlaceSaved;
     case LogEventId.ElectionDefinitionPollingPlaceDeleted:
       return ElectionDefinitionPollingPlaceDeleted;
+    case LogEventId.TranslationsFileSaved:
+      return TranslationsFileSaved;
+    case LogEventId.TranslationsFileLoaded:
+      return TranslationsFileLoaded;
     case LogEventId.ElectionDefinitionDiscarded:
       return ElectionDefinitionDiscarded;
     default:

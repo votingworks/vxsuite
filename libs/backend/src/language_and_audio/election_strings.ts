@@ -18,7 +18,10 @@ import { format } from '@votingworks/utils';
 import type { GoogleCloudTranslator } from './translator.js';
 import { setUiString } from './utils.js';
 
-interface ElectionString {
+/**
+ * Election string key and english source text.
+ */
+export interface ElectionString {
   stringKey: ElectionStringKey | [ElectionStringKey, string];
   stringInEnglish: string;
 }
@@ -285,7 +288,10 @@ const electionStringExtractorFns: Record<
   },
 };
 
-function getElectionStringConfig({
+/**
+ * Resolves the configuration for a given election string key.
+ */
+export function getElectionStringConfig({
   stringKey,
 }: ElectionString): ElectionStringConfig {
   return typeof stringKey === 'string'

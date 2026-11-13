@@ -794,6 +794,14 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)
 **Description:** A user deleted a polling place from the election definition being designed.
 **Machines:** vx-admin
+### translations-file-saved
+**Type:** [user-action](#user-action)
+**Description:** A user saved a translations file for the election definition being designed, or failed to. Success or failure indicated by disposition.
+**Machines:** vx-admin
+### translations-file-loaded
+**Type:** [user-action](#user-action)
+**Description:** A user loaded a translations file for the election definition being designed, or failed to. Success or failure indicated by disposition.
+**Machines:** vx-admin
 ### election-definition-discarded
 **Type:** [user-action](#user-action)
 **Description:** A user discarded the election definition being designed.

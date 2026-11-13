@@ -1252,6 +1252,18 @@ eventType = "user-action"
 documentationMessage = "A user deleted a polling place from the election definition being designed."
 restrictInDocumentationToApps = ["vx-admin"]
 
+[Events.TranslationsFileSaved]
+eventId = "translations-file-saved"
+eventType = "user-action"
+documentationMessage = "A user saved a translations file for the election definition being designed, or failed to. Success or failure indicated by disposition."
+restrictInDocumentationToApps = ["vx-admin"]
+
+[Events.TranslationsFileLoaded]
+eventId = "translations-file-loaded"
+eventType = "user-action"
+documentationMessage = "A user loaded a translations file for the election definition being designed, or failed to. Success or failure indicated by disposition."
+restrictInDocumentationToApps = ["vx-admin"]
+
 [Events.ElectionDefinitionDiscarded]
 eventId = "election-definition-discarded"
 eventType = "user-action"

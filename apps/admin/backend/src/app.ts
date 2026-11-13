@@ -71,6 +71,7 @@ import {
 } from '@votingworks/fs';
 import {
   type MultiUsbDrive,
+  type UsbDrive,
   type UsbDriveStatus,
   createUsbDriveAdapter,
   findDriveByPurpose,
@@ -215,6 +216,7 @@ function buildApi({
   machineMode,
   logger,
   multiUsbDrive,
+  usbDriveAdapter,
   printer,
 }: {
   auth: DippedSmartCardAuthApi;
@@ -222,13 +224,11 @@ function buildApi({
   machineMode: MachineModeController;
   logger: Logger;
   multiUsbDrive: MultiUsbDrive;
+  usbDriveAdapter: UsbDrive;
   printer: Printer;
 }) {
   const { store } = workspace;
 
-  const usbDriveAdapter = createUsbDriveAdapter(multiUsbDrive, (drives) =>
-    findDriveByPurpose(drives, 'data')
-  );
   const backupDriveAdapter = createUsbDriveAdapter(multiUsbDrive, (drives) =>
     findDriveByPurpose(drives, 'backup')
   );
@@ -1693,18 +1693,27 @@ export function buildApp({
   printer: Printer;
 }): Application {
   const app: Application = express();
+  const usbDriveAdapter = createUsbDriveAdapter(multiUsbDrive, (drives) =>
+    findDriveByPurpose(drives, 'data')
+  );
   const api = buildApi({
     auth,
     workspace,
     machineMode,
     logger,
     multiUsbDrive,
+    usbDriveAdapter,
     printer,
   });
   app.use(
     '/api/election-definition',
     grout.buildRouter(
-      buildElectionDefinitionApi({ auth, workspace, logger }),
+      buildElectionDefinitionApi({
+        auth,
+        workspace,
+        logger,
+        usbDrive: usbDriveAdapter,
+      }),
       express
     )
   );

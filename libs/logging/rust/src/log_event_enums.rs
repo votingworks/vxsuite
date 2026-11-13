@@ -505,6 +505,10 @@ pub enum EventId {
     ElectionDefinitionPollingPlaceSaved,
     #[serde(rename = "election-definition-polling-place-deleted")]
     ElectionDefinitionPollingPlaceDeleted,
+    #[serde(rename = "translations-file-saved")]
+    TranslationsFileSaved,
+    #[serde(rename = "translations-file-loaded")]
+    TranslationsFileLoaded,
     #[serde(rename = "election-definition-discarded")]
     ElectionDefinitionDiscarded,
 }

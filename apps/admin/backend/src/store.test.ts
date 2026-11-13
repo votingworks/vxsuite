@@ -2526,7 +2526,7 @@ describe('withholding unadjudicated central scan ballots from tallies', () => {
 
 test('design election round trip', () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
-  expect(store.electionDefinition.getInProgressElection()).toEqual(undefined);
+  expect(store.electionDefinition.getElectionInfo()).toEqual(undefined);
 
   const electionInfo = {
     electionId: 'design-election',
@@ -2544,9 +2544,7 @@ test('design election round trip', () => {
     ...electionInfo,
     languageCodes: [...electionInfo.languageCodes],
   });
-  expect(store.electionDefinition.getInProgressElection()).toEqual(
-    electionInfo
-  );
+  expect(store.electionDefinition.getElectionInfo()).toEqual(electionInfo);
 
   const {
     signatureImage: _signatureImage,
@@ -2559,7 +2557,7 @@ test('design election round trip', () => {
     title: 'Primary Election',
     languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
   });
-  expect(store.electionDefinition.getInProgressElection()).toEqual({
+  expect(store.electionDefinition.getElectionInfo()).toEqual({
     ...withoutSignature,
     type: 'primary',
     title: 'Primary Election',
@@ -2567,7 +2565,7 @@ test('design election round trip', () => {
   });
 
   store.electionDefinition.deleteInProgressElection();
-  expect(store.electionDefinition.getInProgressElection()).toEqual(undefined);
+  expect(store.electionDefinition.getElectionInfo()).toEqual(undefined);
 });
 
 test('only one design election can exist', () => {
@@ -2600,9 +2598,66 @@ test('only one design election can exist', () => {
     electionId: 'another-design-election',
     languageCodes: [...electionInfo.languageCodes],
   });
-  expect(store.electionDefinition.getInProgressElection()?.electionId).toEqual(
+  expect(store.electionDefinition.getElectionInfo()?.electionId).toEqual(
     'another-design-election'
   );
+});
+
+test('getElection assembles the in-progress election', () => {
+  const store = Store.memoryStore(makeTemporaryDirectory());
+  const electionInfo = {
+    electionId: 'design-election',
+    type: 'general',
+    date: new DateWithoutTime('2026-11-03'),
+    title: 'General Election',
+    state: 'Demo State',
+    jurisdictionName: 'Demo County',
+    seal: '<svg>seal</svg>',
+    signatureImage: '<svg>signature</svg>',
+    signatureCaption: 'Clerk',
+    languageCodes: [LanguageCode.ENGLISH],
+  } as const;
+  store.electionDefinition.createInProgressElection({
+    ...electionInfo,
+    languageCodes: [...electionInfo.languageCodes],
+  });
+  store.electionDefinition
+    .updateDistricts({
+      electionId: 'design-election',
+      newDistricts: [{ id: 'district-1', name: 'District 1' }],
+    })
+    .unsafeUnwrap();
+
+  expect(store.electionDefinition.getElection('design-election')).toEqual({
+    id: 'design-election',
+    type: 'general',
+    title: 'General Election',
+    date: new DateWithoutTime('2026-11-03'),
+    state: 'Demo State',
+    jurisdiction: { id: 'jurisdiction', name: 'Demo County' },
+    seal: '<svg>seal</svg>',
+    signature: { image: '<svg>signature</svg>', caption: 'Clerk' },
+    districts: [{ id: 'district-1', name: 'District 1' }],
+    precincts: [],
+    pollingPlaces: [],
+    parties: [],
+    contests: [],
+    ballotStyles: [],
+    ballotLayout: { paperSize: 'letter', metadataEncoding: 'qr-code' },
+    ballotStrings: {},
+  });
+  expect(store.electionDefinition.getElection('other-election')).toEqual(
+    undefined
+  );
+
+  store.electionDefinition.updateInProgressElectionInfo({
+    ...electionInfo,
+    signatureCaption: undefined,
+    languageCodes: [...electionInfo.languageCodes],
+  });
+  expect(
+    store.electionDefinition.getElection('design-election')?.signature
+  ).toEqual(undefined);
 });
 
 describe('design districts', () => {
