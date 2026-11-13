@@ -84,6 +84,8 @@ function describePartyError({ code, partyId }: DuplicatePartyError): string {
       return `party ${partyId} has a duplicate full name`;
     case 'duplicate-abbrev':
       return `party ${partyId} has a duplicate abbreviation`;
+    case 'duplicate-contest':
+      return `deleting party ${partyId} would make two contests the same`;
     default:
       throwIllegalValue(code);
   }
