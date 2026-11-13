@@ -35,7 +35,7 @@ import { ok } from '@votingworks/basics';
 import { type Api, buildApp } from '../src/app.js';
 import { createWorkspace, type Workspace } from '../src/util/workspace.js';
 import { getUserRole } from '../src/util/auth.js';
-import type { Player as AudioPlayer } from '../src/audio/player.js';
+import type { AudioPlayer } from '../src/audio/player.js';
 import { MockBarcodeClient } from '../src/barcodes/mock_client.js';
 
 interface MockAppContents {

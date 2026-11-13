@@ -1,12 +1,4 @@
-import {
-  afterEach,
-  beforeEach,
-  describe,
-  expect,
-  type Mocked,
-  test,
-  vi,
-} from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { assertDefined, err, ok } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
@@ -79,7 +71,7 @@ import {
   isPatInputAttached,
 } from './util/accessible_controller.js';
 import type { Workspace } from './util/workspace.js';
-import { getMockAudioPlayer, type Player } from './audio/player.js';
+import { getMockAudioPlayer } from './audio/player.js';
 import type { MockBarcodeClient } from './barcodes/mock_client.js';
 import { encodeBallotStyleQrCode } from '../test/barcode_helpers.js';
 
@@ -1423,7 +1415,7 @@ test('print calibration', async () => {
 });
 
 test('playSound() uses configured audio player', async () => {
-  const mockAudioPlayer = getMockAudioPlayer() as Mocked<Player>;
+  const mockAudioPlayer = getMockAudioPlayer();
   const mockPlay = vi.spyOn(mockAudioPlayer, 'play');
 
   const app = createApp({ audioPlayer: mockAudioPlayer });

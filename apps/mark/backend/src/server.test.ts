@@ -10,11 +10,11 @@ import { mockBaseLogger } from '@votingworks/logging';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
 import type { Application } from 'express';
-import { analogAndHdmi, getNodeEnv } from '@votingworks/backend';
+import { expectToHaveBeenCalledWith } from '@votingworks/test-utils/expect';
 import { start } from './server.js';
 import { createWorkspace, type Workspace } from './util/workspace.js';
 import { buildApp } from './app.js';
-import type { AudioCard, Player as AudioPlayer } from './audio/player.js';
+import { getMockAudioPlayer, newAudioPlayer } from './audio/player.js';
 import { buildMockLogger } from '../test/app_helpers.js';
 
 vi.mock(import('@votingworks/usb-drive'), async (importActual) => {
@@ -49,10 +49,17 @@ vi.mock('./barcodes', async () => {
   };
 });
 
+vi.mock(import('./audio/player.js'), async (importActual) => {
+  const actual = await importActual();
+  return {
+    ...actual,
+    newAudioPlayer: vi.fn(),
+  };
+});
+
 const buildAppMock = buildApp as MockedFunction<typeof buildApp>;
 
-const mockAudioCardInit = vi.spyOn(analogAndHdmi, 'defaultAudioCard');
-const mockAudioPlayerInit = vi.spyOn(analogAndHdmi, 'defaultAudioPlayer');
+const mockAudioPlayerInit = vi.mocked(newAudioPlayer);
 
 let workspace!: Workspace;
 
@@ -76,13 +83,8 @@ test('start passes context to `buildApp`', async () => {
   const logger = buildMockLogger(auth, workspace);
   buildAppMock.mockReturnValueOnce({ listen } as unknown as Application);
 
-  const mockAudioCard = { mock: 'audio card' } as unknown as AudioCard;
-  mockAudioCardInit.mockResolvedValueOnce(mockAudioCard);
-
-  const mockAudioPlayer = {
-    trustMe: 'I play audio.',
-  } as unknown as AudioPlayer;
-  mockAudioPlayerInit.mockReturnValueOnce(mockAudioPlayer);
+  const mockAudioPlayer = getMockAudioPlayer();
+  mockAudioPlayerInit.mockResolvedValueOnce(mockAudioPlayer);
 
   const server = await start({
     auth,
@@ -102,34 +104,9 @@ test('start passes context to `buildApp`', async () => {
   });
   expect(listen).toHaveBeenNthCalledWith(1, 0, expect.any(Function));
 
-  expect(mockAudioPlayerInit).toHaveBeenCalledWith<[analogAndHdmi.PlayerInit]>({
-    card: mockAudioCard,
-    nodeEnv: getNodeEnv(),
+  expectToHaveBeenCalledWith(mockAudioPlayerInit, {
     logger: expect.anything(),
-    soundsDirectory: expect.any(String), // Tested in player.test
   });
 
   server.close();
-});
-
-test('throws if unable to initialize audio card', async () => {
-  const listen = vi.fn((_port: number, callback: () => unknown) => {
-    callback();
-    return { close: vi.fn() };
-  });
-  const auth = buildMockInsertedSmartCardAuth(vi.fn);
-  buildAppMock.mockReturnValueOnce({ listen } as unknown as Application);
-
-  mockAudioCardInit.mockImplementationOnce(() =>
-    Promise.reject(new Error('no card found'))
-  );
-
-  await expect(async () =>
-    start({
-      auth,
-      baseLogger: mockBaseLogger({ fn: vi.fn }),
-      port: 0,
-      workspace,
-    })
-  ).rejects.toThrow(/no card found/i);
 });

@@ -23,10 +23,10 @@ import {
 import type { BarcodePrintRequest } from './activation_mode.js';
 import type { Workspace } from '../util/workspace.js';
 import { constructAuthMachineState } from '../util/auth.js';
-import type { AudioPlayerInterface } from '../audio/player.js';
+import type { AudioPlayer } from '../audio/player.js';
 
 interface Context {
-  audioPlayer?: AudioPlayerInterface;
+  audioPlayer?: AudioPlayer;
   auth: InsertedSmartCardAuthApi;
   barcodeClient?: BarcodeReader;
   logger: Logger;
