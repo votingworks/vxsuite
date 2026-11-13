@@ -4,6 +4,7 @@ import { Font } from '../typography.js';
 import { PlaybackRate } from './audio_playback_rate.js';
 import { AudioVolume } from './audio_volume.js';
 import { UiString } from './ui_string.js';
+import appStringsCatalog from './app_strings_catalog/latest.json' with { type: 'json' };
 
 // TODO(kofi): Add lint rule to ensure object keys match uiStringKey props.
 
@@ -2301,6 +2302,8 @@ export const appStrings = {
 } as const;
 
 export type AppStringKey = keyof typeof appStrings;
+
+export { appStringsCatalog };
 
 export const RATE_CHANGE_FEEDBACK_STRING_KEYS: Readonly<
   Record<PlaybackRate, AppStringKey>
