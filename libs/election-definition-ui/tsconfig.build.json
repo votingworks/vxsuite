@@ -13,6 +13,7 @@
     { "path": "../basics/tsconfig.build.json" },
     { "path": "../coverage-check/tsconfig.build.json" },
     { "path": "../election-definition-backend/tsconfig.build.json" },
+    { "path": "../fixtures/tsconfig.build.json" },
     { "path": "../grout/tsconfig.build.json" },
     { "path": "../grout/test-utils/tsconfig.build.json" },
     { "path": "../test-utils/tsconfig.build.json" },
