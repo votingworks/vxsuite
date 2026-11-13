@@ -1,4 +1,5 @@
 import type { DippedSmartCardAuthApi } from '@votingworks/auth';
+import type { ExportDataResult } from '@votingworks/backend';
 import {
   assert,
   assertDefined,
@@ -33,15 +34,22 @@ import {
   type ElectionId,
   type ElectionRegisteredVoterCounts,
   LanguageCode,
+  type NonEnglishLanguageCode,
   type PollingPlace,
   pollingPlaceGenerateFromPrecinct,
   type Precinct,
   unsafeParse,
 } from '@votingworks/types';
+import type { UsbDrive } from '@votingworks/usb-drive';
 import { isSystemAdministratorAuth } from '@votingworks/utils';
 import { constructAuthMachineState } from '../util/auth.js';
 import type { Workspace } from '../util/workspace.js';
 import { getMachineState, isElectionDefinitionEnabled } from './state.js';
+import {
+  exportTranslations,
+  importTranslations,
+  type TranslationsImportError,
+} from './translations.js';
 
 function blankElectionInfo(
   electionId: ElectionId,
@@ -104,9 +112,11 @@ async function requireElectionDefinitionAccess({
 function createElectionDefinitionApiMethods({
   workspace,
   logger,
+  usbDrive,
 }: {
   workspace: Workspace;
   logger: Logger;
+  usbDrive: UsbDrive;
 }) {
   const { store } = workspace;
 
@@ -337,6 +347,59 @@ function createElectionDefinitionApiMethods({
         }
       );
     },
+
+    async saveTranslationsFile(
+      input: ElectionInput & { languageCode: NonEnglishLanguageCode }
+    ): Promise<ExportDataResult> {
+      loadInProgressElectionInfo(input);
+      const result = await exportTranslations(
+        store.electionDefinition,
+        input.electionId,
+        usbDrive,
+        input.languageCode
+      );
+      await logger.logAsCurrentRole(
+        LogEventId.TranslationsFileSaved,
+        result.isOk()
+          ? {
+              message: `Saved ${input.languageCode} translations file for election definition ${input.electionId}.`,
+              disposition: 'success',
+            }
+          : {
+              message: `Error saving ${input.languageCode} translations file for election definition ${input.electionId}: ${result.err().type}`,
+              disposition: 'failure',
+            }
+      );
+      return result;
+    },
+
+    async loadTranslationsFile(
+      input: ElectionInput & {
+        languageCode: NonEnglishLanguageCode;
+        filePath: string;
+      }
+    ): Promise<Result<void, TranslationsImportError>> {
+      loadInProgressElectionInfo(input);
+      const result = await importTranslations(
+        store.electionDefinition,
+        input.electionId,
+        input.filePath,
+        input.languageCode
+      );
+      await logger.logAsCurrentRole(
+        LogEventId.TranslationsFileLoaded,
+        result.isOk()
+          ? {
+              disposition: 'success',
+              message: `Loaded ${input.languageCode} translations file for election definition ${input.electionId}.`,
+            }
+          : {
+              disposition: 'failure',
+              message: `Error loading ${input.languageCode} translations file for election definition ${input.electionId}: ${result.err().type}`,
+            }
+      );
+      return result;
+    },
   } as const;
 
   return methods satisfies ElectionDefinitionMethods;
@@ -351,13 +414,15 @@ export function buildElectionDefinitionApi({
   auth,
   workspace,
   logger,
+  usbDrive,
 }: {
   auth: DippedSmartCardAuthApi;
   workspace: Workspace;
   logger: Logger;
+  usbDrive: UsbDrive;
 }) {
   return grout.createApi(
-    createElectionDefinitionApiMethods({ workspace, logger }),
+    createElectionDefinitionApiMethods({ workspace, logger, usbDrive }),
     { before: [() => requireElectionDefinitionAccess({ auth, workspace })] }
   );
 }
