@@ -1,5 +1,6 @@
 import { afterAll, beforeEach, vi } from 'vitest';
 import '@votingworks/test-utils/vitest-setup';
+import '../src/vitest_setup.js';
 import { makeIdFactory } from '@votingworks/test-utils/id-factory';
 import { configure } from '@testing-library/react';
 

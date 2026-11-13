@@ -404,6 +404,7 @@ export default function buildRecommended(
               // Temporary directory helpers; imports nothing but node
               // builtins.
               '@votingworks/fixtures/tmpdir',
+              '@votingworks/election-definition-ui/vitest-setup',
               '@votingworks/test-utils/id-factory',
               // Registers the jest-dom matchers; imports nothing from the
               // workspace.
