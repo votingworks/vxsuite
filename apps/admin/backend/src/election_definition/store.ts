@@ -388,7 +388,7 @@ export class ElectionDefinitionStore {
       precincts: this.listPrecincts(electionId),
       pollingPlaces: this.listPollingPlaces(electionId),
       parties: this.listParties(electionId),
-      contests: [],
+      contests: this.listContests(electionId),
       ballotStyles: [],
       ballotLayout: {
         paperSize: HmpbBallotPaperSize.Letter,
