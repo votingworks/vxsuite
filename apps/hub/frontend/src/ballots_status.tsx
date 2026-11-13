@@ -29,13 +29,17 @@ export function BallotsStatus(): React.ReactNode {
   const listBallotStylesQuery = api.listBallotStyles.useQuery(electionId);
   const approvedAtQuery = api.getBallotsApprovedAt.useQuery(electionId);
   const finalizedAtQuery = api.getBallotsFinalizedAt.useQuery(electionId);
-  const getStateFeaturesQuery = api.getStateFeatures.useQuery(electionId);
+  const getStateFeaturesQuery =
+    api.electionDefinitionApi.getStateFeatures.useQuery(electionId);
   const getElectionInfoQuery = api.getElectionInfo.useQuery(electionId);
-  const listContestsQuery = api.listContests.useQuery(electionId);
-  const listPrecinctsQuery = api.listPrecincts.useQuery(electionId);
+  const listContestsQuery =
+    api.electionDefinitionApi.listContests.useQuery(electionId);
+  const listPrecinctsQuery =
+    api.electionDefinitionApi.listPrecincts.useQuery(electionId);
   const getRegisteredVoterCountsQuery =
-    api.getRegisteredVoterCounts.useQuery(electionId);
-  const listPollingPlacesQuery = api.listPollingPlaces.useQuery(electionId);
+    api.electionDefinitionApi.getRegisteredVoterCounts.useQuery(electionId);
+  const listPollingPlacesQuery =
+    api.electionDefinitionApi.listPollingPlaces.useQuery(electionId);
 
   const finalizeBallotsMutation = api.finalizeBallots.useMutation();
 

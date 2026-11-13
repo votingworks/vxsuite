@@ -38,10 +38,9 @@ import {
   getBallotPreviewPdf,
   getBallotTemplate,
   getElectionInfo,
-  listPrecincts,
   getBallotLayoutSettings,
   listBallotStyles,
-  listParties,
+  electionDefinitionApi,
 } from './api.js';
 import { routes } from './routes.js';
 
@@ -282,9 +281,11 @@ export function BallotScreen(): JSX.Element | null {
   );
 
   const getElectionInfoQuery = getElectionInfo.useQuery(electionId);
-  const listPrecinctsQuery = listPrecincts.useQuery(electionId);
+  const listPrecinctsQuery =
+    electionDefinitionApi.listPrecincts.useQuery(electionId);
   const listBallotStylesQuery = listBallotStyles.useQuery(electionId);
-  const listPartiesQuery = listParties.useQuery(electionId);
+  const listPartiesQuery =
+    electionDefinitionApi.listParties.useQuery(electionId);
   const getBallotLayoutSettingsQuery =
     getBallotLayoutSettings.useQuery(electionId);
   const getBallotTemplateQuery = getBallotTemplate.useQuery(electionId);

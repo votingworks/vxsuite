@@ -61,8 +61,8 @@ import {
   getLiveReportsActivityLog,
   getLiveResultsReports,
   getLiveReportsSummary,
-  getStateFeatures,
   getSystemSettings,
+  electionDefinitionApi,
 } from './api.js';
 import { useTitle } from './hooks/use_title.js';
 import { useSound } from './utils.js';
@@ -677,7 +677,8 @@ function LiveReportsOverviewScreen({
 }: LiveReportsOverviewScreenProps): JSX.Element {
   const [isDeleteDataModalOpen, setIsDeleteDataModalOpen] = useState(false);
   const summaryQuery = getLiveReportsSummary.useQuery(electionId);
-  const stateFeaturesQuery = getStateFeatures.useQuery(electionId);
+  const stateFeaturesQuery =
+    electionDefinitionApi.getStateFeatures.useQuery(electionId);
 
   const canDeleteReports =
     stateFeaturesQuery.data?.DELETE_LIVE_REPORTS === true;

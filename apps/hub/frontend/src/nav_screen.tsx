@@ -20,10 +20,10 @@ import { Row } from '@votingworks/election-definition-ui';
 import { adminElectionNavRoutes, electionNavRoutes } from './routes.js';
 import {
   getElectionInfo,
-  getStateFeatures,
   getSystemSettings,
   getUser,
   getUserFeatures,
+  electionDefinitionApi,
 } from './api.js';
 
 const UserInfo = styled.div`
@@ -120,7 +120,8 @@ export function ElectionNavScreen({
 }): JSX.Element | null {
   const currentRoute = useRouteMatch();
   const getUserFeaturesQuery = getUserFeatures.useQuery();
-  const getStateFeaturesQuery = getStateFeatures.useQuery(electionId);
+  const getStateFeaturesQuery =
+    electionDefinitionApi.getStateFeatures.useQuery(electionId);
   const getSystemSettingsQuery = getSystemSettings.useQuery(electionId);
   const getElectionInfoQuery = getElectionInfo.useQuery(electionId);
 
