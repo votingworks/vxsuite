@@ -241,6 +241,7 @@ export default function buildRecommended(
               '**/test_utils.tsx',
               '**/vitest_setup.ts',
               '**/*.bench.ts',
+              '**/libs/test-utils/**/expect.ts',
             ],
           },
         ],
