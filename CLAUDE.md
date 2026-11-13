@@ -250,11 +250,12 @@ cache the stale outputs under the new hash. `-p` compares file contents recorded
 in the build-info instead.
 
 **Cross-worktree cache:** Turbo automatically shares its local cache across git
-worktrees of this repo (stored under the shared `.git` directory), so artifacts
-built in one worktree are reused in another with no configuration. The cache is
-per-machine (not shared between developers) and unbounded — see
-[docs/turborepo.md](docs/turborepo.md) for how to clear it, force a rebuild, and
-other troubleshooting.
+worktrees of this repo (stored in the main checkout's `.turbo/cache`, i.e.
+`$(git rev-parse --git-common-dir)/../.turbo/cache`; a linked worktree's own
+`.turbo/cache` is unused), so artifacts built in one worktree are reused in
+another with no configuration. The cache is per-machine (not shared between
+developers) and unbounded — see [docs/turborepo.md](docs/turborepo.md) for how
+to clear it, force a rebuild, and other troubleshooting.
 
 **CI caching:** each CircleCI job restores Turbo's cache directory
 (`.turbo/cache`) via `restore_cache`, and jobs on `main` save it again at the

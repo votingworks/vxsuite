@@ -65,9 +65,10 @@ A cache hit replays a task's logs and restores its outputs instead of re-running
 it — you'll see `cache hit, replaying logs` and, for a fully-cached run,
 `>>> FULL TURBO`.
 
-Turbo shares one local cache across all git worktrees of this repo (it lives
-under the shared `.git` directory, not inside any single worktree). So a package
-you built in one worktree is restored for free in another. Two things to know:
+Turbo shares one local cache across all git worktrees of this repo (it lives in
+the main checkout's `.turbo/cache`, next to the shared `.git` directory; a
+linked worktree's own `.turbo/cache` is never read). So a package you built in
+one worktree is restored for free in another. Two things to know:
 
 - The cache is **per-machine** — it is not shared between developers, nor with
   CI (which keeps its own, via CircleCI's `save_cache`/`restore_cache`). A fresh
