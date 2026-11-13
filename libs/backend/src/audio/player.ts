@@ -1,6 +1,11 @@
 import { LogEventId, type Logger } from '@votingworks/logging';
 import { execFile } from '../exec.js';
 
+/** {@link AudioPlayer} interface. */
+export interface AudioPlayerInterface {
+  play(soundName: string): Promise<void>;
+}
+
 /**
  * Options for configuring the audio player.
  */
@@ -22,7 +27,7 @@ export interface AudioPlayerOptions {
  * Audio player that plays sound files through a specific audio output device.
  * Sound files should be `.mp3` files named after the sound (e.g., `success.mp3`).
  */
-export class AudioPlayer {
+export class AudioPlayer implements AudioPlayerInterface {
   private readonly nodeEnv: 'production' | 'development' | 'test';
   private readonly logger: Logger;
   private readonly outputName: string;
@@ -69,4 +74,11 @@ export class AudioPlayer {
       });
     }
   }
+}
+
+/** Test-friendly factory for {@link AudioPlayer}. */
+export function newAudioPlayer(
+  options: AudioPlayerOptions
+): AudioPlayerInterface {
+  return new AudioPlayer(options);
 }

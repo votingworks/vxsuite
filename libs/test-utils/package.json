@@ -10,6 +10,10 @@
       "types": "./build/index.d.ts",
       "default": "./build/index.js"
     },
+    "./expect": {
+      "types": "./build/expect.d.ts",
+      "default": "./build/expect.js"
+    },
     "./id-factory": {
       "types": "./build/id_factory.d.ts",
       "default": "./build/id_factory.js"

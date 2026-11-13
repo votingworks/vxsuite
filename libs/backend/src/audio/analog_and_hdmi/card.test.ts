@@ -2,21 +2,24 @@ import { expect, test, vi } from 'vitest';
 import { type Logger, mockLogger } from '@votingworks/logging';
 import { err, ok } from '@votingworks/basics';
 import {
+  expectToHaveBeenCalledWith,
+  expectToHaveBeenLastCalledWith,
+} from '@votingworks/test-utils/expect';
+import {
   AUDIO_DEVICE_DEFAULT_SINK,
   AudioCardProfile,
   getAudioCardName,
-  type GetAudioCardNameParams,
   setAudioCardProfile,
-  type SetAudioCardProfileParams,
   setAudioVolume,
 } from '../../system_call/index.js';
 import type { NODE_ENV } from '../../globals.js';
+import { defaultAudioCard } from './card.js';
 import {
-  DEFAULT_HEADPHONE_VOLUME,
-  DEFAULT_SPEAKER_VOLUME,
-  defaultAudioCard,
-  MAX_CARD_DETECTION_RETRIES,
-} from './card.js';
+  DEFAULT_HEADPHONE_VOLUME_PCT,
+  DEFAULT_SPEAKER_VOLUME_PCT,
+  MAX_AUDIO_DETECTION_RETRIES,
+  MIN_AUDIO_DETECTION_RETRY_DELAY_MS,
+} from '../config.js';
 
 vi.mock('../../system_call/index.js');
 const mockGetCardName = vi.mocked(getAudioCardName);
@@ -57,13 +60,14 @@ test('default()', async () => {
   });
 
   await defaultAudioCard('production', logger);
-  expect(mockGetCardName).toHaveBeenCalledWith<[GetAudioCardNameParams]>({
+  expectToHaveBeenCalledWith(mockGetCardName, {
+    baseRetryDelayMs: MIN_AUDIO_DETECTION_RETRY_DELAY_MS,
     logger,
     nodeEnv: 'production',
-    maxRetries: MAX_CARD_DETECTION_RETRIES,
+    maxRetries: MAX_AUDIO_DETECTION_RETRIES,
   });
-  expect(speakerVolume).toEqual(DEFAULT_SPEAKER_VOLUME);
-  expect(headphoneVolume).toEqual(DEFAULT_HEADPHONE_VOLUME);
+  expect(speakerVolume).toEqual(DEFAULT_SPEAKER_VOLUME_PCT);
+  expect(headphoneVolume).toEqual(DEFAULT_HEADPHONE_VOLUME_PCT);
 });
 
 test('setVolume()', async () => {
@@ -75,7 +79,7 @@ test('setVolume()', async () => {
   const card = await defaultAudioCard('production', logger);
   await card.setVolume(98);
 
-  expect(mockSetVolume).toHaveBeenCalledWith({
+  expectToHaveBeenCalledWith(mockSetVolume, {
     logger,
     nodeEnv: 'production',
     sinkName: AUDIO_DEVICE_DEFAULT_SINK,
@@ -125,7 +129,7 @@ function expectOutputSwitch(
   logger: Logger,
   profile: AudioCardProfile
 ) {
-  expect(mockSetProfile).toHaveBeenLastCalledWith<[SetAudioCardProfileParams]>({
+  expectToHaveBeenLastCalledWith(mockSetProfile, {
     cardName,
     logger,
     nodeEnv,

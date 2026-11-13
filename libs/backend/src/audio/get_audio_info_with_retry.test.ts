@@ -23,7 +23,7 @@ test('retries with increasing delays', async () => {
   const deferredAudioInfo = getAudioInfoWithRetry({
     baseRetryDelayMs,
     logger,
-    maxAttempts: 4,
+    maxRetries: 3,
     nodeEnv: 'development',
   });
 
@@ -72,7 +72,7 @@ test('throws last error after last retry', async () => {
   const deferredAudioInfo = getAudioInfoWithRetry({
     baseRetryDelayMs,
     logger: mockLogger({ fn: vi.fn }),
-    maxAttempts: 3,
+    maxRetries: 2,
     nodeEnv: 'development',
   });
 
@@ -99,7 +99,7 @@ test('returns mock audio info during integration tests', async () => {
   const audioInfo = await getAudioInfoWithRetry({
     baseRetryDelayMs: 500,
     logger,
-    maxAttempts: 4,
+    maxRetries: 3,
     nodeEnv: 'development',
   });
 

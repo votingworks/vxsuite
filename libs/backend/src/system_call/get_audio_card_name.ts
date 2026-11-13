@@ -17,6 +17,13 @@ const PactlListCardsSchema = z.array(z.object({ name: z.string() }));
 
 /** {@link getAudioCardName} params. */
 export interface GetAudioCardNameParams {
+  /**
+   * Initial delay before the first retry. Will be increased for each successive
+   * retry.
+   *
+   * @default 1000
+   */
+  baseRetryDelayMs?: number;
   logger: Logger;
   maxRetries?: number;
   nodeEnv: NODE_ENV;
@@ -27,7 +34,7 @@ export async function getAudioCardName(
   p: GetAudioCardNameParams
 ): Promise<Result<string, string | z.ZodError>> {
   const maxAttempts = 1 + (p.maxRetries || 0);
-  const baseWaitTimeMs = 1000;
+  const baseWaitTimeMs = p.baseRetryDelayMs ?? 1000;
 
   let lastError: string | undefined;
   for (let i = 0; i < maxAttempts; i += 1) {

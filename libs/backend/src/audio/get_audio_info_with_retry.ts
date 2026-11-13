@@ -3,6 +3,7 @@ import { LogEventId, type Logger } from '@votingworks/logging';
 import { isIntegrationTest } from '@votingworks/utils';
 import * as audio from '../system_call/get_audio_info.js';
 import { MOCK_AUDIO_INFO } from '../system_call/get_audio_info.js';
+import type { NODE_ENV } from '../globals.js';
 
 /**
  * Audio info with a guaranteed builtin audio device.
@@ -21,14 +22,14 @@ export interface GetAudioInfoWithRetryOptions {
    */
   baseRetryDelayMs: number;
   logger: Logger;
-  nodeEnv: 'production' | 'development' | 'test';
-  maxAttempts: number;
+  nodeEnv: NODE_ENV;
+  maxRetries: number;
 }
 
 /**
  * Intended to be run at machine startup. Since the PulseAudio service may not
  * be fully up and running yet, we retry with increasing wait times until
- * `maxAttempts` is reached.
+ * `maxRetries` is reached.
  */
 export async function getAudioInfoWithRetry(
   ctx: GetAudioInfoWithRetryOptions
@@ -37,8 +38,9 @@ export async function getAudioInfoWithRetry(
     return MOCK_AUDIO_INFO;
   }
 
+  const maxAttempts = ctx.maxRetries + 1;
   let lastError: unknown;
-  for (let i = 0; i < ctx.maxAttempts; i += 1) {
+  for (let i = 0; i < maxAttempts; i += 1) {
     if (i > 0) {
       ctx.logger.log(LogEventId.Info, 'system', {
         message:
