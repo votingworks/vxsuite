@@ -260,9 +260,9 @@ export class ElectionDefinitionStore {
           }
         : {}),
       districts: this.listDistricts(electionId),
-      precincts: [],
-      pollingPlaces: [],
-      parties: [],
+      precincts: this.listPrecincts(electionId),
+      pollingPlaces: this.listPollingPlaces(electionId),
+      parties: this.listParties(electionId),
       contests: [],
       ballotStyles: [],
       ballotLayout: {

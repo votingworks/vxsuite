@@ -2628,6 +2628,32 @@ test('getElection assembles the in-progress election', () => {
       newDistricts: [{ id: 'district-1', name: 'District 1' }],
     })
     .unsafeUnwrap();
+  const precinct: Precinct = {
+    id: 'precinct-1',
+    name: 'Precinct 1',
+    districtIds: ['district-1'],
+  };
+  store.electionDefinition
+    .createPrecinct({ electionId: 'design-election', newPrecinct: precinct })
+    .unsafeUnwrap();
+  const pollingPlace: PollingPlace = {
+    id: 'polling-place-1',
+    name: 'Town Hall',
+    type: 'election_day',
+    precincts: { [precinct.id]: { type: 'whole' } },
+  };
+  store.electionDefinition
+    .setPollingPlace({ electionId: 'design-election', place: pollingPlace })
+    .unsafeUnwrap();
+  const party: Party = {
+    id: 'party-1',
+    name: 'Democrat',
+    fullName: 'Democratic Party',
+    abbrev: 'D',
+  };
+  store.electionDefinition
+    .updateParties({ electionId: 'design-election', newParties: [party] })
+    .unsafeUnwrap();
 
   expect(store.electionDefinition.getElection('design-election')).toEqual({
     id: 'design-election',
@@ -2639,9 +2665,9 @@ test('getElection assembles the in-progress election', () => {
     seal: '<svg>seal</svg>',
     signature: { image: '<svg>signature</svg>', caption: 'Clerk' },
     districts: [{ id: 'district-1', name: 'District 1' }],
-    precincts: [],
-    pollingPlaces: [],
-    parties: [],
+    precincts: [precinct],
+    pollingPlaces: [pollingPlace],
+    parties: [party],
     contests: [],
     ballotStyles: [],
     ballotLayout: { paperSize: 'letter', metadataEncoding: 'qr-code' },
