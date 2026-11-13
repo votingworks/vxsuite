@@ -76,10 +76,12 @@ import {
   type DistrictsUpdate,
   type DuplicateDistrictError,
   type DuplicateElectionError,
+  type DuplicatePartyError,
   type DuplicatePrecinctError,
   type ExternalElectionSource,
   generateId,
   getStateFeaturesConfig,
+  type PartiesUpdate,
   type SetPollingPlaceError,
   type StateCode,
 } from '@votingworks/election-definition-backend';
@@ -233,16 +235,6 @@ function isForeignKeyError(
     error.code === '23503' &&
     error.constraint === constraint
   );
-}
-
-export type DuplicatePartyErrorCode =
-  | 'duplicate-name'
-  | 'duplicate-full-name'
-  | 'duplicate-abbrev';
-
-export interface DuplicatePartyError {
-  code: DuplicatePartyErrorCode;
-  partyId: string;
 }
 
 export type DuplicateContestError =
@@ -2048,12 +2040,9 @@ export class Store {
     );
   }
 
-  async updateParties(input: {
-    electionId: ElectionId;
-    deletedPartyIds?: string[];
-    newParties?: Party[];
-    updatedParties?: Party[];
-  }): Promise<Result<void, DuplicatePartyError>> {
+  async updateParties(
+    input: PartiesUpdate
+  ): Promise<Result<void, DuplicatePartyError>> {
     let res: Result<void, DuplicatePartyError> | undefined;
 
     await this.db.withClient((client) =>

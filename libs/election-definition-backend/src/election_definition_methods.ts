@@ -3,12 +3,14 @@ import type {
   District,
   ElectionId,
   ElectionRegisteredVoterCounts,
+  Party,
   PollingPlace,
   Precinct,
 } from '@votingworks/types';
 import type {
   DuplicateDistrictError,
   DuplicateElectionError,
+  DuplicatePartyError,
   DuplicatePrecinctError,
   SetPollingPlaceError,
 } from './error_types.js';
@@ -17,6 +19,7 @@ import type {
   DistrictsUpdate,
   ElectionInfo,
   ElectionInfoUpdate,
+  PartiesUpdate,
   PollingPlaceDelete,
   PollingPlaceSet,
   PrecinctCreate,
@@ -42,6 +45,10 @@ export interface ElectionDefinitionMethods {
   updateDistricts(
     input: DistrictsUpdate
   ): MaybePromise<Result<void, DuplicateDistrictError>>;
+  listParties(input: ElectionInput): MaybePromise<readonly Party[]>;
+  updateParties(
+    input: PartiesUpdate
+  ): MaybePromise<Result<void, DuplicatePartyError>>;
   listPrecincts(input: ElectionInput): MaybePromise<readonly Precinct[]>;
   createPrecinct(
     input: PrecinctCreate

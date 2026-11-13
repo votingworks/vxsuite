@@ -35,6 +35,10 @@ export function listDistrictsQueryKey(electionId: ElectionId): QueryKey {
   return ['listDistricts', electionId];
 }
 
+export function listPartiesQueryKey(electionId: ElectionId): QueryKey {
+  return ['listParties', electionId];
+}
+
 export function listPrecinctsQueryKey(electionId: ElectionId): QueryKey {
   return ['listPrecincts', electionId];
 }
@@ -56,6 +60,7 @@ async function invalidateElectionDefinitionQueries(
   await Promise.all([
     queryClient.invalidateQueries(getElectionInfoQueryKey(electionId)),
     queryClient.invalidateQueries(listDistrictsQueryKey(electionId)),
+    queryClient.invalidateQueries(listPartiesQueryKey(electionId)),
     queryClient.invalidateQueries(listPrecinctsQueryKey(electionId)),
     queryClient.invalidateQueries(getRegisteredVoterCountsQueryKey(electionId)),
     queryClient.invalidateQueries(listPollingPlacesQueryKey(electionId)),
@@ -126,6 +131,28 @@ function createReactQueryApi(
         const apiClient = getApiClient();
         const queryClient = useQueryClient();
         return useMutation(apiClient.updateDistricts, {
+          async onSuccess(result, { electionId }) {
+            if (result.isOk()) {
+              await invalidateElectionQueries(queryClient, electionId);
+            }
+          },
+        });
+      },
+    },
+    listParties: {
+      queryKey: listPartiesQueryKey,
+      useQuery(electionId: ElectionId) {
+        const apiClient = getApiClient();
+        return useQuery(listPartiesQueryKey(electionId), () =>
+          apiClient.listParties({ electionId })
+        );
+      },
+    },
+    updateParties: {
+      useMutation() {
+        const apiClient = getApiClient();
+        const queryClient = useQueryClient();
+        return useMutation(apiClient.updateParties, {
           async onSuccess(result, { electionId }) {
             if (result.isOk()) {
               await invalidateElectionQueries(queryClient, electionId);

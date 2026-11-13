@@ -10,6 +10,7 @@ import {
   DistrictsEditor,
   ElectionDefinitionContextProvider,
   ElectionInfoEditor,
+  PartiesEditor,
   PollingPlacesEditor,
   PrecinctsEditor,
 } from '@votingworks/election-definition-ui';
@@ -66,6 +67,7 @@ function DefinitionTabs({
   const precinctsPath = routerPaths.electionDefinitionPrecincts(electionId);
   const pollingPlacesPath =
     routerPaths.electionDefinitionPollingPlaces(electionId);
+  const partiesPath = routerPaths.electionDefinitionParties(electionId);
 
   if (!getStateFeaturesQuery.isSuccess) {
     return null;
@@ -83,6 +85,7 @@ function DefinitionTabs({
             ...(canEditPollingPlaces
               ? [{ title: 'Polling Places', path: pollingPlacesPath }]
               : []),
+            { title: 'Parties', path: partiesPath },
           ]}
         />
         <Switch>
@@ -105,6 +108,9 @@ function DefinitionTabs({
               <PollingPlacesEditor electionId={electionId} />
             </Route>
           )}
+          <Route path={routerPaths.electionDefinitionParties(':electionId')}>
+            <PartiesEditor electionId={electionId} />
+          </Route>
           <Redirect to={infoPath} />
         </Switch>
       </Container>

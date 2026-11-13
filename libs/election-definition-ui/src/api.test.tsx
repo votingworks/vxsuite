@@ -5,6 +5,7 @@ import { DateWithoutTime, err, ok } from '@votingworks/basics';
 import type {
   DistrictsUpdate,
   ElectionInfoUpdate,
+  PartiesUpdate,
   PollingPlaceDelete,
   PollingPlaceSet,
   PrecinctCreate,
@@ -107,6 +108,54 @@ test('updateDistricts calls invalidateElectionQueries on success', async () => {
   await userEvent.click(
     screen.getByRole('button', { name: 'Update Districts' })
   );
+  await waitFor(() =>
+    expect(invalidateElectionQueries).toHaveBeenCalledWith(
+      expect.anything(),
+      'election-1'
+    )
+  );
+  apiMock.assertComplete();
+});
+
+const partiesUpdate: PartiesUpdate = {
+  electionId: 'election-1',
+  newParties: [
+    {
+      id: 'party-1',
+      name: 'Democrat',
+      fullName: 'Democratic Party',
+      abbrev: 'D',
+    },
+  ],
+};
+
+function UpdatePartiesButton(): JSX.Element {
+  const updateParties = useElectionDefinitionApi().updateParties.useMutation();
+  return (
+    <button type="button" onClick={() => updateParties.mutate(partiesUpdate)}>
+      Update Parties
+    </button>
+  );
+}
+
+test('updateParties calls invalidateElectionQueries on success', async () => {
+  const apiMock = createMockApiClient();
+  const invalidateElectionQueries = vi.fn().mockResolvedValue(undefined);
+  render(
+    provideApi(apiMock, <UpdatePartiesButton />, {
+      options: { invalidateElectionQueries },
+    })
+  );
+
+  apiMock.updateParties
+    .expectCallWith(partiesUpdate)
+    .resolves(err({ code: 'duplicate-abbrev', partyId: 'party-1' }));
+  await userEvent.click(screen.getButton('Update Parties'));
+  apiMock.assertComplete();
+  expect(invalidateElectionQueries).not.toHaveBeenCalled();
+
+  apiMock.updateParties.expectCallWith(partiesUpdate).resolves(ok());
+  await userEvent.click(screen.getButton('Update Parties'));
   await waitFor(() =>
     expect(invalidateElectionQueries).toHaveBeenCalledWith(
       expect.anything(),

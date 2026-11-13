@@ -17,6 +17,8 @@ export const routerPaths = {
     `/election-definition/${electionId}/precincts`,
   electionDefinitionPollingPlaces: (electionId: ElectionId): string =>
     `/election-definition/${electionId}/polling-places`,
+  electionDefinitionParties: (electionId: ElectionId): string =>
+    `/election-definition/${electionId}/parties`,
   smartcards: '/smartcards',
   tally: '/tally',
   tallyCvrs: '/tally/cvrs',

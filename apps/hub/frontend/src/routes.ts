@@ -66,14 +66,6 @@ export const routes = {
           title: 'Parties',
           path: `${root}/parties`,
         },
-        audio: (p: {
-          stringKey: ':stringKey' | ElectionStringKey;
-          subkey: ':subkey' | (string & {});
-        }) => `${root}/parties/audio/${p.stringKey}/${p.subkey}`,
-        edit: {
-          title: 'Parties',
-          path: `${root}/parties/edit`,
-        },
       },
       contests: {
         root: {

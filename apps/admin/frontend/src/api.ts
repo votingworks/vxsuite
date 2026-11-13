@@ -18,6 +18,7 @@ import {
   getElectionInfoQueryKey,
   getRegisteredVoterCountsQueryKey,
   listDistrictsQueryKey,
+  listPartiesQueryKey,
   listPollingPlacesQueryKey,
   listPrecinctsQueryKey,
 } from '@votingworks/election-definition-ui';
@@ -1325,6 +1326,7 @@ async function invalidateElectionQueries(
     queryClient.invalidateQueries(getCurrentInProgressElection.queryKey()),
     queryClient.invalidateQueries(getElectionInfoQueryKey(electionId)),
     queryClient.invalidateQueries(listDistrictsQueryKey(electionId)),
+    queryClient.invalidateQueries(listPartiesQueryKey(electionId)),
     queryClient.invalidateQueries(listPrecinctsQueryKey(electionId)),
     queryClient.invalidateQueries(getRegisteredVoterCountsQueryKey(electionId)),
     queryClient.invalidateQueries(listPollingPlacesQueryKey(electionId)),

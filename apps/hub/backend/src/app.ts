@@ -82,9 +82,11 @@ import {
   type DistrictsUpdate,
   type DuplicateDistrictError,
   type DuplicateElectionError,
+  type DuplicatePartyError,
   type DuplicatePrecinctError,
   type ElectionDefinitionMethods,
   getStateFeaturesConfig,
+  type PartiesUpdate,
   type PollingPlaceDelete,
   type PollingPlaceSet,
   type PrecinctCreate,
@@ -96,7 +98,6 @@ import {
 import type {
   MainExportTaskMetadata,
   DuplicateContestError,
-  DuplicatePartyError,
   TestDecksTaskMetadata,
   Store,
 } from './store.js';
@@ -638,12 +639,9 @@ export function buildApi(ctx: AppContext) {
       return store.listParties(input.electionId);
     },
 
-    async updateParties(input: {
-      electionId: ElectionId;
-      deletedPartyIds?: string[];
-      newParties?: Party[];
-      updatedParties?: Party[];
-    }): Promise<Result<void, DuplicatePartyError>> {
+    async updateParties(
+      input: PartiesUpdate
+    ): Promise<Result<void, DuplicatePartyError>> {
       return store.updateParties(input);
     },
 

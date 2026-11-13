@@ -9,6 +9,8 @@ import {
   ElectionTypeSchema,
   type LanguageCode,
   LanguageCodeSchema,
+  type Party,
+  type PartyId,
   type PollingPlace,
   type Precinct,
   type PrecinctId,
@@ -59,6 +61,13 @@ export interface DistrictsUpdate {
   readonly deletedDistrictIds?: DistrictId[];
   readonly newDistricts?: District[];
   readonly updatedDistricts?: District[];
+}
+
+export interface PartiesUpdate {
+  readonly electionId: ElectionId;
+  readonly deletedPartyIds?: PartyId[];
+  readonly newParties?: Party[];
+  readonly updatedParties?: Party[];
 }
 
 export interface PrecinctCreate {

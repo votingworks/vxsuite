@@ -1,4 +1,4 @@
-import type { DistrictId } from '@votingworks/types';
+import type { DistrictId, PartyId } from '@votingworks/types';
 
 export type DuplicateElectionError = 'duplicate-title-and-date';
 
@@ -15,3 +15,13 @@ export type DuplicatePrecinctError =
   | 'duplicate-split-districts';
 
 export type SetPollingPlaceError = 'duplicate-name' | 'invalid-precinct';
+
+export type DuplicatePartyErrorCode =
+  | 'duplicate-name'
+  | 'duplicate-full-name'
+  | 'duplicate-abbrev';
+
+export interface DuplicatePartyError {
+  code: DuplicatePartyErrorCode;
+  partyId: PartyId;
+}

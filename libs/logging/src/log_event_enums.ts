@@ -270,6 +270,7 @@ export const LogEventId = {
     'election-definition-polling-place-saved',
   ElectionDefinitionPollingPlaceDeleted:
     'election-definition-polling-place-deleted',
+  ElectionDefinitionPartiesUpdated: 'election-definition-parties-updated',
   TranslationsFileSaved: 'translations-file-saved',
   TranslationsFileLoaded: 'translations-file-loaded',
   ElectionDefinitionDiscarded: 'election-definition-discarded',
@@ -1727,6 +1728,14 @@ const ElectionDefinitionPollingPlaceDeleted: LogDetails = {
   restrictInDocumentationToApps: [AppName.VxAdmin],
 };
 
+const ElectionDefinitionPartiesUpdated: LogDetails = {
+  eventId: LogEventId.ElectionDefinitionPartiesUpdated,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'A user added, edited or deleted parties in the election definition being designed, or failed to. Success or failure indicated by disposition.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
 const TranslationsFileSaved: LogDetails = {
   eventId: LogEventId.TranslationsFileSaved,
   eventType: LogEventType.UserAction,
@@ -2143,6 +2152,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return ElectionDefinitionPollingPlaceSaved;
     case LogEventId.ElectionDefinitionPollingPlaceDeleted:
       return ElectionDefinitionPollingPlaceDeleted;
+    case LogEventId.ElectionDefinitionPartiesUpdated:
+      return ElectionDefinitionPartiesUpdated;
     case LogEventId.TranslationsFileSaved:
       return TranslationsFileSaved;
     case LogEventId.TranslationsFileLoaded:

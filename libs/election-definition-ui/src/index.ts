@@ -10,6 +10,7 @@ export * from './form_fixed.js';
 export * from './image_input.js';
 export type * from './image_normalization.js';
 export * from './layout.js';
+export * from './parties_editor.js';
 export * from './polling_places_editor.js';
 export * from './precincts_editor.js';
 export * from './seal_image_input.js';

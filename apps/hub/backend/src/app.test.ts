@@ -70,6 +70,7 @@ import { readdir, readFile } from 'node:fs/promises';
 import { createSummaryBallotTestDeck } from '@votingworks/test-decks';
 import {
   type DuplicateDistrictError,
+  type DuplicatePartyError,
   stateFeatureConfigs,
 } from '@votingworks/election-definition-backend';
 import {
@@ -87,7 +88,6 @@ import type {
   ElectionListing,
   ElectionStatus,
 } from './types.js';
-import type { DuplicatePartyError } from './store.js';
 import { userFeatureConfigs } from './features.js';
 import { buildApi } from './app.js';
 import {

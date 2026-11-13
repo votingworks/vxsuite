@@ -15,6 +15,7 @@ import {
 import {
   type DippedSmartCardAuth,
   type District,
+  type Party,
   type PollingPlace,
   type Precinct,
   constructElectionKey,
@@ -371,6 +372,61 @@ test('there is no Polling Places tab without EDIT_POLLING_PLACES', async () => {
   expect(
     screen.queryByRole('tab', { name: 'Polling Places' })
   ).not.toBeInTheDocument();
+});
+
+test('the Parties tab edits the election parties', async () => {
+  const party: Party = {
+    id: 'party-1',
+    name: 'Democrat',
+    fullName: 'Democratic Party',
+    abbrev: 'D',
+  };
+  const editedParty: Party = { ...party, abbrev: 'DEM' };
+  expectCurrentInProgressElection(generalElectionInfo);
+  expectElectionInfoQueries(generalElectionInfo);
+  const history = renderScreen(routerPaths.electionDefinitionInfo(electionId));
+  await screen.findButton('Edit');
+
+  apiMock.electionDefinitionApiClient.listParties
+    .expectCallWith({ electionId })
+    .resolves([party]);
+  await userEvent.click(screen.getByRole('tab', { name: 'Parties' }));
+  await screen.findByRole('tab', { name: 'Parties', selected: true });
+  expect(history.location.pathname).toEqual(
+    routerPaths.electionDefinitionParties(electionId)
+  );
+
+  await userEvent.click(await screen.findButton('Edit Parties'));
+  expect(history.location.pathname).toEqual(
+    `${routerPaths.electionDefinitionParties(electionId)}/edit`
+  );
+  screen.getByRole('tab', { name: 'Parties', selected: true });
+  const input = screen.getByDisplayValue(party.abbrev);
+  await userEvent.clear(input);
+  await userEvent.type(input, editedParty.abbrev);
+
+  apiMock.electionDefinitionApiClient.updateParties
+    .expectCallWith({
+      electionId,
+      deletedPartyIds: [],
+      newParties: [],
+      updatedParties: [editedParty],
+    })
+    .resolves(ok());
+  expectCurrentInProgressElection(generalElectionInfo);
+  apiMock.electionDefinitionApiClient.getElectionInfo
+    .expectCallWith({ electionId })
+    .resolves(generalElectionInfo);
+  apiMock.electionDefinitionApiClient.listParties
+    .expectCallWith({ electionId })
+    .resolves([editedParty]);
+  await userEvent.click(screen.getButton('Save'));
+
+  await screen.findButton('Edit Parties');
+  expect(history.location.pathname).toEqual(
+    routerPaths.electionDefinitionParties(electionId)
+  );
+  screen.getByDisplayValue(editedParty.abbrev);
 });
 
 test('an election definition in progress is shown on the Election screen', async () => {
