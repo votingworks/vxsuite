@@ -18,8 +18,10 @@ export function handleUncaughtExceptions(logger: BaseLogger): void {
 
     // To avoid proceeding in a potentially corrupted state, we shut down the
     // server, which will trigger the frontend error boundary that prompts for
-    // a machine restart.
-    process.exit(1);
+    // a machine restart. SIGKILL rather than `process.exit`, which waits for
+    // worker threads and can hang forever on native work that never yields
+    // (e.g. node-hid's barcode scanner read loop), leaving the frontend stuck.
+    process.kill(process.pid, 'SIGKILL');
   }
 
   // This will also catch `unhandledRejection`s, based on the default value of
