@@ -31,7 +31,6 @@ import {
   buildMockLogger,
   configureStore,
 } from '../test/helpers/shared_helpers.js';
-import type { AudioPlayer } from './audio/audio.js';
 
 vi.mock(import('@votingworks/usb-drive'), async (importActual) => {
   const actual = await importActual();
@@ -222,7 +221,7 @@ function initMockAudioCard(nodeEnv: NODE_ENV, logger: Logger, name: string) {
 }
 
 function initMockAudioPlayer() {
-  const mockPlayer = analogAndHdmi.getMockPlayer() as AudioPlayer;
+  const mockPlayer = analogAndHdmi.getMockPlayer();
   mockAudioPlayerInit.mockReturnValueOnce(mockPlayer);
 
   return mockPlayer;

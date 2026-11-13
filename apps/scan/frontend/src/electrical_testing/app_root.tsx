@@ -517,7 +517,7 @@ function AudioControls(): JSX.Element {
 
   const headphonesSuccess = useSoundControls('success');
   const playSoundSpeaker = api.playSound.useMutation().mutate;
-  const setVolumeMutation = api.setVolume.useMutation();
+  const setVolumeMutation = api.setHeadphoneVolume.useMutation();
 
   const anyOutputActive = !calibrating && (headphonesOn || speakerOn);
   useInterval(

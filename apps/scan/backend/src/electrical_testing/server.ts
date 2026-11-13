@@ -101,7 +101,7 @@ async function configureAudio(logger: Logger): Promise<AudioPlayer> {
 
   // System volume is set to 100% in the prod app, but the HWTA has no UI volume control, so we set
   // to a safe listening level discovered the hard way
-  await audioPlayer.setVolume(40);
+  await audioPlayer.setHeadphoneVolume(40);
 
   return audioPlayer;
 }
