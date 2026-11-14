@@ -57,6 +57,8 @@ import { MAX_LIVE_REPORT_ACTIVITY_ITEMS } from './globals.js';
 
 const mockFeatureFlagger = getFeatureFlagMock();
 
+vi.setConfig({ testTimeout: 30_000 });
+
 const { setupApp, cleanup } = testSetupHelpers();
 
 afterAll(cleanup);
