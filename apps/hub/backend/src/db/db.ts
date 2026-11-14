@@ -73,9 +73,15 @@ export class Db {
         );
       }
 
-      return await fn(client);
-    } finally {
+      const result = await fn(client);
       poolClient.release();
+      return result;
+    } catch (error) {
+      // The connection may be left in a failed transaction, which would break
+      // every later query on it, so discard it instead of returning it to the
+      // pool.
+      poolClient.release(error as Error);
+      throw error;
     }
   }
 }
