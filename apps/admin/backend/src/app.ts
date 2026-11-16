@@ -1713,6 +1713,7 @@ export function buildApp({
         workspace,
         logger,
         usbDrive: usbDriveAdapter,
+        printer,
       }),
       express
     )

@@ -37,6 +37,13 @@ import {
   type StateFeaturesConfig,
 } from '@votingworks/election-definition-backend';
 import * as grout from '@votingworks/grout';
+import {
+  type BallotLayoutError,
+  type BallotPreviewPdf,
+  type BallotPreviewSpec,
+  createPlaywrightRenderer,
+  renderBallotPreview,
+} from '@votingworks/hmpb';
 import { LogEventId, type Logger } from '@votingworks/logging';
 import {
   type BallotStyle,
@@ -53,11 +60,14 @@ import {
   type Precinct,
   unsafeParse,
 } from '@votingworks/types';
+import { type Printer, PrintSides } from '@votingworks/printing';
 import type { UsbDrive } from '@votingworks/usb-drive';
 import { isSystemAdministratorAuth } from '@votingworks/utils';
 import { z } from 'zod/v4';
 import { constructAuthMachineState } from '../util/auth.js';
+import { buildExporter } from '../util/exporter.js';
 import type { Workspace } from '../util/workspace.js';
+import { createEnglishOnlyTranslator } from './english_only_translator.js';
 import { getMachineState, isElectionDefinitionEnabled } from './state.js';
 import {
   exportTranslations,
@@ -156,16 +166,50 @@ async function requireElectionDefinitionAccess({
   }
 }
 
+type BallotPreviewInput = ElectionInput & BallotPreviewSpec;
+
 function createElectionDefinitionApiMethods({
   workspace,
   logger,
   usbDrive,
+  printer,
 }: {
   workspace: Workspace;
   logger: Logger;
   usbDrive: UsbDrive;
+  printer: Printer;
 }) {
   const { store } = workspace;
+
+  function describeProof(input: BallotPreviewInput): string {
+    return `${input.ballotMode} ${input.ballotType} ballot proof for ballot style ${input.ballotStyleId} and precinct ${input.precinctId} in election definition ${input.electionId}`;
+  }
+
+  async function renderProof(
+    input: BallotPreviewInput
+  ): Promise<Result<BallotPreviewPdf, BallotLayoutError>> {
+    const electionInfo = loadInProgressElectionInfo(input);
+    const { election, candidateOrderings } = assertDefined(
+      store.electionDefinition.getElectionWithCandidateOrderings(
+        input.electionId
+      )
+    );
+    return renderBallotPreview({
+      election,
+      ballotLanguageConfigs: electionInfo.languageCodes.map((languageCode) => ({
+        languages: [languageCode],
+      })),
+      ballotTemplateId: 'VxDefaultBallot',
+      getCandidateOrderings: (ballotStyle) =>
+        assertDefined(candidateOrderings.get(ballotStyle.groupId)),
+      compact: store.electionDefinition.getBallotLayoutSettings(
+        input.electionId
+      ).compact,
+      translator: createEnglishOnlyTranslator(),
+      createRenderer: createPlaywrightRenderer,
+      spec: input,
+    });
+  }
 
   function loadInProgressElectionInfo(input: ElectionInput): ElectionInfo {
     const electionInfo = store.electionDefinition.getElectionInfo();
@@ -534,6 +578,75 @@ function createElectionDefinitionApiMethods({
       );
     },
 
+    async getBallotPreviewPdf(
+      input: BallotPreviewInput
+    ): Promise<Result<BallotPreviewPdf, BallotLayoutError>> {
+      const result = await renderProof(input);
+      await logger.logAsCurrentRole(
+        LogEventId.ElectionDefinitionBallotProofViewed,
+        result.isOk()
+          ? {
+              message: `Viewed ${describeProof(input)}.`,
+              disposition: 'success',
+            }
+          : {
+              message: `Error rendering ${describeProof(input)}: ${result.err().error}`,
+              disposition: 'failure',
+            }
+      );
+      return result;
+    },
+
+    async printBallotPreviewPdf(input: BallotPreviewInput): Promise<void> {
+      try {
+        const result = await renderProof(input);
+        assert(result.isOk(), 'Ballot proof could not be rendered');
+        await printer.print({
+          data: result.ok().pdfData,
+          size: store.electionDefinition.getBallotLayoutSettings(
+            input.electionId
+          ).paperSize,
+          sides: PrintSides.TwoSidedLongEdge,
+        });
+        await logger.logAsCurrentRole(
+          LogEventId.ElectionDefinitionBallotProofPrinted,
+          {
+            message: `Printed ${describeProof(input)}.`,
+            disposition: 'success',
+          }
+        );
+      } catch (error) {
+        assert(error instanceof Error);
+        await logger.logAsCurrentRole(
+          LogEventId.ElectionDefinitionBallotProofPrinted,
+          {
+            message: `Error printing ${describeProof(input)}: ${error.message}`,
+            disposition: 'failure',
+          }
+        );
+      }
+    },
+
+    async saveBallotPreviewPdf(
+      input: BallotPreviewInput & { filename: string }
+    ): Promise<ExportDataResult> {
+      const result = await renderProof(input);
+      assert(result.isOk(), 'Ballot proof could not be rendered');
+      const exportResult = await buildExporter(usbDrive).exportDataToUsbDrive(
+        '',
+        input.filename,
+        result.ok().pdfData
+      );
+      await logger.logAsCurrentRole(LogEventId.FileSaved, {
+        disposition: exportResult.isOk() ? 'success' : 'failure',
+        message: `${
+          exportResult.isOk() ? 'Saved' : 'Failed to save'
+        } ${describeProof(input)} to ${input.filename} on the USB drive.`,
+        path: input.filename,
+      });
+      return exportResult;
+    },
+
     async saveTranslationsFile(
       input: ElectionInput & { languageCode: NonEnglishLanguageCode }
     ): Promise<ExportDataResult> {
@@ -601,14 +714,21 @@ export function buildElectionDefinitionApi({
   workspace,
   logger,
   usbDrive,
+  printer,
 }: {
   auth: DippedSmartCardAuthApi;
   workspace: Workspace;
   logger: Logger;
   usbDrive: UsbDrive;
+  printer: Printer;
 }) {
   return grout.createApi(
-    createElectionDefinitionApiMethods({ workspace, logger, usbDrive }),
+    createElectionDefinitionApiMethods({
+      workspace,
+      logger,
+      usbDrive,
+      printer,
+    }),
     { before: [() => requireElectionDefinitionAccess({ auth, workspace })] }
   );
 }

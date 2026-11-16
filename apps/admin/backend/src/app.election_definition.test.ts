@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { DateWithoutTime, err, ok } from '@votingworks/basics';
 import {
@@ -7,8 +8,11 @@ import {
 } from '@votingworks/election-definition-backend';
 import { describeElectionDefinitionMethods } from '@votingworks/election-definition-backend/test-utils';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
+import { renderBallotPreview } from '@votingworks/hmpb';
+import { HP_4001_PRINTER_CONFIG, PrintSides } from '@votingworks/printing';
 import { LogEventId } from '@votingworks/logging';
 import {
+  BallotType,
   type CandidateContest,
   type Contest,
   HmpbBallotPaperSize,
@@ -24,6 +28,7 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import {
+  attachUsbDrive,
   buildTestEnvironment,
   configureMachine,
   mockElectionManagerAuth,
@@ -47,6 +52,14 @@ vi.mock(
     };
   }
 );
+
+vi.mock(import('@votingworks/hmpb'), async (importActual) => {
+  const actual = await importActual();
+  return {
+    ...actual,
+    renderBallotPreview: vi.fn(actual.renderBallotPreview),
+  };
+});
 
 const electionDefinition = readElectionGeneralDefinition();
 
@@ -930,6 +943,208 @@ test('rejects invalid ballot layout settings and unknown elections', async () =>
     compact: false,
   });
 });
+
+test('getBallotPreviewPdf renders a ballot proof and logs it', async () => {
+  const {
+    electionDefinitionApiClient: api,
+    auth,
+    logger,
+  } = buildTestEnvironment();
+  mockSystemAdministratorAuth(auth);
+  const electionId = await createElectionWithDistrict(api);
+  (
+    await api.createPrecinct({
+      electionId,
+      newPrecinct: {
+        id: 'precinct-1',
+        name: 'Precinct 1',
+        districtIds: ['district-1'],
+      },
+    })
+  ).unsafeUnwrap();
+  (await api.createContest({ electionId, newContest: mayor })).unsafeUnwrap();
+  (await api.createContest({ electionId, newContest: measure })).unsafeUnwrap();
+  const spec = {
+    electionId,
+    precinctId: 'precinct-1',
+    ballotStyleId: '1_en',
+    ballotType: BallotType.Precinct,
+    ballotMode: 'official',
+  } as const;
+
+  const { pdfData, fileName } = (
+    await api.getBallotPreviewPdf(spec)
+  ).unsafeUnwrap();
+  expect(fileName).toEqual(
+    'PROOF-official-precinct-ballot-Precinct_1-1_en.pdf'
+  );
+  expect(new TextDecoder().decode(pdfData.slice(0, 5))).toEqual('%PDF-');
+  expect(vi.mocked(renderBallotPreview)).toHaveBeenLastCalledWith(
+    expect.objectContaining({
+      ballotTemplateId: 'VxDefaultBallot',
+      compact: false,
+      ballotLanguageConfigs: [{ languages: [LanguageCode.ENGLISH] }],
+    })
+  );
+  const { getCandidateOrderings } =
+    vi.mocked(renderBallotPreview).mock.lastCall![0];
+  expect(
+    getCandidateOrderings({
+      id: '1_en',
+      groupId: '1',
+      precincts: ['precinct-1'],
+      districts: ['district-1'],
+      languages: [LanguageCode.ENGLISH],
+    })
+  ).toEqual({ mayor: [{ id: 'candidate-1' }] });
+  expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
+    LogEventId.ElectionDefinitionBallotProofViewed,
+    {
+      message: `Viewed official precinct ballot proof for ballot style 1_en and precinct precinct-1 in election definition ${electionId}.`,
+      disposition: 'success',
+    }
+  );
+
+  vi.mocked(renderBallotPreview).mockResolvedValueOnce(
+    err({ error: 'contestTooLong', contest: measure })
+  );
+  expect(
+    await api.getBallotPreviewPdf({ ...spec, ballotMode: 'test' })
+  ).toEqual(err({ error: 'contestTooLong', contest: measure }));
+  expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
+    LogEventId.ElectionDefinitionBallotProofViewed,
+    {
+      message: `Error rendering test precinct ballot proof for ballot style 1_en and precinct precinct-1 in election definition ${electionId}: contestTooLong`,
+      disposition: 'failure',
+    }
+  );
+
+  await suppressingConsoleOutput(async () => {
+    await expect(
+      api.getBallotPreviewPdf({ ...spec, electionId: 'missing' })
+    ).rejects.toThrow('Election definition not found');
+  });
+
+  const electionInfo = await api.getElectionInfo({ electionId });
+  (
+    await api.updateElectionInfo({
+      ...electionInfo,
+      title: 'General Election',
+      jurisdictionName: 'Demo County',
+      languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
+    })
+  ).unsafeUnwrap();
+  await suppressingConsoleOutput(async () => {
+    await expect(
+      api.getBallotPreviewPdf({ ...spec, ballotStyleId: '1_es-US' })
+    ).rejects.toThrow(
+      'Ballot proofs can only be rendered for English-only elections, not es-US'
+    );
+  });
+}, 60_000);
+
+test('printBallotPreviewPdf and saveBallotPreviewPdf print and save a ballot proof', async () => {
+  const {
+    apiClient,
+    electionDefinitionApiClient: api,
+    auth,
+    logger,
+    mockPrinterHandler,
+    usbPlatform,
+  } = buildTestEnvironment();
+  mockSystemAdministratorAuth(auth);
+  const electionId = await createElectionWithDistrict(api);
+  (
+    await api.createPrecinct({
+      electionId,
+      newPrecinct: {
+        id: 'precinct-1',
+        name: 'Precinct 1',
+        districtIds: ['district-1'],
+      },
+    })
+  ).unsafeUnwrap();
+  (await api.createContest({ electionId, newContest: measure })).unsafeUnwrap();
+  await api.updateBallotLayoutSettings({
+    electionId,
+    paperSize: HmpbBallotPaperSize.Legal,
+    compact: false,
+  });
+  const spec = {
+    electionId,
+    precinctId: 'precinct-1',
+    ballotStyleId: '1_en',
+    ballotType: BallotType.Precinct,
+    ballotMode: 'official',
+  } as const;
+  const description = `official precinct ballot proof for ballot style 1_en and precinct precinct-1 in election definition ${electionId}`;
+
+  await api.printBallotPreviewPdf(spec);
+  expect(mockPrinterHandler.getPrintJobHistory()).toEqual([]);
+  expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
+    LogEventId.ElectionDefinitionBallotProofPrinted,
+    {
+      message: `Error printing ${description}: cannot print without printer connected`,
+      disposition: 'failure',
+    }
+  );
+
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
+  await api.printBallotPreviewPdf(spec);
+  const [printJob] = mockPrinterHandler.getPrintJobHistory();
+  expect(printJob!.options).toEqual({
+    size: HmpbBallotPaperSize.Legal,
+    sides: PrintSides.TwoSidedLongEdge,
+  });
+  expect(readFileSync(printJob!.filename).subarray(0, 5).toString()).toEqual(
+    '%PDF-'
+  );
+  expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
+    LogEventId.ElectionDefinitionBallotProofPrinted,
+    { message: `Printed ${description}.`, disposition: 'success' }
+  );
+
+  vi.mocked(renderBallotPreview).mockResolvedValueOnce(
+    err({ error: 'contestTooLong', contest: measure })
+  );
+  await api.printBallotPreviewPdf(spec);
+  expect(mockPrinterHandler.getPrintJobHistory()).toHaveLength(1);
+  expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
+    LogEventId.ElectionDefinitionBallotProofPrinted,
+    {
+      message: `Error printing ${description}: Ballot proof could not be rendered`,
+      disposition: 'failure',
+    }
+  );
+
+  const filename = 'PROOF-official-precinct-ballot-Precinct_1-1_en.pdf';
+  expect(await api.saveBallotPreviewPdf({ ...spec, filename })).toEqual(
+    err({ type: 'missing-usb-drive', message: 'No USB drive found' })
+  );
+  expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
+    LogEventId.FileSaved,
+    {
+      message: `Failed to save ${description} to ${filename} on the USB drive.`,
+      disposition: 'failure',
+      path: filename,
+    }
+  );
+
+  await attachUsbDrive(apiClient, usbPlatform);
+  const [savedPath] = (
+    await api.saveBallotPreviewPdf({ ...spec, filename })
+  ).unsafeUnwrap();
+  expect(savedPath).toMatch(new RegExp(`/${filename}$`));
+  expect(readFileSync(savedPath!).subarray(0, 5).toString()).toEqual('%PDF-');
+  expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
+    LogEventId.FileSaved,
+    {
+      message: `Saved ${description} to ${filename} on the USB drive.`,
+      disposition: 'success',
+      path: filename,
+    }
+  );
+}, 60_000);
 
 test('edit precincts', async () => {
   const {
