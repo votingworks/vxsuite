@@ -65,6 +65,7 @@ import {
   type ScratchDir,
 } from '@votingworks/hmpb';
 import { join } from 'node:path';
+import { Readable } from 'node:stream';
 import { LogEventId } from '@votingworks/logging';
 import { readdir, readFile } from 'node:fs/promises';
 import { createSummaryBallotTestDeck } from '@votingworks/test-decks';
@@ -247,6 +248,25 @@ test('all methods require authentication', async () => {
     expect(response.status).toEqual(400);
     expect(await response.json()).toEqual({ message: 'auth:unauthorized' });
   });
+});
+
+test('/files rejects file names that traverse out of the jurisdiction', async () => {
+  const { baseUrl, auth0, fileStorageClient } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
+  await fileStorageClient.streamFile(
+    `${anotherNonVxJurisdiction.id}/ballots.zip`,
+    Readable.from('secret')
+  );
+  auth0.setLoggedInUser(nonVxUser);
+
+  const response = await fetch(
+    `${baseUrl}/files/${nonVxJurisdiction.id}/..%2F${anotherNonVxJurisdiction.id}%2Fballots.zip`
+  );
+  expect(response.status).toEqual(400);
+  expect(await response.json()).toEqual({ message: 'invalid file name' });
 });
 
 test('create/list/delete elections', async () => {
