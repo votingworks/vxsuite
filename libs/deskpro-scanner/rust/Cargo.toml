@@ -21,6 +21,7 @@ debug = "line-tables-only" # Enable stack traces
 name = "deskpro-scanner"
 version = "0.1.0"
 edition = "2024"
+license.workspace = true
 
 [lib]
 name = "deskpro_scanner"

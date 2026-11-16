@@ -2,6 +2,7 @@
 edition = "2024"
 name = "logging-utils"
 version = "0.0.0"
+license.workspace = true
 
 [lib]
 crate-type = ["cdylib"]

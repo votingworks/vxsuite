@@ -2804,7 +2804,6 @@ dependencies = [
  "hex",
  "rayon",
  "serde",
- "serde_json",
  "static_assertions",
  "thiserror",
 ]
