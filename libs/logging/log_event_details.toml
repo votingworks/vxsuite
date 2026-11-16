@@ -1294,6 +1294,12 @@ eventType = "user-action"
 documentationMessage = "A user deleted a contest from the election definition being designed."
 restrictInDocumentationToApps = ["vx-admin"]
 
+[Events.ElectionDefinitionBallotLayoutSettingsUpdated]
+eventId = "election-definition-ballot-layout-settings-updated"
+eventType = "user-action"
+documentationMessage = "A user changed the ballot paper size or density of the election definition being designed."
+restrictInDocumentationToApps = ["vx-admin"]
+
 [Events.ElectionDefinitionDiscarded]
 eventId = "election-definition-discarded"
 eventType = "user-action"
