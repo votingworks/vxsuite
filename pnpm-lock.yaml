@@ -11504,8 +11504,8 @@ packages:
   lodash.union@4.6.0:
     resolution: {integrity: sha512-c4pB2CdGrGdjMKYLA+XiRDO7Y0PRQbm/Gzg8qMj+QH+pFVAoTp5sBpO0odL3FjoPCGjK96p6qsP+yQoiLoOBcw==}
 
-  lodash@4.17.21:
-    resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
+  lodash@4.18.1:
+    resolution: {integrity: sha512-dMInicTPVE8d1e5otfwmmjlxkZoUpiVLwyeTdUsi/Caj/gfzzblBcCE5sRHV/AsjuCmxWrte2TNGSYuCeCq+0Q==}
 
   log-symbols@4.1.0:
     resolution: {integrity: sha512-8XPvpAA8uyhfteu8pIvQxpJZ7SYYdpUivZpGy6sFsBuKRY/7rQGavedeB8aK+Zkyq6upMFVL/9AW6vOYzfRyLg==}
@@ -17456,7 +17456,7 @@ snapshots:
       '@babel/helper-annotate-as-pure': 7.22.5
       '@babel/helper-module-imports': 7.29.7(supports-color@5.5.0)
       babel-plugin-syntax-jsx: 6.18.0
-      lodash: 4.17.21
+      lodash: 4.18.1
       styled-components: 5.3.11(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)
     transitivePeerDependencies:
       - supports-color
@@ -17930,7 +17930,7 @@ snapshots:
     dependencies:
       chalk: 4.1.2
       date-fns: 2.29.3
-      lodash: 4.17.21
+      lodash: 4.18.1
       rxjs: 7.8.1
       shell-quote: 1.12.0
       spawn-command: 0.0.2-1
@@ -20177,7 +20177,7 @@ snapshots:
       chalk: 4.1.2
       get-stdin: 5.0.1
       glur: 1.1.2
-      lodash: 4.17.21
+      lodash: 4.18.1
       pixelmatch: 5.3.0
       pngjs: 3.4.0
       rimraf: 2.7.1
@@ -20696,7 +20696,7 @@ snapshots:
 
   lodash.union@4.6.0: {}
 
-  lodash@4.17.21: {}
+  lodash@4.18.1: {}
 
   log-symbols@4.1.0:
     dependencies:
