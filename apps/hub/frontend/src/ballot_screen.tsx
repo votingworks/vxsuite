@@ -2,7 +2,6 @@ import fileDownload from 'js-file-download';
 import { Link, useParams } from 'react-router-dom';
 import { find, range, throwIllegalValue } from '@votingworks/basics';
 import {
-  HmpbBallotPaperSize,
   type BallotMode,
   BallotType,
   unsafeParse,
@@ -43,6 +42,7 @@ import {
   electionDefinitionApi,
 } from './api.js';
 import { routes } from './routes.js';
+import { paperSizeLabels } from './ballot_layout_form.js';
 
 // The worker is bundled from the same pdfjs-dist version react-pdf uses
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
@@ -219,16 +219,6 @@ function PdfViewer({ pdfData }: { pdfData?: Uint8Array }) {
     </PdfContainer>
   );
 }
-
-export const paperSizeLabels: Record<HmpbBallotPaperSize, string> = {
-  [HmpbBallotPaperSize.Letter]: '8.5 x 11 inches (Letter)',
-  [HmpbBallotPaperSize.Legal]: '8.5 x 14 inches (Legal)',
-  [HmpbBallotPaperSize.Custom17]: '8.5 x 17 inches',
-  [HmpbBallotPaperSize.Custom18]: '8.5 x 18 inches',
-  [HmpbBallotPaperSize.Custom19]: '8.5 x 19 inches',
-  [HmpbBallotPaperSize.Custom20]: '8.5 x 20 inches',
-  [HmpbBallotPaperSize.Custom22]: '8.5 x 22 inches',
-};
 
 function formContestTooLongErrorMessage(
   contest: Contest,
