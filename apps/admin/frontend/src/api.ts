@@ -17,6 +17,7 @@ import {
   createElectionDefinitionApi,
   getElectionInfoQueryKey,
   getRegisteredVoterCountsQueryKey,
+  listBallotStylesQueryKey,
   listContestsQueryKey,
   listDistrictsQueryKey,
   listPartiesQueryKey,
@@ -1332,6 +1333,7 @@ async function invalidateElectionQueries(
     queryClient.invalidateQueries(listPrecinctsQueryKey(electionId)),
     queryClient.invalidateQueries(getRegisteredVoterCountsQueryKey(electionId)),
     queryClient.invalidateQueries(listPollingPlacesQueryKey(electionId)),
+    queryClient.invalidateQueries(listBallotStylesQueryKey(electionId)),
   ]);
 }
 

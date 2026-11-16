@@ -46,7 +46,7 @@ export function Sidebar(props: SidebarProps): JSX.Element {
   } = React.useContext(AppContext);
 
   function isActivePath(path: string): boolean {
-    return currentRoute.path.startsWith(path);
+    return currentRoute.url.startsWith(path);
   }
 
   const appName =

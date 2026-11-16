@@ -9,6 +9,8 @@ export const routerPaths = {
   advanced: '/advanced',
   election: '/election',
   electionDefinition: '/election-definition',
+  electionDefinitionForElection: (electionId: ElectionId): string =>
+    `/election-definition/${electionId}`,
   electionDefinitionInfo: (electionId: ElectionId): string =>
     `/election-definition/${electionId}/info`,
   electionDefinitionDistricts: (electionId: ElectionId): string =>
@@ -21,6 +23,13 @@ export const routerPaths = {
     `/election-definition/${electionId}/parties`,
   electionDefinitionContests: (electionId: ElectionId): string =>
     `/election-definition/${electionId}/contests`,
+  proofBallots: '/proof-ballots',
+  proofBallotsForElection: (electionId: ElectionId): string =>
+    `/proof-ballots/${electionId}`,
+  proofBallotsBallotStyles: (electionId: ElectionId): string =>
+    `/proof-ballots/${electionId}/ballot-styles`,
+  proofBallotsBallotLayout: (electionId: ElectionId): string =>
+    `/proof-ballots/${electionId}/layout`,
   smartcards: '/smartcards',
   tally: '/tally',
   tallyCvrs: '/tally/cvrs',
