@@ -38,6 +38,7 @@ import { ContestOptionButton } from '../components/contest_option_button.js';
 import {
   contestPartyLabel,
   getOptionCoordinates,
+  normalizeWriteInName,
 } from '../utils/adjudication.js';
 import {
   type DoubleVoteAlert,
@@ -241,6 +242,7 @@ interface ContestAdjudicationScreenProps {
   onConfirmContest: (input: AdjudicatedCvrContest) => void;
   adjudicatedOptions?: AdjudicatedContestOptions;
   writeInCandidates: WriteInCandidateRecord[];
+  writeInNamesFromOtherContests?: string[];
   selectedStraightPartyId?: PartyId;
 }
 
@@ -253,6 +255,7 @@ export function ContestAdjudicationScreen({
   onConfirmContest,
   adjudicatedOptions,
   writeInCandidates,
+  writeInNamesFromOtherContests = [],
   selectedStraightPartyId,
 }: ContestAdjudicationScreenProps): JSX.Element {
   const { electionDefinition } = useContext(AppContext);
@@ -311,6 +314,17 @@ export function ContestAdjudicationScreen({
     adjudicatedOptions,
     selectedStraightPartyId,
   });
+
+  const namesInContest = new Set(
+    [...officialOptions, ...writeInCandidates].map((c) =>
+      normalizeWriteInName(c.name)
+    )
+  );
+  const suggestedWriteInNames = areWriteInCandidatesQualified
+    ? []
+    : writeInNamesFromOtherContests.filter(
+        (name) => !namesInContest.has(normalizeWriteInName(name))
+      );
 
   // Vote and write-in state for adjudication management
   const [focusedOptionId, setFocusedOptionId] = useState<string>();
@@ -569,6 +583,12 @@ export function ContestAdjudicationScreen({
                       !selectedCandidateNames.includes(c.name) ||
                       (isValidCandidate(writeInStatus) &&
                         writeInStatus.name === c.name)
+                  )}
+                  suggestedWriteInNames={suggestedWriteInNames.filter(
+                    (name) =>
+                      !selectedCandidateNames.includes(name) ||
+                      (isValidCandidate(writeInStatus) &&
+                        writeInStatus.name === name)
                   )}
                   caption={renderContestOptionButtonCaption({
                     scannedVote,

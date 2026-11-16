@@ -66,6 +66,7 @@ interface Props {
   onInputFocus: () => void;
   officialCandidates: Candidate[];
   writeInCandidates: Candidate[];
+  suggestedWriteInNames: string[];
   hasInvalidEntry: boolean;
   areWriteInCandidatesQualified: boolean;
   caption?: React.ReactNode;
@@ -85,6 +86,7 @@ export const WriteInAdjudicationButton = forwardRef<HTMLDivElement, Props>(
       onInputBlur,
       officialCandidates,
       writeInCandidates,
+      suggestedWriteInNames,
       hasInvalidEntry,
       areWriteInCandidatesQualified,
       caption,
@@ -128,7 +130,10 @@ export const WriteInAdjudicationButton = forwardRef<HTMLDivElement, Props>(
     }
 
     const allCandidates = writeInCandidates.concat(officialCandidates);
-    const candidateNames = allCandidates.map((c) => c.name);
+    const candidateNames = [
+      ...suggestedWriteInNames,
+      ...allCandidates.map((c) => c.name),
+    ];
     const filteredNames = inputValue
       ? candidateNames.filter((name) =>
           normalizeWriteInName(name).includes(normalizedInputValue)
@@ -216,20 +221,23 @@ export const WriteInAdjudicationButton = forwardRef<HTMLDivElement, Props>(
               assert(val !== undefined && val !== '');
               if (val === INVALID_KEY) {
                 onChange({ type: 'invalid' });
-              } else if (filteredNames.includes(val)) {
-                let candidate = officialCandidates.find((c) => c.name === val);
-                const isOfficialCandidate = !!candidate;
-                if (!isOfficialCandidate) {
-                  candidate = writeInCandidates.find((c) => c.name === val);
-                }
-                assert(candidate !== undefined);
-                const type = isOfficialCandidate
-                  ? 'existing-official'
-                  : 'existing-write-in';
-                onChange({ ...candidate, type });
-              } else {
-                onChange({ type: 'new-write-in', name: val });
+                return;
               }
+              const officialCandidate = officialCandidates.find(
+                (c) => c.name === val
+              );
+              if (officialCandidate) {
+                onChange({ ...officialCandidate, type: 'existing-official' });
+                return;
+              }
+              const writeInCandidate = writeInCandidates.find(
+                (c) => c.name === val
+              );
+              if (writeInCandidate) {
+                onChange({ ...writeInCandidate, type: 'existing-write-in' });
+                return;
+              }
+              onChange({ type: 'new-write-in', name: val });
             }}
             noOptionsMessage={() =>
               areWriteInCandidatesQualified

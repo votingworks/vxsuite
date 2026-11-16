@@ -54,6 +54,7 @@ import {
   deriveCrossoverVoteStatus,
   isContestFlaggedForAdjudication,
   isContestTagOnlyUndervote,
+  writeInNamesFromOtherContests,
 } from '../utils/adjudication.js';
 import { DiscardChangesModal } from '../components/discard_changes_modal.js';
 
@@ -604,6 +605,10 @@ export function BallotAdjudicationScreen(
         ballotImages={ballotImages}
         writeInCandidates={writeInCandidates.filter(
           (c) => c.contestId === selectedContestId
+        )}
+        writeInNamesFromOtherContests={writeInNamesFromOtherContests(
+          adjudicatedContests,
+          selectedContestId
         )}
         onConfirmContest={(input) => {
           setAdjudicatedContests((prev) =>

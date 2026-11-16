@@ -35,6 +35,33 @@ export function normalizeWriteInName(name: string): string {
   return name.toLowerCase().trim().replace(/\s+/, ' ');
 }
 
+export function writeInNamesFromOtherContests(
+  adjudicatedContests: AdjudicatedContests,
+  excludedContestId: ContestId
+): string[] {
+  const namesByNormalizedName = new Map<string, string>();
+  for (const {
+    contestId,
+    adjudicatedContestOptionById,
+  } of adjudicatedContests.values()) {
+    if (contestId === excludedContestId) continue;
+    for (const option of Object.values(adjudicatedContestOptionById)) {
+      if (
+        option.type !== 'write-in-option' ||
+        !option.hasVote ||
+        option.candidateType !== 'write-in-candidate'
+      ) {
+        continue;
+      }
+      const normalizedName = normalizeWriteInName(option.candidateName);
+      if (!namesByNormalizedName.has(normalizedName)) {
+        namesByNormalizedName.set(normalizedName, option.candidateName);
+      }
+    }
+  }
+  return [...namesByNormalizedName.values()];
+}
+
 export function getOptionCoordinates(
   optionsLayout: readonly BallotPageContestOptionLayout[],
   optionId: ContestOptionId
