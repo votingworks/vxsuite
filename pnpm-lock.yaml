@@ -3607,6 +3607,9 @@ importers:
       '@votingworks/grout':
         specifier: workspace:*
         version: link:../grout
+      '@votingworks/hmpb':
+        specifier: workspace:*
+        version: link:../hmpb
       '@votingworks/types':
         specifier: workspace:*
         version: link:../types
@@ -3616,9 +3619,15 @@ importers:
       '@votingworks/utils':
         specifier: workspace:*
         version: link:../utils
+      pdfjs-dist:
+        specifier: 5.4.296
+        version: 5.4.296
       react-flip-toolkit:
         specifier: ^7.1.0
         version: 7.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react-pdf:
+        specifier: 10.4.1
+        version: 10.4.1(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-router-dom:
         specifier: ^5.3.4
         version: 5.3.4(react@18.3.1)

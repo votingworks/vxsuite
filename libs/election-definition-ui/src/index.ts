@@ -3,6 +3,7 @@ export * from './ballot_audio/audio_link_button.js';
 export * from './ballot_audio/input_with_audio.js';
 export * from './ballot_layout_form.js';
 export * from './ballot_styles_table.js';
+export * from './ballot_viewer.js';
 export * from './contests_editor.js';
 export * from './delete_election_button.js';
 export * from './districts_editor.js';

@@ -1,18 +1,15 @@
-import fileDownload from 'js-file-download';
-import { Link, useParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { find, range, throwIllegalValue } from '@votingworks/basics';
 import {
   type BallotMode,
+  type BallotStyleId,
   BallotType,
-  unsafeParse,
-  ElectionIdSchema,
-  BallotStyleIdSchema,
-  PrecinctIdSchema,
   type Contest,
+  type ElectionId,
+  type PrecinctId,
 } from '@votingworks/types';
-import { useMemo, useRef, useState, type ReactNode, type UIEvent } from 'react';
+import { useMemo, useState, type ReactNode, type UIEvent } from 'react';
 import styled from 'styled-components';
-import { z } from 'zod/v4';
 import {
   Button,
   Callout,
@@ -27,20 +24,15 @@ import {
 } from '@votingworks/ui';
 import { Document, Page, pdfjs } from 'react-pdf';
 import { format } from '@votingworks/utils';
-import type { BallotTemplateId } from '@votingworks/hub-backend';
-import type { NhStateBallotVariant } from '@votingworks/hmpb';
-import {
-  FieldName as BaseFieldName,
-  paperSizeLabels,
-  Row,
-} from '@votingworks/election-definition-ui';
-import {
-  getBallotPreviewPdf,
-  getBallotTemplate,
-  getElectionInfo,
-  electionDefinitionApi,
-} from './api.js';
-import { routes } from './routes.js';
+import type {
+  BallotPreviewPdf,
+  BallotTemplateId,
+  NhStateBallotVariant,
+} from '@votingworks/hmpb';
+import type { BallotPreviewInput } from './api.js';
+import { paperSizeLabels } from './ballot_layout_form.js';
+import { useElectionDefinitionApi } from './election_definition_context.js';
+import { FieldName as BaseFieldName, Row } from './layout.js';
 
 // The worker is bundled from the same pdfjs-dist version react-pdf uses
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
@@ -253,67 +245,49 @@ function ErrorMessage({ children }: { children: ReactNode }): JSX.Element {
   );
 }
 
-export function BallotScreen(): JSX.Element | null {
-  const params = useParams<{
-    electionId: string;
-    ballotStyleId: string;
-    precinctId: string;
-  }>();
-  const { electionId, ballotStyleId, precinctId } = unsafeParse(
-    z.object({
-      electionId: ElectionIdSchema,
-      ballotStyleId: BallotStyleIdSchema,
-      precinctId: PrecinctIdSchema,
-    }),
-    params
-  );
+export interface BallotViewerProps {
+  electionId: ElectionId;
+  ballotStyleId: BallotStyleId;
+  precinctId: PrecinctId;
+  ballotTemplateId: BallotTemplateId;
+  closePath: string;
+  electionInfoPath: string;
+  renderActions: (props: {
+    previewInput: BallotPreviewInput;
+    preview?: BallotPreviewPdf;
+  }) => ReactNode;
+}
 
-  const getElectionInfoQuery = getElectionInfo.useQuery(electionId);
-  const listPrecinctsQuery =
-    electionDefinitionApi.listPrecincts.useQuery(electionId);
-  const listBallotStylesQuery =
-    electionDefinitionApi.listBallotStyles.useQuery(electionId);
-  const listPartiesQuery =
-    electionDefinitionApi.listParties.useQuery(electionId);
+export function BallotViewer({
+  electionId,
+  ballotStyleId,
+  precinctId,
+  ballotTemplateId,
+  closePath,
+  electionInfoPath,
+  renderActions,
+}: BallotViewerProps): JSX.Element | null {
+  const api = useElectionDefinitionApi();
+  const getElectionInfoQuery = api.getElectionInfo.useQuery(electionId);
+  const listPrecinctsQuery = api.listPrecincts.useQuery(electionId);
+  const listBallotStylesQuery = api.listBallotStyles.useQuery(electionId);
+  const listPartiesQuery = api.listParties.useQuery(electionId);
   const getBallotLayoutSettingsQuery =
-    electionDefinitionApi.getBallotLayoutSettings.useQuery(electionId);
-  const getBallotTemplateQuery = getBallotTemplate.useQuery(electionId);
+    api.getBallotLayoutSettings.useQuery(electionId);
   const [ballotType, setBallotType] = useState<BallotType>(BallotType.Precinct);
   const [ballotMode, setBallotMode] = useState<BallotMode>('official');
   const [variant, setVariant] = useState<NhStateBallotVariant>();
-  const printIframeRef = useRef<HTMLIFrameElement>(null);
-  const getBallotPreviewPdfQuery = getBallotPreviewPdf.useQuery({
+  const previewInput: BallotPreviewInput = {
     electionId,
     precinctId,
     ballotStyleId,
     ballotType,
     ballotMode,
     variant,
-  });
+  };
+  const getBallotPreviewPdfQuery =
+    api.getBallotPreviewPdf.useQuery(previewInput);
   const ballotPreview = getBallotPreviewPdfQuery.data?.ok();
-
-  const pdfFile = useMemo(() => {
-    if (!ballotPreview) return;
-    const blob = new Blob([new Uint8Array(ballotPreview.pdfData)], {
-      type: 'application/pdf',
-    });
-    return URL.createObjectURL(blob);
-  }, [ballotPreview]);
-
-  // @coverage-defer
-  function onDownloadPdfPressed() {
-    if (!ballotPreview) return;
-    fileDownload(
-      ballotPreview.pdfData,
-      ballotPreview.fileName,
-      'application/pdf'
-    );
-  }
-
-  // @coverage-defer
-  function onPrintPdfPressed() {
-    printIframeRef.current?.contentWindow?.print();
-  }
 
   if (
     !(
@@ -321,8 +295,7 @@ export function BallotScreen(): JSX.Element | null {
       listPrecinctsQuery.isSuccess &&
       listBallotStylesQuery.isSuccess &&
       listPartiesQuery.isSuccess &&
-      getBallotLayoutSettingsQuery.isSuccess &&
-      getBallotTemplateQuery.isSuccess
+      getBallotLayoutSettingsQuery.isSuccess
     )
   ) {
     return null; // Initial loading state
@@ -333,25 +306,12 @@ export function BallotScreen(): JSX.Element | null {
   const ballotStyles = listBallotStylesQuery.data;
   const parties = listPartiesQuery.data;
   const { paperSize } = getBallotLayoutSettingsQuery.data;
-  const ballotTemplateId = getBallotTemplateQuery.data;
   const enableFederalOfficeOnly = ballotTemplateId === 'NhStateBallot';
   const precinct = find(precincts, (p) => p.id === precinctId);
   const ballotStyle = find(ballotStyles, (bs) => bs.id === ballotStyleId);
 
-  const ballotRoutes = routes.election(electionId).ballots;
-  const { title } = ballotRoutes.viewBallot(ballotStyle.id, precinct.id);
-
   return (
     <TaskScreen>
-      {pdfFile && (
-        // @coverage-defer
-        <iframe
-          ref={printIframeRef}
-          src={pdfFile}
-          title="Print PDF"
-          style={{ display: 'none' }}
-        />
-      )}
       <TaskContent style={{ display: 'flex' }}>
         <Viewer>
           {(() => {
@@ -369,14 +329,7 @@ export function BallotScreen(): JSX.Element | null {
                     <ErrorMessage>
                       <span>
                         Missing signature. Upload a signature in{' '}
-                        <Link
-                          to={
-                            routes.election(electionId).electionInfo.root.path
-                          }
-                        >
-                          Election Info
-                        </Link>
-                        .
+                        <Link to={electionInfoPath}>Election Info</Link>.
                       </span>
                     </ErrorMessage>
                   );
@@ -403,9 +356,9 @@ export function BallotScreen(): JSX.Element | null {
       </TaskContent>
       <TaskControls style={{ width: '20rem' }}>
         <TaskHeader>
-          <H1>{title}</H1>
+          <H1>View Ballot</H1>
           <LinkButton
-            to={ballotRoutes.root.path}
+            to={closePath}
             icon="X"
             color="inverseNeutral"
             fill="transparent"
@@ -497,22 +450,7 @@ export function BallotScreen(): JSX.Element | null {
           />
 
           <ActionButtons>
-            <Button
-              icon="Export"
-              variant="inverseNeutral"
-              onPress={onDownloadPdfPressed}
-              disabled={!pdfFile}
-            >
-              Download PDF
-            </Button>
-            <Button
-              icon="Print"
-              variant="inverseNeutral"
-              onPress={onPrintPdfPressed}
-              disabled={!pdfFile}
-            >
-              Print
-            </Button>
+            {renderActions({ previewInput, preview: ballotPreview })}
           </ActionButtons>
         </Controls>
       </TaskControls>

@@ -2,34 +2,52 @@ import { afterEach, beforeEach, expect, test, vi, describe } from 'vitest';
 import {
   BallotType,
   type CandidateContest,
+  LanguageCode,
   type YesNoContest,
 } from '@votingworks/types';
-import type { BallotTemplateId } from '@votingworks/hub-backend';
+import type {
+  BallotLayoutError,
+  BallotPreviewPdf,
+  BallotTemplateId,
+} from '@votingworks/hmpb';
 import type { DocumentProps, PageProps } from 'react-pdf';
 import { type ReactNode, useEffect } from 'react';
-import { ok, err } from '@votingworks/basics';
+import {
+  DateWithoutTime,
+  deferred,
+  err,
+  ok,
+  type Result,
+} from '@votingworks/basics';
+import type { ElectionInfo } from '@votingworks/election-definition-backend';
+import { readElectionGeneral } from '@votingworks/fixtures';
 import { Buffer } from 'node:buffer';
 import { within } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import {
   type MockApiClient,
   createMockApiClient,
-  jurisdiction,
   provideApi,
 } from '../test/api_helpers.js';
-import {
-  electionInfoFromElection,
-  generalElectionRecord,
-} from '../test/fixtures.js';
 import { render, screen } from '../test/react_testing_library.js';
 import { withRoute } from '../test/routing_helpers.js';
-import { routes } from './routes.js';
-import { BallotScreen } from './ballot_screen.js';
+import { BallotViewer, type BallotViewerProps } from './ballot_viewer.js';
 
-const electionRecord = generalElectionRecord(jurisdiction.id);
-const electionId = electionRecord.election.id;
-const ballotStyle = electionRecord.election.ballotStyles[0]!;
-const precinct = electionRecord.election.precincts[0]!;
+const election = readElectionGeneral();
+const electionId = election.id;
+const ballotStyle = election.ballotStyles[0]!;
+const precinct = election.precincts[0]!;
+
+const electionInfo: ElectionInfo = {
+  electionId,
+  type: 'general',
+  date: new DateWithoutTime('2026-11-03'),
+  title: 'General Election',
+  state: 'Demo State',
+  jurisdictionName: 'Demo County',
+  seal: '',
+  languageCodes: [LanguageCode.ENGLISH],
+};
 
 function MockDocument({
   children,
@@ -76,41 +94,41 @@ beforeEach(() => {
   apiMock = createMockApiClient();
   apiMock.listBallotStyles
     .expectCallWith({ electionId })
-    .resolves(electionRecord.election.ballotStyles);
+    .resolves(election.ballotStyles);
   apiMock.listPrecincts
     .expectCallWith({ electionId })
-    .resolves(electionRecord.election.precincts);
-  apiMock.getElectionInfo
-    .expectCallWith({ electionId })
-    .resolves(electionInfoFromElection(electionRecord.election));
-  apiMock.listParties
-    .expectCallWith({ electionId })
-    .resolves(electionRecord.election.parties);
+    .resolves(election.precincts);
+  apiMock.getElectionInfo.expectCallWith({ electionId }).resolves(electionInfo);
+  apiMock.listParties.expectCallWith({ electionId }).resolves(election.parties);
   apiMock.getBallotLayoutSettings.expectCallWith({ electionId }).resolves({
-    paperSize: electionRecord.election.ballotLayout.paperSize,
+    paperSize: election.ballotLayout.paperSize,
     compact: false,
   });
-  apiMock.getBallotTemplate
-    .expectCallWith({ electionId })
-    .resolves('VxDefaultBallot');
 });
 
 afterEach(() => {
   apiMock.assertComplete();
 });
 
-function renderScreen() {
+function renderViewer(
+  ballotTemplateId: BallotTemplateId = 'VxDefaultBallot',
+  renderActions: BallotViewerProps['renderActions'] = () => null
+) {
   render(
     provideApi(
       apiMock,
-      withRoute(<BallotScreen />, {
-        paramPath: routes
-          .election(':electionId')
-          .ballots.viewBallot(':ballotStyleId', ':precinctId').path,
-        path: routes
-          .election(electionId)
-          .ballots.viewBallot(ballotStyle.id, precinct.id).path,
-      })
+      withRoute(
+        <BallotViewer
+          electionId={electionId}
+          ballotStyleId={ballotStyle.id}
+          precinctId={precinct.id}
+          ballotTemplateId={ballotTemplateId}
+          closePath="/ballots"
+          electionInfoPath="/election-info"
+          renderActions={renderActions}
+        />,
+        {}
+      )
     )
   );
 }
@@ -131,7 +149,7 @@ test('shows a PDF ballot preview', async () => {
         fileName: 'mock ballot.pdf',
       })
     );
-  renderScreen();
+  renderViewer();
 
   await screen.findByRole('heading', { name: 'View Ballot' });
   screen.getByRole('button', { name: 'Close' });
@@ -195,7 +213,7 @@ test('changes ballot type', async () => {
         fileName: 'mock precinct ballot.pdf',
       })
     );
-  renderScreen();
+  renderViewer();
 
   await screen.findByRole('heading', { name: 'View Ballot' });
   screen.getByText('mock precinct ballot pdf');
@@ -247,7 +265,7 @@ test('changes tabulation mode', async () => {
         fileName: 'mock official ballot.pdf',
       })
     );
-  renderScreen();
+  renderViewer();
 
   await screen.findByRole('heading', { name: 'View Ballot' });
   screen.getByText('mock official ballot pdf');
@@ -288,10 +306,6 @@ test('changes tabulation mode', async () => {
 });
 
 test('NhStateBallot template: Federal Office Only option locks mode to Official', async () => {
-  apiMock.getBallotTemplate.reset();
-  apiMock.getBallotTemplate
-    .expectCallWith({ electionId })
-    .resolves('NhStateBallot');
   apiMock.getBallotPreviewPdf
     .expectCallWith({
       electionId,
@@ -307,7 +321,7 @@ test('NhStateBallot template: Federal Office Only option locks mode to Official'
         fileName: 'mock precinct ballot.pdf',
       })
     );
-  renderScreen();
+  renderViewer('NhStateBallot');
 
   await screen.findByRole('heading', { name: 'View Ballot' });
   await screen.findByText('mock precinct ballot pdf');
@@ -373,10 +387,6 @@ test('NhStateBallot template: Federal Office Only option locks mode to Official'
 
 describe('Ballot rendering error handling', () => {
   test('NH ballot template with missing signature shows appropriate error', async () => {
-    apiMock.getBallotTemplate.reset();
-    apiMock.getBallotTemplate
-      .expectCallWith({ electionId })
-      .resolves('NhBallot');
     // Mock the ballot preview API to return missing signature error
     apiMock.getBallotPreviewPdf
       .expectCallWith({
@@ -393,10 +403,13 @@ describe('Ballot rendering error handling', () => {
         })
       );
 
-    renderScreen();
+    renderViewer('NhBallot');
 
     await screen.findByText(/Missing signature. Upload a signature in/);
-    screen.getByRole('link', { name: 'Election Info' });
+    expect(screen.getByRole('link', { name: 'Election Info' })).toHaveAttribute(
+      'href',
+      '/election-info'
+    );
   });
 
   test.each<{
@@ -412,7 +425,7 @@ describe('Ballot rendering error handling', () => {
         id: 'long-contest',
         type: 'candidate',
         title: 'Very Long Contest',
-        districtId: electionRecord.election.districts[0]!.id,
+        districtId: election.districts[0]!.id,
         seats: 1,
         allowWriteIns: false,
         candidates: [],
@@ -427,7 +440,7 @@ describe('Ballot rendering error handling', () => {
         id: 'long-contest',
         type: 'yesno',
         title: 'Very Long Ballot Measure',
-        districtId: electionRecord.election.districts[0]!.id,
+        districtId: election.districts[0]!.id,
         description: '',
         options: [
           { id: 'yes', label: 'Yes' },
@@ -444,7 +457,7 @@ describe('Ballot rendering error handling', () => {
         id: 'long-contest',
         type: 'yesno',
         title: 'Very Long Ballot Measure',
-        districtId: electionRecord.election.districts[0]!.id,
+        districtId: election.districts[0]!.id,
         description: '',
         options: [
           { id: 'yes', label: 'Yes' },
@@ -461,7 +474,7 @@ describe('Ballot rendering error handling', () => {
         id: 'long-contest',
         type: 'candidate',
         title: 'Very Long Contest',
-        districtId: electionRecord.election.districts[0]!.id,
+        districtId: election.districts[0]!.id,
         seats: 1,
         allowWriteIns: false,
         candidates: [],
@@ -472,10 +485,6 @@ describe('Ballot rendering error handling', () => {
   ])(
     'Contest too long error: $name',
     async ({ ballotTemplateId, contest, expectedMessage }) => {
-      apiMock.getBallotTemplate.reset();
-      apiMock.getBallotTemplate
-        .expectCallWith({ electionId })
-        .resolves(ballotTemplateId);
       apiMock.getBallotPreviewPdf
         .expectCallWith({
           electionId,
@@ -492,9 +501,39 @@ describe('Ballot rendering error handling', () => {
           })
         );
 
-      renderScreen();
+      renderViewer(ballotTemplateId);
 
       await screen.findByText(expectedMessage);
     }
   );
+});
+
+test('renders the actions with the preview once it loads', async () => {
+  const previewInput = {
+    electionId,
+    ballotStyleId: ballotStyle.id,
+    precinctId: precinct.id,
+    ballotType: BallotType.Precinct,
+    ballotMode: 'official',
+    variant: undefined,
+  } as const;
+  const { promise, resolve } =
+    deferred<Result<BallotPreviewPdf, BallotLayoutError>>();
+  apiMock.getBallotPreviewPdf.expectCallWith(previewInput).returns(promise);
+  const renderActions = vi.fn(({ preview }: { preview?: BallotPreviewPdf }) => (
+    <button type="button">Save {preview?.fileName ?? 'pending'}</button>
+  ));
+  renderViewer('VxDefaultBallot', renderActions);
+
+  await screen.findButton('Save pending');
+  const preview: BallotPreviewPdf = {
+    pdfData: Buffer.from('mock ballot pdf'),
+    fileName: 'proof.pdf',
+  };
+  resolve(ok(preview));
+  await screen.findButton('Save proof.pdf');
+  expect(renderActions).toHaveBeenLastCalledWith({
+    previewInput,
+    preview: expect.objectContaining({ fileName: 'proof.pdf' }),
+  });
 });
