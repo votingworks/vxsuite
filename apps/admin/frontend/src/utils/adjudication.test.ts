@@ -13,6 +13,7 @@ test('normalizeWriteInName', () => {
   expect(normalizeWriteInName('Name')).toEqual('name');
   expect(normalizeWriteInName('  Name  ')).toEqual('name');
   expect(normalizeWriteInName('  Na     me  ')).toEqual('na me');
+  expect(normalizeWriteInName('Joe  Q \t Schmo')).toEqual('joe q schmo');
 });
 
 test('newWriteInNamesFromOtherContests', () => {

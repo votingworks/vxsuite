@@ -33,7 +33,7 @@ export interface ContestListItem {
 }
 
 export function normalizeWriteInName(name: string): string {
-  return name.toLowerCase().trim().replace(/\s+/, ' ');
+  return name.toLowerCase().trim().replace(/\s+/g, ' ');
 }
 
 export function newWriteInNamesFromOtherContests(
