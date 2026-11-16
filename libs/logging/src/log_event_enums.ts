@@ -277,6 +277,8 @@ export const LogEventId = {
   ElectionDefinitionContestUpdated: 'election-definition-contest-updated',
   ElectionDefinitionContestsReordered: 'election-definition-contests-reordered',
   ElectionDefinitionContestDeleted: 'election-definition-contest-deleted',
+  ElectionDefinitionBallotLayoutSettingsUpdated:
+    'election-definition-ballot-layout-settings-updated',
   ElectionDefinitionDiscarded: 'election-definition-discarded',
 } as const;
 export type LogEventId = (typeof LogEventId)[keyof typeof LogEventId];
@@ -1788,6 +1790,14 @@ const ElectionDefinitionContestDeleted: LogDetails = {
   restrictInDocumentationToApps: [AppName.VxAdmin],
 };
 
+const ElectionDefinitionBallotLayoutSettingsUpdated: LogDetails = {
+  eventId: LogEventId.ElectionDefinitionBallotLayoutSettingsUpdated,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'A user changed the ballot paper size or density of the election definition being designed.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
 const ElectionDefinitionDiscarded: LogDetails = {
   eventId: LogEventId.ElectionDefinitionDiscarded,
   eventType: LogEventType.UserAction,
@@ -2202,6 +2212,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return ElectionDefinitionContestsReordered;
     case LogEventId.ElectionDefinitionContestDeleted:
       return ElectionDefinitionContestDeleted;
+    case LogEventId.ElectionDefinitionBallotLayoutSettingsUpdated:
+      return ElectionDefinitionBallotLayoutSettingsUpdated;
     case LogEventId.ElectionDefinitionDiscarded:
       return ElectionDefinitionDiscarded;
     default:
