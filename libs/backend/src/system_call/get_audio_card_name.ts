@@ -20,10 +20,8 @@ export interface GetAudioCardNameParams {
   /**
    * Initial delay before the first retry. Will be increased for each successive
    * retry.
-   *
-   * @default 1000
    */
-  baseRetryDelayMs?: number;
+  baseRetryDelayMs: number;
   logger: Logger;
   maxRetries?: number;
   nodeEnv: NODE_ENV;
@@ -34,7 +32,6 @@ export async function getAudioCardName(
   p: GetAudioCardNameParams
 ): Promise<Result<string, string | z.ZodError>> {
   const maxAttempts = 1 + (p.maxRetries || 0);
-  const baseWaitTimeMs = p.baseRetryDelayMs ?? 1000;
 
   let lastError: string | undefined;
   for (let i = 0; i < maxAttempts; i += 1) {
@@ -44,7 +41,7 @@ export async function getAudioCardName(
         message: `Audio card detection failed - retrying after error: ${lastError}`,
       });
 
-      await sleep(baseWaitTimeMs * i);
+      await sleep(p.baseRetryDelayMs * i);
     }
 
     const args = ['-fjson', 'list', 'cards'];

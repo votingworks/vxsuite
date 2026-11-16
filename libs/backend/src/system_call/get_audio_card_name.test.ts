@@ -26,7 +26,12 @@ test('command successful', async () => {
   mockPactl.mockResolvedValueOnce(err('failed 1st attempt'));
   mockPactl.mockResolvedValueOnce(ok(JSON.stringify([{ name }])));
 
-  const res = getAudioCardName({ logger, maxRetries: 1, nodeEnv });
+  const res = getAudioCardName({
+    logger,
+    maxRetries: 1,
+    nodeEnv,
+    baseRetryDelayMs: 1000,
+  });
   await vi.runAllTimersAsync();
   expect(await res).toEqual(ok(name));
 
@@ -46,9 +51,13 @@ test('command successful - no cards found', async () => {
   const logger = mockLogger({ fn: vi.fn });
   mockPactl.mockResolvedValue(ok(JSON.stringify([])));
 
-  expect(await getAudioCardName({ logger, nodeEnv: 'development' })).toEqual(
-    err(expect.stringContaining('no audio cards found'))
-  );
+  expect(
+    await getAudioCardName({
+      logger,
+      nodeEnv: 'development',
+      baseRetryDelayMs: 1000,
+    })
+  ).toEqual(err(expect.stringContaining('no audio cards found')));
   expect(mockPactl.mock.calls).toEqual([
     ['development', logger, ['-fjson', 'list', 'cards']],
   ]);
@@ -59,7 +68,12 @@ test('pactl error', async () => {
   const logger = mockLogger({ fn: vi.fn });
   mockPactl.mockResolvedValue(err('access denied'));
 
-  const res = getAudioCardName({ logger, maxRetries: 2, nodeEnv });
+  const res = getAudioCardName({
+    logger,
+    maxRetries: 2,
+    nodeEnv,
+    baseRetryDelayMs: 1000,
+  });
   await vi.runAllTimersAsync();
   expect(await res).toEqual(err('access denied'));
   expect(mockPactl).toHaveBeenCalledTimes(3);
@@ -81,7 +95,12 @@ test('pactl output parse error', async () => {
 
   mockPactl.mockResolvedValueOnce(ok('not json'));
 
-  let res = getAudioCardName({ logger, maxRetries: 2, nodeEnv });
+  let res = getAudioCardName({
+    logger,
+    maxRetries: 2,
+    nodeEnv,
+    baseRetryDelayMs: 1000,
+  });
   await vi.runAllTimersAsync();
   expect(await res).toEqual(err(expect.stringContaining('SyntaxError')));
   expect(mockPactl).toHaveBeenCalledOnce(); // Shouldn't retry on parse errors.
@@ -89,7 +108,12 @@ test('pactl output parse error', async () => {
   mockPactl.mockReset();
   mockPactl.mockResolvedValueOnce(ok('[{"not":"valid"}]'));
 
-  res = getAudioCardName({ logger, maxRetries: 2, nodeEnv });
+  res = getAudioCardName({
+    logger,
+    maxRetries: 2,
+    nodeEnv,
+    baseRetryDelayMs: 1000,
+  });
   await vi.runAllTimersAsync();
   expect(await res).toEqual(err(expect.objectContaining({ name: 'ZodError' })));
   expect(mockPactl).toHaveBeenCalledOnce();
