@@ -30,6 +30,7 @@ impl_cornerwise!(BallotGridCorners, BallotGridCorner);
 impl BallotGridCorners {
     /// Get the four corner candidate timing marks for the ballot grid. Ordered
     /// cornerwise: TL, TR, BL, BR.
+    #[must_use]
     pub fn corner_marks(
         &self,
     ) -> (
@@ -225,6 +226,7 @@ pub struct CandidateCornerMarkGrouping {
 
 impl CandidateCornerMarkGrouping {
     /// Gets this grouping's corner candidate timing mark.
+    #[must_use]
     pub const fn corner_mark(&self) -> &CandidateTimingMark {
         &self.corner
     }

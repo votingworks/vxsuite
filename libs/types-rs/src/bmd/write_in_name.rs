@@ -18,10 +18,10 @@ impl WriteInName {
     pub const MAX_LENGTH: usize = 40;
 
     /// Bits needed to encode the name length (0..=40).
-    pub const LENGTH_BITS: u32 = coding::const_bit_size(Self::MAX_LENGTH as u64);
+    pub const LENGTH_BITS: u32 = (Self::MAX_LENGTH as u64).bit_width();
 
     /// Bits needed to encode a character index into [`Self::CHARS`].
-    pub const CHAR_BITS: u32 = coding::const_bit_size((Self::CHARS.len() - 1) as u64);
+    pub const CHAR_BITS: u32 = ((Self::CHARS.len() - 1) as u64).bit_width();
 
     /// Constructs a new [`WriteInName`] if the characters are all allowed in a
     /// write-in name. If not, returns [`None`].

@@ -606,7 +606,7 @@ mod tests {
         let header = an_image_header();
         let frame = encode_image_frame_prefix(&header, 0).expect("within the limit");
         let (_, pixels) = decode_image(&frame[FRAME_HEADER_LENGTH..]).expect("image should decode");
-        assert!(pixels.is_empty());
+        assert_eq!(pixels, []);
     }
 
     #[test]

@@ -219,7 +219,7 @@ pub enum BallotType {
 
 impl BallotType {
     const MAX: u32 = 2_u32.pow(4) - 1;
-    const BITS: u32 = coding::const_bit_size(Self::MAX as u64);
+    const BITS: u32 = (Self::MAX as u64).bit_width();
 }
 
 impl FromBitStream for BallotType {

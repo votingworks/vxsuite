@@ -31,7 +31,7 @@ macro_rules! codable {
             pub const MAX_VALUE: $inner = *Self::RANGE.end();
             pub const MAX: Self = Self(*Self::RANGE.end());
 
-            pub const BITS: u32 = $crate::coding::const_bit_size(*Self::RANGE.end() as u64);
+            pub const BITS: u32 = (*Self::RANGE.end() as u64).bit_width();
 
             /// Makes a new `Self` validating that `value` is valid, returning
             /// `Some(Self)` if so and `None` if not.
@@ -105,42 +105,6 @@ pub enum Error {
     #[error("IO error: {0}")]
     IoError(#[from] std::io::Error),
 }
-
-/// Calculate the number of bits required to represent a value. This version
-/// exists for const contexts since trait implementation functions cannot be
-/// `const` functions.
-///
-/// ```
-/// # use types_rs::coding::const_bit_size;
-/// assert_eq!(const_bit_size(0u64), 0);
-/// assert_eq!(const_bit_size(1u64), 1);
-/// assert_eq!(const_bit_size(12345u64), 14);
-/// ```
-#[must_use]
-pub const fn const_bit_size(value: u64) -> u32 {
-    u64::BITS - value.leading_zeros()
-}
-
-/// Trait for calculating the number of bits required to represent a value,
-/// implemented for primitive numeric types.
-pub trait BitSize {
-    fn bit_size(self) -> u32;
-}
-
-macro_rules! impl_bit_size {
-    ($type:path) => {
-        impl BitSize for $type {
-            fn bit_size(self) -> u32 {
-                Self::BITS - self.leading_zeros()
-            }
-        }
-    };
-}
-
-impl_bit_size!(u8);
-impl_bit_size!(u32);
-impl_bit_size!(u64);
-impl_bit_size!(usize);
 
 /// Encode a codable value to an array of bytes using big-endian byte order.
 /// Ensures that the result is byte-aligned, so there may be some padding bits

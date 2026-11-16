@@ -694,7 +694,7 @@ mod tests {
                 &workspace,
             )
             .unwrap();
-            assert!(mock_keyboard.keystrokes.is_empty());
+            assert_eq!(mock_keyboard.keystrokes, []);
         }
 
         // Threshold-meeting active status should trigger a keystroke
@@ -757,7 +757,7 @@ mod tests {
             )
             .unwrap();
         }
-        assert!(mock_keyboard.keystrokes.is_empty());
+        assert_eq!(mock_keyboard.keystrokes, []);
 
         // Meet the threshold
         handle_status_response(

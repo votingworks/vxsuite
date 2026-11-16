@@ -371,6 +371,7 @@ pub enum Contest {
 }
 
 impl Contest {
+    #[must_use]
     pub fn id(&self) -> &ContestId {
         match self {
             Self::Candidate(CandidateContest { id, .. })
@@ -379,6 +380,7 @@ impl Contest {
         }
     }
 
+    #[must_use]
     pub fn district_id(&self) -> &DistrictId {
         match self {
             Self::Candidate(CandidateContest { district_id, .. })
@@ -446,6 +448,7 @@ pub enum Candidate {
 }
 
 impl Candidate {
+    #[must_use]
     pub fn id(&self) -> &OptionId {
         match self {
             Self::Named(NamedCandidate { id, .. }) | Self::WriteIn(WriteInCandidate { id, .. }) => {

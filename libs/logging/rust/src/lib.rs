@@ -52,27 +52,27 @@ macro_rules! log {
         $crate::print_log(&$crate::Log {
             event_id: $event_id,
             ..Default::default()
-        });
+        })
     };
     ($event_id:expr, $($format_args:tt)*) => {
         $crate::print_log(&$crate::Log {
             event_id: $event_id,
             message: format!($($format_args)*),
             ..Default::default()
-        });
+        })
     };
     ($event_id:expr; $event_type:expr) => {
         $crate::print_log(&$crate::Log {
             event_id: $event_id,
             event_type: $event_type,
             ..Default::default()
-        });
+        })
     };
     ($($arg:tt)*) => {
         $crate::print_log(&$crate::Log {
             $($arg)*,
             ..Default::default()
-        });
+        })
     };
 }
 

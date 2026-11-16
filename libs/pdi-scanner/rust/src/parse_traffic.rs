@@ -67,7 +67,7 @@ impl<'de> Deserialize<'de> for HexString {
     {
         let s: String = Deserialize::deserialize(deserializer)?;
         let (chunks, remainder) = s.as_bytes().as_chunks::<2>();
-        assert!(remainder.is_empty());
+        assert_eq!(remainder, b"");
 
         Ok(Self(
             chunks
