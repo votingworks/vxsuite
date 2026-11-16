@@ -73,6 +73,7 @@ import type { BaseLogger } from '@votingworks/logging';
 import { type BallotTemplateId, generateBallotStyles } from '@votingworks/hmpb';
 import pg, { type DatabaseError } from 'pg';
 import {
+  type BallotLayoutSettings,
   type DistrictsUpdate,
   type DuplicateContestError,
   type DuplicateDistrictError,
@@ -2207,7 +2208,7 @@ export class Store {
 
   async getBallotLayoutSettings(
     electionId: ElectionId
-  ): Promise<{ paperSize: HmpbBallotPaperSize; compact: boolean }> {
+  ): Promise<BallotLayoutSettings> {
     const row = (
       await this.db.withClient((client) =>
         client.query(
