@@ -1,10 +1,14 @@
 {
   "$schema": "https://v2-11-2.turborepo.dev/schema.json",
   "globalDependencies": [
+    ".env",
+    ".env.production",
     ".node-version",
     ".nvmrc",
     "package.json",
+    "rust-toolchain.toml",
     "tsconfig.shared.json",
+    "types/**",
     "vitest.config.shared.mts",
     ".oxfmtrc.jsonc",
     "stylelint.shared.js"
