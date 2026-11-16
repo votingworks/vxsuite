@@ -37,9 +37,11 @@ import {
 import { generateBallotStyles } from '@votingworks/hmpb';
 import {
   type BallotStyle,
+  type BallotStyleGroupId,
   type Candidate,
   type CandidateContest,
   type CandidateId,
+  type CandidateOrderings,
   type Contest,
   type ContestId,
   ContestSchema,
@@ -367,11 +369,22 @@ export class ElectionDefinitionStore {
 
   // TODO fill this method in after all election entities are added to the store
   getElection(electionId: ElectionId): Election | undefined {
+    return this.getElectionWithCandidateOrderings(electionId)?.election;
+  }
+
+  getElectionWithCandidateOrderings(electionId: ElectionId):
+    | {
+        election: Election;
+        candidateOrderings: Map<BallotStyleGroupId, CandidateOrderings>;
+      }
+    | undefined {
     const electionInfo = this.getElectionInfo();
     if (electionInfo?.electionId !== electionId) {
       return undefined;
     }
-    return {
+    const { ballotStyles, candidateOrderings } =
+      this.generateBallotStyles(electionId);
+    const election: Election = {
       id: electionInfo.electionId,
       type: electionInfo.type,
       title: electionInfo.title,
@@ -396,13 +409,14 @@ export class ElectionDefinitionStore {
       pollingPlaces: this.listPollingPlaces(electionId),
       parties: this.listParties(electionId),
       contests: this.listContests(electionId),
-      ballotStyles: this.listBallotStyles(electionId),
+      ballotStyles,
       ballotLayout: {
         paperSize: this.getBallotLayoutSettings(electionId).paperSize,
         metadataEncoding: 'qr-code',
       },
       ballotStrings: {},
     };
+    return { election, candidateOrderings };
   }
 
   getBallotLayoutSettings(electionId: ElectionId): BallotLayoutSettings {
@@ -443,6 +457,12 @@ export class ElectionDefinitionStore {
   }
 
   listBallotStyles(electionId: ElectionId): BallotStyle[] {
+    return this.generateBallotStyles(electionId).ballotStyles;
+  }
+
+  private generateBallotStyles(
+    electionId: ElectionId
+  ): ReturnType<typeof generateBallotStyles> {
     const electionInfo = assertDefined(this.getElectionInfo());
     assert(electionInfo.electionId === electionId, 'Election not found');
     return generateBallotStyles({
@@ -456,7 +476,7 @@ export class ElectionDefinitionStore {
       precincts: this.listPrecincts(electionId),
       ballotTemplateId: 'VxDefaultBallot',
       electionId,
-    }).ballotStyles;
+    });
   }
 
   createInProgressElection(electionInfo: ElectionInfoUpdate): void {
