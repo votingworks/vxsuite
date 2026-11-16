@@ -263,6 +263,7 @@ impl Detected {
     }
 
     /// The areas of the image that were searched for QR codes.
+    #[must_use]
     pub fn detection_areas(&self) -> &[Rect] {
         &self.detection_areas
     }

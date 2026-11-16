@@ -154,6 +154,7 @@ impl CandidateTimingMark {
         self.scores
     }
 
+    #[must_use]
     pub const fn rect(&self) -> &Rect {
         &self.rect
     }

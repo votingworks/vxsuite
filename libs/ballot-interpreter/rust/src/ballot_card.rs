@@ -133,6 +133,7 @@ impl BallotImage {
     }
 
     /// Gets the image debug writer associated with this ballot image.
+    #[must_use]
     pub fn debug(&self) -> &ImageDebugWriter {
         &self.debug
     }
@@ -323,11 +324,13 @@ impl BallotPage {
     }
 
     /// Gets the ballot geometry information for this page.
+    #[must_use]
     pub fn geometry(&self) -> &Geometry {
         &self.geometry
     }
 
     /// Gets the ballot image for this page.
+    #[must_use]
     pub fn ballot_image(&self) -> &BallotImage {
         &self.ballot_image
     }
@@ -339,6 +342,7 @@ impl BallotPage {
     }
 
     /// Gets the debug writer for this page.
+    #[must_use]
     pub fn debug(&self) -> &ImageDebugWriter {
         self.ballot_image.debug()
     }
@@ -411,14 +415,17 @@ impl BallotCard {
         swap(&mut self.front_page, &mut self.back_page);
     }
 
+    #[must_use]
     pub fn geometry(&self) -> &Geometry {
         &self.front_page.geometry
     }
 
+    #[must_use]
     pub fn front_page(&self) -> &BallotPage {
         &self.front_page
     }
 
+    #[must_use]
     pub fn back_page(&self) -> &BallotPage {
         &self.back_page
     }

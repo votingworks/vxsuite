@@ -278,7 +278,7 @@ impl Image {
             .take_while(|&&c| c != 0)
             .map(|c| c.to_ne_bytes()[0])
             .collect();
-        String::from_utf8_lossy(&bytes).into_owned()
+        String::from_utf8_lossy_owned(bytes)
     }
 
     /// The pixel buffer; empty when the library passed null or a non-positive size.

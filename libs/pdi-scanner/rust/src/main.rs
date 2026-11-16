@@ -986,7 +986,7 @@ mod tests {
     #[tokio::test]
     async fn exit_command_terminates_loop() {
         let messages = run_disconnected(b"{\"command\":\"exit\"}\n").await;
-        assert!(messages.is_empty());
+        assert_eq!(messages, Vec::<Value>::new());
     }
 
     #[tokio::test]
@@ -1004,7 +1004,7 @@ mod tests {
         .await
         .unwrap()
         .unwrap();
-        assert!(drain_output(&mut output_rx).is_empty());
+        assert_eq!(drain_output(&mut output_rx), Vec::<Value>::new());
     }
 
     #[tokio::test]

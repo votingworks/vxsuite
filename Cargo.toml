@@ -19,7 +19,6 @@ exclude = [
 
 [workspace.package]
 license = "GPL-3.0-only"
-license-file = "LICENSE"
 
 [workspace.dependencies]
 chrono = "0.4.31"
