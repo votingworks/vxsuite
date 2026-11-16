@@ -1,190 +1,179 @@
-import { Table, TH, TD, LinkButton, TabPanel, Font } from '@votingworks/ui';
-import { useParams } from 'react-router-dom';
+import { Table, TH, TD, LinkButton, Font } from '@votingworks/ui';
 import { find } from '@votingworks/basics';
-import { hasSplits } from '@votingworks/types';
+import {
+  type BallotStyle,
+  type BallotStyleId,
+  type ElectionId,
+  hasSplits,
+  type PrecinctId,
+} from '@votingworks/types';
 import styled from 'styled-components';
 import { ballotStyleHasPrecinctOrSplit } from '@votingworks/utils';
-import { Column } from '@votingworks/election-definition-ui';
-import {
-  getBallotsFinalizedAt,
-  listBallotStyles,
-  getElectionInfo,
-  electionDefinitionApi,
-} from './api.js';
-import { NestedTr } from './layout.js';
-import { type ElectionIdParams, routes } from './routes.js';
-import { BallotsStatus } from './ballots_status.js';
+import { useElectionDefinitionApi } from './election_definition_context.js';
 
-const BallotStylesTable = styled(Table)`
+const NestedTr = styled.tr`
+  td:first-child {
+    padding-left: 3rem;
+  }
+`;
+
+const StyledTable = styled(Table)`
   td:last-child {
     text-align: right;
     padding-right: 1rem;
   }
 `;
 
-export function BallotStylesTab(): JSX.Element | null {
-  const { electionId } = useParams<ElectionIdParams>();
-  const getElectionInfoQuery = getElectionInfo.useQuery(electionId);
-  const listPrecinctsQuery =
-    electionDefinitionApi.listPrecincts.useQuery(electionId);
-  const listBallotStylesQuery = listBallotStyles.useQuery(electionId);
-  const listPartiesQuery =
-    electionDefinitionApi.listParties.useQuery(electionId);
-  const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
+export interface BallotStylesTableProps {
+  electionId: ElectionId;
+  getViewBallotPath?: (
+    ballotStyleId: BallotStyleId,
+    precinctId: PrecinctId
+  ) => string;
+}
+
+export function BallotStylesTable({
+  electionId,
+  getViewBallotPath,
+}: BallotStylesTableProps): JSX.Element | null {
+  const api = useElectionDefinitionApi();
+  const getElectionInfoQuery = api.getElectionInfo.useQuery(electionId);
+  const listPrecinctsQuery = api.listPrecincts.useQuery(electionId);
+  const listBallotStylesQuery = api.listBallotStyles.useQuery(electionId);
+  const listPartiesQuery = api.listParties.useQuery(electionId);
 
   if (
     !(
       getElectionInfoQuery.isSuccess &&
       listPrecinctsQuery.isSuccess &&
       listBallotStylesQuery.isSuccess &&
-      listPartiesQuery.isSuccess &&
-      getBallotsFinalizedAtQuery.isSuccess
+      listPartiesQuery.isSuccess
     )
   ) {
     return null;
+  }
+
+  function viewBallotButton(
+    ballotStyle: BallotStyle,
+    precinctId: PrecinctId
+  ): JSX.Element | undefined {
+    return (
+      getViewBallotPath && (
+        <LinkButton to={getViewBallotPath(ballotStyle.id, precinctId)}>
+          View Ballot
+        </LinkButton>
+      )
+    );
   }
 
   const electionInfo = getElectionInfoQuery.data;
   const precincts = listPrecinctsQuery.data;
   const ballotStyles = listBallotStylesQuery.data;
   const parties = listPartiesQuery.data;
-  const ballotRoutes = routes.election(electionId).ballots;
   const showPartyColumn =
     electionInfo.type === 'primary' && !electionInfo.isMiCombinedBallotPrimary;
 
+  if (ballotStyles.length === 0) {
+    return null;
+  }
+
   return (
-    <TabPanel>
-      <Column style={{ gap: '1rem', maxWidth: '40rem' }}>
-        <BallotsStatus />
+    <StyledTable>
+      <thead>
+        <tr>
+          <TH>Precinct</TH>
+          <TH>Ballot Style</TH>
+          {showPartyColumn && <TH>Party</TH>}
+          <TH />
+        </tr>
+      </thead>
+      <tbody>
+        {precincts.flatMap((precinct) => {
+          if (!hasSplits(precinct)) {
+            const precinctBallotStyles = ballotStyles.filter((ballotStyle) =>
+              ballotStyle.precincts.includes(precinct.id)
+            );
 
-        {ballotStyles.length > 0 && (
-          <BallotStylesTable>
-            <thead>
-              <tr>
-                <TH>Precinct</TH>
-                <TH>Ballot Style</TH>
-                {showPartyColumn && <TH>Party</TH>}
-                <TH />
+            if (precinctBallotStyles.length === 0) {
+              return (
+                <tr key={precinct.id}>
+                  <TD>{precinct.name}</TD>
+                  <TD>
+                    <Font italic>No contests assigned</Font>
+                  </TD>
+                  {showPartyColumn && <TD />}
+                  <TD />
+                </tr>
+              );
+            }
+
+            return precinctBallotStyles.map((ballotStyle) => (
+              <tr key={precinct.id + ballotStyle.id}>
+                <TD>{precinct.name}</TD>
+                <TD>{ballotStyle.id}</TD>
+                {showPartyColumn && (
+                  <TD>
+                    {
+                      find(parties, (party) => party.id === ballotStyle.partyId)
+                        .fullName
+                    }
+                  </TD>
+                )}
+                <TD>{viewBallotButton(ballotStyle, precinct.id)}</TD>
               </tr>
-            </thead>
-            <tbody>
-              {precincts.flatMap((precinct) => {
-                if (!hasSplits(precinct)) {
-                  const precinctBallotStyles = ballotStyles.filter(
-                    (ballotStyle) => ballotStyle.precincts.includes(precinct.id)
-                  );
+            ));
+          }
 
-                  if (precinctBallotStyles.length === 0) {
-                    return (
-                      <tr key={precinct.id}>
-                        <TD>{precinct.name}</TD>
-                        <TD>
-                          <Font italic>No contests assigned</Font>
-                        </TD>
-                        {
-                          // @coverage-exclude
-                          showPartyColumn && <TD />
-                        }
-                        <TD />
-                      </tr>
-                    );
-                  }
+          const precinctRow = (
+            <tr key={precinct.id}>
+              <TD>{precinct.name}</TD>
+              <TD />
+              {showPartyColumn && <TD />}
+              <TD />
+            </tr>
+          );
 
-                  return precinctBallotStyles.map((ballotStyle) => (
-                    <tr key={precinct.id + ballotStyle.id}>
-                      <TD>{precinct.name}</TD>
-                      <TD>{ballotStyle.id}</TD>
-                      {showPartyColumn && (
-                        <TD>
-                          {
-                            find(
-                              parties,
-                              (party) => party.id === ballotStyle.partyId
-                            ).fullName
-                          }
-                        </TD>
-                      )}
-                      <TD>
-                        <LinkButton
-                          to={
-                            ballotRoutes.viewBallot(ballotStyle.id, precinct.id)
-                              .path
-                          }
-                        >
-                          View Ballot
-                        </LinkButton>
-                      </TD>
-                    </tr>
-                  ));
-                }
+          const splitRows = precinct.splits.flatMap((split) => {
+            const splitBallotStyles = ballotStyles.filter((ballotStyle) =>
+              ballotStyleHasPrecinctOrSplit(ballotStyle, {
+                precinct,
+                split,
+              })
+            );
 
-                const precinctRow = (
-                  <tr key={precinct.id}>
-                    <TD>{precinct.name}</TD>
-                    <TD />
-                    {showPartyColumn && <TD />}
-                    <TD />
-                  </tr>
-                );
+            if (splitBallotStyles.length === 0) {
+              return (
+                <NestedTr key={split.id}>
+                  <TD>{split.name}</TD>
+                  <TD>
+                    <Font italic>No contests assigned</Font>
+                  </TD>
+                  {showPartyColumn && <TD />}
+                  <TD />
+                </NestedTr>
+              );
+            }
 
-                const splitRows = precinct.splits.flatMap((split) => {
-                  const splitBallotStyles = ballotStyles.filter((ballotStyle) =>
-                    ballotStyleHasPrecinctOrSplit(ballotStyle, {
-                      precinct,
-                      split,
-                    })
-                  );
+            return splitBallotStyles.map((ballotStyle) => (
+              <NestedTr key={split.id + ballotStyle.id}>
+                <TD>{split.name}</TD>
+                <TD>{ballotStyle.id}</TD>
+                {showPartyColumn && (
+                  <TD>
+                    {
+                      find(parties, (party) => party.id === ballotStyle.partyId)
+                        .fullName
+                    }
+                  </TD>
+                )}
+                <TD>{viewBallotButton(ballotStyle, precinct.id)}</TD>
+              </NestedTr>
+            ));
+          });
 
-                  if (splitBallotStyles.length === 0) {
-                    return (
-                      <NestedTr key={split.id}>
-                        <TD>{split.name}</TD>
-                        <TD>
-                          <Font italic>No contests assigned</Font>
-                        </TD>
-                        {
-                          // @coverage-exclude
-                          showPartyColumn && <TD />
-                        }
-                        <TD />
-                      </NestedTr>
-                    );
-                  }
-
-                  return splitBallotStyles.map((ballotStyle) => (
-                    <NestedTr key={split.id + ballotStyle.id}>
-                      <TD>{split.name}</TD>
-                      <TD>{ballotStyle.id}</TD>
-                      {showPartyColumn && (
-                        <TD>
-                          {
-                            find(
-                              parties,
-                              (party) => party.id === ballotStyle.partyId
-                            ).fullName
-                          }
-                        </TD>
-                      )}
-                      <TD>
-                        <LinkButton
-                          to={
-                            ballotRoutes.viewBallot(ballotStyle.id, precinct.id)
-                              .path
-                          }
-                        >
-                          View Ballot
-                        </LinkButton>
-                      </TD>
-                    </NestedTr>
-                  ));
-                });
-
-                return [precinctRow, ...splitRows];
-              })}
-            </tbody>
-          </BallotStylesTable>
-        )}
-      </Column>
-    </TabPanel>
+          return [precinctRow, ...splitRows];
+        })}
+      </tbody>
+    </StyledTable>
   );
 }

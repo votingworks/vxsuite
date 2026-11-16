@@ -1,10 +1,11 @@
 import { H1, MainContent, TabPanel, RouterTabBar } from '@votingworks/ui';
 import { Redirect, Route, Switch, useParams } from 'react-router-dom';
 import {
-  getBallotsFinalizedAt,
-  getBallotLayoutSettings,
-  getBallotTemplate,
-} from './api.js';
+  BallotLayoutForm,
+  BallotStylesTable,
+  Column,
+} from '@votingworks/election-definition-ui';
+import { getBallotsFinalizedAt, getBallotTemplate } from './api.js';
 import { ElectionNavScreen, Header } from './nav_screen.js';
 import {
   type ElectionIdParams,
@@ -12,38 +13,56 @@ import {
   routes,
 } from './routes.js';
 import { BallotScreen } from './ballot_screen.js';
-import { BallotDesignForm } from './ballot_layout_form.js';
-import { BallotStylesTab } from './ballot_styles_table.js';
 import { useTitle } from './hooks/use_title.js';
+import { BallotsStatus } from './ballots_status.js';
+
+function BallotStylesTab(): JSX.Element | null {
+  const { electionId } = useParams<ElectionIdParams>();
+  const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
+
+  if (!getBallotsFinalizedAtQuery.isSuccess) {
+    return null;
+  }
+
+  return (
+    <TabPanel>
+      <Column style={{ gap: '1rem', maxWidth: '40rem' }}>
+        <BallotsStatus />
+        <BallotStylesTable
+          electionId={electionId}
+          getViewBallotPath={(ballotStyleId, precinctId) =>
+            routes
+              .election(electionId)
+              .ballots.viewBallot(ballotStyleId, precinctId).path
+          }
+        />
+      </Column>
+    </TabPanel>
+  );
+}
 
 function BallotLayoutTab(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
-  const getBallotLayoutSettingsQuery =
-    getBallotLayoutSettings.useQuery(electionId);
   const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
   const getBallotTemplateQuery = getBallotTemplate.useQuery(electionId);
 
   if (
-    !(
-      getBallotLayoutSettingsQuery.isSuccess &&
-      getBallotsFinalizedAtQuery.isSuccess &&
-      getBallotTemplateQuery.isSuccess
-    )
+    !(getBallotsFinalizedAtQuery.isSuccess && getBallotTemplateQuery.isSuccess)
   ) {
     return null;
   }
 
-  const layoutSettings = getBallotLayoutSettingsQuery.data;
-  const ballotsFinalizedAt = getBallotsFinalizedAtQuery.data;
   const ballotTemplateId = getBallotTemplateQuery.data;
 
   return (
     <TabPanel>
-      <BallotDesignForm
+      <BallotLayoutForm
         electionId={electionId}
-        savedLayoutSettings={layoutSettings}
-        ballotsFinalizedAt={ballotsFinalizedAt}
-        ballotTemplateId={ballotTemplateId}
+        isLocked={!!getBallotsFinalizedAtQuery.data}
+        hideDensity={
+          ballotTemplateId === 'MiBallot' ||
+          ballotTemplateId === 'NhStateBallot'
+        }
       />
     </TabPanel>
   );

@@ -31,18 +31,16 @@ import type { BallotTemplateId } from '@votingworks/hub-backend';
 import type { NhStateBallotVariant } from '@votingworks/hmpb';
 import {
   FieldName as BaseFieldName,
+  paperSizeLabels,
   Row,
 } from '@votingworks/election-definition-ui';
 import {
   getBallotPreviewPdf,
   getBallotTemplate,
   getElectionInfo,
-  getBallotLayoutSettings,
-  listBallotStyles,
   electionDefinitionApi,
 } from './api.js';
 import { routes } from './routes.js';
-import { paperSizeLabels } from './ballot_layout_form.js';
 
 // The worker is bundled from the same pdfjs-dist version react-pdf uses
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
@@ -273,11 +271,12 @@ export function BallotScreen(): JSX.Element | null {
   const getElectionInfoQuery = getElectionInfo.useQuery(electionId);
   const listPrecinctsQuery =
     electionDefinitionApi.listPrecincts.useQuery(electionId);
-  const listBallotStylesQuery = listBallotStyles.useQuery(electionId);
+  const listBallotStylesQuery =
+    electionDefinitionApi.listBallotStyles.useQuery(electionId);
   const listPartiesQuery =
     electionDefinitionApi.listParties.useQuery(electionId);
   const getBallotLayoutSettingsQuery =
-    getBallotLayoutSettings.useQuery(electionId);
+    electionDefinitionApi.getBallotLayoutSettings.useQuery(electionId);
   const getBallotTemplateQuery = getBallotTemplate.useQuery(electionId);
   const [ballotType, setBallotType] = useState<BallotType>(BallotType.Precinct);
   const [ballotMode, setBallotMode] = useState<BallotMode>('official');

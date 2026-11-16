@@ -1,9 +1,24 @@
 import { Button, RadioGroup, Callout } from '@votingworks/ui';
 import { HmpbBallotPaperSize, type ElectionId } from '@votingworks/types';
+import type { BallotLayoutSettings } from '@votingworks/election-definition-backend';
 import { useState } from 'react';
-import type { BallotTemplateId } from '@votingworks/hub-backend';
-import { updateBallotLayoutSettings, electionDefinitionApi } from './api.js';
-import { Form, FormActionsRow } from './layout.js';
+import styled from 'styled-components';
+import { useElectionDefinitionApi } from './election_definition_context.js';
+import { Row } from './layout.js';
+
+const Form = styled.form`
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+`;
+
+const FormActionsRow = styled(Row)`
+  gap: 0.5rem;
+
+  button {
+    min-width: 8rem;
+  }
+`;
 
 export const paperSizeLabels: Record<HmpbBallotPaperSize, string> = {
   [HmpbBallotPaperSize.Letter]: '8.5 x 11 inches (Letter)',
@@ -15,33 +30,59 @@ export const paperSizeLabels: Record<HmpbBallotPaperSize, string> = {
   [HmpbBallotPaperSize.Custom22]: '8.5 x 22 inches',
 };
 
-export function BallotDesignForm({
-  electionId,
-  savedLayoutSettings,
-  ballotsFinalizedAt,
-  ballotTemplateId,
-}: {
+export interface BallotLayoutFormProps {
   electionId: ElectionId;
-  savedLayoutSettings: {
-    paperSize: HmpbBallotPaperSize;
-    compact: boolean;
-  };
-  ballotsFinalizedAt: Date | null;
-  ballotTemplateId: BallotTemplateId;
-}): JSX.Element | null {
-  const [isEditing, setIsEditing] = useState(false);
-  const [layoutSettings, setLayoutSettings] = useState(savedLayoutSettings);
+  isLocked?: boolean;
+  hideDensity?: boolean;
+}
 
-  const updateBallotLayoutSettingsMutation =
-    updateBallotLayoutSettings.useMutation();
-  const getStateFeaturesQuery =
-    electionDefinitionApi.getStateFeatures.useQuery(electionId);
+export function BallotLayoutForm({
+  electionId,
+  isLocked,
+  hideDensity,
+}: BallotLayoutFormProps): JSX.Element | null {
+  const api = useElectionDefinitionApi();
+  const getBallotLayoutSettingsQuery =
+    api.getBallotLayoutSettings.useQuery(electionId);
+  const getStateFeaturesQuery = api.getStateFeatures.useQuery(electionId);
 
-  // @coverage-exclude
-  if (!getStateFeaturesQuery.isSuccess) {
+  if (
+    !(getBallotLayoutSettingsQuery.isSuccess && getStateFeaturesQuery.isSuccess)
+  ) {
     return null;
   }
-  const features = getStateFeaturesQuery.data;
+
+  return (
+    <LayoutSettingsForm
+      electionId={electionId}
+      savedLayoutSettings={getBallotLayoutSettingsQuery.data}
+      onlyLetterAndLegal={
+        !!getStateFeaturesQuery.data.ONLY_LETTER_AND_LEGAL_PAPER_SIZES
+      }
+      isLocked={isLocked}
+      hideDensity={hideDensity}
+    />
+  );
+}
+
+function LayoutSettingsForm({
+  electionId,
+  savedLayoutSettings,
+  onlyLetterAndLegal,
+  isLocked,
+  hideDensity,
+}: {
+  electionId: ElectionId;
+  savedLayoutSettings: BallotLayoutSettings;
+  onlyLetterAndLegal: boolean;
+  isLocked?: boolean;
+  hideDensity?: boolean;
+}): JSX.Element {
+  const api = useElectionDefinitionApi();
+  const [isEditing, setIsEditing] = useState(false);
+  const [layoutSettings, setLayoutSettings] = useState(savedLayoutSettings);
+  const updateBallotLayoutSettingsMutation =
+    api.updateBallotLayoutSettings.useMutation();
 
   function onSubmit() {
     updateBallotLayoutSettingsMutation.mutate(
@@ -67,7 +108,7 @@ export function BallotDesignForm({
           label="Paper Size"
           options={Object.entries(paperSizeLabels)
             .filter(([value]) =>
-              features.ONLY_LETTER_AND_LEGAL_PAPER_SIZES
+              onlyLetterAndLegal
                 ? value === HmpbBallotPaperSize.Letter ||
                   value === HmpbBallotPaperSize.Legal
                 : true
@@ -86,32 +127,31 @@ export function BallotDesignForm({
           disabled={!isEditing}
         />
       </div>
-      {ballotTemplateId !== 'MiBallot' &&
-        ballotTemplateId !== 'NhStateBallot' && (
-          <div style={{ maxWidth: '16.5rem' }}>
-            <RadioGroup
-              label="Density"
-              options={[
-                {
-                  label: 'Default',
-                  value: 'default',
-                },
-                {
-                  label: 'Compact',
-                  value: 'compact',
-                },
-              ]}
-              value={layoutSettings.compact ? 'compact' : 'default'}
-              onChange={(value) =>
-                setLayoutSettings({
-                  ...layoutSettings,
-                  compact: value === 'compact',
-                })
-              }
-              disabled={!isEditing}
-            />
-          </div>
-        )}
+      {!hideDensity && (
+        <div style={{ maxWidth: '16.5rem' }}>
+          <RadioGroup
+            label="Density"
+            options={[
+              {
+                label: 'Default',
+                value: 'default',
+              },
+              {
+                label: 'Compact',
+                value: 'compact',
+              },
+            ]}
+            value={layoutSettings.compact ? 'compact' : 'default'}
+            onChange={(value) =>
+              setLayoutSettings({
+                ...layoutSettings,
+                compact: value === 'compact',
+              })
+            }
+            disabled={!isEditing}
+          />
+        </div>
+      )}
       {isEditing ? (
         <FormActionsRow>
           <Button type="reset">Cancel</Button>
@@ -125,14 +165,14 @@ export function BallotDesignForm({
             key="edit"
             variant="primary"
             icon="Edit"
-            disabled={!!ballotsFinalizedAt}
+            disabled={isLocked}
             onPress={() => setIsEditing(true)}
           >
             Edit
           </Button>
         </FormActionsRow>
       )}
-      {features.ONLY_LETTER_AND_LEGAL_PAPER_SIZES && (
+      {onlyLetterAndLegal && (
         <Callout
           style={{ alignSelf: 'flex-start' }}
           icon="Info"
