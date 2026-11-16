@@ -4,6 +4,8 @@ import { useAccessibleControllerHelpTrigger } from './index.js';
 import { simulateKeyPress } from '../test_utils.js';
 import { KEYBINDINGS, Keybinding } from '../keybindings.js';
 
+const LOWERCASE_HELP_KEY = Keybinding.TOGGLE_HELP.toLowerCase();
+
 test('toggles "off" to "on" for single keypress', async () => {
   const { result } = renderHook(useAccessibleControllerHelpTrigger);
 
@@ -29,6 +31,17 @@ test('toggles "on" to "off" for two consecutive keypresses', async () => {
   await simulateKeyPress(Keybinding.TOGGLE_HELP);
   await simulateKeyPress('Shift'); // Should be ignored.
   await simulateKeyPress(Keybinding.TOGGLE_HELP);
+  expect(result.current.shouldShowControllerSandbox).toEqual(false);
+});
+
+test('accepts lowercase help key', async () => {
+  const { result } = renderHook(useAccessibleControllerHelpTrigger);
+
+  await simulateKeyPress(LOWERCASE_HELP_KEY);
+  expect(result.current.shouldShowControllerSandbox).toEqual(true);
+
+  await simulateKeyPress(LOWERCASE_HELP_KEY);
+  await simulateKeyPress(LOWERCASE_HELP_KEY);
   expect(result.current.shouldShowControllerSandbox).toEqual(false);
 });
 

@@ -69,7 +69,7 @@ function ButtonDiagnosticStep({
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
       event.stopPropagation();
-      if (event.key === step.key) {
+      if (event.key === step.key || event.key.toUpperCase() === step.key) {
         onSuccess();
       }
     }

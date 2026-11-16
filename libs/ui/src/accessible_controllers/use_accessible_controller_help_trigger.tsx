@@ -16,7 +16,8 @@ export function useAccessibleControllerHelpTrigger(): UseAccessibleControllerHel
   // two consecutive `Keybinding.TOGGLE_HELP` events.
   React.useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
-      const helpKeyPressed = event.key === Keybinding.TOGGLE_HELP;
+      const key = event.key.toUpperCase();
+      const helpKeyPressed = key === Keybinding.TOGGLE_HELP;
       const isSecondConsecutiveHelpKeyPress =
         helpKeyPressed && lastKeyPress === Keybinding.TOGGLE_HELP;
 
@@ -33,7 +34,7 @@ export function useAccessibleControllerHelpTrigger(): UseAccessibleControllerHel
       // Store the last recognized key press, ignoring modifier keys that are
       // used in combination with character keys for some keybindings.
       if (!IGNORED_MODIFIER_KEY_PRESSES.has(event.key)) {
-        setLastKeyPress(event.key);
+        setLastKeyPress(key);
       }
     }
 

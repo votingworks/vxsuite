@@ -76,6 +76,27 @@ test('passes after each button is pressed in order', async () => {
   expect(onCancel).not.toHaveBeenCalled();
 });
 
+test('accepts lowercase letter keys', async () => {
+  renderScreen();
+
+  for (const [index, step] of DIAGNOSTIC_STEPS.entries()) {
+    await screen.findByText(
+      `${index + 1}. Press the ${step.label.toLowerCase()} button.`
+    );
+    if (index === DIAGNOSTIC_STEPS.length - 1) {
+      apiMock.expectAddDiagnosticRecord({
+        type: 'mark-accessible-controller',
+        outcome: 'pass',
+      });
+    }
+    fireEvent.keyDown(document, {
+      key: step.key.length === 1 ? step.key.toLowerCase() : step.key,
+    });
+  }
+
+  await vi.waitFor(() => expect(onComplete).toHaveBeenCalledTimes(1));
+});
+
 test('ignores presses of the wrong button', async () => {
   renderScreen();
 

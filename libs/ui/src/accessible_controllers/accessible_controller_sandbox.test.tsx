@@ -117,6 +117,36 @@ test('provides audio feedback for all relevant buttons', async () => {
   expectMockIllustrationProps(undefined);
 });
 
+test('treats lowercase letter keys as their uppercase keybindings', async () => {
+  vi.mocked(UiString).mockImplementation((p) => <span>{p.uiStringKey}</span>);
+
+  const { expectLastMockScreenReaderContent, renderWithMockScreenReader } =
+    newRenderer();
+
+  type PauseButton = typeof Keybinding.TOGGLE_PAUSE;
+  function PauseIllustration(
+    props: AccessibleControllerIllustrationProps<PauseButton>
+  ) {
+    const { highlight } = props;
+    return <div>PauseIllustration - highlight:{highlight}</div>;
+  }
+
+  renderWithMockScreenReader(
+    <AccessibleControllerSandbox<PauseButton>
+      feedbackStringKeys={{
+        [Keybinding.TOGGLE_PAUSE]: 'helpBmdControllerButtonTogglePause',
+      }}
+      illustration={PauseIllustration}
+      introAudioStringKey="instructionsBmdControllerSandboxMark"
+    />
+  );
+  await screen.findByRole('heading', { name: /controller help/i });
+
+  await simulateKeyPress(Keybinding.TOGGLE_PAUSE.toLowerCase());
+  expectLastMockScreenReaderContent('helpBmdControllerButtonTogglePause');
+  screen.getByText(`PauseIllustration - highlight:${Keybinding.TOGGLE_PAUSE}`);
+});
+
 test('force-enables audio and disables audio controls while active', async () => {
   vi.mocked(UiString).mockImplementation((p) => <span>{p.uiStringKey}</span>);
 
