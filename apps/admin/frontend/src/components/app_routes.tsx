@@ -15,6 +15,7 @@ import {
 } from '@votingworks/utils';
 import type { ManualResultsVotingMethod } from '@votingworks/admin-backend';
 import { assert } from '@votingworks/basics';
+import { ElectionDefinitionContextProvider } from '@votingworks/election-definition-ui';
 import { AppContext } from '../contexts/app_context.js';
 import { routerPaths } from '../router_paths.js';
 import { ElectionScreen } from '../screens/election_screen.js';
@@ -29,7 +30,13 @@ import { SmartCardsScreen } from '../screens/smart_cards_screen.js';
 import { MachineLockedScreen } from '../screens/machine_locked_screen.js';
 import { SettingsScreen } from '../screens/settings_screen.js';
 import { ReportsScreen } from '../screens/reporting/reports_screen.js';
-import { checkPin, logOut, unconfigure, useApiClient } from '../api.js';
+import {
+  checkPin,
+  electionDefinitionApi,
+  logOut,
+  unconfigure,
+  useApiClient,
+} from '../api.js';
 import { TallyReportBuilder } from '../screens/reporting/tally_report_builder.js';
 import { BallotCountReportBuilder } from '../screens/reporting/ballot_count_report_builder.js';
 import { AllPrecinctsTallyReportScreen } from '../screens/reporting/all_precincts_tally_report_screen.js';
@@ -42,6 +49,8 @@ import { AdjudicationStartScreen } from '../screens/adjudication_start_screen.js
 import { BallotAdjudicationScreenWrapper as BallotAdjudicationScreen } from '../screens/ballot_adjudication_screen.js';
 import { WriteInCandidatesScreen } from '../screens/write_in_candidates_screen.js';
 import { ElectionDefinitionScreen } from '../election_definition/election_definition_screen.js';
+import { ProofBallotsScreen } from '../election_definition/proof_ballots_screen.js';
+import { reportUnexpectedError } from '../logger.js';
 import { CvrDataRefresher } from './cvr_data_refresher.js';
 
 export function AppRoutes(): JSX.Element | null {
@@ -130,8 +139,22 @@ export function AppRoutes(): JSX.Element | null {
           {election ? <ElectionScreen /> : <UnconfiguredScreen />}
         </Route>
         {isElectionDefinitionEnabled && (
-          <Route path={routerPaths.electionDefinition}>
-            <ElectionDefinitionScreen />
+          <Route
+            path={[routerPaths.electionDefinition, routerPaths.proofBallots]}
+          >
+            <ElectionDefinitionContextProvider
+              api={electionDefinitionApi}
+              reportUnexpectedError={reportUnexpectedError}
+            >
+              <Switch>
+                <Route path={routerPaths.electionDefinition}>
+                  <ElectionDefinitionScreen />
+                </Route>
+                <Route path={routerPaths.proofBallots}>
+                  <ProofBallotsScreen />
+                </Route>
+              </Switch>
+            </ElectionDefinitionContextProvider>
           </Route>
         )}
         <Route exact path={routerPaths.smartcards}>
