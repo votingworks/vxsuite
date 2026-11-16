@@ -352,7 +352,7 @@ test('polling place updates on precinct creation/update/deletion', async () => {
     placeFromPrecinct2,
   ]);
 
-  // Creating precinct with name matching existing polling place is no-op:
+  // Creating precinct with name matching existing polling place skips the generated polling place:
 
   expect(
     await api.createPrecinct({
@@ -364,6 +364,10 @@ test('polling place updates on precinct creation/update/deletion', async () => {
       },
     })
   ).toEqual(ok());
+
+  expect((await api.listPrecincts({ electionId })).map((p) => p.id)).toContain(
+    'precinct3'
+  );
 
   expect(await api.listPollingPlaces({ electionId })).toEqual([
     customPlace1Updated,

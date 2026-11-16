@@ -1728,6 +1728,7 @@ export class Store {
               type: 'election_day',
             });
 
+            await client.query('savepoint generated_polling_place');
             const res = await insertPollingPlace(
               client,
               electionId,
@@ -1737,8 +1738,12 @@ export class Store {
               const error = res.err();
               switch (error) {
                 case 'duplicate-name':
-                  // Name collision with existing polling place - assume the
-                  // user will resolve this manually.
+                  // Name collision with existing polling place - rollback to
+                  // before we created the polling place but leave the precinct
+                  // creation in place.
+                  await client.query(
+                    'rollback to savepoint generated_polling_place'
+                  );
                   break;
 
                 // @coverage-exclude: shouldn't be possible
