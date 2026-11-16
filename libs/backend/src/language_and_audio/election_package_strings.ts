@@ -3,7 +3,7 @@ import type {
   Election,
   UiStringsPackage,
 } from '@votingworks/types';
-import type { GoogleCloudTranslator } from './translator.js';
+import type { Translator } from './translator.js';
 import { translateAppStrings } from './app_strings.js';
 import { translateElectionAndHmpbStrings } from './ballot_strings.js';
 import type { ElectionStringTranslationOptions } from './election_strings.js';
@@ -14,7 +14,7 @@ import type { ElectionStringTranslationOptions } from './election_strings.js';
  */
 export async function getAllStringsForElectionPackage(
   election: Election,
-  translator: GoogleCloudTranslator,
+  translator: Translator,
   hmpbStringsCatalog: Record<string, string>,
   ballotLanguageConfigs: BallotLanguageConfigs,
   options: ElectionStringTranslationOptions = {}

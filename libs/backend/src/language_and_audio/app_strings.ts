@@ -11,7 +11,7 @@ import {
 } from '@votingworks/types';
 
 import { assertDefined } from '@votingworks/basics';
-import type { GoogleCloudTranslator } from './translator.js';
+import type { Translator } from './translator.js';
 import { setUiString } from './utils.js';
 
 /**
@@ -19,7 +19,7 @@ import { setUiString } from './utils.js';
  * for the languages specified in the ballot language configs.
  */
 export async function translateAppStrings(
-  translator: GoogleCloudTranslator,
+  translator: Translator,
   machineVersion: MachineVersion,
   ballotLanguageConfigs: BallotLanguageConfigs
 ): Promise<UiStringsPackage> {

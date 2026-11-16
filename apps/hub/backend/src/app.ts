@@ -4,14 +4,11 @@ import { auth as auth0Middleware } from 'express-openid-connect';
 import path, { join } from 'node:path';
 import { Buffer } from 'node:buffer';
 import {
-  type BallotMode,
   type Election,
   HmpbBallotPaperSize,
   type SystemSettings,
-  type BallotType,
   type ElectionSerializationFormat,
   type ElectionId,
-  type BallotStyleId,
   unsafeParse,
   getAllBallotLanguages,
   type Precinct,
@@ -45,7 +42,6 @@ import {
   DateWithoutTime,
   err,
   extractErrorMessage,
-  find,
   ok,
   type Optional,
   type Result,
@@ -54,17 +50,13 @@ import {
 } from '@votingworks/basics';
 import {
   type BallotLayoutError,
+  type BallotPreviewPdf,
+  type BallotPreviewSpec,
   type BallotTemplateId,
-  ballotTemplates,
-  createBallotPropsForTemplate,
   createPlaywrightRenderer,
-  getBallotPdfFileName,
-  hmpbStringsCatalog,
-  type NhStateBallotProps,
-  type NhStateBallotVariant,
-  renderBallotPreviewToPdf,
+  renderBallotPreview,
 } from '@votingworks/hmpb';
-import { translateBallotStrings, execFile } from '@votingworks/backend';
+import { execFile } from '@votingworks/backend';
 import { readFileSync } from 'node:fs';
 import { z } from 'zod/v4';
 import { LogEventId } from '@votingworks/logging';
@@ -837,16 +829,9 @@ export function buildApi(ctx: AppContext) {
       });
     },
 
-    async getBallotPreviewPdf(input: {
-      electionId: ElectionId;
-      precinctId: string;
-      ballotStyleId: BallotStyleId;
-      ballotType: BallotType;
-      ballotMode: BallotMode;
-      variant?: NhStateBallotVariant;
-    }): Promise<
-      Result<{ pdfData: Uint8Array; fileName: string }, BallotLayoutError>
-    > {
+    async getBallotPreviewPdf(
+      input: { electionId: ElectionId } & BallotPreviewSpec
+    ): Promise<Result<BallotPreviewPdf, BallotLayoutError>> {
       const {
         election,
         ballotLanguageConfigs,
@@ -855,56 +840,18 @@ export function buildApi(ctx: AppContext) {
       } = await store.getElection(input.electionId);
       const { compact } = await store.getBallotLayoutSettings(input.electionId);
       const systemSettings = await store.getSystemSettings(input.electionId);
-      const ballotStrings = await translateBallotStrings(
-        translator,
+      return renderBallotPreview({
         election,
-        hmpbStringsCatalog,
         ballotLanguageConfigs,
-        {
-          shouldTransliterateCandidateNames:
-            systemSettings.shouldTransliterateCandidateNames,
-        }
-      );
-      const electionWithBallotStrings: Election = {
-        ...election,
-        ballotStrings,
-      };
-      const allBallotProps = createBallotPropsForTemplate(
         ballotTemplateId,
-        electionWithBallotStrings,
-        compact
-      );
-      const ballotProps = find(
-        allBallotProps,
-        (props) =>
-          props.precinctId === input.precinctId &&
-          props.ballotStyle.id === input.ballotStyleId &&
-          props.ballotType === input.ballotType &&
-          props.ballotMode === input.ballotMode &&
-          (ballotTemplateId === 'NhStateBallot'
-            ? (props as NhStateBallotProps).variant === input.variant
-            : true)
-      );
-      const renderer = await createPlaywrightRenderer();
-      let ballotPdf: Result<Uint8Array, BallotLayoutError>;
-      try {
-        ballotPdf = await renderBallotPreviewToPdf(
-          renderer,
-          ballotTemplates[ballotTemplateId],
-          candidateOrderings.get(ballotProps.ballotStyle),
-          // NOTE: Changing this text means you should also change the font size
-          // of the <Watermark> component in the ballot template.
-          { ...ballotProps, watermark: 'PROOF' }
-        );
-      } finally {
-        // eslint-disable-next-line no-console
-        renderer.close().catch(console.error);
-      }
-      if (ballotPdf.isErr()) return ballotPdf;
-
-      return ok({
-        pdfData: ballotPdf.ok(),
-        fileName: `PROOF-${getBallotPdfFileName(ballotProps)}`,
+        getCandidateOrderings: (ballotStyle) =>
+          candidateOrderings.get(ballotStyle),
+        compact,
+        shouldTransliterateCandidateNames:
+          systemSettings.shouldTransliterateCandidateNames,
+        translator,
+        createRenderer: createPlaywrightRenderer,
+        spec: input,
       });
     },
 
