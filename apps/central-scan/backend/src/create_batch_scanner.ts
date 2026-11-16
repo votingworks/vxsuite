@@ -1,5 +1,6 @@
 import { join } from 'node:path';
 import { DEFAULT_DEV_DOCK_DIR } from '@votingworks/dev-dock-backend';
+import { ScannerClient } from '@votingworks/deskpro-scanner';
 import type { BaseLogger } from '@votingworks/logging';
 import {
   BooleanEnvironmentVariableName,
@@ -38,7 +39,11 @@ export function createBatchScanner({
       BooleanEnvironmentVariableName.USE_DESKPRO_CENTRAL_SCANNER
     )
   ) {
-    return { scanner: new DeskProBatchScanner() };
+    return {
+      scanner: new DeskProBatchScanner({
+        createClient: () => new ScannerClient(),
+      }),
+    };
   }
 
   return { scanner: new FujitsuScanner({ mode: ScannerMode.Gray, logger }) };

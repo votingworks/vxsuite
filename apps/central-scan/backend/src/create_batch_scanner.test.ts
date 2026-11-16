@@ -1,4 +1,5 @@
 import { beforeEach, expect, test, vi } from 'vitest';
+import { ScannerClient } from '@votingworks/deskpro-scanner';
 import { BaseLogger, LogSource } from '@votingworks/logging';
 import {
   BooleanEnvironmentVariableName,
@@ -17,6 +18,8 @@ vi.mock(import('@votingworks/utils'), async (importActual) => ({
 }));
 
 vi.mock(import('./mock_batch_scanner.js'));
+vi.mock(import('./deskpro_batch_scanner.js'));
+vi.mock(import('@votingworks/deskpro-scanner'));
 
 const logger = new BaseLogger(LogSource.VxCentralScanService);
 
@@ -46,6 +49,9 @@ test('creates a DeskPro scanner when the DeskPro flag is enabled', () => {
   const { scanner, mockBatchScanner } = createBatchScanner({ logger });
   expect(scanner).toBeInstanceOf(DeskProBatchScanner);
   expect(mockBatchScanner).toBeUndefined();
+
+  const [{ createClient }] = vi.mocked(DeskProBatchScanner).mock.calls[0]!;
+  expect(createClient()).toBeInstanceOf(ScannerClient);
 });
 
 test('prefers the mock scanner over the DeskPro', () => {

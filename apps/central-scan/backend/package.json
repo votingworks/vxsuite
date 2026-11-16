@@ -39,6 +39,7 @@
     "@votingworks/ballot-interpreter": "workspace:*",
     "@votingworks/basics": "workspace:*",
     "@votingworks/db": "workspace:*",
+    "@votingworks/deskpro-scanner": "workspace:*",
     "@votingworks/dev-dock-backend": "workspace:*",
     "@votingworks/grout": "workspace:*",
     "@votingworks/hmpb": "workspace:*",
