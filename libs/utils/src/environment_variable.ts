@@ -49,6 +49,9 @@ export const BooleanEnvironmentVariableName = {
    */
   USE_MOCK_CENTRAL_SCANNER: 'REACT_APP_VX_USE_MOCK_CENTRAL_SCANNER',
 
+  /** [In Development] Use an InoTec DeskPro instead of a Fujitsu scanner in VxCentralScan. */
+  USE_DESKPRO_CENTRAL_SCANNER: 'REACT_APP_VX_USE_DESKPRO_CENTRAL_SCANNER',
+
   /** Use mock X-keys PAT input instead of the real device. Dev/testing only. */
   USE_MOCK_XKEYS: 'REACT_APP_VX_USE_MOCK_XKEYS',
 
@@ -180,6 +183,8 @@ export function getEnvironmentVariable(
       return process.env.REACT_APP_VX_USE_MOCK_PDI_SCANNER;
     case BooleanEnvironmentVariableName.USE_MOCK_CENTRAL_SCANNER:
       return process.env.REACT_APP_VX_USE_MOCK_CENTRAL_SCANNER;
+    case BooleanEnvironmentVariableName.USE_DESKPRO_CENTRAL_SCANNER:
+      return process.env.REACT_APP_VX_USE_DESKPRO_CENTRAL_SCANNER;
     case BooleanEnvironmentVariableName.USE_MOCK_XKEYS:
       return process.env.REACT_APP_VX_USE_MOCK_XKEYS;
     case BooleanEnvironmentVariableName.USE_MOCK_ACCESSIBLE_CONTROLLER:
@@ -277,6 +282,12 @@ export function getBooleanEnvVarConfig(
         autoEnableInDevelopment: false,
       };
     case BooleanEnvironmentVariableName.USE_MOCK_CENTRAL_SCANNER:
+      return {
+        name,
+        allowInProduction: false,
+        autoEnableInDevelopment: false,
+      };
+    case BooleanEnvironmentVariableName.USE_DESKPRO_CENTRAL_SCANNER:
       return {
         name,
         allowInProduction: false,

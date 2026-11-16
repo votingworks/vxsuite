@@ -6,6 +6,7 @@ import {
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
 import type { BatchScanner } from './batch_scanner.js';
+import { DeskProBatchScanner } from './deskpro_batch_scanner.js';
 import { FujitsuScanner, ScannerMode } from './fujitsu_scanner.js';
 import { MockBatchScanner } from './mock_batch_scanner.js';
 
@@ -30,6 +31,14 @@ export function createBatchScanner({
       join(DEFAULT_DEV_DOCK_DIR, 'batch-images')
     );
     return { scanner: mockBatchScanner, mockBatchScanner };
+  }
+
+  if (
+    isFeatureFlagEnabled(
+      BooleanEnvironmentVariableName.USE_DESKPRO_CENTRAL_SCANNER
+    )
+  ) {
+    return { scanner: new DeskProBatchScanner() };
   }
 
   return { scanner: new FujitsuScanner({ mode: ScannerMode.Gray, logger }) };
