@@ -386,6 +386,8 @@ create table design_elections (
   signature_image text,
   signature_caption text,
   language_codes text not null,
+  ballot_paper_size text not null default 'letter',
+  ballot_compact integer not null default 0,
   created_at text not null default current_timestamp,
   updated_at text not null default current_timestamp
 ) strict;
