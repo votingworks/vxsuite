@@ -1,6 +1,4 @@
 import {
-  BallotType,
-  type BaseBallotProps,
   centralScanningPollingPlaceId,
   CENTRAL_SCANNING_POLLING_PLACE_NAME,
   earlyVotingPollingPlaceId,
@@ -12,16 +10,9 @@ import {
   type SystemSettings,
   type UiStringsPackage,
 } from '@votingworks/types';
-import {
-  allBaseBallotProps,
-  type AnyBallotProps,
-  type BallotTemplateId,
-  type NhBallotProps,
-  type NhStateBallotProps,
-} from '@votingworks/hmpb';
-import { assert, find, throwIllegalValue } from '@votingworks/basics';
+import type { BallotTemplateId } from '@votingworks/hmpb';
+import { throwIllegalValue } from '@votingworks/basics';
 import { createHash } from 'node:crypto';
-import { ballotStyleHasPrecinctOrSplit } from '@votingworks/utils';
 import { getStateFeaturesConfig } from '@votingworks/election-definition-backend';
 import type { Jurisdiction } from './types.js';
 
@@ -145,74 +136,4 @@ export function formatElectionForExport(
       ...additionalHashInput,
     },
   };
-}
-
-export function createBallotPropsForTemplate(
-  templateId: BallotTemplateId,
-  election: Election,
-  compact: boolean
-): AnyBallotProps[] {
-  function buildNhBallotProps(props: BaseBallotProps): NhBallotProps {
-    const precinct = find(election.precincts, (p) => p.id === props.precinctId);
-    if (!hasSplits(precinct)) {
-      return { ...props };
-    }
-    const split = find(precinct.splits, (ps) =>
-      ballotStyleHasPrecinctOrSplit(props.ballotStyle, { precinct, split: ps })
-    );
-    return {
-      ...props,
-      electionTitleOverride: split.electionTitleOverride,
-      electionSealOverride: split.electionSealOverride,
-      clerkSignatureImage: split.clerkSignatureImage,
-      clerkSignatureCaption: split.clerkSignatureCaption,
-    };
-  }
-
-  function buildNhStateBallotProps(
-    props: BaseBallotProps
-  ): NhStateBallotProps[] {
-    return [
-      props,
-      ...(props.ballotMode === 'official' &&
-      props.ballotType === BallotType.Absentee
-        ? ([
-            {
-              ...props,
-              ballotType: BallotType.Absentee,
-              ballotMode: 'official',
-              variant: 'federalOfficeOnly',
-            },
-            {
-              ...props,
-              ballotType: BallotType.Absentee,
-              ballotMode: 'official',
-              variant: 'uocava',
-            },
-          ] as const)
-        : []),
-    ];
-  }
-
-  assert(election.ballotStyles.length > 0, 'Election has no ballot styles');
-  const baseBallotProps = allBaseBallotProps(election).map((props) => ({
-    ...props,
-    compact,
-  }));
-  switch (templateId) {
-    case 'NhBallot':
-      return baseBallotProps.map(buildNhBallotProps);
-
-    case 'NhStateBallot':
-      return baseBallotProps.flatMap(buildNhStateBallotProps);
-
-    case 'MsBallot':
-    case 'VxDefaultBallot':
-    case 'MiBallot':
-      return baseBallotProps;
-
-    default: {
-      throwIllegalValue(templateId);
-    }
-  }
 }
