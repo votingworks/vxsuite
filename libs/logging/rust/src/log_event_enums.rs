@@ -521,6 +521,10 @@ pub enum EventId {
     ElectionDefinitionContestDeleted,
     #[serde(rename = "election-definition-ballot-layout-settings-updated")]
     ElectionDefinitionBallotLayoutSettingsUpdated,
+    #[serde(rename = "election-definition-ballot-proof-viewed")]
+    ElectionDefinitionBallotProofViewed,
+    #[serde(rename = "election-definition-ballot-proof-printed")]
+    ElectionDefinitionBallotProofPrinted,
     #[serde(rename = "election-definition-discarded")]
     ElectionDefinitionDiscarded,
 }
