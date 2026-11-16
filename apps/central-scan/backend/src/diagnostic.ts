@@ -15,7 +15,7 @@ export async function performScanDiagnostic(
       'Starting diagnostic scan. Test sheet should be a blank sheet of white paper.',
   });
 
-  const batchControl = scanner.scanSheets();
+  const batchControl = scanner.startBatch();
   let sheets: ScannedSheetInfo | undefined;
   try {
     sheets = (await batchControl.scanSheet()).ok();

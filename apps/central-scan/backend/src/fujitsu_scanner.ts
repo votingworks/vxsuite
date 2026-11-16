@@ -140,7 +140,7 @@ export class FujitsuScanner implements BatchScanner {
     });
   }
 
-  scanSheets({
+  startBatch({
     directory = dirSync().name,
     pageSize = HmpbBallotPaperSize.Letter,
     imprintIdPrefix,

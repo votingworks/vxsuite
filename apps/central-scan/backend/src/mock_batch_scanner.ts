@@ -21,7 +21,7 @@ export interface MockBatchScannerApi {
  * A mock batch scanner for dev-dock use. PDFs loaded via the dev dock are
  * converted to image pairs and written to {@link imageDir}, then enqueued.
  * When the user clicks to scan a new batch, the scanner state machine calls
- * `scanSheets()`, which returns sheets from the queue. Sheets in the queue are
+ * `startBatch()`, which returns sheets from the queue. Sheets in the queue are
  * consumed as they are scanned. Use `clearSheets()` to reset and clean up
  * temporary files.
  *
@@ -101,7 +101,7 @@ export class MockBatchScanner implements BatchScanner, MockBatchScannerApi {
   }
 
   /* eslint-disable @typescript-eslint/require-await */
-  scanSheets(): BatchControl {
+  startBatch(): BatchControl {
     let ended = false;
 
     return {

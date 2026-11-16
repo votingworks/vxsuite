@@ -114,7 +114,7 @@ export function makeMockScanner(): MockScanner {
       return Promise.resolve(false);
     },
 
-    scanSheets(): BatchControl {
+    startBatch(): BatchControl {
       const session = nextScannerSession;
       nextScannerSession = undefined;
       let stepIndex = 0;
@@ -166,7 +166,7 @@ export function makeMockScanner(): MockScanner {
     },
 
     /**
-     * Gets the next scanner session to be used when `scanSheets` is called.
+     * Gets the next scanner session to be used when `startBatch` is called.
      */
     withNextScannerSession(): ScannerSessionPlan {
       if (!nextScannerSession) {

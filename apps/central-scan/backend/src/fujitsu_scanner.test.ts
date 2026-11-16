@@ -37,7 +37,7 @@ test('fujitsu scanner calls scanimage with fujitsu device type', async () => {
   });
 
   exec.mockReturnValueOnce(scanimage);
-  const sheets = scanner.scanSheets();
+  const sheets = scanner.startBatch();
 
   scanimage.stderr.append(
     [
@@ -71,7 +71,7 @@ test('fujitsu scanner returns ballot audit id on scans when imprinting', async (
   });
 
   exec.mockReturnValueOnce(scanimage);
-  const sheets = scanner.scanSheets({
+  const sheets = scanner.startBatch({
     imprintIdPrefix: 'b28733b5-dc01-4901-b433-ea179942993b_1',
   });
 
@@ -108,7 +108,7 @@ test('fujitsu scanner can scans with expected params on letter size election', (
   });
 
   exec.mockReturnValueOnce(scanimage);
-  scanner.scanSheets({ pageSize: HmpbBallotPaperSize.Letter });
+  scanner.startBatch({ pageSize: HmpbBallotPaperSize.Letter });
 
   scanimage.stderr.append(
     [
@@ -137,7 +137,7 @@ test('fujitsu scanner can scan with expected params on legal size election', () 
   });
 
   exec.mockReturnValueOnce(scanimage);
-  scanner.scanSheets({ pageSize: HmpbBallotPaperSize.Legal });
+  scanner.startBatch({ pageSize: HmpbBallotPaperSize.Legal });
 
   scanimage.stderr.append(
     [
@@ -166,7 +166,7 @@ test('fujitsu scanner can scan with expected params on 22" size election', () =>
   });
 
   exec.mockReturnValueOnce(scanimage);
-  scanner.scanSheets({ pageSize: HmpbBallotPaperSize.Custom22 });
+  scanner.startBatch({ pageSize: HmpbBallotPaperSize.Custom22 });
 
   scanimage.stderr.append(
     [
@@ -195,7 +195,7 @@ test('fujitsu scanner does not specify a mode by default', () => {
   });
 
   exec.mockReturnValueOnce(scanimage);
-  scanner.scanSheets();
+  scanner.startBatch();
 
   scanimage.stderr.append(
     [
@@ -218,7 +218,7 @@ test('fujitsu scanner does not imprint by default', () => {
   });
 
   exec.mockReturnValueOnce(scanimage);
-  scanner.scanSheets();
+  scanner.startBatch();
 
   scanimage.stderr.append(
     [
@@ -245,7 +245,7 @@ test('fujitsu scanner does imprint as expected when given an imprint ID prefix',
   });
 
   exec.mockReturnValueOnce(scanimage);
-  scanner.scanSheets({
+  scanner.startBatch({
     imprintIdPrefix: 'TEST-BATCH-ID',
   });
 
@@ -278,7 +278,7 @@ test('fujitsu scanner shortens UUID imprint prefix to first and last segments wh
   // UUID plus chunk suffix is 38 chars, which exceeds the 34-char limit, so it is shortened
   // to the first and last hyphen-separated segments
   exec.mockReturnValueOnce(scanimage);
-  scanner.scanSheets({
+  scanner.startBatch({
     imprintIdPrefix: 'b28733b5-dc01-4901-b433-ea179942993b_1',
   });
 
@@ -306,7 +306,7 @@ test('fujitsu scanner passes through imprint prefix unchanged when it has no hyp
   });
 
   exec.mockReturnValueOnce(scanimage);
-  scanner.scanSheets({ imprintIdPrefix: 'SIMPLEBATCH' });
+  scanner.startBatch({ imprintIdPrefix: 'SIMPLEBATCH' });
 
   scanimage.stderr.append(
     [
@@ -331,7 +331,7 @@ test('fujitsu scanner truncates imprint prefix to fit within endorser string lim
   // 40-char prefix with no hyphens — truncated to 34 chars to leave room for '_%04ud'
   const longPrefix = 'A'.repeat(40);
   exec.mockReturnValueOnce(scanimage);
-  scanner.scanSheets({ imprintIdPrefix: longPrefix });
+  scanner.startBatch({ imprintIdPrefix: longPrefix });
 
   scanimage.stderr.append(
     [
@@ -355,7 +355,7 @@ test('fujitsu scanner can scan with lineart mode', () => {
   });
 
   exec.mockReturnValueOnce(scanimage);
-  scanner.scanSheets();
+  scanner.startBatch();
 
   scanimage.stderr.append(
     [
@@ -379,7 +379,7 @@ test('fujitsu scanner can scan with gray mode', () => {
   });
 
   exec.mockReturnValueOnce(scanimage);
-  scanner.scanSheets();
+  scanner.startBatch();
 
   scanimage.stderr.append(
     [
@@ -403,7 +403,7 @@ test('fujitsu scanner can scan with color mode', () => {
   });
 
   exec.mockReturnValueOnce(scanimage);
-  scanner.scanSheets();
+  scanner.startBatch();
 
   scanimage.stderr.append(
     [
@@ -427,7 +427,7 @@ test('fujitsu scanner requests two images at a time from scanimage', async () =>
   });
 
   exec.mockReturnValueOnce(scanimage);
-  const sheets = scanner.scanSheets();
+  const sheets = scanner.startBatch();
 
   scanimage.stderr.append(
     [
@@ -465,7 +465,7 @@ test('fujitsu scanner ends the scanimage process on generator return', async () 
     logger: new BaseLogger(LogSource.VxScanService),
   });
   exec.mockReturnValueOnce(scanimage);
-  const sheets = scanner.scanSheets();
+  const sheets = scanner.startBatch();
 
   // we haven't already ended it…
   expect(stdinEnd).not.toHaveBeenCalled();
@@ -498,7 +498,7 @@ test('fujitsu scanner endBatch waits for the scanimage process to exit', async (
   const scanner = new FujitsuScanner({
     logger: new BaseLogger(LogSource.VxScanService),
   });
-  const sheets = scanner.scanSheets();
+  const sheets = scanner.startBatch();
 
   const ending = sheets.endBatch();
   expect(await settlesBeforeNextMacrotask(ending)).toEqual(false);
@@ -513,7 +513,7 @@ test('fujitsu scanner endBatch resolves when the scanimage process has already e
   const scanner = new FujitsuScanner({
     logger: new BaseLogger(LogSource.VxScanService),
   });
-  const sheets = scanner.scanSheets();
+  const sheets = scanner.startBatch();
 
   scanimage.emit('exit', 0, null);
   expect(await settlesBeforeNextMacrotask(sheets.endBatch())).toEqual(true);
@@ -532,7 +532,7 @@ test.each([
     const scanner = new FujitsuScanner({
       logger: new BaseLogger(LogSource.VxScanService),
     });
-    const sheets = scanner.scanSheets();
+    const sheets = scanner.startBatch();
 
     scanimage.emit('exit', exitCode, null);
     expect(await sheets.scanSheet()).toEqual(
@@ -547,7 +547,7 @@ test('fujitsu scanner reports an empty tray when scanimage exits with SANE_STATU
   const scanner = new FujitsuScanner({
     logger: new BaseLogger(LogSource.VxScanService),
   });
-  const sheets = scanner.scanSheets();
+  const sheets = scanner.startBatch();
 
   scanimage.emit('exit', 7, null);
   expect(await sheets.scanSheet()).toEqual(ok(undefined));
