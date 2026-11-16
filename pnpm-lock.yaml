@@ -3525,6 +3525,9 @@ importers:
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../basics
+      '@votingworks/hmpb':
+        specifier: workspace:*
+        version: link:../hmpb
       '@votingworks/types':
         specifier: workspace:*
         version: link:../types
