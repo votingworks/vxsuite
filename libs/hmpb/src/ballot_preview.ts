@@ -2,24 +2,38 @@ import {
   assert,
   assertDefined,
   find,
+  ok,
+  type Result,
   throwIllegalValue,
 } from '@votingworks/basics';
+import { type Translator, translateBallotStrings } from '@votingworks/backend';
 import {
-  allBaseBallotProps,
-  type AnyBallotProps,
-  type BallotTemplateId,
-  type NhBallotProps,
-  type NhStateBallotProps,
-  type NhStateBallotVariant,
-} from '@votingworks/hmpb';
-import {
+  type BallotLanguageConfigs,
+  type BallotMode,
+  type BallotStyleId,
   BallotType,
   type BaseBallotProps,
   type Election,
+  type GetCandidateOrderingsFn,
   getPrecinctById,
   hasSplits,
 } from '@votingworks/types';
 import { ballotStyleHasPrecinctOrSplit } from '@votingworks/utils';
+import {
+  type AnyBallotProps,
+  type BallotTemplateId,
+  ballotTemplates,
+  type NhBallotProps,
+  type NhStateBallotProps,
+  type NhStateBallotVariant,
+} from './ballot_templates/index.js';
+import { hmpbStringsCatalog } from './hmpb_strings.js';
+import type { BallotLayoutError } from './render_common.js';
+import {
+  allBaseBallotProps,
+  renderBallotPreviewToPdf,
+} from './render_ballot.js';
+import type { SingletonRenderer } from './renderer.js';
 
 export function createBallotPropsForTemplate(
   templateId: BallotTemplateId,
@@ -113,4 +127,88 @@ export function getBallotPdfFileName(props: AnyBallotProps): string {
     .filter(Boolean)
     .join('-');
   return `${baseName}.pdf`;
+}
+
+export interface BallotPreviewSpec {
+  precinctId: string;
+  ballotStyleId: BallotStyleId;
+  ballotType: BallotType;
+  ballotMode: BallotMode;
+  variant?: NhStateBallotVariant;
+}
+
+export interface BallotPreviewPdf {
+  pdfData: Uint8Array;
+  fileName: string;
+}
+
+export async function renderBallotPreview({
+  election,
+  ballotLanguageConfigs,
+  ballotTemplateId,
+  getCandidateOrderings,
+  compact,
+  shouldTransliterateCandidateNames,
+  translator,
+  createRenderer,
+  spec,
+}: {
+  election: Election;
+  ballotLanguageConfigs: BallotLanguageConfigs;
+  ballotTemplateId: BallotTemplateId;
+  getCandidateOrderings: GetCandidateOrderingsFn;
+  compact: boolean;
+  shouldTransliterateCandidateNames?: boolean;
+  translator: Translator;
+  createRenderer: () => Promise<SingletonRenderer>;
+  spec: BallotPreviewSpec;
+}): Promise<Result<BallotPreviewPdf, BallotLayoutError>> {
+  const ballotStrings = await translateBallotStrings(
+    translator,
+    election,
+    hmpbStringsCatalog,
+    ballotLanguageConfigs,
+    { shouldTransliterateCandidateNames }
+  );
+  const electionWithBallotStrings: Election = {
+    ...election,
+    ballotStrings,
+  };
+  const allBallotProps = createBallotPropsForTemplate(
+    ballotTemplateId,
+    electionWithBallotStrings,
+    compact
+  );
+  const ballotProps = find(
+    allBallotProps,
+    (props) =>
+      props.precinctId === spec.precinctId &&
+      props.ballotStyle.id === spec.ballotStyleId &&
+      props.ballotType === spec.ballotType &&
+      props.ballotMode === spec.ballotMode &&
+      (ballotTemplateId === 'NhStateBallot'
+        ? (props as NhStateBallotProps).variant === spec.variant
+        : true)
+  );
+  const renderer = await createRenderer();
+  let ballotPdf: Result<Uint8Array, BallotLayoutError>;
+  try {
+    ballotPdf = await renderBallotPreviewToPdf(
+      renderer,
+      ballotTemplates[ballotTemplateId],
+      getCandidateOrderings(ballotProps.ballotStyle),
+      // NOTE: Changing this text means you should also change the font size
+      // of the <Watermark> component in the ballot template.
+      { ...ballotProps, watermark: 'PROOF' }
+    );
+  } finally {
+    // eslint-disable-next-line no-console
+    renderer.close().catch(console.error);
+  }
+  if (ballotPdf.isErr()) return ballotPdf;
+
+  return ok({
+    pdfData: ballotPdf.ok(),
+    fileName: `PROOF-${getBallotPdfFileName(ballotProps)}`,
+  });
 }

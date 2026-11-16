@@ -1,5 +1,6 @@
 export * from './all_bubble_ballot_fixtures.js';
 export * from './ballot_fixtures.js';
+export * from './ballot_preview.js';
 export * from './pdf_conversion.js';
 export * from './hmpb_strings.js';
 export * from './mark_ballot.js';
