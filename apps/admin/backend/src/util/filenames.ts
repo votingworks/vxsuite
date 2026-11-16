@@ -29,3 +29,11 @@ export function generateReportPath(
 ): string {
   return join(generateReportsDirectoryPath(electionDefinition), filename);
 }
+
+/**
+ * Replaces path separators and characters that FAT and exFAT USB drives
+ * reject, so the name saves as a single file in the target directory.
+ */
+export function sanitizeFilenameForUsbDrive(filename: string): string {
+  return filename.replace(/[\\/:*?"<>|]/g, '_');
+}
