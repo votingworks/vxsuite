@@ -1,4 +1,5 @@
 import type { BallotPageLayout, BatchInfo, Id, Rect } from '@votingworks/types';
+import type { BatchScannerErrorCode } from './batch_scanner.js';
 
 export interface MachineConfig {
   machineId: string;
@@ -9,12 +10,16 @@ export type BatchPauseReason =
   | { type: 'review'; sheetId: Id }
   | { type: 'manual' };
 
+export type BatchErrorReason =
+  | { type: 'scanner'; code: BatchScannerErrorCode }
+  | { type: 'internal' };
+
 export type BatchScannerMachineStatus =
   | { state: 'idle' }
   | { state: 'scanning'; batchId: Id }
   | { state: 'needsReview'; batchId: Id; sheetId: Id }
   | { state: 'paused'; batchId: Id; pauseReason: BatchPauseReason }
-  | { state: 'error'; batchId: Id };
+  | { state: 'error'; batchId: Id; errorReason: BatchErrorReason };
 
 export type ScanStatus = BatchScannerMachineStatus & {
   isScannerAttached: boolean;

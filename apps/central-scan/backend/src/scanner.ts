@@ -39,7 +39,11 @@ import {
   describeValidationError,
   validateSheetInterpretation,
 } from './validation.js';
-import type { BatchPauseReason, BatchScannerMachineStatus } from './types.js';
+import type {
+  BatchErrorReason,
+  BatchPauseReason,
+  BatchScannerMachineStatus,
+} from './types.js';
 
 const debug = makeDebug('scan:state-machine');
 
@@ -57,6 +61,7 @@ interface Context {
   scannedSheet?: ScannedSheetInfo;
   pauseReason?: BatchPauseReason;
   error?: Error;
+  errorReason?: BatchErrorReason;
 }
 
 type Event =
@@ -72,9 +77,12 @@ type DoneEvent<F extends (...args: never[]) => Promise<unknown>> =
   DoneInvokeEvent<Awaited<ReturnType<F>>>;
 type ErrorEvent = DoneInvokeEvent<Error>;
 
-const assignError = assign((_context: Context, event: ErrorEvent) => ({
-  error: event.data,
-}));
+const assignError = assign(
+  (_context: Context, event: ErrorEvent): Partial<Context> => ({
+    error: event.data,
+    errorReason: { type: 'internal' },
+  })
+);
 
 const catchError = { target: '#error', actions: assignError } as const;
 
@@ -335,6 +343,7 @@ function buildMachine({
 
   const clearError = assign<Context, Event>({
     error: undefined,
+    errorReason: undefined,
   });
 
   return createMachine<Context, Event>({
@@ -400,7 +409,30 @@ function buildMachine({
           onDone: [
             {
               cond: (_context, event: DoneEvent<BatchControl['scanSheet']>) =>
-                event.data === undefined,
+                event.data.isErr(),
+              target: 'error',
+              actions: [
+                assign({
+                  errorReason: (
+                    _context,
+                    event: DoneEvent<BatchControl['scanSheet']>
+                  ) => ({
+                    type: 'scanner',
+                    code: event.data.unsafeUnwrapErr().code,
+                  }),
+                }),
+                (_context, event: DoneEvent<BatchControl['scanSheet']>) => {
+                  const { code, message } = event.data.unsafeUnwrapErr();
+                  logger.log(LogEventId.ScannerEvent, 'system', {
+                    message: `Scanner reported an error: ${code} (${message})`,
+                    disposition: 'failure',
+                  });
+                },
+              ],
+            },
+            {
+              cond: (_context, event: DoneEvent<BatchControl['scanSheet']>) =>
+                event.data.unsafeUnwrap() === undefined,
               target: 'paused',
               actions: assign({
                 pauseReason: (_context) => ({ type: 'tray-empty' }),
@@ -412,7 +444,7 @@ function buildMachine({
                 scannedSheet: (
                   _context,
                   event: DoneEvent<BatchControl['scanSheet']>
-                ) => event.data,
+                ) => event.data.unsafeUnwrap(),
               }),
             },
           ],
@@ -661,7 +693,7 @@ export function createBatchScannerStateMachine({
   return {
     status(): BatchScannerMachineStatus {
       const { state } = machineService;
-      const { batchId, pauseReason } = state.context;
+      const { batchId, pauseReason, errorReason } = state.context;
       // We use state.matches as recommended by the XState docs. This allows
       // us to add new substates to a state without breaking these checks.
       if (state.matches('idle')) {
@@ -690,7 +722,11 @@ export function createBatchScannerStateMachine({
         };
       }
       if (state.matches('error')) {
-        return { state: 'error', batchId: assertDefined(batchId) };
+        return {
+          state: 'error',
+          batchId: assertDefined(batchId),
+          errorReason: assertDefined(errorReason),
+        };
       }
       // @coverage-exclude
       throw new Error(`Unexpected state: ${JSON.stringify(state.value)}`);

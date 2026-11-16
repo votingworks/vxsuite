@@ -1,7 +1,9 @@
 import * as fs from 'node:fs';
+import { err, ok, type Result } from '@votingworks/basics';
 import type {
   BatchControl,
   BatchScanner,
+  BatchScannerError,
   ScannedSheetInfo,
 } from './batch_scanner.js';
 
@@ -40,7 +42,7 @@ export class MockBatchScanner implements BatchScanner, MockBatchScannerApi {
   private queue: ScannedSheetInfo[] = [];
   private copies = 1;
   private copiesScannedOfCurrentSheet = 0;
-  private pendingError?: Error;
+  private pendingError?: BatchScannerError;
 
   private readonly imageDirPath: string;
 
@@ -94,7 +96,7 @@ export class MockBatchScanner implements BatchScanner, MockBatchScannerApi {
 
   setErrorQueued(errorQueued: boolean): void {
     this.pendingError = errorQueued
-      ? new Error('simulated scanner error')
+      ? { code: 'scan_failed', message: 'simulated scanner error' }
       : undefined;
   }
 
@@ -103,25 +105,27 @@ export class MockBatchScanner implements BatchScanner, MockBatchScannerApi {
     let ended = false;
 
     return {
-      scanSheet: async (): Promise<ScannedSheetInfo | undefined> => {
+      scanSheet: async (): Promise<
+        Result<ScannedSheetInfo | undefined, BatchScannerError>
+      > => {
         if (this.pendingError) {
           const error = this.pendingError;
           this.pendingError = undefined;
-          throw error;
+          return err(error);
         }
         if (ended) {
-          return undefined;
+          return ok(undefined);
         }
         const sheet = this.queue[0];
         if (sheet === undefined) {
-          return undefined;
+          return ok(undefined);
         }
         this.copiesScannedOfCurrentSheet += 1;
         if (this.copiesScannedOfCurrentSheet >= this.copies) {
           this.queue.shift();
           this.copiesScannedOfCurrentSheet = 0;
         }
-        return sheet;
+        return ok(sheet);
       },
 
       endBatch: async (): Promise<void> => {

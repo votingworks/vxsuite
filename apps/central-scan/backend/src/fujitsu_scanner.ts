@@ -1,4 +1,11 @@
-import { assert, deferredQueue, type EnumValues } from '@votingworks/basics';
+import {
+  assert,
+  deferredQueue,
+  type EnumValues,
+  err,
+  ok,
+  type Result,
+} from '@votingworks/basics';
 import makeDebug from 'debug';
 import { join } from 'node:path';
 import { dirSync } from 'tmp';
@@ -15,6 +22,8 @@ import { StreamLines } from './util/stream_lines.js';
 import type {
   BatchControl,
   BatchScanner,
+  BatchScannerError,
+  BatchScannerErrorCode,
   ScannedSheetInfo,
   ScanOptions,
 } from './batch_scanner.js';
@@ -24,7 +33,9 @@ const debug = makeDebug('scan:scanner');
 export const FUJITSU_VENDOR_ID = 0x4c5;
 export const FUJITSU_FI_7160_PRODUCT_ID = 0x132e;
 export const FUJITSU_FI_8170_PRODUCT_ID = 0x15ff;
+const SANE_STATUS_JAMMED = 6;
 const SANE_STATUS_NO_DOCS = 7;
+const SANE_STATUS_COVER_OPEN = 8;
 const SEQUENTIAL_BALLOT_ID_STRING = '_%04ud';
 // The fi-8950 silently fails to imprint if the --endorserString option
 // exceeds this character limit.
@@ -54,6 +65,17 @@ export interface Options {
   format?: ScannerImageFormat;
   mode?: ScannerMode;
   logger: BaseLogger;
+}
+
+function scanimageErrorCode(exitCode: number | null): BatchScannerErrorCode {
+  switch (exitCode) {
+    case SANE_STATUS_JAMMED:
+      return 'jammed';
+    case SANE_STATUS_COVER_OPEN:
+      return 'cover_open';
+    default:
+      return 'scan_failed';
+  }
 }
 
 function zeroPad(number: number, maxLength = 2): string {
@@ -225,7 +247,8 @@ export class FujitsuScanner implements BatchScanner {
     );
 
     const scannedFiles: string[] = [];
-    const results = deferredQueue<Promise<ScannedSheetInfo | undefined>>();
+    const results =
+      deferredQueue<Result<ScannedSheetInfo | undefined, BatchScannerError>>();
     let done = false;
     const scanimage = streamExecFile('scanimage', args);
 
@@ -255,7 +278,7 @@ export class FujitsuScanner implements BatchScanner {
       if (scannedFiles.length % 2 === 0) {
         const [frontPath, backPath] = scannedFiles.slice(-2);
         results.resolve(
-          Promise.resolve({
+          ok({
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             frontPath: frontPath!,
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -300,7 +323,12 @@ export class FujitsuScanner implements BatchScanner {
             },
             debug
           );
-          results.rejectAll(new Error(`scanimage exited with code=${code}`));
+          results.resolveAll(
+            err({
+              code: scanimageErrorCode(code),
+              message: `scanimage exited with code=${code}`,
+            })
+          );
         } else {
           this.logger.log(
             LogEventId.FujitsuScanBatchComplete,
@@ -311,14 +339,16 @@ export class FujitsuScanner implements BatchScanner {
             },
             debug
           );
-          results.resolveAll(Promise.resolve(undefined));
+          results.resolveAll(ok(undefined));
         }
         resolve();
       });
     });
 
     return {
-      scanSheet: async (): Promise<ScannedSheetInfo | undefined> => {
+      scanSheet: async (): Promise<
+        Result<ScannedSheetInfo | undefined, BatchScannerError>
+      > => {
         if (results.isEmpty() && !done) {
           debug(
             'scanimage [pid=%d] sending RETURN twice to scan another sheet',
