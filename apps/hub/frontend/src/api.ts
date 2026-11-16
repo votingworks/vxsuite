@@ -4,7 +4,6 @@ import type {
   AuthErrorCode,
   ElectionUpload,
 } from '@votingworks/hub-backend';
-import type { NhStateBallotVariant } from '@votingworks/hmpb';
 import {
   createElectionDefinitionApi,
   getRegisteredVoterCountsQueryKey,
@@ -24,9 +23,6 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import type {
-  BallotMode,
-  BallotStyleId,
-  BallotType,
   ElectionId,
   ElectionSerializationFormat,
   PollingPlaceType,
@@ -511,30 +507,6 @@ export const unfinalizeBallots = {
         ]);
       },
     });
-  },
-} as const;
-
-interface GetBallotPreviewInput {
-  electionId: ElectionId;
-  precinctId: string;
-  ballotStyleId: BallotStyleId;
-  ballotType: BallotType;
-  ballotMode: BallotMode;
-  variant?: NhStateBallotVariant;
-}
-
-export const getBallotPreviewPdf = {
-  queryKey(input: GetBallotPreviewInput): QueryKey {
-    return ['getBallotPreviewPdf', input];
-  },
-  useQuery(input: GetBallotPreviewInput) {
-    const apiClient = useApiClient();
-    return useQuery(
-      this.queryKey(input),
-      () => apiClient.getBallotPreviewPdf(input),
-      // Never cache PDFs, that way we don't have to worry about invalidating them
-      { staleTime: 0, cacheTime: 0 }
-    );
   },
 } as const;
 

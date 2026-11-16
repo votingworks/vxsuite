@@ -18,6 +18,8 @@ vi.mock(
 beforeEach(() => idFactory.reset());
 
 HTMLElement.prototype.scrollIntoView = vi.fn();
+URL.createObjectURL = vi.fn(() => 'blob:mock-pdf');
+URL.revokeObjectURL = vi.fn();
 
 afterAll(() => {
   vi.useRealTimers();
