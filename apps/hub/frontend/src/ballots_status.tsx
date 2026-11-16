@@ -26,7 +26,8 @@ export function BallotsStatus(): React.ReactNode {
   const [isConfirmingFinalize, setIsConfirmingFinalize] = useState(false);
 
   const { electionId } = useParams<ElectionIdParams>();
-  const listBallotStylesQuery = api.listBallotStyles.useQuery(electionId);
+  const listBallotStylesQuery =
+    api.electionDefinitionApi.listBallotStyles.useQuery(electionId);
   const approvedAtQuery = api.getBallotsApprovedAt.useQuery(electionId);
   const finalizedAtQuery = api.getBallotsFinalizedAt.useQuery(electionId);
   const getStateFeaturesQuery =

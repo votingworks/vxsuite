@@ -8,6 +8,7 @@ import type { NhStateBallotVariant } from '@votingworks/hmpb';
 import {
   createElectionDefinitionApi,
   getRegisteredVoterCountsQueryKey,
+  listBallotStylesQueryKey,
   listContestsQueryKey,
   listDistrictsQueryKey,
   listPartiesQueryKey,
@@ -222,30 +223,6 @@ export const deleteQuickReportingResults = {
   },
 } as const;
 
-export const listBallotStyles = {
-  queryKey(id: ElectionId): QueryKey {
-    return ['listBallotStyles', id];
-  },
-  useQuery(id: ElectionId) {
-    const apiClient = useApiClient();
-    return useQuery(this.queryKey(id), () =>
-      apiClient.listBallotStyles({ electionId: id })
-    );
-  },
-} as const;
-
-export const getBallotLayoutSettings = {
-  queryKey(id: ElectionId): QueryKey {
-    return ['getBallotLayoutSettings', id];
-  },
-  useQuery(id: ElectionId) {
-    const apiClient = useApiClient();
-    return useQuery(this.queryKey(id), () =>
-      apiClient.getBallotLayoutSettings({ electionId: id })
-    );
-  },
-} as const;
-
 export const getSystemSettings = {
   queryKey(id: ElectionId): QueryKey {
     return ['getSystemSettings', id];
@@ -337,7 +314,7 @@ async function invalidateElectionQueries(
     queryClient.invalidateQueries(listPrecinctsQueryKey(electionId)),
     queryClient.invalidateQueries(listPollingPlacesQueryKey(electionId)),
     queryClient.invalidateQueries(getRegisteredVoterCountsQueryKey(electionId)),
-    queryClient.invalidateQueries(listBallotStyles.queryKey(electionId)),
+    queryClient.invalidateQueries(listBallotStylesQueryKey(electionId)),
     queryClient.invalidateQueries(listPartiesQueryKey(electionId)),
     queryClient.invalidateQueries(listContestsQueryKey(electionId)),
     queryClient.invalidateQueries(ttsStringDefaults.queryKey(electionId)),
@@ -415,20 +392,6 @@ export const electionDefinitionApi = createElectionDefinitionApi(useApiClient, {
   invalidateElectionQueries,
   invalidateElectionListQueries,
 });
-
-export const updateBallotLayoutSettings = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.updateBallotLayoutSettings, {
-      async onSuccess(_, { electionId }) {
-        await queryClient.invalidateQueries(
-          getBallotLayoutSettings.queryKey(electionId)
-        );
-      },
-    });
-  },
-} as const;
 
 export const updateSystemSettings = {
   useMutation() {

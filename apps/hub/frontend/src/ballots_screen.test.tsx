@@ -89,7 +89,7 @@ describe('Ballot styles tab', () => {
     await screen.findByRole('heading', { name: 'Proof Ballots' });
 
     screen.getByRole('tab', { name: 'Ballot Styles', selected: true });
-    const table = screen.getByRole('table');
+    const table = await screen.findByRole('table');
     const headers = within(table).getAllByRole('columnheader');
     expect(headers.map((header) => header.textContent)).toEqual([
       'Precinct',
@@ -124,7 +124,7 @@ describe('Ballot styles tab', () => {
     await screen.findByRole('heading', { name: 'Proof Ballots' });
 
     screen.getByRole('tab', { name: 'Ballot Styles', selected: true });
-    const table = screen.getByRole('table');
+    const table = await screen.findByRole('table');
     const headers = within(table).getAllByRole('columnheader');
     expect(headers.map((header) => header.textContent)).toEqual([
       'Precinct',
@@ -165,7 +165,7 @@ describe('Ballot styles tab', () => {
     renderScreen(electionId);
     await screen.findByRole('heading', { name: 'Proof Ballots' });
 
-    const table = screen.getByRole('table');
+    const table = await screen.findByRole('table');
     const headers = within(table).getAllByRole('columnheader');
     expect(headers.map((header) => header.textContent)).toEqual([
       'Precinct',
@@ -205,7 +205,7 @@ describe('Ballot styles tab', () => {
     renderScreen(electionId);
     await screen.findByRole('heading', { name: 'Proof Ballots' });
 
-    const table = screen.getByRole('table');
+    const table = await screen.findByRole('table');
     expect(
       within(table)
         .getAllByRole('row')

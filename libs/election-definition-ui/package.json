@@ -55,6 +55,7 @@
     "@votingworks/grout": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/ui": "workspace:*",
+    "@votingworks/utils": "workspace:*",
     "react-flip-toolkit": "^7.1.0",
     "react-router-dom": "^5.3.4",
     "sanitize-html": "^2.18.1",
