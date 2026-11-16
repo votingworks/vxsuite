@@ -2859,6 +2859,75 @@ describe('design ballot layout and ballot styles', () => {
     ]);
   });
 
+  test('candidate orderings for each ballot style group', () => {
+    const store = setUpStore();
+    expect(
+      store.electionDefinition.getElectionWithCandidateOrderings(electionId)
+        ?.candidateOrderings
+    ).toEqual(new Map());
+
+    store.electionDefinition
+      .updateDistricts({
+        electionId,
+        newDistricts: [{ id: 'district-1', name: 'District 1' }],
+      })
+      .unsafeUnwrap();
+    store.electionDefinition
+      .createPrecinct({
+        electionId,
+        newPrecinct: {
+          id: 'precinct-1',
+          name: 'precinct-1',
+          districtIds: ['district-1'],
+        },
+      })
+      .unsafeUnwrap();
+    store.electionDefinition
+      .createContest({
+        electionId,
+        newContest: {
+          id: 'contest-1',
+          type: 'candidate',
+          title: 'Mayor',
+          districtId: 'district-1',
+          seats: 1,
+          allowWriteIns: false,
+          candidates: [
+            {
+              id: 'candidate-1',
+              firstName: 'Ada',
+              lastName: 'Lovelace',
+              name: 'Ada Lovelace',
+            },
+            {
+              id: 'candidate-2',
+              firstName: 'Alan',
+              lastName: 'Turing',
+              name: 'Alan Turing',
+            },
+          ],
+        },
+      })
+      .unsafeUnwrap();
+
+    const { election, candidateOrderings } = assertDefined(
+      store.electionDefinition.getElectionWithCandidateOrderings(electionId)
+    );
+    expect(election.ballotStyles.map(({ groupId }) => groupId)).toEqual([
+      '1',
+      '1',
+    ]);
+    expect([...candidateOrderings.keys()]).toEqual(['1']);
+    expect(
+      candidateOrderings.get('1')?.['contest-1']?.map(({ id }) => id)
+    ).toEqual(['candidate-1', 'candidate-2']);
+    expect(
+      store.electionDefinition.getElectionWithCandidateOrderings(
+        'other-election'
+      )
+    ).toBeUndefined();
+  });
+
   test('ballot styles reject an unknown election', () => {
     const store = Store.memoryStore(makeTemporaryDirectory());
     expect(() =>
