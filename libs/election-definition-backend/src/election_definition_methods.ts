@@ -1,5 +1,6 @@
 import type { Result } from '@votingworks/basics';
 import type {
+  BallotStyle,
   Contest,
   District,
   ElectionId,
@@ -18,6 +19,8 @@ import type {
 } from './error_types.js';
 import type { StateFeaturesConfig } from './state_features.js';
 import type {
+  BallotLayoutSettings,
+  BallotLayoutSettingsUpdate,
   ContestCreate,
   ContestDelete,
   ContestsReorder,
@@ -82,4 +85,11 @@ export interface ElectionDefinitionMethods {
     input: PollingPlaceSet
   ): MaybePromise<Result<void, SetPollingPlaceError>>;
   deletePollingPlace(input: PollingPlaceDelete): MaybePromise<void>;
+  listBallotStyles(input: ElectionInput): MaybePromise<readonly BallotStyle[]>;
+  getBallotLayoutSettings(
+    input: ElectionInput
+  ): MaybePromise<BallotLayoutSettings>;
+  updateBallotLayoutSettings(
+    input: BallotLayoutSettingsUpdate
+  ): MaybePromise<void>;
 }
