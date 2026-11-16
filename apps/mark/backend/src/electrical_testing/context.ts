@@ -10,7 +10,7 @@ import type { UsbDrive } from '@votingworks/usb-drive';
 import type { Printer } from '@votingworks/printing';
 import type { Workspace } from '../util/workspace.js';
 import type * as barcodes from '../barcodes/index.js';
-import type { Player as AudioPlayer } from '../audio/player.js';
+import type { AudioPlayer } from '../audio/player.js';
 
 export interface ServerContext {
   audioPlayer?: AudioPlayer;

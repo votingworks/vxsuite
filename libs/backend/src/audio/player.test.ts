@@ -1,7 +1,7 @@
 import { expect, test, vi } from 'vitest';
 
 import { LogEventId, mockLogger } from '@votingworks/logging';
-import { AudioPlayer } from './player.js';
+import { AudioPlayer, newAudioPlayer } from './player.js';
 import { execFile } from '../exec.js';
 
 vi.mock('../exec');
@@ -102,4 +102,22 @@ test('with paplay error', async () => {
       disposition: 'failure',
     }
   );
+});
+
+test('newAudioPlayer forwards init options to constructor', async () => {
+  const player = newAudioPlayer({
+    nodeEnv: 'development',
+    logger: mockLogger({ fn: vi.fn }),
+    outputName: 'headphones.stereo',
+    soundsDirectory: '/test/sounds',
+  });
+
+  mockExecFile.mockResolvedValue({ stderr: '', stdout: '' });
+
+  await player.play('error');
+
+  expect(mockExecFile).toHaveBeenCalledExactlyOnceWith('paplay', [
+    `/test/sounds/error.mp3`,
+    '--device=headphones.stereo',
+  ]);
 });

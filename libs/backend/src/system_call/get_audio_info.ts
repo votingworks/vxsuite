@@ -33,7 +33,7 @@ const PactlSinkListSchema = z.array(
 );
 
 /** Mock audio info returned in integration test environments. */
-const MOCK_AUDIO_INFO: AudioInfo & { builtin: BuiltinAudio } = {
+export const MOCK_AUDIO_INFO: AudioInfo & { builtin: BuiltinAudio } = {
   builtin: { headphonesActive: true, name: 'mock.builtin.stereo' },
 };
 

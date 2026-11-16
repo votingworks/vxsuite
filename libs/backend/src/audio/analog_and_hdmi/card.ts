@@ -8,29 +8,12 @@ import {
   setAudioCardProfile,
   setAudioVolume,
 } from '../../system_call/index.js';
-
-/**
- * Headphone-based screen reader audio is calibrated against a 100% system
- * volume level (assuming screen hardware speaker volume is also set to
- * maximum). Voter-controlled volume change is implemented client-side.
- */
-export const DEFAULT_HEADPHONE_VOLUME = 100;
-
-/**
- * The screen speaker on newer VxScan v4 builds is fairly underpowered and
- * limited in volume output when both hardware and software volume are set to
- * maximum. To compensate, we boost the software volume a bit to bring up the
- * level of important system sounds.
- */
-export const DEFAULT_SPEAKER_VOLUME = 120;
-
-/**
- * Last round of testing done on a v4 VxComputer with HWTA running.
- * Over 10 reboots, the number of retries before successful connection to the
- * pulseaudio service ranged from 3 to 4. Setting the max a little higher to be
- * safe.
- */
-export const MAX_CARD_DETECTION_RETRIES = 6;
+import {
+  DEFAULT_HEADPHONE_VOLUME_PCT,
+  DEFAULT_SPEAKER_VOLUME_PCT,
+  MAX_AUDIO_DETECTION_RETRIES,
+  MIN_AUDIO_DETECTION_RETRY_DELAY_MS,
+} from '../config.js';
 
 /**
  * Control interface for the builtin audio card on VxComputer boards
@@ -57,10 +40,10 @@ export class AudioCard {
     // https://wiki.archlinux.org/title/PulseAudio/Examples (sec. 5 and 6).
 
     await this.useSpeaker();
-    await this.setVolume(DEFAULT_SPEAKER_VOLUME);
+    await this.setVolume(DEFAULT_SPEAKER_VOLUME_PCT);
 
     await this.useHeadphones();
-    await this.setVolume(DEFAULT_HEADPHONE_VOLUME);
+    await this.setVolume(DEFAULT_HEADPHONE_VOLUME_PCT);
   }
 
   /**
@@ -109,8 +92,9 @@ export async function defaultAudioCard(
   logger: Logger
 ): Promise<AudioCard> {
   const nameRes = await getAudioCardName({
+    baseRetryDelayMs: MIN_AUDIO_DETECTION_RETRY_DELAY_MS,
     logger,
-    maxRetries: MAX_CARD_DETECTION_RETRIES,
+    maxRetries: MAX_AUDIO_DETECTION_RETRIES,
     nodeEnv,
   });
   const name = nameRes.assertOk('audio card detection failed');

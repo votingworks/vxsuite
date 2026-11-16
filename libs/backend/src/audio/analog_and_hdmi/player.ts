@@ -1,14 +1,14 @@
 /* eslint-disable vx/gts-no-return-type-only-generics */
 /* eslint-disable vx/gts-jsdoc */
 import type { Logger } from '@votingworks/logging';
-import { AudioPlayer } from '../player.js';
+import { newAudioPlayer, type AudioPlayerInterface } from '../player.js';
 import { AUDIO_DEVICE_DEFAULT_SINK } from '../../system_call/pulse_audio.js';
 import type { AudioCard } from './card.js';
 import type { NODE_ENV } from '../../globals.js';
 
 export interface PlayerInterface<Sound extends string> {
   setIsScreenReaderEnabled(enabled: boolean): Promise<void>;
-  setVolume(volumePct: number): Promise<void>;
+  setHeadphoneVolume(volumePct: number): Promise<void>;
   play(soundName: Sound): Promise<void>;
 }
 
@@ -16,7 +16,7 @@ export interface PlayerInterface<Sound extends string> {
 export function getMockPlayer<Sound extends string>(): PlayerInterface<Sound> {
   return {
     setIsScreenReaderEnabled: () => Promise.resolve(),
-    setVolume: () => Promise.resolve(),
+    setHeadphoneVolume: () => Promise.resolve(),
     play: () => Promise.resolve(),
   };
 }
@@ -39,7 +39,7 @@ export interface PlayerInit {
  * speaker output without toggling.
  */
 export class Player<Sound extends string> implements PlayerInterface<Sound> {
-  private readonly sharedPlayer: AudioPlayer;
+  private readonly sharedPlayer: AudioPlayerInterface;
   private isScreenReaderEnabled = true;
   private readonly nodeEnv: NODE_ENV;
   private readonly logger: Logger;
@@ -49,7 +49,7 @@ export class Player<Sound extends string> implements PlayerInterface<Sound> {
     this.card = init.card;
     this.logger = init.logger;
     this.nodeEnv = init.nodeEnv;
-    this.sharedPlayer = new AudioPlayer({
+    this.sharedPlayer = newAudioPlayer({
       nodeEnv: this.nodeEnv,
       logger: this.logger,
       outputName: AUDIO_DEVICE_DEFAULT_SINK,
@@ -67,12 +67,12 @@ export class Player<Sound extends string> implements PlayerInterface<Sound> {
   }
 
   // @coverage-defer
-  async setVolume(volumePct: number): Promise<void> {
+  async setHeadphoneVolume(volumePct: number): Promise<void> {
     await this.card.setVolume(volumePct);
   }
 
   /**
-   * Plays a sound through the built-in speaker
+   * Plays a sound through the built-in screen speaker.
    */
   async play(soundName: Sound): Promise<void> {
     // [TODO] Add locking? We can either ignore/log successive plays while
@@ -101,6 +101,6 @@ export class Player<Sound extends string> implements PlayerInterface<Sound> {
 // @coverage-exclude
 export function defaultAudioPlayer<Sound extends string>(
   init: PlayerInit
-): Player<Sound> {
+): PlayerInterface<Sound> {
   return new Player(init);
 }

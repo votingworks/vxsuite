@@ -82,7 +82,7 @@ import {
   type BarcodePrintRequest,
   isBarcodeBallotPrintingAllowed,
 } from './barcodes/activation_mode.js';
-import type { AudioPlayerInterface, SoundName } from './audio/player.js';
+import type { AudioPlayer, SoundName } from './audio/player.js';
 import { saveReadinessReport } from './readiness_report.js';
 import { printTestPage } from './util/print_test_page.js';
 import { getCurrentTime } from './util/get_current_time.js';
@@ -92,7 +92,7 @@ const TEST_UPS_USER_FAIL_REASON =
   'UPS not connected or not fully charged per user.';
 
 export interface Context {
-  audioPlayer?: AudioPlayerInterface;
+  audioPlayer?: AudioPlayer;
   auth: InsertedSmartCardAuthApi;
   barcodeClient: barcodes.BarcodeReader;
   logger: Logger;

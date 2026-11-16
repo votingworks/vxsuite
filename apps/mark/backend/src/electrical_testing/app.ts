@@ -1,6 +1,10 @@
 import {
+  analogAndHdmi,
+  AUDIO_DEVICE_DEFAULT_SINK,
   createSystemCallApi,
   getCpuMetrics,
+  getNodeEnv,
+  setAudioVolume,
   type CpuMetrics,
 } from '@votingworks/backend';
 import * as grout from '@votingworks/grout';
@@ -151,8 +155,19 @@ function buildApi({
       };
     },
 
-    async setVolume(input: { volumePct: number }): Promise<void> {
-      await audioPlayer?.setVolume(input.volumePct);
+    // TODO: Remove and handle headphone volume control client-side.
+    async setHeadphoneVolume(input: { volumePct: number }): Promise<void> {
+      if (audioPlayer instanceof analogAndHdmi.Player) {
+        return audioPlayer.setHeadphoneVolume(input.volumePct);
+      }
+
+      const result = await setAudioVolume({
+        logger,
+        nodeEnv: getNodeEnv(),
+        sinkName: AUDIO_DEVICE_DEFAULT_SINK,
+        volumePct: input.volumePct,
+      });
+      result.assertOk('unable to set audio volume');
     },
 
     async playSpeakerSound(input: { name: SoundName }): Promise<void> {

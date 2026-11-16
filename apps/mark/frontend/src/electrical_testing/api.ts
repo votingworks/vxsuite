@@ -170,11 +170,11 @@ export const getBarcodeStatus = {
   },
 } as const;
 
-export const setVolume = {
+export const setHeadphoneVolume = {
   useMutation() {
     const apiClient = useApiClient();
     return useMutation((volumePct: number) =>
-      apiClient.setVolume({ volumePct })
+      apiClient.setHeadphoneVolume({ volumePct })
     );
   },
 } as const;
