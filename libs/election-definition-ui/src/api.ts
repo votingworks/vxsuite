@@ -15,6 +15,10 @@ export type ElectionDefinitionApi = grout.Api<
 
 export type ElectionDefinitionApiClient = grout.Client<ElectionDefinitionApi>;
 
+export type BallotPreviewInput = Parameters<
+  ElectionDefinitionMethods['getBallotPreviewPdf']
+>[0];
+
 export interface ElectionDefinitionApiOptions {
   invalidateElectionQueries?: (
     queryClient: QueryClient,
@@ -65,6 +69,10 @@ export function getBallotLayoutSettingsQueryKey(
   electionId: ElectionId
 ): QueryKey {
   return ['getBallotLayoutSettings', electionId];
+}
+
+function getBallotPreviewPdfQueryKey(input: BallotPreviewInput): QueryKey {
+  return ['getBallotPreviewPdf', input];
 }
 
 async function invalidateElectionDefinitionQueries(
@@ -357,6 +365,16 @@ function createReactQueryApi(
             );
           },
         });
+      },
+    },
+    getBallotPreviewPdf: {
+      useQuery(input: BallotPreviewInput) {
+        const apiClient = getApiClient();
+        return useQuery(
+          getBallotPreviewPdfQueryKey(input),
+          () => apiClient.getBallotPreviewPdf(input),
+          { staleTime: 0, cacheTime: 0 }
+        );
       },
     },
   };
