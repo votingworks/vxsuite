@@ -279,6 +279,10 @@ export const LogEventId = {
   ElectionDefinitionContestDeleted: 'election-definition-contest-deleted',
   ElectionDefinitionBallotLayoutSettingsUpdated:
     'election-definition-ballot-layout-settings-updated',
+  ElectionDefinitionBallotProofViewed:
+    'election-definition-ballot-proof-viewed',
+  ElectionDefinitionBallotProofPrinted:
+    'election-definition-ballot-proof-printed',
   ElectionDefinitionDiscarded: 'election-definition-discarded',
 } as const;
 export type LogEventId = (typeof LogEventId)[keyof typeof LogEventId];
@@ -1798,6 +1802,22 @@ const ElectionDefinitionBallotLayoutSettingsUpdated: LogDetails = {
   restrictInDocumentationToApps: [AppName.VxAdmin],
 };
 
+const ElectionDefinitionBallotProofViewed: LogDetails = {
+  eventId: LogEventId.ElectionDefinitionBallotProofViewed,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'A user viewed a proof of a ballot in the election definition being designed.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
+const ElectionDefinitionBallotProofPrinted: LogDetails = {
+  eventId: LogEventId.ElectionDefinitionBallotProofPrinted,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'A user printed a proof of a ballot in the election definition being designed.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
 const ElectionDefinitionDiscarded: LogDetails = {
   eventId: LogEventId.ElectionDefinitionDiscarded,
   eventType: LogEventType.UserAction,
@@ -2214,6 +2234,10 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return ElectionDefinitionContestDeleted;
     case LogEventId.ElectionDefinitionBallotLayoutSettingsUpdated:
       return ElectionDefinitionBallotLayoutSettingsUpdated;
+    case LogEventId.ElectionDefinitionBallotProofViewed:
+      return ElectionDefinitionBallotProofViewed;
+    case LogEventId.ElectionDefinitionBallotProofPrinted:
+      return ElectionDefinitionBallotProofPrinted;
     case LogEventId.ElectionDefinitionDiscarded:
       return ElectionDefinitionDiscarded;
     default:
