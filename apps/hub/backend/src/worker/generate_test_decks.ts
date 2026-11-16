@@ -11,6 +11,7 @@ import {
 import { translateBallotStrings } from '@votingworks/backend';
 import {
   ballotTemplates,
+  createBallotPropsForTemplate,
   createElectionDefinition,
   createPlaywrightRendererPool,
   type ElectionSerializationOptions,
@@ -30,7 +31,6 @@ import {
 import type { EmitProgressFunction, WorkerContext } from './context.js';
 import {
   addPollingPlacesForExport,
-  createBallotPropsForTemplate,
   formatElectionForExport,
 } from '../ballots.js';
 import {

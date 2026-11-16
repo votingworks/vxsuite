@@ -28,6 +28,8 @@ import {
   type RendererPool,
   type BallotTemplateId,
   randomScratchFilePath,
+  createBallotPropsForTemplate,
+  getBallotPdfFileName,
 } from '@votingworks/hmpb';
 import {
   generateAudioIdsAndClips,
@@ -48,10 +50,8 @@ import { pipeline } from 'node:stream/promises';
 import type { EmitProgressFunction, WorkerContext } from './context.js';
 import {
   addPollingPlacesForExport,
-  createBallotPropsForTemplate,
   formatElectionForExport,
 } from '../ballots.js';
-import { getBallotPdfFileName } from '../utils.js';
 import {
   needsColorNormalization,
   normalizeBallotColorModeForPrinting,

@@ -56,7 +56,9 @@ import {
   type BallotLayoutError,
   type BallotTemplateId,
   ballotTemplates,
+  createBallotPropsForTemplate,
   createPlaywrightRenderer,
+  getBallotPdfFileName,
   hmpbStringsCatalog,
   type NhStateBallotProps,
   type NhStateBallotVariant,
@@ -134,12 +136,8 @@ import {
   DEPLOY_ENV,
   authEnabled,
 } from './globals.js';
+import { defaultBallotTemplate } from './ballots.js';
 import {
-  createBallotPropsForTemplate,
-  defaultBallotTemplate,
-} from './ballots.js';
-import {
-  getBallotPdfFileName,
   regenerateElectionIds,
   splitCandidateName,
   userCanAccessJurisdiction,

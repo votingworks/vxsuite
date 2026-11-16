@@ -4,7 +4,6 @@ import {
   type Candidate,
   type District,
   type Election,
-  getPrecinctById,
   hasSplits,
   type Party,
   type PollingPlace,
@@ -15,37 +14,12 @@ import {
   straightPartyNotYetImplemented,
 } from '@votingworks/types';
 import { Buffer } from 'node:buffer';
-import type { AnyBallotProps, NhStateBallotVariant } from '@votingworks/hmpb';
 import {
   generateId,
   type StateFeaturesConfig,
 } from '@votingworks/election-definition-backend';
 import { MAX_POSTGRES_INDEX_KEY_BYTES } from './globals.js';
 import type { Jurisdiction, User } from './types.js';
-
-export function getBallotPdfFileName(props: AnyBallotProps): string {
-  const precinct = assertDefined(getPrecinctById(props));
-  const variantSuffixes: Record<NhStateBallotVariant, string> = {
-    federalOfficeOnly: 'foo',
-    uocava: 'uocava',
-  };
-  const variantSuffix =
-    'variant' in props && props.variant
-      ? variantSuffixes[props.variant]
-      : undefined;
-  const baseName = [
-    props.ballotMode,
-    props.ballotType,
-    'ballot',
-    precinct.name.replaceAll(' ', '_'),
-    props.ballotStyle.id,
-    props.ballotAuditId,
-    variantSuffix,
-  ]
-    .filter(Boolean)
-    .join('-');
-  return `${baseName}.pdf`;
-}
 
 /**
  * Regenerate the IDs of all entities in an election, ensuring that all
