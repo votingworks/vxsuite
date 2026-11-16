@@ -1,7 +1,7 @@
 import * as grout from '@votingworks/grout';
 import * as Sentry from '@sentry/node';
 import { auth as auth0Middleware } from 'express-openid-connect';
-import path, { join } from 'node:path';
+import path, { basename, join } from 'node:path';
 import { Buffer } from 'node:buffer';
 import {
   type BallotMode,
@@ -1554,6 +1554,9 @@ export function buildApp(context: AppContext): Application {
       }
       const user = assertDefined(await context.workspace.store.getUser(userId));
       const { jurisdictionId, fileName } = req.params;
+      if (basename(fileName) !== fileName) {
+        throw new grout.UserError('invalid file name');
+      }
       const jurisdiction =
         await context.workspace.store.getJurisdiction(jurisdictionId);
       requireJurisdictionAccess(user, jurisdiction);

@@ -6,7 +6,13 @@ import type { Readable } from 'node:stream';
 import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';
 import { getSignedUrl as s3GetSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { assertDefined, err, ok, type Result } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  err,
+  ok,
+  type Result,
+} from '@votingworks/basics';
 
 import { WORKSPACE } from './globals.js';
 
@@ -92,23 +98,29 @@ export class S3FileStorageClient {
 export class LocalFileStorageClient {
   private readonly root: string;
 
-  // @coverage-defer
   constructor() {
     this.root = assertDefined(WORKSPACE);
   }
 
-  // @coverage-defer
+  private resolveWithinRoot(filePath: string): string {
+    const resolvedPath = path.resolve(this.root, filePath);
+    assert(
+      resolvedPath.startsWith(path.resolve(this.root) + path.sep),
+      `file path escapes storage root: ${filePath}`
+    );
+    return resolvedPath;
+  }
+
   readFile(
     filePath: string
   ): Promise<Result<Readable, FileStorageClientError>> {
     return Promise.resolve(
-      ok(createReadStream(path.join(this.root, filePath)))
+      ok(createReadStream(this.resolveWithinRoot(filePath)))
     );
   }
 
-  // @coverage-defer
   async streamFile(filePath: string, contents: Readable): Promise<void> {
-    const completeFilePath = path.join(this.root, filePath);
+    const completeFilePath = this.resolveWithinRoot(filePath);
     await fs.mkdir(path.dirname(completeFilePath), { recursive: true });
     await fs.writeFile(completeFilePath, contents);
   }
