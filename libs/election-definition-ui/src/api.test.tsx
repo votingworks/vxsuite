@@ -16,7 +16,7 @@ import type {
   PrecinctDelete,
   PrecinctUpdate,
 } from '@votingworks/election-definition-backend';
-import { LanguageCode } from '@votingworks/types';
+import { HmpbBallotPaperSize, LanguageCode } from '@votingworks/types';
 import { createMockApiClient, provideApi } from '../test/api_helpers.js';
 import { render, screen, waitFor } from '../test/react_testing_library.js';
 import { useElectionDefinitionApi } from './election_definition_context.js';
@@ -438,4 +438,60 @@ test('polling place mutations call invalidateElectionQueries on success', async 
     'election-1'
   );
   apiMock.assertComplete();
+});
+
+function BallotLayoutSettings(): JSX.Element | null {
+  const api = useElectionDefinitionApi();
+  const getBallotLayoutSettingsQuery =
+    api.getBallotLayoutSettings.useQuery('election-1');
+  const updateBallotLayoutSettings =
+    api.updateBallotLayoutSettings.useMutation();
+  if (!getBallotLayoutSettingsQuery.isSuccess) {
+    return null;
+  }
+  return (
+    <button
+      type="button"
+      onClick={() =>
+        updateBallotLayoutSettings.mutate({
+          electionId: 'election-1',
+          paperSize: HmpbBallotPaperSize.Legal,
+          compact: true,
+        })
+      }
+    >
+      {getBallotLayoutSettingsQuery.data.paperSize}
+    </button>
+  );
+}
+
+test('updateBallotLayoutSettings refetches the ballot layout settings', async () => {
+  const apiMock = createMockApiClient();
+  const invalidateElectionQueries = vi.fn().mockResolvedValue(undefined);
+  apiMock.getBallotLayoutSettings
+    .expectCallWith({ electionId: 'election-1' })
+    .resolves({ paperSize: HmpbBallotPaperSize.Letter, compact: false });
+  render(
+    provideApi(apiMock, <BallotLayoutSettings />, {
+      options: { invalidateElectionQueries },
+    })
+  );
+
+  const button = await screen.findButton(HmpbBallotPaperSize.Letter);
+  apiMock.assertComplete();
+
+  apiMock.updateBallotLayoutSettings
+    .expectCallWith({
+      electionId: 'election-1',
+      paperSize: HmpbBallotPaperSize.Legal,
+      compact: true,
+    })
+    .resolves();
+  apiMock.getBallotLayoutSettings
+    .expectCallWith({ electionId: 'election-1' })
+    .resolves({ paperSize: HmpbBallotPaperSize.Legal, compact: true });
+  await userEvent.click(button);
+  await screen.findButton(HmpbBallotPaperSize.Legal);
+  apiMock.assertComplete();
+  expect(invalidateElectionQueries).not.toHaveBeenCalled();
 });
