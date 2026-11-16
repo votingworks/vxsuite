@@ -1,12 +1,14 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { userEvent } from '@testing-library/user-event';
 import { createMemoryHistory } from 'history';
-import { DateWithoutTime, ok } from '@votingworks/basics';
+import { DateWithoutTime, deferred, ok } from '@votingworks/basics';
 import type {
   ElectionInfo,
   StateFeaturesConfig,
 } from '@votingworks/election-definition-backend';
 import { BooleanEnvironmentVariableName } from '@votingworks/utils';
+import { mockUsbDriveStatus } from '@votingworks/ui';
+import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import {
   mockElectionManagerUser,
   mockSessionExpiresAt,
@@ -14,6 +16,7 @@ import {
 } from '@votingworks/test-utils';
 import {
   type BallotStyle,
+  BallotType,
   type CandidateContest,
   type DippedSmartCardAuth,
   type District,
@@ -34,6 +37,7 @@ import {
   createApiMock,
 } from '../../test/helpers/mock_api_client.js';
 import { AppRoutes } from '../components/app_routes.js';
+import type { ElectionDefinitionApiClient } from '../api.js';
 import { routerPaths } from '../router_paths.js';
 
 const featureFlagMock = vi.hoisted(() => {
@@ -99,7 +103,8 @@ afterEach(() => {
 
 function renderScreen(
   path: string = routerPaths.election,
-  isElectionDefinitionEnabled = true
+  isElectionDefinitionEnabled = true,
+  usbDriveStatus?: UsbDriveStatus
 ) {
   const history = createMemoryHistory({ initialEntries: [path] });
   renderInAppContext(<AppRoutes />, {
@@ -108,6 +113,7 @@ function renderScreen(
     history,
     electionDefinition: null,
     isElectionDefinitionEnabled,
+    usbDriveStatus,
   });
   return history;
 }
@@ -560,9 +566,7 @@ test('Proof Ballots lists ballot styles and edits the ballot layout in tabs', as
   expect(getActiveNavItems()).toEqual(['Proof Ballots']);
   within(table).getByRole('cell', { name: 'Precinct 1' });
   within(table).getByRole('cell', { name: '1_en' });
-  expect(
-    within(table).queryByRole('button', { name: 'View Ballot' })
-  ).not.toBeInTheDocument();
+  within(table).getByRole('button', { name: 'View Ballot' });
   expect(
     screen.queryByRole('radiogroup', { name: 'Paper Size' })
   ).not.toBeInTheDocument();
@@ -596,6 +600,117 @@ test('Proof Ballots lists ballot styles and edits the ballot layout in tabs', as
   await screen.findButton('Edit');
   expect(screen.getByLabelText('8.5 x 14 inches (Legal)')).toBeChecked();
   expect(screen.getByLabelText('Compact')).toBeChecked();
+});
+
+test('View Ballot opens a ballot proof to save, print and close back to Ballot Styles', async () => {
+  vi.useFakeTimers({ shouldAdvanceTime: true });
+  const precinct: Precinct = {
+    id: 'precinct-1',
+    name: 'Precinct 1',
+    districtIds: ['district-1'],
+  };
+  const ballotStyle: BallotStyle = {
+    id: '1_en',
+    groupId: '1',
+    precincts: [precinct.id],
+    districts: ['district-1'],
+    languages: [LanguageCode.ENGLISH],
+  };
+  expectCurrentInProgressElection(generalElectionInfo);
+  apiMock.electionDefinitionApiClient.getElectionInfo
+    .expectCallWith({ electionId })
+    .resolves(generalElectionInfo);
+  apiMock.electionDefinitionApiClient.listPrecincts
+    .expectCallWith({ electionId })
+    .resolves([precinct]);
+  apiMock.electionDefinitionApiClient.listBallotStyles
+    .expectCallWith({ electionId })
+    .resolves([ballotStyle]);
+  apiMock.electionDefinitionApiClient.listParties
+    .expectCallWith({ electionId })
+    .resolves([]);
+  const history = renderScreen(
+    routerPaths.proofBallotsBallotStyles(electionId),
+    true,
+    mockUsbDriveStatus('mounted')
+  );
+  const table = await screen.findByRole('table');
+
+  apiMock.electionDefinitionApiClient.getBallotLayoutSettings
+    .expectCallWith({ electionId })
+    .resolves({ paperSize: HmpbBallotPaperSize.Letter, compact: false });
+  const preview =
+    deferred<
+      Awaited<ReturnType<ElectionDefinitionApiClient['getBallotPreviewPdf']>>
+    >();
+  apiMock.electionDefinitionApiClient.getBallotPreviewPdf
+    .expectCallWith({
+      electionId,
+      ballotStyleId: ballotStyle.id,
+      precinctId: precinct.id,
+      ballotType: BallotType.Precinct,
+      ballotMode: 'official',
+      variant: undefined,
+    })
+    .returns(preview.promise);
+  apiMock.setPrinterStatus({ connected: true });
+  await userEvent.click(
+    within(table).getByRole('button', { name: 'View Ballot' })
+  );
+  await screen.findByRole('heading', { name: 'View Ballot' });
+  expect(screen.getButton('Save PDF')).toBeDisabled();
+  expect(screen.getButton('Print')).toBeDisabled();
+  preview.resolve(
+    ok({
+      pdfData: new TextEncoder().encode('mock ballot pdf'),
+      fileName: 'PROOF-official-precinct-ballot-Precinct_1-1_en.pdf',
+    })
+  );
+  await waitFor(() => expect(screen.getButton('Save PDF')).toBeEnabled());
+  expect(history.location.pathname).toEqual(
+    routerPaths.proofBallotsViewBallot(electionId, ballotStyle.id, precinct.id)
+  );
+  screen.getByText('Precinct 1');
+  screen.getByText('8.5 x 11 inches (Letter)');
+  expect(
+    screen.queryByRole('radio', { name: 'Federal Office Only' })
+  ).not.toBeInTheDocument();
+  expect(screen.queryByRole('tab')).not.toBeInTheDocument();
+  expect(screen.queryButton('Download PDF')).not.toBeInTheDocument();
+
+  const previewInput = {
+    electionId,
+    ballotStyleId: ballotStyle.id,
+    precinctId: precinct.id,
+    ballotType: BallotType.Precinct,
+    ballotMode: 'official',
+    variant: undefined,
+  } as const;
+  const fileName = 'PROOF-official-precinct-ballot-Precinct_1-1_en.pdf';
+  apiMock.electionDefinitionApiClient.saveBallotPreviewPdf
+    .expectCallWith({ ...previewInput, filename: fileName })
+    .resolves(ok([`/media/usb-drive/${fileName}`]));
+  await userEvent.click(await screen.findButton('Save PDF'));
+  const saveModal = await screen.findByRole('alertdialog');
+  within(saveModal).getByText(fileName);
+  await userEvent.click(within(saveModal).getButton('Save'));
+  await screen.findByText('Ballot Proof Saved');
+  await userEvent.click(within(saveModal).getButton('Close'));
+  expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+
+  apiMock.electionDefinitionApiClient.printBallotPreviewPdf
+    .expectCallWith(previewInput)
+    .resolves();
+  await userEvent.click(screen.getButton('Print'));
+  await vi.runOnlyPendingTimersAsync();
+  expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+
+  await userEvent.click(screen.getButton('Close'));
+  await screen.findByRole('tab', { name: 'Ballot Styles', selected: true });
+  expect(history.location.pathname).toEqual(
+    routerPaths.proofBallotsBallotStyles(electionId)
+  );
+  vi.useRealTimers();
 });
 
 test('an election definition in progress is shown on the Election screen', async () => {

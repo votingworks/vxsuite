@@ -1361,3 +1361,17 @@ export const createInProgressElection = {
     });
   },
 } as const;
+
+export const printBallotPreviewPdf = {
+  useMutation() {
+    const apiClient = useElectionDefinitionApiClient();
+    return useMutation(apiClient.printBallotPreviewPdf);
+  },
+} as const;
+
+export const saveBallotPreviewPdf = {
+  useMutation() {
+    const apiClient = useElectionDefinitionApiClient();
+    return useMutation(apiClient.saveBallotPreviewPdf);
+  },
+} as const;
