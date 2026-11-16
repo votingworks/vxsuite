@@ -1,4 +1,4 @@
-import type { ElectionId } from '@votingworks/types';
+import type { BallotStyleId, ElectionId, PrecinctId } from '@votingworks/types';
 import type {
   ManualTallyFormContestParams,
   ManualTallyFormParams,
@@ -30,6 +30,11 @@ export const routerPaths = {
     `/proof-ballots/${electionId}/ballot-styles`,
   proofBallotsBallotLayout: (electionId: ElectionId): string =>
     `/proof-ballots/${electionId}/layout`,
+  proofBallotsViewBallot: (
+    electionId: ElectionId,
+    ballotStyleId: BallotStyleId,
+    precinctId: PrecinctId
+  ): string => `/proof-ballots/${electionId}/${ballotStyleId}/${precinctId}`,
   smartcards: '/smartcards',
   tally: '/tally',
   tallyCvrs: '/tally/cvrs',
