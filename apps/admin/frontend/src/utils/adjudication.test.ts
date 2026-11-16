@@ -1,9 +1,12 @@
 import { expect, test } from 'vitest';
-import type { AdjudicatedCvrContest } from '@votingworks/admin-backend';
+import type {
+  AdjudicatedCvrContest,
+  WriteInCandidateRecord,
+} from '@votingworks/admin-backend';
 import {
   type AdjudicatedContests,
   normalizeWriteInName,
-  writeInNamesFromOtherContests,
+  newWriteInNamesFromOtherContests,
 } from './adjudication.js';
 
 test('normalizeWriteInName', () => {
@@ -12,7 +15,7 @@ test('normalizeWriteInName', () => {
   expect(normalizeWriteInName('  Na     me  ')).toEqual('na me');
 });
 
-test('writeInNamesFromOtherContests', () => {
+test('newWriteInNamesFromOtherContests', () => {
   const contests: AdjudicatedCvrContest[] = [
     {
       contestId: 'zoo-council-mammal',
@@ -24,7 +27,13 @@ test('writeInNamesFromOtherContests', () => {
           hasVote: true,
           candidateName: 'Joe Schmo',
         },
-        'write-in-1': { type: 'write-in-option', hasVote: false },
+        'write-in-1': {
+          type: 'write-in-option',
+          candidateType: 'write-in-candidate',
+          hasVote: true,
+          candidateName: 'John Doe',
+        },
+        'write-in-2': { type: 'write-in-option', hasVote: false },
       },
     },
     {
@@ -48,14 +57,43 @@ test('writeInNamesFromOtherContests', () => {
   const adjudicatedContests: AdjudicatedContests = new Map(
     contests.map((c) => [c.contestId, c])
   );
+  const existingWriteInCandidates: WriteInCandidateRecord[] = [
+    {
+      id: 'wic-1',
+      electionId: 'e',
+      contestId: 'zoo-council-mammal',
+      name: 'John Doe',
+    },
+    {
+      id: 'wic-2',
+      electionId: 'e',
+      contestId: 'aquarium-council-fish',
+      name: 'Joe Schmo',
+    },
+  ];
 
-  expect(writeInNamesFromOtherContests(adjudicatedContests, 'fishing')).toEqual(
-    ['Joe Schmo']
-  );
   expect(
-    writeInNamesFromOtherContests(adjudicatedContests, 'zoo-council-mammal')
+    newWriteInNamesFromOtherContests(
+      adjudicatedContests,
+      existingWriteInCandidates,
+      'fishing'
+    )
+  ).toEqual(['Joe Schmo']);
+  expect(
+    newWriteInNamesFromOtherContests(
+      adjudicatedContests,
+      existingWriteInCandidates,
+      'aquarium-council-fish'
+    )
+  ).toEqual(['Joe Schmo']);
+  expect(
+    newWriteInNamesFromOtherContests(
+      adjudicatedContests,
+      existingWriteInCandidates,
+      'zoo-council-mammal'
+    )
   ).toEqual(['joe  schmo ']);
   expect(
-    writeInNamesFromOtherContests(adjudicatedContests, 'aquarium-council-fish')
-  ).toEqual(['Joe Schmo']);
+    newWriteInNamesFromOtherContests(adjudicatedContests, [], 'fishing')
+  ).toEqual(['Joe Schmo', 'John Doe']);
 });

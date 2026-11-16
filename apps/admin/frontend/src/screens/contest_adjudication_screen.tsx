@@ -242,7 +242,7 @@ interface ContestAdjudicationScreenProps {
   onConfirmContest: (input: AdjudicatedCvrContest) => void;
   adjudicatedOptions?: AdjudicatedContestOptions;
   writeInCandidates: WriteInCandidateRecord[];
-  writeInNamesFromOtherContests?: string[];
+  newWriteInNamesFromOtherContests?: string[];
   selectedStraightPartyId?: PartyId;
 }
 
@@ -255,7 +255,7 @@ export function ContestAdjudicationScreen({
   onConfirmContest,
   adjudicatedOptions,
   writeInCandidates,
-  writeInNamesFromOtherContests = [],
+  newWriteInNamesFromOtherContests = [],
   selectedStraightPartyId,
 }: ContestAdjudicationScreenProps): JSX.Element {
   const { electionDefinition } = useContext(AppContext);
@@ -322,7 +322,7 @@ export function ContestAdjudicationScreen({
   );
   const suggestedWriteInNames = areWriteInCandidatesQualified
     ? []
-    : writeInNamesFromOtherContests.filter(
+    : newWriteInNamesFromOtherContests.filter(
         (name) => !namesInContest.has(normalizeWriteInName(name))
       );
 

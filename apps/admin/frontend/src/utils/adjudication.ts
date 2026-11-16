@@ -5,6 +5,7 @@ import type {
   ContestOptionAdjudicationData,
   CvrContestTag,
   CvrTag,
+  WriteInCandidateRecord,
 } from '@votingworks/admin-backend';
 import { find, throwIllegalValue } from '@votingworks/basics';
 import {
@@ -35,8 +36,9 @@ export function normalizeWriteInName(name: string): string {
   return name.toLowerCase().trim().replace(/\s+/, ' ');
 }
 
-export function writeInNamesFromOtherContests(
+export function newWriteInNamesFromOtherContests(
   adjudicatedContests: AdjudicatedContests,
+  existingWriteInCandidates: readonly WriteInCandidateRecord[],
   excludedContestId: ContestId
 ): string[] {
   const namesByNormalizedName = new Map<string, string>();
@@ -49,7 +51,10 @@ export function writeInNamesFromOtherContests(
       if (
         option.type !== 'write-in-option' ||
         !option.hasVote ||
-        option.candidateType !== 'write-in-candidate'
+        option.candidateType !== 'write-in-candidate' ||
+        existingWriteInCandidates.some(
+          (c) => c.contestId === contestId && c.name === option.candidateName
+        )
       ) {
         continue;
       }

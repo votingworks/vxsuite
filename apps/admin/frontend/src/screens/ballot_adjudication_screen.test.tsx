@@ -2629,35 +2629,49 @@ test('write-in names from other contests on the ballot are offered as options', 
     .resolves();
 });
 
-test('previously saved write-in names from other contests are offered, but not official candidates', async () => {
+test('existing write-in candidates and official candidates picked in other contests are not offered', async () => {
   const mammalCouncil = makeContestAdjudicationData(
     'zoo-council-mammal',
     makeContestTag({ hasWriteIn: true })
   );
   addPendingWriteIns(mammalCouncil, 1, [0]);
-  setupBasicMocks({
-    adjudicationData: makeBallotAdjudicationData(CVR_ID_1, [mammalCouncil], {
-      adjudicatedContests: [
-        {
-          contestId: 'aquarium-council-fish',
-          adjudicatedContestOptionById: {
-            'write-in-0': {
-              type: 'write-in-option',
-              candidateType: 'write-in-candidate',
-              hasVote: true,
-              candidateName: 'Me! Joe Schmo',
-            },
-            'write-in-1': {
-              type: 'write-in-option',
-              candidateType: 'official-candidate',
-              hasVote: true,
-              candidateId: 'pufferfish',
-            },
+  const adjData = makeBallotAdjudicationData(CVR_ID_1, [mammalCouncil], {
+    adjudicatedContests: [
+      {
+        contestId: 'aquarium-council-fish',
+        adjudicatedContestOptionById: {
+          'write-in-0': {
+            type: 'write-in-option',
+            candidateType: 'write-in-candidate',
+            hasVote: true,
+            candidateName: 'John Doe',
+          },
+          'write-in-1': {
+            type: 'write-in-option',
+            candidateType: 'official-candidate',
+            hasVote: true,
+            candidateId: 'pufferfish',
           },
         },
-      ],
-    }),
+      },
+    ],
   });
+  apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1]);
+  apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1);
+  apiMock.expectInitialClaimAndLoadBallot({ cvrId: CVR_ID_1 }, adjData);
+  apiMock.expectGetBallotImages({ cvrId: CVR_ID_1 }, true);
+  apiMock.expectGetWriteInCandidates(
+    [
+      {
+        id: 'wic-1',
+        name: 'John Doe',
+        electionId: 'e',
+        contestId: 'aquarium-council-fish',
+      },
+    ],
+    adjData.contests.map((c) => c.contestId)
+  );
+  apiMock.expectGetSystemSettings();
   renderInAppContext(<BallotAdjudicationScreenWrapper />, {
     electionDefinition,
     apiMock,
@@ -2667,7 +2681,8 @@ test('previously saved write-in names from other contests are offered, but not o
   await userEvent.click(screen.getByText('Zoo Council'));
   await screen.findByText(/Votes cast:/);
   fireEvent.keyDown(screen.getByRole('combobox'), { key: 'ArrowDown' });
-  await screen.findByText('Me! Joe Schmo');
+  await screen.findByRole('option', { name: 'Elephant' });
+  expect(screen.queryByText('John Doe')).toBeNull();
   expect(screen.queryByText('Pufferfish')).toBeNull();
 
   apiMock.apiClient.releaseBallotAdjudicationClaim
