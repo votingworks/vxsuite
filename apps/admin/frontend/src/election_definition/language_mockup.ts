@@ -106,8 +106,8 @@ export function languageName(languageCode: LanguageCode): string {
 const SPANISH: Readonly<Record<string, string>> = {
   'General Election': 'Elección General',
   'Lincoln County': 'Condado de Lincoln',
-  Demo: 'Demo',
-  DEMO: 'DEMO',
+  'State of Hamilton': 'Estado de Hamilton',
+  'Absentee Voting': 'Votación en Ausencia',
   'North Ward': 'Distrito Norte',
   'South Ward': 'Distrito Sur',
   'Precinct 1': 'Precinto 1',
@@ -118,6 +118,10 @@ const SPANISH: Readonly<Record<string, string>> = {
   'Democratic Party': 'Partido Demócrata',
   'Republican Party': 'Partido Republicano',
   Mayor: 'Alcalde',
+  'Board of Education': 'Junta de Educación',
+  'Park Bond': 'Bono para Parques',
+  '<p>Shall the city issue bonds of up to $5,000,000 to improve public parks?</p>':
+    '<p>¿Debe la ciudad emitir bonos de hasta $5,000,000 para mejorar los parques públicos?</p>',
   '4 years': '4 años',
   '2 years': '2 años',
   'City Council, North Ward': 'Concejo Municipal, Distrito Norte',
