@@ -135,7 +135,7 @@ etc. — so you'll need a fresh `pnpm install` and rebuild afterward.
 Use the package's `clean` script rather than deleting `build/` by hand:
 
 ```sh
-pnpm --filter @votingworks/<pkg> run clean:self   # rm -rf build + tsc --build --clean
+pnpm --filter @votingworks/<pkg> run clean:self   # rm -rf build
 ```
 
 `rm -rf build` is also safe on its own — the incremental `tsc` build-info lives
