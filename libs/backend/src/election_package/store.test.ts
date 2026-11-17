@@ -38,7 +38,6 @@ const baseElection = electionGeneralFixtures.readElection();
 const contest = assertDefined(
   baseElection.contests.find((c) => c.type === 'candidate')
 );
-const candidate = assertDefined(contest.candidates[0]);
 const contestPosition: ContestPosition = {
   bounds: { column: 0, height: 1, row: 3, width: 4 },
   contestId: contest.id,
@@ -48,7 +47,10 @@ const style1: BallotStyle = {
   ...assertDefined(baseElection.ballotStyles[0]),
   ballotPositions: [[[contestPosition], []]],
   orderedCandidatesByContest: {
-    [contest.id]: [{ id: candidate.id, partyIds: candidate.partyIds }],
+    [contest.id]: contest.candidates.map((c) => ({
+      id: c.id,
+      partyIds: c.partyIds,
+    })),
   },
 };
 const style2: BallotStyle = {

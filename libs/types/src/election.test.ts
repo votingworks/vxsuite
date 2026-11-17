@@ -47,6 +47,7 @@ import {
   type Election,
   type PollingPlace,
   PollingPlacesSchema,
+  type Party,
 } from './election.js';
 import { safeParse, safeParseJson, unsafeParse } from './generic.js';
 import {
@@ -1272,9 +1273,35 @@ test('election validation throws when orderedCandidatesByContest references non-
   };
 
   const result = safeParseElection(invalidElection);
-  expect(result.err()?.message).toContain(
-    "has ordered candidates for contest 'non-existent-contest', but no such contest is defined"
-  );
+  expect(result.err()?.message).toContain('.non-existent-contest');
+  expect(result.err()?.message).toContain('No matching contest found');
+});
+
+test('fails validation when candidate orderings reference non-candidate contest', () => {
+  const candidateContest = election.contests.find(
+    (c): c is CandidateContest => c.type === 'candidate'
+  )!;
+  const nonCandidateContest = election.contests.find(
+    (c) => c.type !== 'candidate'
+  )!;
+
+  const invalidElection: Election = {
+    ...election,
+    ballotStyles: [
+      {
+        ...election.ballotStyles[0]!,
+        orderedCandidatesByContest: {
+          [nonCandidateContest.id]: [
+            { id: candidateContest.candidates[0]!.id },
+          ],
+        },
+      },
+    ],
+  };
+
+  const result = safeParseElection(invalidElection);
+  expect(result.err()?.message).toContain(`.${nonCandidateContest.id}`);
+  expect(result.err()?.message).toContain(`Non-candidate contest ordering`);
 });
 
 test('election validation throws when orderedCandidatesByContest references non-existent candidate', () => {
@@ -1298,10 +1325,44 @@ test('election validation throws when orderedCandidatesByContest references non-
   };
 
   const result = safeParseElection(invalidElection);
+  expect(result.err()?.message).toContain('.non-existent-candidate');
   expect(result.err()?.message).toContain(
-    "Ordered candidate 'non-existent-candidate'"
+    'Ordered candidate not found in base contest'
   );
-  expect(result.err()?.message).toContain('does not exist in that contest');
+});
+
+test('fails validation on candidate ordering with missing candidate', () => {
+  const candidateContest = election.contests.find(
+    (c): c is CandidateContest => c.type === 'candidate'
+  )!;
+
+  const invalidElection: Election = {
+    ...election,
+    ballotStyles: [
+      {
+        ...election.ballotStyles[0]!,
+        orderedCandidatesByContest: {
+          [candidateContest.id]: [{ id: 'candidate-1' }, { id: 'candidate-3' }],
+        },
+      },
+    ],
+    contests: [
+      {
+        ...candidateContest,
+        candidates: [
+          { id: 'candidate-1', name: 'C1', partyIds: [] },
+          { id: 'candidate-2', name: 'C2', partyIds: [] },
+          { id: 'candidate-3', name: 'C3', partyIds: [] },
+        ],
+      },
+    ],
+  };
+
+  const result = safeParseElection(invalidElection);
+  expect(result.err()?.message).toContain(`.${candidateContest.id}`);
+  expect(result.err()?.message).toContain(
+    '.candidate-2: Candidate missing in ballot style ordering'
+  );
 });
 
 test('election validation throws when orderedCandidatesByContest has mismatched party IDs', () => {
@@ -1337,6 +1398,7 @@ test('election validation throws when orderedCandidatesByContest has mismatched 
             // Wrong party IDs - should be ['party-1', 'party-2']
             { id: 'candidate-1', partyIds: ['party-1'] },
             { id: 'candidate-2', partyIds: ['party-3'] },
+            { id: 'candidate-1', partyIds: ['party-1'] },
           ],
         },
       },
@@ -1344,8 +1406,10 @@ test('election validation throws when orderedCandidatesByContest has mismatched 
   };
 
   const result = safeParseElection(testElection);
-  expect(result.err()?.message).toContain("Ordered candidate 'candidate-1'");
-  expect(result.err()?.message).toContain('has party IDs [party-1]');
+  expect(result.err()?.message).toContain('.candidate-1');
+  expect(result.err()?.message).toContain(
+    'has aggregate party IDs [party-1, party-1]'
+  );
   expect(result.err()?.message).toContain(
     'but candidate in contest has party IDs [party-1, party-2]'
   );
@@ -1370,7 +1434,6 @@ test('election validation throws when orderedCandidatesByContest has extra party
           {
             id: 'candidate-2',
             name: 'Candidate 2',
-            partyIds: [],
           },
         ],
       },
@@ -1382,7 +1445,7 @@ test('election validation throws when orderedCandidatesByContest has extra party
           [candidateContest.id]: [
             // Extra party IDs - should be ['party-1']
             { id: 'candidate-1', partyIds: ['party-1', 'party-2'] },
-            { id: 'candidate-2', partyIds: [] },
+            { id: 'candidate-2', partyIds: ['party-1'] },
           ],
         },
       },
@@ -1390,9 +1453,14 @@ test('election validation throws when orderedCandidatesByContest has extra party
   };
 
   const result = safeParseElection(testElection);
-  expect(result.err()?.message).toContain('has party IDs [party-1, party-2]');
+  expect(result.err()?.message).toContain('.candidate-1');
   expect(result.err()?.message).toContain(
-    'but candidate in contest has party IDs [party-1]'
+    '.candidate-1: Ordered candidate has aggregate party IDs ' +
+      '[party-1, party-2], but candidate in contest has party IDs [party-1]'
+  );
+  expect(result.err()?.message).toContain(
+    '.candidate-2: Ordered candidate has aggregate party IDs ' +
+      '[party-1], but candidate in contest has party IDs []'
   );
 });
 
@@ -1423,6 +1491,105 @@ test('election validation succeeds when orderedCandidatesByContest party IDs mat
       })
     )
   );
+});
+
+test('fails validation when multiple/cross-endorsed candidates appear with no party ID', () => {
+  const candidateContest = election.contests.find(
+    (c): c is CandidateContest => c.type === 'candidate'
+  )!;
+
+  const parties: Party[] = [
+    { id: 'party-1', abbrev: '1', fullName: 'Party One', name: 'Party 1' },
+    { id: 'party-2', abbrev: '2', fullName: 'Party Two', name: 'Party 2' },
+  ];
+
+  const contests: CandidateContest[] = [
+    {
+      ...candidateContest,
+      id: 'contest1',
+      candidates: [
+        { id: 'candidate-1', name: 'C1', partyIds: ['party-1'] },
+        { id: 'candidate-2', name: 'C2', partyIds: ['party-1', 'party-2'] },
+        { id: 'candidate-3', name: 'C3' },
+      ],
+    },
+  ];
+
+  {
+    const result = safeParseElection({
+      ...election,
+      contests,
+      ballotStyles: [
+        {
+          ...election.ballotStyles[0]!,
+          orderedCandidatesByContest: {
+            contest1: [
+              { id: 'candidate-1', partyIds: [] },
+              { id: 'candidate-1', partyIds: ['party-1'] },
+
+              { id: 'candidate-2', partyIds: [] },
+              { id: 'candidate-2', partyIds: ['party-1', 'party-2'] },
+
+              { id: 'candidate-3' },
+              { id: 'candidate-3' },
+            ],
+          },
+        },
+      ],
+      parties,
+    });
+    expect(result.err()?.message).toContain('.contest1');
+    expect(result.err()?.message).toContain(
+      '.candidate-1: Party ID missing for a cross-endorsed candidate instance.'
+    );
+    expect(result.err()?.message).toContain(
+      '.candidate-2: Party ID missing for a cross-endorsed candidate instance.'
+    );
+    expect(result.err()?.message).toContain(
+      '.candidate-3: Duplicate ordered candidate instance.'
+    );
+  }
+});
+
+test('passes validation when ordered candidates have party IDs that match base candidate', () => {
+  const candidateContest = election.contests.find(
+    (c): c is CandidateContest => c.type === 'candidate'
+  )!;
+
+  const testElection: Election = {
+    ...election,
+    contests: [
+      {
+        ...candidateContest,
+        candidates: [
+          { id: 'candidate-1', name: 'C1', partyIds: ['party-1', 'party-2'] },
+          { id: 'candidate-2', name: 'C2', partyIds: ['party-2', 'party-3'] },
+          { id: 'candidate-3', name: 'C3' },
+        ],
+      },
+    ],
+    ballotStyles: [
+      {
+        ...election.ballotStyles[0]!,
+        orderedCandidatesByContest: {
+          [candidateContest.id]: [
+            { id: 'candidate-1', partyIds: ['party-1', 'party-2'] },
+            { id: 'candidate-2', partyIds: ['party-3'] },
+            { id: 'candidate-3' },
+            { id: 'candidate-2', partyIds: ['party-2'] },
+          ],
+        },
+      },
+    ],
+    parties: [
+      { id: 'party-1', abbrev: '1', fullName: 'Party One', name: 'Party 1' },
+      { id: 'party-2', abbrev: '2', fullName: 'Party Two', name: 'Party 2' },
+      { id: 'party-3', abbrev: '3', fullName: 'Party Three', name: 'Party 3' },
+    ],
+  };
+
+  const result = safeParseElection(testElection);
+  expect(result).toEqual(ok(expect.objectContaining({ id: testElection.id })));
 });
 
 test('polling places schema', () => {
@@ -1501,5 +1668,36 @@ test('polling places schema', () => {
         type: 'early_voting',
       },
     ])
+  );
+});
+
+test('fails contest validation if candidate has repeated party IDs', () => {
+  const candidateContest = election.contests.find(
+    (c): c is CandidateContest => c.type === 'candidate'
+  )!;
+
+  const testElection: Election = {
+    ...election,
+    contests: [
+      {
+        ...candidateContest,
+        candidates: [
+          {
+            id: 'candidate-1',
+            name: 'Candidate 1',
+            partyIds: ['party-1', 'party-1'],
+          },
+        ],
+      },
+    ],
+    parties: [
+      { id: 'party-1', abbrev: '1', fullName: 'Party One', name: 'Party 1' },
+    ],
+  };
+
+  const result = safeParseElection(testElection);
+  expect(result.err()?.message).toContain('contests.0.candidates.0.partyIds.1');
+  expect(result.err()?.message).toContain(
+    `Candidate party 'party-1' is repeated`
   );
 });
