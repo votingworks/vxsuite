@@ -80,7 +80,7 @@ export class Db {
       // The connection may be left in a failed transaction, which would break
       // every later query on it, so discard it instead of returning it to the
       // pool.
-      poolClient.release(error as Error);
+      poolClient.release(true);
       throw error;
     }
   }
