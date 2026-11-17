@@ -157,3 +157,64 @@ export function splitCandidateName(
     middleName: middleParts.join(' '),
   };
 }
+
+/**
+ * Prepares an existing election for editing as a new election: regenerates
+ * entity IDs, splits candidate names and drops ballot styles so they are
+ * generated again.
+ */
+export function prepareElectionForEditing({
+  election,
+  newId,
+  stateFeatures,
+}: {
+  election: Election;
+  newId: Election['id'];
+  stateFeatures: StateFeaturesConfig;
+}): Election {
+  const { districts, precincts, parties, contests, pollingPlaces } =
+    regenerateElectionIds(election, stateFeatures);
+
+  // Split candidate names into first, middle, and last names, if they are
+  // not already split
+  const contestsWithSplitCandidateNames = contests.map((contest) => {
+    if (contest.type !== 'candidate') return contest;
+    return {
+      ...contest,
+      candidates: contest.candidates.map((candidate) => {
+        if (
+          candidate.firstName !== undefined &&
+          candidate.middleName !== undefined &&
+          candidate.lastName !== undefined
+        ) {
+          return candidate;
+        }
+        return {
+          ...candidate,
+          ...splitCandidateName(candidate.name),
+        };
+      }),
+    };
+  });
+
+  return {
+    ...election,
+    id: newId,
+    jurisdiction: {
+      ...election.jurisdiction,
+      // County ID needs to be deterministic
+      id: `${newId}-county`,
+    },
+    districts,
+    pollingPlaces,
+    precincts,
+    parties,
+    contests: contestsWithSplitCandidateNames,
+    // Remove any existing ballot styles (and their ballot
+    // positions) so we can generate our own
+    ballotStyles: [],
+    // Fill in a blank seal if none is provided
+    seal: election.seal ?? '',
+    signature: election.signature,
+  };
+}
