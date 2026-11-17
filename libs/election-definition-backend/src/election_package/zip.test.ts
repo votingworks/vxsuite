@@ -1,5 +1,6 @@
 import { makeTemporaryFile } from '@votingworks/fixtures';
 import { expect, test } from 'vitest';
+import { Buffer } from 'node:buffer';
 import { buffer } from 'node:stream/consumers';
 import { Archiver } from './zip.js';
 
@@ -55,4 +56,14 @@ test('consistent output across multiple runs with compressed entries', async () 
   const zipData1 = await makeZip();
   const zipData2 = await makeZip();
   expect(zipData1.equals(zipData2)).toBeTruthy();
+});
+
+test('adds Uint8Array entries that are not Buffers', async () => {
+  const zip = new Archiver();
+  const contents = new Uint8Array([1, 2, 3, 4]).subarray(1, 3);
+  zip.addEntry(contents, { name: 'bytes.bin' });
+
+  const zipContents = await buffer(zip.finalize());
+  expect(zipContents.includes(Buffer.from([2, 3]))).toEqual(true);
+  expect(zipContents.includes(Buffer.from('bytes.bin'))).toEqual(true);
 });

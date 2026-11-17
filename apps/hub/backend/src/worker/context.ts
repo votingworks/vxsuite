@@ -3,7 +3,7 @@ import type {
   GoogleCloudTranslator,
 } from '@votingworks/backend';
 import type { BaseLogger } from '@votingworks/logging';
-import type { FileStorageClient } from '../file_storage_client.js';
+import type { FileStorageClient } from '@votingworks/election-definition-backend/election-package';
 import type { Workspace } from '../workspace.js';
 
 export interface WorkerContext {

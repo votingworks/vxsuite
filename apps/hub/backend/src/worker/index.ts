@@ -6,15 +6,13 @@ import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
 import { assertDefined } from '@votingworks/basics';
 import { BaseLogger, LogSource } from '@votingworks/logging';
 
+import { LocalFileStorageClient } from '@votingworks/election-definition-backend/election-package';
 import { WORKSPACE } from '../globals.js';
 import { createWorkspace } from '../workspace.js';
 import * as worker from './worker.js';
 import { GoogleCloudSpeechSynthesizerWithDbCache } from '../speech_synthesizer.js';
 import { GoogleCloudTranslatorWithDbCache } from '../translator.js';
-import {
-  LocalFileStorageClient,
-  S3FileStorageClient,
-} from '../file_storage_client.js';
+import { S3FileStorageClient } from '../file_storage_client.js';
 
 // @coverage-defer
 loadEnvVarsFromDotenvFiles();
@@ -29,7 +27,7 @@ async function main(): Promise<void> {
   const fileStorageClient =
     process.env.NODE_ENV === 'production'
       ? new S3FileStorageClient()
-      : new LocalFileStorageClient();
+      : new LocalFileStorageClient(assertDefined(WORKSPACE));
 
   const speechSynthesizer = new GoogleCloudSpeechSynthesizerWithDbCache({
     store,
