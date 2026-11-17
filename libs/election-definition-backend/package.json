@@ -38,6 +38,7 @@
     "@votingworks/basics": "workspace:*",
     "@votingworks/hmpb": "workspace:*",
     "@votingworks/types": "workspace:*",
+    "@votingworks/utils": "workspace:*",
     "archiver": "8.0.0",
     "zod": "4.6.6"
   },
@@ -47,7 +48,6 @@
     "@votingworks/coverage-check": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
-    "@votingworks/utils": "workspace:*",
     "eslint-plugin-vx": "workspace:*",
     "vitest": "5.0.2"
   },

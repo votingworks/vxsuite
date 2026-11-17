@@ -93,9 +93,9 @@ import {
   type PrecinctCreate,
   type PrecinctDelete,
   type PrecinctUpdate,
+  prepareElectionForEditing,
   regenerateElectionIds,
   type SetPollingPlaceError,
-  splitCandidateName,
   type StateFeaturesConfig,
 } from '@votingworks/election-definition-backend';
 import type {
@@ -365,59 +365,14 @@ export function buildApi(ctx: AppContext) {
               const sourceElection = safeParseElectionAnyVersion(
                 input.upload.electionFileContents
               ).unsafeUnwrap();
-
-              const { districts, precincts, parties, contests, pollingPlaces } =
-                regenerateElectionIds(sourceElection, stateFeatures);
-
-              // Split candidate names into first, middle, and last names, if they are
-              // not already split
-              const contestsWithSplitCandidateNames = contests.map(
-                (contest) => {
-                  if (contest.type !== 'candidate') return contest;
-                  return {
-                    ...contest,
-                    candidates: contest.candidates.map((candidate) => {
-                      // @coverage-defer
-                      if (
-                        candidate.firstName !== undefined &&
-                        candidate.middleName !== undefined &&
-                        candidate.lastName !== undefined
-                      ) {
-                        return candidate;
-                      }
-                      return {
-                        ...candidate,
-                        ...splitCandidateName(candidate.name),
-                      };
-                    }),
-                  };
-                }
-              );
-
               return {
                 isMiCombinedBallotPrimary:
                   isCombinedBallotPrimary(sourceElection),
-                election: {
-                  ...sourceElection,
-                  id: input.newId,
-                  jurisdiction: {
-                    ...sourceElection.jurisdiction,
-                    // County ID needs to be deterministic
-                    id: `${input.newId}-county`,
-                  },
-                  districts,
-                  pollingPlaces,
-                  precincts,
-                  parties,
-                  contests: contestsWithSplitCandidateNames,
-                  // Remove any existing ballot styles (and their ballot
-                  // positions) so we can generate our own
-                  ballotStyles: [],
-                  // @coverage-defer
-                  // Fill in a blank seal if none is provided
-                  seal: sourceElection.seal ?? '',
-                  signature: sourceElection.signature,
-                },
+                election: prepareElectionForEditing({
+                  election: sourceElection,
+                  newId: input.newId,
+                  stateFeatures,
+                }),
               };
             }
 
