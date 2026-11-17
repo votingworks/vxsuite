@@ -1,4 +1,5 @@
 import { expect, test, vi } from 'vitest';
+import { rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { err, ok, type Result } from '@votingworks/basics';
@@ -16,6 +17,11 @@ vi.mock(import('@votingworks/fs'), async () => {
   const { mockFs } = await import('../../../test/mock_fs.js');
   const fs = await mockFs();
   return { ...fs, exchangePaths: vi.fn(fs.exchangePaths) };
+});
+
+vi.mock(import('node:fs/promises'), async (importActual) => {
+  const actual = await importActual();
+  return { ...actual, rm: vi.fn(actual.rm) };
 });
 
 function makeBackupDirectory(path: string, contents: string): string {
@@ -75,10 +81,34 @@ test('exchanges an existing backup for the in-progress one and discards it', asy
 
 test('returns an error when the exchange fails', async () => {
   const target = makeTemporaryDirectory();
+  const inProgressBackup = makeBackupDirectory(
+    join(target, 'election-in-progress'),
+    'new'
+  );
   const backup = makeBackupDirectory(join(target, 'election'), 'old');
 
-  // `renameat2(RENAME_EXCHANGE)` requires both paths to exist, so pointing at
-  // a missing in-progress backup exercises the failure path.
+  vi.mocked(exchangePaths).mockReturnValueOnce(
+    err({ code: 'EIO', message: 'EIO: I/O error' })
+  );
+
+  const swapResult = await swap({
+    inProgressBackup,
+    target,
+    backup,
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
+  });
+
+  expect(swapResult.err()).toEqual({
+    type: 'backup-swap-failed',
+    message: 'Failed to swap in the new backup: EIO: I/O error',
+  });
+  expect(readFileSync(join(backup, 'manifest.json'), 'utf-8')).toEqual('old');
+});
+
+test('returns an error when the rename into place fails', async () => {
+  const target = makeTemporaryDirectory();
+  const backup = join(target, 'election');
+
   const swapResult = await swap({
     inProgressBackup: join(target, 'election-in-progress'),
     target,
@@ -90,9 +120,31 @@ test('returns an error when the exchange fails', async () => {
     type: 'backup-swap-failed',
     message: expect.stringContaining('Failed to swap in the new backup'),
   });
+  expect(existsSync(backup)).toEqual(false);
+});
 
-  // The backup that was already there is untouched.
-  expect(readFileSync(join(backup, 'manifest.json'), 'utf-8')).toEqual('old');
+test('returns an error when removing the previous backup fails', async () => {
+  const target = makeTemporaryDirectory();
+  const inProgressBackup = makeBackupDirectory(
+    join(target, 'election-in-progress'),
+    'new'
+  );
+  const backup = makeBackupDirectory(join(target, 'election'), 'old');
+
+  vi.mocked(rm).mockRejectedValueOnce(new Error('EIO: I/O error'));
+
+  const swapResult = await swap({
+    inProgressBackup,
+    target,
+    backup,
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
+  });
+
+  expect(swapResult.err()).toEqual({
+    type: 'backup-swap-failed',
+    message: 'Failed to remove the previous backup: EIO: I/O error',
+  });
+  expect(readFileSync(join(backup, 'manifest.json'), 'utf-8')).toEqual('new');
 });
 
 test('flushes the backup to the device before and after swapping it in', async () => {
