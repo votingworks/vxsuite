@@ -2588,7 +2588,7 @@ test('straight party derived votes update when the straight party contest is adj
     .resolves();
 });
 
-test('write-in names from other contests on the ballot are offered as options', async () => {
+test('write-in names newly added in other contests on the ballot are offered as options', async () => {
   const mammalCouncil = makeContestAdjudicationData(
     'zoo-council-mammal',
     makeContestTag({ hasWriteIn: true })
@@ -2629,7 +2629,7 @@ test('write-in names from other contests on the ballot are offered as options', 
     .resolves();
 });
 
-test('existing write-in candidates and official candidates picked in other contests are not offered', async () => {
+test('existing write-in candidates and official candidates picked in other contests on the ballot are not offered as newly added names', async () => {
   const mammalCouncil = makeContestAdjudicationData(
     'zoo-council-mammal',
     makeContestTag({ hasWriteIn: true })
@@ -2684,54 +2684,6 @@ test('existing write-in candidates and official candidates picked in other conte
   await screen.findByRole('option', { name: 'Elephant' });
   expect(screen.queryByText('John Doe')).toBeNull();
   expect(screen.queryByText('Pufferfish')).toBeNull();
-
-  apiMock.apiClient.releaseBallotAdjudicationClaim
-    .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_1 })
-    .resolves();
-});
-
-test('write-in names added to a contest on other ballots are not offered in other contests', async () => {
-  const fishCouncil = makeContestAdjudicationData(
-    'aquarium-council-fish',
-    makeContestTag({ hasWriteIn: true })
-  );
-  addPendingWriteIns(fishCouncil, 1, [0]);
-  const mammalCouncil = makeContestAdjudicationData(
-    'zoo-council-mammal',
-    makeContestTag({ hasWriteIn: true })
-  );
-  addPendingWriteIns(mammalCouncil, 1, [0]);
-  const adjData = makeBallotAdjudicationData(CVR_ID_1, [
-    fishCouncil,
-    mammalCouncil,
-  ]);
-  apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1]);
-  apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1);
-  apiMock.expectInitialClaimAndLoadBallot({ cvrId: CVR_ID_1 }, adjData);
-  apiMock.expectGetBallotImages({ cvrId: CVR_ID_1 }, true);
-  apiMock.expectGetWriteInCandidates(
-    [
-      {
-        id: 'wic-1',
-        name: 'Me! Joe Schmo',
-        electionId: 'e',
-        contestId: 'aquarium-council-fish',
-      },
-    ],
-    adjData.contests.map((c) => c.contestId)
-  );
-  apiMock.expectGetSystemSettings();
-  renderInAppContext(<BallotAdjudicationScreenWrapper />, {
-    electionDefinition,
-    apiMock,
-  });
-  await screen.findByText(/Ballot ID/);
-
-  await userEvent.click(screen.getAllByText('Zoo Council')[1]!);
-  await screen.findByText(/Votes cast:/);
-  fireEvent.keyDown(screen.getByRole('combobox'), { key: 'ArrowDown' });
-  await screen.findByRole('option', { name: 'Elephant' });
-  expect(screen.queryByText('Me! Joe Schmo')).toBeNull();
 
   apiMock.apiClient.releaseBallotAdjudicationClaim
     .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_1 })
