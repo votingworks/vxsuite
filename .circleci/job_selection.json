@@ -72,6 +72,10 @@
   "rustJob": "test-rust-crates",
   "rustPattern": "(\\.rs|(^|/)Cargo\\.(toml|lock)|(^|/)rust-toolchain(\\.toml)?)$",
   "rootCargoPackages": [
+    "@votingworks/mark-scan-accessible-controller",
+    "@votingworks/mark-scan-fai-100-controller",
+    "@votingworks/mark-scan-pat-device-input",
+    "@votingworks/pollbook-barcode-scanner-daemon",
     "@votingworks/fs",
     "@votingworks/logging-utils"
   ],

@@ -6,6 +6,12 @@ packages:
   - 'apps/*/integration-testing'
   - 'apps/*/playwright'
 
+  # include the Rust daemons that run alongside some apps
+  - 'apps/mark-scan/accessible-controller'
+  - 'apps/mark-scan/fai-100-controller'
+  - 'apps/mark-scan/pat-device-input'
+  - 'apps/pollbook/barcode-scanner-daemon'
+
   # include all the libraries and our custom types
   - 'libs/*'
   - 'libs/@types/*'

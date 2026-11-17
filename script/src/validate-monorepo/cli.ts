@@ -133,7 +133,7 @@ export async function main({ stderr }: IO): Promise<number> {
 
       case 'MissingCargoBinaryOutput':
         stderr.write(
-          `${issue.packageDir}: Cargo binary "${issue.binaryName}" is not a turbo output. Add it to build:self outputs in ${issue.packageDir}/turbo.json, e.g. "outputs": ["build/**", "${issue.expectedOutput}"]\n`
+          `${issue.packageDir}: Cargo binary "${issue.binaryName}" must be copied into build/ by build:self so it runs from there and turbo restores it on a cache hit, e.g. "... && mkdir -p build && cp ${issue.cargoOutput} ${issue.expectedOutput}"\n`
         );
         break;
 

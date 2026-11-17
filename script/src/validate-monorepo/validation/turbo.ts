@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
 import { parse as parseToml } from '@iarna/toml';
+import * as ts from 'typescript';
 import type { PnpmPackageInfo } from '@votingworks/monorepo-utils';
 import { findCargoTomlFiles } from './cargo.ts';
 
@@ -21,14 +22,16 @@ export interface UntrackedCargoPathDependencyIssue {
 
 /**
  * A package whose turbo build runs `cargo build` produces a Cargo `[[bin]]`
- * binary that isn't declared in its turbo `build:self` outputs. A turbo cache
- * hit would then skip the build without restoring the binary.
+ * binary that it doesn't copy into `build/` (a turbo `build:self` output).
+ * Binaries should run from `build/`, not cargo's `target/` directory, and a
+ * turbo cache hit would otherwise skip the build without restoring the binary.
  */
 export interface MissingCargoBinaryOutputIssue {
   readonly kind: 'MissingCargoBinaryOutput';
   readonly packageName: string;
   readonly packageDir: string;
   readonly binaryName: string;
+  readonly cargoOutput: string;
   readonly expectedOutput: string;
 }
 
@@ -110,13 +113,25 @@ function collectPathDepDirs(
   return dirs;
 }
 
+interface TurboJson {
+  tasks?: Record<string, { inputs?: string[]; outputs?: string[] }>;
+}
+
+/** Reads a turbo.json, which may contain comments. */
+function readTurboJson(path: string): TurboJson {
+  const { config, error } = ts.readConfigFile(path, ts.sys.readFile);
+  if (error) {
+    throw new Error(
+      `${path}: ${ts.flattenDiagnosticMessageText(error.messageText, '\n')}`
+    );
+  }
+  return config as TurboJson;
+}
+
 function turboBuildSelfInputs(pkgDir: string): string[] {
   const turboJsonPath = join(pkgDir, 'turbo.json');
   if (!existsSync(turboJsonPath)) return [];
-  const parsed = JSON.parse(readFileSync(turboJsonPath, 'utf-8')) as {
-    tasks?: Record<string, { inputs?: string[] }>;
-  };
-  return parsed.tasks?.['build:self']?.inputs ?? [];
+  return readTurboJson(turboJsonPath).tasks?.['build:self']?.inputs ?? [];
 }
 
 function inputsCover(
@@ -139,6 +154,14 @@ function buildsRust(pkg: PnpmPackageInfo): boolean {
   );
 }
 
+/** The package's build scripts that may run Rust builds, joined. */
+function rustBuildCommand(pkg: PnpmPackageInfo): string {
+  const scripts = pkg.packageJson?.scripts ?? {};
+  return [scripts['build:self'], scripts['build:rust-addon']]
+    .filter((script): script is string => typeof script === 'string')
+    .join(' ');
+}
+
 /**
  * If the package builds Rust binaries via `cargo build` (which builds every
  * `[[bin]]`), returns the Cargo profile directory (`release`/`debug`/custom)
@@ -146,10 +169,7 @@ function buildsRust(pkg: PnpmPackageInfo): boolean {
  * produce a `.node` library and no binaries).
  */
 function cargoBuildProfile(pkg: PnpmPackageInfo): string | undefined {
-  const scripts = pkg.packageJson?.scripts ?? {};
-  const command = [scripts['build:self'], scripts['build:rust-addon']]
-    .filter((script): script is string => typeof script === 'string')
-    .join(' ');
+  const command = rustBuildCommand(pkg);
   if (!/cargo build/.test(command)) return undefined;
   if (/--release\b/.test(command)) return 'release';
   const profile = command.match(/--profile[ =]([\w-]+)/);
@@ -173,10 +193,7 @@ function turboBuildSelfOutputs(pkgDir: string, root: string): string[] {
     join(root, 'turbo.json'),
   ]) {
     if (!existsSync(turboJsonPath)) continue;
-    const parsed = JSON.parse(readFileSync(turboJsonPath, 'utf-8')) as {
-      tasks?: Record<string, { outputs?: string[] }>;
-    };
-    const outputs = parsed.tasks?.['build:self']?.outputs;
+    const outputs = readTurboJson(turboJsonPath).tasks?.['build:self']?.outputs;
     if (outputs) return outputs;
   }
   return [];
@@ -245,9 +262,10 @@ function* checkCargoPathDepInputs(
 }
 
 /**
- * Check that every package building Rust binaries via `cargo build` declares
- * each of its Cargo `[[bin]]` outputs in its turbo `build:self` outputs, so a
- * turbo cache hit restores the binaries instead of silently omitting them.
+ * Check that every package building Rust binaries via `cargo build` copies each
+ * of its Cargo `[[bin]]` outputs from cargo's `target/` directory into `build/`.
+ * Binaries run from `build/`, which ships with the package and which turbo
+ * restores on a cache hit; `target/` holds only cargo's intermediate files.
  */
 function* checkCargoBinaryOutputs(
   root: string,
@@ -257,15 +275,23 @@ function* checkCargoBinaryOutputs(
     if (!pkg.packageJson) continue;
     const profile = cargoBuildProfile(pkg);
     if (!profile) continue;
+    const command = rustBuildCommand(pkg);
     const outputs = turboBuildSelfOutputs(pkg.path, root);
     for (const binaryName of cargoBinaryNames(pkg.path)) {
-      const expectedOutput = `target/${profile}/${binaryName}`;
-      if (outputsCover(outputs, expectedOutput)) continue;
+      const cargoOutput = `target/${profile}/${binaryName}`;
+      const expectedOutput = `build/${binaryName}`;
+      if (
+        command.includes(cargoOutput) &&
+        outputsCover(outputs, expectedOutput)
+      ) {
+        continue;
+      }
       yield {
         kind: 'MissingCargoBinaryOutput',
         packageName: pkg.name,
         packageDir: relative(root, pkg.path),
         binaryName,
+        cargoOutput,
         expectedOutput,
       };
     }
@@ -275,7 +301,7 @@ function* checkCargoBinaryOutputs(
 /**
  * Validate that per-package turbo.json configs keep turbo's cache correct for
  * Rust: Cargo path-dependency sources are tracked as inputs, and Cargo binaries
- * are declared as outputs.
+ * are copied into `build/`, a turbo output.
  */
 export function* checkConfig(
   root: string,

@@ -17,7 +17,7 @@
   ],
   "scripts": {
     "build": "pnpm -w vx-task build $npm_package_name",
-    "build:rust-addon": "cargo build --manifest-path rust/Cargo.toml --release --offline",
+    "build:rust-addon": "cargo build --manifest-path rust/Cargo.toml --release --offline && mkdir -p build && cp target/release/deskproctl build/",
     "build:self": "rm -rf build && pnpm build:rust-addon && pnpm build:ts",
     "build:ts": "tsc -p tsconfig.build.json",
     "clean": "pnpm -w vx-task clean $npm_package_name",

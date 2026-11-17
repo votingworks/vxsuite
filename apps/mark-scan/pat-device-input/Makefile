@@ -5,8 +5,8 @@ build-debug: FORCE
 	mkdir -p target && cargo build --target-dir target/.
 
 build: FORCE
-	mkdir -p target && cargo build --release --target-dir target/.
+	pnpm build:self
 
 run:
-	./target/release/patinputd
+	./build/patinputd
 
