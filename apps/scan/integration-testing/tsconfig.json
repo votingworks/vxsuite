@@ -3,7 +3,6 @@
   "include": ["**/*.ts"],
   "exclude": [],
   "references": [
-    { "path": "../../../libs/hmpb/tsconfig.build.json" },
     { "path": "../../../libs/pdi-scanner/tsconfig.build.json" },
     { "path": "../../../libs/integration-test-utils/tsconfig.build.json" }
   ]
