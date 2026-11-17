@@ -28,7 +28,6 @@ export interface AudioPlayer {
 }
 
 export interface Init {
-  headphoneVolumePct?: number;
   logger: Logger;
 }
 
@@ -67,10 +66,6 @@ export async function newAudioPlayer(init: Init): Promise<AudioPlayer> {
     soundsDirectory: import.meta.dirname,
   });
 
-  if (init.headphoneVolumePct !== undefined) {
-    await player.setHeadphoneVolume(init.headphoneVolumePct);
-  }
-
   return player;
 }
 
@@ -98,7 +93,7 @@ async function initializeUsbAudio(
       logger: init.logger,
       nodeEnv,
       sinkName: info.name,
-      volumePct: init.headphoneVolumePct ?? DEFAULT_HEADPHONE_VOLUME_PCT,
+      volumePct: DEFAULT_HEADPHONE_VOLUME_PCT,
     })
   ).assertOk('unable to set USB audio volume');
 }

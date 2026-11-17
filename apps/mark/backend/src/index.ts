@@ -82,13 +82,7 @@ async function main(): Promise<number> {
       ? new MockBarcodeClient()
       : new BarcodeClient(baseLogger);
 
-    const audioPlayer = await newAudioPlayer({
-      logger,
-      // System volume is set to 100% in the prod app, but the HWTA has no UI
-      // volume control, so we set to a safe listening level discovered the
-      // hard way
-      headphoneVolumePct: 40,
-    });
+    const audioPlayer = await newAudioPlayer({ logger });
 
     startElectricalTestingServer({
       audioPlayer,
