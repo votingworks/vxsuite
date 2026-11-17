@@ -365,6 +365,13 @@ export function buildRouter(
         const message = extractErrorMessage(error);
         debug(`Error: ${message}`);
         const statusCode = error instanceof UserError ? 400 : 500;
+        if (!(error instanceof UserError)) {
+          // `next(error)` reaches Express's final error handler, which destroys
+          // the socket because the response was already sent. Without
+          // `Connection: close`, the client is unaware the socket is unusable
+          // and may attempt to reuse it.
+          response.set('Connection', 'close');
+        }
         response.status(statusCode).json({ message });
         if (!(error instanceof UserError)) {
           // eslint-disable-next-line no-console
