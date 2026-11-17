@@ -7,7 +7,7 @@
   "author": "VotingWorks Eng <eng@voting.works>",
   "type": "module",
   "scripts": {
-    "build": "tsc --build"
+    "build": "pnpm -w vx-task deps $npm_package_name && tsc -p tsconfig.json"
   },
   "dependencies": {
     "@iarna/toml": "^2.2.5",
