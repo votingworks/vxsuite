@@ -134,7 +134,7 @@ function buildMachine({
     logger.log(LogEventId.ImprinterStatus, 'system', { message });
 
     return {
-      control: scanner.scanSheets({
+      control: scanner.startBatch({
         directory: rawImageDirectory,
         pageSize: store.getBallotPaperSizeForElection(),
         // When imprinting, imprint an ID prefixed by the batch ID

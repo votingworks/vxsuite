@@ -104,9 +104,9 @@ function failNextEndBatchOnce(
     .fn<() => Promise<void>>()
     .mockRejectedValueOnce(error)
     .mockResolvedValue(undefined);
-  const scanSheets = scanner.scanSheets.bind(scanner);
-  vi.spyOn(scanner, 'scanSheets').mockImplementationOnce((options) => ({
-    ...scanSheets(options),
+  const startBatch = scanner.startBatch.bind(scanner);
+  vi.spyOn(scanner, 'startBatch').mockImplementationOnce((options) => ({
+    ...startBatch(options),
     endBatch,
   }));
   return endBatch;
@@ -206,7 +206,7 @@ test('imprint prefix is unique across pauses within a batch', async () => {
   const { machine, workspace } = await setup(scanner);
   await configureElection(workspace);
   vi.spyOn(scanner, 'isImprinterDetected').mockResolvedValue(true);
-  const scanSheets = vi.spyOn(scanner, 'scanSheets');
+  const startBatch = vi.spyOn(scanner, 'startBatch');
 
   scanner.withNextScannerSession().end();
   await machine.startBatch();
@@ -242,7 +242,7 @@ test('imprint prefix is unique across pauses within a batch', async () => {
   });
 
   expect(
-    scanSheets.mock.calls.map(([options]) => options?.imprintIdPrefix)
+    startBatch.mock.calls.map(([options]) => options?.imprintIdPrefix)
   ).toEqual([
     `${batch!.id}_0`,
     `${batch!.id}_1`,
@@ -257,7 +257,7 @@ test('does not imprint when imprinting is disabled, even when an imprinter is at
   await configureElection(workspace);
   workspace.store.setIsImprintingEnabled(false);
   vi.spyOn(scanner, 'isImprinterDetected').mockResolvedValue(true);
-  const scanSheets = vi.spyOn(scanner, 'scanSheets');
+  const startBatch = vi.spyOn(scanner, 'startBatch');
 
   scanner.withNextScannerSession().end();
   await machine.startBatch();
@@ -266,7 +266,7 @@ test('does not imprint when imprinting is disabled, even when an imprinter is at
     pauseReason: { type: 'tray-empty' },
   });
 
-  expect(scanSheets).toHaveBeenCalledWith(
+  expect(startBatch).toHaveBeenCalledWith(
     expect.objectContaining({ imprintIdPrefix: undefined })
   );
   expect(logger.log).toHaveBeenCalledWith(
@@ -283,7 +283,7 @@ test('does not imprint when imprinting is disabled, even when an imprinter is at
     pauseReason: { type: 'tray-empty' },
   });
 
-  expect(scanSheets).toHaveBeenLastCalledWith(
+  expect(startBatch).toHaveBeenLastCalledWith(
     expect.objectContaining({ imprintIdPrefix: undefined })
   );
   expect(logger.log).toHaveBeenCalledWith(
@@ -323,7 +323,7 @@ test('error when starting a batch', async () => {
   const { machine, workspace, logger } = await setup(scanner);
   await configureElection(workspace);
 
-  vi.spyOn(scanner, 'scanSheets').mockImplementation(() => {
+  vi.spyOn(scanner, 'startBatch').mockImplementation(() => {
     throw new Error('scanner unavailable');
   });
   await machine.startBatch();
@@ -587,7 +587,7 @@ test('resume: error in starting new scan session', async () => {
     pauseReason: { type: 'tray-empty' },
   });
 
-  vi.spyOn(scanner, 'scanSheets').mockImplementationOnce(() => {
+  vi.spyOn(scanner, 'startBatch').mockImplementationOnce(() => {
     throw new Error('scanner unavailable');
   });
   await machine.resumeBatch();

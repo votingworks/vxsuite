@@ -4,7 +4,7 @@ import type { HmpbBallotPaperSize } from '@votingworks/types';
 export interface BatchScanner {
   isAttached(): boolean;
   isImprinterDetected(): Promise<boolean>;
-  scanSheets(options?: ScanOptions): BatchControl;
+  startBatch(options?: ScanOptions): BatchControl;
 }
 
 export interface ScanOptions {
