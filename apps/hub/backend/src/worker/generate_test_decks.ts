@@ -23,6 +23,7 @@ import {
 import { assert, assertDefined, iter } from '@votingworks/basics';
 import path from 'node:path';
 import z from 'zod/v4';
+import { Archiver } from '@votingworks/election-definition-backend/election-package';
 import {
   generateTestDeckBallots,
   type TestDeckBallot,
@@ -37,7 +38,6 @@ import {
   createPrecinctTestDeck,
   createTestDeckTallyReports,
 } from '../test_decks.js';
-import { Archiver } from './zip.js';
 
 export interface GenerateTestDecksPayload {
   electionId: ElectionId;

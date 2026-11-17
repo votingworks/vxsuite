@@ -10,6 +10,10 @@
       "types": "./build/index.d.ts",
       "default": "./build/index.js"
     },
+    "./election-package": {
+      "types": "./build/election_package/index.d.ts",
+      "default": "./build/election_package/index.js"
+    },
     "./test-utils": {
       "types": "./build/test_utils.d.ts",
       "default": "./build/test_utils.js"
@@ -33,9 +37,11 @@
     "type-check:self": "rm -f tsconfig.tsbuildinfo && tsc -p tsconfig.json"
   },
   "dependencies": {
+    "@types/archiver": "8.0.0",
     "@votingworks/basics": "workspace:*",
     "@votingworks/hmpb": "workspace:*",
     "@votingworks/types": "workspace:*",
+    "archiver": "8.0.0",
     "nanoid": "^3.3.20",
     "zod": "4.6.6"
   },
@@ -43,6 +49,7 @@
     "@types/node": "24.19.2",
     "@vitest/coverage-istanbul": "5.0.2",
     "@votingworks/coverage-check": "workspace:*",
+    "@votingworks/fixtures": "workspace:*",
     "eslint-plugin-vx": "workspace:*",
     "vitest": "5.0.2"
   },
