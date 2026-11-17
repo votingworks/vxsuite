@@ -68,6 +68,11 @@ import { constructAuthMachineState } from '../util/auth.js';
 import { buildExporter } from '../util/exporter.js';
 import type { Workspace } from '../util/workspace.js';
 import { createEnglishOnlyTranslator } from './english_only_translator.js';
+import {
+  createFinalizeMockup,
+  type FinalizedBallotsKind,
+  type FinalizeStatus,
+} from './finalize_mockup.js';
 import { getMachineState, isElectionDefinitionEnabled } from './state.js';
 import {
   exportTranslations,
@@ -180,6 +185,7 @@ function createElectionDefinitionApiMethods({
   printer: Printer;
 }) {
   const { store } = workspace;
+  const finalizeMockup = createFinalizeMockup();
 
   function describeProof(input: BallotPreviewInput): string {
     return `${input.ballotMode} ${input.ballotType} ballot proof for ballot style ${input.ballotStyleId} and precinct ${input.precinctId} in election definition ${input.electionId}`;
@@ -249,6 +255,7 @@ function createElectionDefinitionApiMethods({
     async deleteElection(input: ElectionInput): Promise<void> {
       loadInProgressElectionInfo(input);
       store.electionDefinition.deleteInProgressElection();
+      finalizeMockup.reset();
       await logger.logAsCurrentRole(LogEventId.ElectionDefinitionDiscarded, {
         message: `Discarded election definition ${input.electionId}.`,
         disposition: 'success',
@@ -642,6 +649,42 @@ function createElectionDefinitionApiMethods({
         message: `${
           exportResult.isOk() ? 'Saved' : 'Failed to save'
         } ${describeProof(input)} to ${input.filename} on the USB drive.`,
+        path: input.filename,
+      });
+      return exportResult;
+    },
+
+    getFinalizeStatus(input: ElectionInput): FinalizeStatus {
+      loadInProgressElectionInfo(input);
+      return finalizeMockup.getStatus(input.electionId);
+    },
+
+    finalizeElection(input: ElectionInput): void {
+      loadInProgressElectionInfo(input);
+      finalizeMockup.start(
+        input.electionId,
+        store.electionDefinition.listBallotStyles(input.electionId)
+      );
+    },
+
+    async saveFinalizedBallots(
+      input: ElectionInput & { kind: FinalizedBallotsKind; filename: string }
+    ): Promise<ExportDataResult> {
+      loadInProgressElectionInfo(input);
+      assert(
+        finalizeMockup.getStatus(input.electionId).status === 'finalized',
+        'Election definition is not finalized'
+      );
+      const exportResult = await buildExporter(usbDrive).exportDataToUsbDrive(
+        '',
+        input.filename,
+        `Mockup ${input.kind} ballots for election definition ${input.electionId}.\n`
+      );
+      await logger.logAsCurrentRole(LogEventId.FileSaved, {
+        disposition: exportResult.isOk() ? 'success' : 'failure',
+        message: `${
+          exportResult.isOk() ? 'Saved' : 'Failed to save'
+        } ${input.kind} ballots for election definition ${input.electionId} to ${input.filename} on the USB drive.`,
         path: input.filename,
       });
       return exportResult;

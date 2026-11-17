@@ -1375,3 +1375,40 @@ export const saveBallotPreviewPdf = {
     return useMutation(apiClient.saveBallotPreviewPdf);
   },
 } as const;
+
+function getFinalizeStatusQueryKey(electionId: ElectionId): QueryKey {
+  return ['getFinalizeStatus', electionId];
+}
+
+export const getFinalizeStatus = {
+  queryKey: getFinalizeStatusQueryKey,
+  usePollingQuery(electionId: ElectionId) {
+    const apiClient = useElectionDefinitionApiClient();
+    return usePollingQuery(
+      getFinalizeStatusQueryKey(electionId),
+      () => apiClient.getFinalizeStatus({ electionId }),
+      DEFAULT_QUERY_REFETCH_INTERVAL
+    );
+  },
+} as const;
+
+export const finalizeElection = {
+  useMutation() {
+    const apiClient = useElectionDefinitionApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.finalizeElection, {
+      async onSuccess(_data, { electionId }) {
+        await queryClient.invalidateQueries(
+          getFinalizeStatusQueryKey(electionId)
+        );
+      },
+    });
+  },
+} as const;
+
+export const saveFinalizedBallots = {
+  useMutation() {
+    const apiClient = useElectionDefinitionApiClient();
+    return useMutation(apiClient.saveFinalizedBallots);
+  },
+} as const;

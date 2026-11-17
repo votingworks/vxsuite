@@ -12,5 +12,9 @@ export function getNavItems(electionId: ElectionId): NavItem[] {
       label: 'Proof Ballots',
       routerPath: routerPaths.proofBallotsForElection(electionId),
     },
+    {
+      label: 'Finalize',
+      routerPath: routerPaths.finalizeForElection(electionId),
+    },
   ];
 }

@@ -23,6 +23,9 @@ export const routerPaths = {
     `/election-definition/${electionId}/parties`,
   electionDefinitionContests: (electionId: ElectionId): string =>
     `/election-definition/${electionId}/contests`,
+  finalize: '/finalize',
+  finalizeForElection: (electionId: ElectionId): string =>
+    `/finalize/${electionId}`,
   proofBallots: '/proof-ballots',
   proofBallotsForElection: (electionId: ElectionId): string =>
     `/proof-ballots/${electionId}`,

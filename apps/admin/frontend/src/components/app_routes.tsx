@@ -49,6 +49,7 @@ import { AdjudicationStartScreen } from '../screens/adjudication_start_screen.js
 import { BallotAdjudicationScreenWrapper as BallotAdjudicationScreen } from '../screens/ballot_adjudication_screen.js';
 import { WriteInCandidatesScreen } from '../screens/write_in_candidates_screen.js';
 import { ElectionDefinitionScreen } from '../election_definition/election_definition_screen.js';
+import { FinalizeScreen } from '../election_definition/finalize_screen.js';
 import { ProofBallotsScreen } from '../election_definition/proof_ballots_screen.js';
 import { reportUnexpectedError } from '../logger.js';
 import { CvrDataRefresher } from './cvr_data_refresher.js';
@@ -140,7 +141,11 @@ export function AppRoutes(): JSX.Element | null {
         </Route>
         {isElectionDefinitionEnabled && (
           <Route
-            path={[routerPaths.electionDefinition, routerPaths.proofBallots]}
+            path={[
+              routerPaths.electionDefinition,
+              routerPaths.proofBallots,
+              routerPaths.finalize,
+            ]}
           >
             <ElectionDefinitionContextProvider
               api={electionDefinitionApi}
@@ -152,6 +157,9 @@ export function AppRoutes(): JSX.Element | null {
                 </Route>
                 <Route path={routerPaths.proofBallots}>
                   <ProofBallotsScreen />
+                </Route>
+                <Route path={routerPaths.finalize}>
+                  <FinalizeScreen />
                 </Route>
               </Switch>
             </ElectionDefinitionContextProvider>

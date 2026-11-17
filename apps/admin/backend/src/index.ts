@@ -14,6 +14,10 @@ export type { BackupProgressEvent } from './backup/progress.js';
 export type { ClientApi } from './client_app.js';
 export type { ElectionDefinitionApi } from './election_definition/api.js';
 export type {
+  FinalizedBallotsKind,
+  FinalizeStatus,
+} from './election_definition/finalize_mockup.js';
+export type {
   BackupListing,
   AvailableBackup,
   RestoreApi,
