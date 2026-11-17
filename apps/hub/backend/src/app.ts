@@ -93,7 +93,9 @@ import {
   type PrecinctCreate,
   type PrecinctDelete,
   type PrecinctUpdate,
+  regenerateElectionIds,
   type SetPollingPlaceError,
+  splitCandidateName,
   type StateFeaturesConfig,
 } from '@votingworks/election-definition-backend';
 import type {
@@ -129,11 +131,7 @@ import {
   authEnabled,
 } from './globals.js';
 import { defaultBallotTemplate } from './ballots.js';
-import {
-  regenerateElectionIds,
-  splitCandidateName,
-  userCanAccessJurisdiction,
-} from './utils.js';
+import { userCanAccessJurisdiction } from './utils.js';
 import { getUserFeaturesConfig, type UserFeaturesConfig } from './features.js';
 import { QaConfig } from './qa_config.js';
 import { rootDebug } from './debug.js';
