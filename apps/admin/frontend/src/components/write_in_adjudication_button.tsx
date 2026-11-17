@@ -66,7 +66,7 @@ interface Props {
   onInputFocus: () => void;
   officialCandidates: Candidate[];
   writeInCandidates: Candidate[];
-  suggestedWriteInNames: string[];
+  newWriteInNamesFromOtherContests: string[];
   hasInvalidEntry: boolean;
   areWriteInCandidatesQualified: boolean;
   caption?: React.ReactNode;
@@ -86,7 +86,7 @@ export const WriteInAdjudicationButton = forwardRef<HTMLDivElement, Props>(
       onInputBlur,
       officialCandidates,
       writeInCandidates,
-      suggestedWriteInNames,
+      newWriteInNamesFromOtherContests,
       hasInvalidEntry,
       areWriteInCandidatesQualified,
       caption,
@@ -131,7 +131,7 @@ export const WriteInAdjudicationButton = forwardRef<HTMLDivElement, Props>(
 
     const allCandidates = writeInCandidates.concat(officialCandidates);
     const candidateNames = [
-      ...suggestedWriteInNames,
+      ...newWriteInNamesFromOtherContests,
       ...allCandidates.map((c) => c.name),
     ];
     const filteredNames = inputValue

@@ -320,7 +320,7 @@ export function ContestAdjudicationScreen({
       normalizeWriteInName(c.name)
     )
   );
-  const suggestedWriteInNames = areWriteInCandidatesQualified
+  const newWriteInNamesNotInContest = areWriteInCandidatesQualified
     ? []
     : newWriteInNamesFromOtherContests.filter(
         (name) => !namesInContest.has(normalizeWriteInName(name))
@@ -584,7 +584,7 @@ export function ContestAdjudicationScreen({
                       (isValidCandidate(writeInStatus) &&
                         writeInStatus.name === c.name)
                   )}
-                  suggestedWriteInNames={suggestedWriteInNames.filter(
+                  newWriteInNamesFromOtherContests={newWriteInNamesNotInContest.filter(
                     (name) =>
                       !selectedCandidateNames.includes(name) ||
                       (isValidCandidate(writeInStatus) &&
