@@ -123,54 +123,49 @@ export function MockLoadButton({
   );
 }
 
-export function ManageLanguagesButton(): JSX.Element {
+export function ManageLanguagesModal({
+  onClose,
+}: {
+  onClose: () => void;
+}): JSX.Element {
   const { enabledLanguages } = useLanguageMockupState();
-  const [draft, setDraft] = useState<readonly LanguageCode[]>();
+  const [draft, setDraft] = useState<readonly LanguageCode[]>(enabledLanguages);
 
   return (
-    <React.Fragment>
-      <Button icon="Language" onPress={() => setDraft(enabledLanguages)}>
-        Manage Languages
-      </Button>
-      {draft && (
-        <Modal
-          title="Manage Languages"
-          content={
-            <div style={{ display: 'grid', gap: '0.5rem' }}>
-              {ALL_LANGUAGES.map((code) => (
-                <CheckboxButton
-                  key={code}
-                  label={languageName(code)}
-                  isChecked={draft.includes(code)}
-                  disabled={code === LanguageCode.ENGLISH}
-                  onChange={(isChecked) =>
-                    setDraft(
-                      isChecked
-                        ? [...draft, code]
-                        : draft.filter((c) => c !== code)
-                    )
-                  }
-                />
-              ))}
-            </div>
-          }
-          actions={
-            <React.Fragment>
-              <Button
-                variant="primary"
-                onPress={() => {
-                  setEnabledLanguages(draft);
-                  setDraft(undefined);
-                }}
-              >
-                Save
-              </Button>
-              <Button onPress={() => setDraft(undefined)}>Cancel</Button>
-            </React.Fragment>
-          }
-          onOverlayClick={() => setDraft(undefined)}
-        />
-      )}
-    </React.Fragment>
+    <Modal
+      title="Manage Languages"
+      content={
+        <div style={{ display: 'grid', gap: '0.5rem' }}>
+          {ALL_LANGUAGES.map((code) => (
+            <CheckboxButton
+              key={code}
+              label={languageName(code)}
+              isChecked={draft.includes(code)}
+              disabled={code === LanguageCode.ENGLISH}
+              onChange={(isChecked) =>
+                setDraft(
+                  isChecked ? [...draft, code] : draft.filter((c) => c !== code)
+                )
+              }
+            />
+          ))}
+        </div>
+      }
+      actions={
+        <React.Fragment>
+          <Button
+            variant="primary"
+            onPress={() => {
+              setEnabledLanguages(draft);
+              onClose();
+            }}
+          >
+            Save
+          </Button>
+          <Button onPress={onClose}>Cancel</Button>
+        </React.Fragment>
+      }
+      onOverlayClick={onClose}
+    />
   );
 }

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Redirect, Route, Switch, useParams } from 'react-router-dom';
 import { type ElectionId, LanguageCode } from '@votingworks/types';
-import { Callout, Caption, H3, Icons } from '@votingworks/ui';
+import { Button, Callout, Caption, H3, Icons } from '@votingworks/ui';
 import { NavigationScreen } from '../components/navigation_screen.js';
 import { routerPaths } from '../router_paths.js';
 import { getCurrentInProgressElection } from '../api.js';
@@ -15,7 +15,7 @@ import {
   useLanguageMockupState,
 } from './language_mockup.js';
 import {
-  ManageLanguagesButton,
+  ManageLanguagesModal,
   MockLoadButton,
   MockSaveButton,
   todayStamp,
@@ -33,6 +33,10 @@ function TranslationsContent({
     (code) => code !== LanguageCode.ENGLISH
   );
   const [selectedLanguage, setSelectedLanguage] = useState<LanguageCode>();
+  const [isManagingLanguages, setIsManagingLanguages] = useState(false);
+  const manageLanguagesModal = isManagingLanguages && (
+    <ManageLanguagesModal onClose={() => setIsManagingLanguages(false)} />
+  );
   const languageCode =
     selectedLanguage && languageOptions.includes(selectedLanguage)
       ? selectedLanguage
@@ -50,8 +54,11 @@ function TranslationsContent({
           </div>
         </Callout>
         <div style={{ marginTop: '1rem' }}>
-          <ManageLanguagesButton />
+          <Button icon="Language" onPress={() => setIsManagingLanguages(true)}>
+            Manage Languages
+          </Button>
         </div>
+        {manageLanguagesModal}
       </div>
     );
   }
@@ -60,66 +67,69 @@ function TranslationsContent({
   const name = languageName(languageCode);
 
   return (
-    <StringBrowser
-      languageCode={languageCode}
-      languageOptions={languageOptions}
-      onChangeLanguage={setSelectedLanguage}
-      groups={groups}
-      lastUpdated={mockupState.translations[languageCode]?.updatedAt}
-      status={
-        missing > 0 ? (
-          <span>
-            <Icons.Warning color="warning" /> {missing} translation
-            {missing === 1 ? '' : 's'} missing
-          </span>
-        ) : (
-          <span>
-            <Icons.Done color="success" /> All strings translated
-          </span>
-        )
-      }
-      languageActions={<ManageLanguagesButton />}
-      actions={
-        <React.Fragment>
-          <MockSaveButton
-            label="Save Translations"
-            fileType={`${name} translations file`}
-            fileTypeTitle="Translations"
-            filename={`translations-${languageCode}-${todayStamp()}.csv`}
-          />
-          <MockLoadButton
-            label="Load Translations"
-            loadingTitle="Loading Translations"
-            loadedTitle="Translations Loaded"
-            onLoad={() => {
-              markTranslationsLoaded(languageCode);
-              const loaded = groups
-                .flatMap((group) => group.strings)
-                .filter(
-                  (s) => getTranslation(languageCode, s.english) !== undefined
-                ).length;
-              return `${loaded} translations loaded for ${name}.`;
-            }}
-          />
-        </React.Fragment>
-      }
-      isMissing={(s) => getTranslation(languageCode, s.english) === undefined}
-      renderDetail={(s) => (
-        <React.Fragment>
-          <DetailCard>
-            <Caption weight="semiBold">English</Caption>
-            <DetailText string={s} text={s.english} />
-          </DetailCard>
-          <DetailCard>
-            <Caption weight="semiBold">Translation</Caption>
-            <DetailText
-              string={s}
-              text={getTranslation(languageCode, s.english)}
+    <React.Fragment>
+      <StringBrowser
+        languageCode={languageCode}
+        languageOptions={languageOptions}
+        onChangeLanguage={setSelectedLanguage}
+        groups={groups}
+        lastUpdated={mockupState.translations[languageCode]?.updatedAt}
+        status={
+          missing > 0 ? (
+            <span>
+              <Icons.Warning color="warning" /> {missing} translation
+              {missing === 1 ? '' : 's'} missing
+            </span>
+          ) : (
+            <span>
+              <Icons.Done color="success" /> All strings translated
+            </span>
+          )
+        }
+        onManageLanguages={() => setIsManagingLanguages(true)}
+        actions={
+          <React.Fragment>
+            <MockSaveButton
+              label="Save Translations"
+              fileType={`${name} translations file`}
+              fileTypeTitle="Translations"
+              filename={`translations-${languageCode}-${todayStamp()}.csv`}
             />
-          </DetailCard>
-        </React.Fragment>
-      )}
-    />
+            <MockLoadButton
+              label="Load Translations"
+              loadingTitle="Loading Translations"
+              loadedTitle="Translations Loaded"
+              onLoad={() => {
+                markTranslationsLoaded(languageCode);
+                const loaded = groups
+                  .flatMap((group) => group.strings)
+                  .filter(
+                    (s) => getTranslation(languageCode, s.english) !== undefined
+                  ).length;
+                return `${loaded} translations loaded for ${name}.`;
+              }}
+            />
+          </React.Fragment>
+        }
+        isMissing={(s) => getTranslation(languageCode, s.english) === undefined}
+        renderDetail={(s) => (
+          <React.Fragment>
+            <DetailCard>
+              <Caption weight="semiBold">English</Caption>
+              <DetailText string={s} text={s.english} />
+            </DetailCard>
+            <DetailCard>
+              <Caption weight="semiBold">Translation</Caption>
+              <DetailText
+                string={s}
+                text={getTranslation(languageCode, s.english)}
+              />
+            </DetailCard>
+          </React.Fragment>
+        )}
+      />
+      {manageLanguagesModal}
+    </React.Fragment>
   );
 }
 

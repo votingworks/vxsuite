@@ -8,6 +8,8 @@ import {
   languageName,
 } from './language_mockup.js';
 
+const MANAGE_LANGUAGES = 'manage-languages' as const;
+
 const Toolbar = styled.div`
   display: grid;
   gap: 0.5rem 1rem;
@@ -171,7 +173,7 @@ export interface StringBrowserProps {
   languageCode: LanguageCode;
   languageOptions: readonly LanguageCode[];
   onChangeLanguage: (languageCode: LanguageCode) => void;
-  languageActions?: React.ReactNode;
+  onManageLanguages?: () => void;
   actions: React.ReactNode;
   status: React.ReactNode;
   lastUpdated?: Date;
@@ -184,7 +186,7 @@ export function StringBrowser({
   languageCode,
   languageOptions,
   onChangeLanguage,
-  languageActions,
+  onManageLanguages,
   actions,
   status,
   lastUpdated,
@@ -213,17 +215,27 @@ export function StringBrowser({
     <Layout>
       <Toolbar>
         <LanguageControls>
-          <SearchSelect<LanguageCode>
+          <SearchSelect<LanguageCode | typeof MANAGE_LANGUAGES>
             aria-label="Language"
             value={languageCode}
-            options={languageOptions.map((code) => ({
-              value: code,
-              label: languageName(code),
-            }))}
-            onChange={(value) => value && onChangeLanguage(value)}
+            options={[
+              ...languageOptions.map((code) => ({
+                value: code,
+                label: languageName(code),
+              })),
+              ...(onManageLanguages
+                ? [{ value: MANAGE_LANGUAGES, label: 'Manage Languages…' }]
+                : []),
+            ]}
+            onChange={(value) => {
+              if (value === MANAGE_LANGUAGES) {
+                onManageLanguages?.();
+              } else if (value) {
+                onChangeLanguage(value);
+              }
+            }}
             style={{ width: '16rem' }}
           />
-          {languageActions}
         </LanguageControls>
         <ToolbarActions>{actions}</ToolbarActions>
         <ToolbarStatus>{status}</ToolbarStatus>
