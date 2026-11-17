@@ -44,7 +44,9 @@ import {
   throwIllegalValue,
 } from '@votingworks/basics';
 import {
+  addPollingPlacesForExport,
   Archiver,
+  formatElectionForExport,
   needsColorNormalization,
   normalizeBallotColorModeForPrinting,
   renderCalibrationSheetPdf,
@@ -54,10 +56,6 @@ import { Readable } from 'node:stream';
 import { createHash, randomUUID as uuid } from 'node:crypto';
 import { pipeline } from 'node:stream/promises';
 import type { EmitProgressFunction, WorkerContext } from './context.js';
-import {
-  addPollingPlacesForExport,
-  formatElectionForExport,
-} from '../ballots.js';
 import { CircleCiClient } from '../circleci_client.js';
 import type { FileStorageClient } from '../file_storage_client.js';
 import { baseUrl } from '../globals.js';

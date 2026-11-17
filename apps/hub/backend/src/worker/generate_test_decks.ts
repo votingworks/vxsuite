@@ -23,17 +23,17 @@ import {
 import { assert, assertDefined, iter } from '@votingworks/basics';
 import path from 'node:path';
 import z from 'zod/v4';
-import { Archiver } from '@votingworks/election-definition-backend/election-package';
+import {
+  addPollingPlacesForExport,
+  Archiver,
+  formatElectionForExport,
+} from '@votingworks/election-definition-backend/election-package';
 import {
   generateTestDeckBallots,
   type TestDeckBallot,
   createSummaryBallotTestDeck,
 } from '@votingworks/test-decks';
 import type { EmitProgressFunction, WorkerContext } from './context.js';
-import {
-  addPollingPlacesForExport,
-  formatElectionForExport,
-} from '../ballots.js';
 import {
   createPrecinctTestDeck,
   createTestDeckTallyReports,
