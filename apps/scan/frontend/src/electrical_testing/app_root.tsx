@@ -13,6 +13,7 @@ import {
   Screen,
   SignedHashValidationButton,
   HeadphoneCalibrationButton,
+  HWTA_SAFE_HEADPHONE_VOLUME_RATIO,
 } from '@votingworks/ui';
 import { format } from '@votingworks/utils';
 import { DateTime } from 'luxon';
@@ -515,9 +516,10 @@ function AudioControls(): JSX.Element {
     'Speaker'
   );
 
-  const headphonesSuccess = useSoundControls('success');
+  const headphonesSuccess = useSoundControls('success', {
+    volume: HWTA_SAFE_HEADPHONE_VOLUME_RATIO,
+  });
   const playSoundSpeaker = api.playSound.useMutation().mutate;
-  const setVolumeMutation = api.setHeadphoneVolume.useMutation();
 
   const anyOutputActive = !calibrating && (headphonesOn || speakerOn);
   useInterval(
@@ -586,14 +588,8 @@ function AudioControls(): JSX.Element {
           onBegin={() => {
             headphonesSuccess.stop();
             setCalibrating(true);
-            // Calibration must be performed against max system volume
-            setVolumeMutation.mutate(100);
           }}
-          onEnd={() => {
-            // Return to a safe listening level
-            setVolumeMutation.mutate(40);
-            setCalibrating(false);
-          }}
+          onEnd={() => setCalibrating(false)}
         />
       </Row>
     </Column>
