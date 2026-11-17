@@ -167,6 +167,7 @@ test('diagnostic records', async () => {
   ).toBeNull();
   vi.useFakeTimers({
     now: 0,
+    toFake: ['Date'],
   });
   await apiClient.addDiagnosticRecord({
     type: 'mark-scan-accessible-controller',
