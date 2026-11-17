@@ -49,7 +49,9 @@ import { AdjudicationStartScreen } from '../screens/adjudication_start_screen.js
 import { BallotAdjudicationScreenWrapper as BallotAdjudicationScreen } from '../screens/ballot_adjudication_screen.js';
 import { WriteInCandidatesScreen } from '../screens/write_in_candidates_screen.js';
 import { ElectionDefinitionScreen } from '../election_definition/election_definition_screen.js';
+import { AudioScreen } from '../election_definition/audio_screen.js';
 import { FinalizeScreen } from '../election_definition/finalize_screen.js';
+import { TranslationsScreen } from '../election_definition/translations_screen.js';
 import { ProofBallotsScreen } from '../election_definition/proof_ballots_screen.js';
 import { reportUnexpectedError } from '../logger.js';
 import { CvrDataRefresher } from './cvr_data_refresher.js';
@@ -143,6 +145,8 @@ export function AppRoutes(): JSX.Element | null {
           <Route
             path={[
               routerPaths.electionDefinition,
+              routerPaths.translations,
+              routerPaths.audio,
               routerPaths.proofBallots,
               routerPaths.finalize,
             ]}
@@ -157,6 +161,12 @@ export function AppRoutes(): JSX.Element | null {
                 </Route>
                 <Route path={routerPaths.proofBallots}>
                   <ProofBallotsScreen />
+                </Route>
+                <Route path={routerPaths.translations}>
+                  <TranslationsScreen />
+                </Route>
+                <Route path={routerPaths.audio}>
+                  <AudioScreen />
                 </Route>
                 <Route path={routerPaths.finalize}>
                   <FinalizeScreen />

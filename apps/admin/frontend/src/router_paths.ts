@@ -23,6 +23,11 @@ export const routerPaths = {
     `/election-definition/${electionId}/parties`,
   electionDefinitionContests: (electionId: ElectionId): string =>
     `/election-definition/${electionId}/contests`,
+  translations: '/translations',
+  translationsForElection: (electionId: ElectionId): string =>
+    `/translations/${electionId}`,
+  audio: '/audio',
+  audioForElection: (electionId: ElectionId): string => `/audio/${electionId}`,
   finalize: '/finalize',
   finalizeForElection: (electionId: ElectionId): string =>
     `/finalize/${electionId}`,

@@ -32,6 +32,13 @@ import {
   saveFinalizedBallots,
 } from '../api.js';
 import { getNavItems } from './nav_items.js';
+import {
+  countMissingAudio,
+  countMissingTranslations,
+  languageName,
+  useElectionStrings,
+  useLanguageMockupState,
+} from './language_mockup.js';
 
 const Content = styled.div`
   display: flex;
@@ -158,6 +165,8 @@ function FinalizeStatusPanel({
   const listPollingPlacesQuery =
     electionDefinitionApi.listPollingPlaces.useQuery(electionId);
   const finalizeElectionMutation = finalizeElection.useMutation();
+  const { enabledLanguages } = useLanguageMockupState();
+  const stringGroups = useElectionStrings(electionId);
 
   if (
     !getFinalizeStatusQuery.isSuccess ||
@@ -165,7 +174,8 @@ function FinalizeStatusPanel({
     !getStateFeaturesQuery.isSuccess ||
     !listPrecinctsQuery.isSuccess ||
     !getRegisteredVoterCountsQuery.isSuccess ||
-    !listPollingPlacesQuery.isSuccess
+    !listPollingPlacesQuery.isSuccess ||
+    !stringGroups
   ) {
     return null;
   }
@@ -246,6 +256,34 @@ function FinalizeStatusPanel({
         Every precinct must be covered by an absentee polling place, so that
         centrally-scanned ballots have a location to be tabulated under. Add or
         edit absentee polling places to cover all precincts before finalizing.
+      </Callout>
+    );
+  }
+
+  const incompleteTranslations = enabledLanguages.filter(
+    (code) => countMissingTranslations(stringGroups, code) > 0
+  );
+  if (incompleteTranslations.length > 0) {
+    return (
+      <Callout
+        color="neutral"
+        icon={<Icons.Info />}
+        title="Translations Incomplete"
+      >
+        Load complete translations for{' '}
+        {incompleteTranslations.map(languageName).join(', ')} before finalizing.
+      </Callout>
+    );
+  }
+
+  const incompleteAudio = enabledLanguages.filter(
+    (code) => countMissingAudio(stringGroups, code) > 0
+  );
+  if (incompleteAudio.length > 0) {
+    return (
+      <Callout color="neutral" icon={<Icons.Info />} title="Audio Incomplete">
+        Load audio for {incompleteAudio.map(languageName).join(', ')} before
+        finalizing.
       </Callout>
     );
   }

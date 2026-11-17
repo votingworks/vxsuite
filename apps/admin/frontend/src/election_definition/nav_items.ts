@@ -9,6 +9,14 @@ export function getNavItems(electionId: ElectionId): NavItem[] {
       routerPath: routerPaths.electionDefinitionForElection(electionId),
     },
     {
+      label: 'Translations',
+      routerPath: routerPaths.translationsForElection(electionId),
+    },
+    {
+      label: 'Audio',
+      routerPath: routerPaths.audioForElection(electionId),
+    },
+    {
       label: 'Proof Ballots',
       routerPath: routerPaths.proofBallotsForElection(electionId),
     },
