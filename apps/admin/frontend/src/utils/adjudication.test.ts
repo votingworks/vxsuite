@@ -92,7 +92,7 @@ test('newWriteInNamesFromOtherContests', () => {
       existingWriteInCandidates,
       'zoo-council-mammal'
     )
-  ).toEqual(['joe  schmo ']);
+  ).toEqual([]);
   expect(
     newWriteInNamesFromOtherContests(adjudicatedContests, [], 'fishing')
   ).toEqual(['Joe Schmo', 'John Doe']);

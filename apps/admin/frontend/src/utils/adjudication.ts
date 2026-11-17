@@ -51,15 +51,17 @@ export function newWriteInNamesFromOtherContests(
       if (
         option.type !== 'write-in-option' ||
         !option.hasVote ||
-        option.candidateType !== 'write-in-candidate' ||
-        existingWriteInCandidates.some(
-          (c) => c.contestId === contestId && c.name === option.candidateName
-        )
+        option.candidateType !== 'write-in-candidate'
       ) {
         continue;
       }
       const normalizedName = normalizeWriteInName(option.candidateName);
-      if (!namesByNormalizedName.has(normalizedName)) {
+      const isExistingCandidate = existingWriteInCandidates.some(
+        (c) =>
+          c.contestId === contestId &&
+          normalizeWriteInName(c.name) === normalizedName
+      );
+      if (!isExistingCandidate && !namesByNormalizedName.has(normalizedName)) {
         namesByNormalizedName.set(normalizedName, option.candidateName);
       }
     }
