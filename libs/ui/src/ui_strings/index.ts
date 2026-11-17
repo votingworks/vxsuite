@@ -1,5 +1,6 @@
 export * from './app_strings.js';
 export * from './audio_only.js';
+export { HWTA_SAFE_HEADPHONE_VOLUME_RATIO } from './audio_volume.js';
 export * from './date_string.js';
 export * from './election_strings.js';
 export * from './headphone_calibration_button.js';

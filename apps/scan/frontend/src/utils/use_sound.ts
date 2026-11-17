@@ -1,18 +1,20 @@
 // @coverage-defer-file
 import useSoundLib from 'use-sound';
 
-export type SoundType = 'success' | 'warning' | 'error' | 'alarm';
-
-export function useSound(sound: SoundType): () => void {
-  const [playSound] = useSoundLib(`/sounds/${sound}.mp3`);
-  return playSound;
+export interface SoundOptions {
+  volume?: number;
 }
 
-export function useSoundControls(sound: SoundType): {
+export type SoundType = 'success' | 'warning' | 'error' | 'alarm';
+
+export function useSoundControls(
+  sound: SoundType,
+  opts: SoundOptions = {}
+): {
   play: () => void;
   stop: () => void;
 } {
-  const [playSound, controls] = useSoundLib(`/sounds/${sound}.mp3`);
+  const [playSound, controls] = useSoundLib(`/sounds/${sound}.mp3`, opts);
 
   return {
     play: playSound,

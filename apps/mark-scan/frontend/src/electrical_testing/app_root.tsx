@@ -2,6 +2,7 @@ import {
   CpuMetricsDisplay,
   ElectricalTestingScreen,
   HeadphoneCalibrationButton,
+  HWTA_SAFE_HEADPHONE_VOLUME_RATIO,
   Icons,
   InputControls,
   MinTouchDurationGuard,
@@ -34,7 +35,9 @@ export function AppRoot(): JSX.Element {
 
   const [calibratingHeadphones, setCalibratingHeadphones] = useState(false);
   const [isSoundEnabled, setIsSoundEnabled] = useState(true);
-  const playSound = useSound('success-5s');
+  const playSound = useSound('success-5s', {
+    volume: HWTA_SAFE_HEADPHONE_VOLUME_RATIO,
+  });
 
   function togglePaperHandlerTaskRunning() {
     setPaperHandlerTaskRunningMutation.mutate(

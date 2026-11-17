@@ -19,6 +19,17 @@ const MIN_VOLUME_DB_SPL = 20;
 const MAX_VOLUME_DB_SPL = 100;
 
 /**
+ * The Hardware Testing Apps play UI sounds with volume set directly on the web
+ * {@link Audio} object and don't (currently) require the more precise gain
+ * control used for screen reader audio. This value is exposed here to avoid
+ * confusion with the latter.
+ *
+ * This level is set to a reasonably safe listening level, based on the fact
+ * that VxSuite audio devices are set to 100% system volume.
+ */
+export const HWTA_SAFE_HEADPHONE_VOLUME_RATIO = 0.4;
+
+/**
  * Screen reader volume levels, dividing the 20 dbSPL - 100 dbSPL range
  * specified in VVSG 2.0 into 10 equal steps.
  *

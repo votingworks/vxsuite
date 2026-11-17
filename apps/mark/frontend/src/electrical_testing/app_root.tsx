@@ -4,6 +4,7 @@ import {
   CpuMetricsDisplay,
   ElectricalTestingScreen,
   HeadphoneCalibrationButton,
+  HWTA_SAFE_HEADPHONE_VOLUME_RATIO,
   Icons,
   InputControls,
 } from '@votingworks/ui';
@@ -20,7 +21,6 @@ import {
   setCardReaderTaskRunning,
   setPrinterTaskRunning,
   setUsbDriveTaskRunning,
-  setHeadphoneVolume,
   systemCallApi,
   useApiClient,
 } from './api.js';
@@ -88,17 +88,13 @@ function AudioControls({
   headphonesEnabled,
   setHeadphonesEnabled,
   setCalibratingHeadphones,
-  playingSpeakerSound,
 }: {
   speakerEnabled: boolean;
   setSpeakerEnabled: (enabled: boolean) => void;
   headphonesEnabled: boolean;
   setHeadphonesEnabled: (enabled: boolean) => void;
   setCalibratingHeadphones: (calibrating: boolean) => void;
-  playingSpeakerSound: boolean;
 }): JSX.Element {
-  const setVolumeMutation = setHeadphoneVolume.useMutation();
-
   return (
     <AudioControlsContainer>
       <CheckboxButton
@@ -113,18 +109,8 @@ function AudioControls({
       />
       <HeadphoneCalibrationButton
         audioUrl="/sounds/tts-sample.mp3"
-        // Avoid setting volume for the speaker instead of headphones.
-        disabled={playingSpeakerSound}
-        onBegin={() => {
-          setCalibratingHeadphones(true);
-          // Calibration must be performed against max system volume
-          setVolumeMutation.mutate(100);
-        }}
-        onEnd={() => {
-          // Return to a safe listening level
-          setVolumeMutation.mutate(40);
-          setCalibratingHeadphones(false);
-        }}
+        onBegin={() => setCalibratingHeadphones(true)}
+        onEnd={() => setCalibratingHeadphones(false)}
       />
     </AudioControlsContainer>
   );
@@ -146,7 +132,6 @@ export function AppRoot(): JSX.Element {
   const powerDownMutation = systemCallApi.powerDown.useMutation();
 
   const playSpeakerSoundMutation = api.playSpeakerSound.useMutation();
-  const playingSpeakerSound = playSpeakerSoundMutation.status === 'loading';
   const playSpeakerSound = playSpeakerSoundMutation.mutate;
 
   const [speakerEnabled, setSpeakerEnabled] = useState(true);
@@ -157,7 +142,9 @@ export function AppRoot(): JSX.Element {
   const nextOutputRef = useRef<'speaker' | 'headphones'>('speaker');
 
   // Headphones play through the frontend
-  const playSoundHeadphones = useSound('success-5s');
+  const playSoundHeadphones = useSound('success-5s', {
+    volume: HWTA_SAFE_HEADPHONE_VOLUME_RATIO,
+  });
 
   const soundsEnabled =
     !calibratingHeadphones && (speakerEnabled || headphonesEnabled);
@@ -301,7 +288,6 @@ export function AppRoot(): JSX.Element {
               headphonesEnabled={headphonesEnabled}
               setHeadphonesEnabled={setHeadphonesEnabled}
               setCalibratingHeadphones={setCalibratingHeadphones}
-              playingSpeakerSound={playingSpeakerSound}
             />
           ),
         },

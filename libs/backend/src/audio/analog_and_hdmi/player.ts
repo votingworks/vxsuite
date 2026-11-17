@@ -8,7 +8,6 @@ import type { NODE_ENV } from '../../globals.js';
 
 export interface PlayerInterface<Sound extends string> {
   setIsScreenReaderEnabled(enabled: boolean): Promise<void>;
-  setHeadphoneVolume(volumePct: number): Promise<void>;
   play(soundName: Sound): Promise<void>;
 }
 
@@ -16,7 +15,6 @@ export interface PlayerInterface<Sound extends string> {
 export function getMockPlayer<Sound extends string>(): PlayerInterface<Sound> {
   return {
     setIsScreenReaderEnabled: () => Promise.resolve(),
-    setHeadphoneVolume: () => Promise.resolve(),
     play: () => Promise.resolve(),
   };
 }
@@ -64,11 +62,6 @@ export class Player<Sound extends string> implements PlayerInterface<Sound> {
     } else {
       await this.card.useSpeaker();
     }
-  }
-
-  // @coverage-defer
-  async setHeadphoneVolume(volumePct: number): Promise<void> {
-    await this.card.setVolume(volumePct);
   }
 
   /**

@@ -35,7 +35,6 @@ describe('newAudioPlayer correctly detects and configures hardware', () => {
 
     const mockPlayer: analogAndHdmi.PlayerInterface<SoundName> = {
       play: () => Promise.reject(new Error('unexpected call')),
-      setHeadphoneVolume: () => Promise.reject(new Error('unexpected call')),
       setIsScreenReaderEnabled: () =>
         Promise.reject(new Error('unexpected call')),
     };
@@ -92,57 +91,6 @@ describe('newAudioPlayer correctly detects and configures hardware', () => {
       nodeEnv: getNodeEnv(),
       sinkName: 'alsa-usb',
       volumePct: DEFAULT_HEADPHONE_VOLUME_PCT,
-    });
-  });
-});
-
-describe('newAudioPlayer allows initial headphone volume override', () => {
-  test('analog/HDMI audio', async () => {
-    vi.mocked(getAudioInfoWithRetry).mockResolvedValue({
-      builtin: { headphonesActive: true, name: 'alsa-pci' },
-    });
-
-    const mockCard = { mock: 'card' } as unknown as AudioCard;
-    vi.spyOn(analogAndHdmi, 'defaultAudioCard').mockResolvedValue(mockCard);
-
-    const mockPlayer: analogAndHdmi.PlayerInterface<SoundName> = {
-      setHeadphoneVolume: vi.fn(() => Promise.resolve()),
-
-      play: () => Promise.reject(new Error('unexpected call')),
-      setIsScreenReaderEnabled: () =>
-        Promise.reject(new Error('unexpected call')),
-    };
-
-    vi.spyOn(analogAndHdmi, 'defaultAudioPlayer').mockReturnValue(mockPlayer);
-
-    const logger = mockLogger({ fn: vi.fn });
-    expect(await newAudioPlayer({ headphoneVolumePct: 40, logger })).toEqual(
-      mockPlayer
-    );
-    expectToHaveBeenCalledWith(vi.mocked(mockPlayer.setHeadphoneVolume), 40);
-  });
-
-  test('USB/HDMI audio', async () => {
-    vi.mocked(getAudioInfoWithRetry).mockResolvedValue({
-      builtin: { headphonesActive: false, name: 'alsa-pci' },
-      usb: { name: 'alsa-usb' },
-    });
-
-    vi.spyOn(usbAndHdmi, 'defaultAudioPlayer').mockResolvedValueOnce({
-      play: () => Promise.reject(new Error('unexpected call')),
-    });
-
-    vi.mocked(setDefaultAudio).mockResolvedValue(ok());
-    vi.mocked(setAudioVolume).mockResolvedValue(ok());
-
-    const logger = mockLogger({ fn: vi.fn });
-    await newAudioPlayer({ headphoneVolumePct: 40, logger });
-
-    expectToHaveBeenCalledWith(vi.mocked(setAudioVolume), {
-      logger,
-      nodeEnv: getNodeEnv(),
-      sinkName: 'alsa-usb',
-      volumePct: 40,
     });
   });
 });

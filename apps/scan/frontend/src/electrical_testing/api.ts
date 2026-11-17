@@ -190,15 +190,6 @@ export const resetScanningSession = {
   },
 } as const;
 
-export const setHeadphoneVolume = {
-  useMutation() {
-    const apiClient = useApiClient();
-    return useMutation((volumePct: number) =>
-      apiClient.setHeadphoneVolume({ volumePct })
-    );
-  },
-} as const;
-
 export const playSound = {
   useMutation: () => appApi.usePlaySoundMutation(useApiClient),
 } as const;
