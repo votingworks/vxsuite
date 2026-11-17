@@ -29,7 +29,11 @@ import {
   stateFeatureConfigs,
 } from '@votingworks/election-definition-backend';
 import { describeElectionDefinitionMethods } from '@votingworks/election-definition-backend/test-utils';
-import { readElectionGeneralDefinition } from '@votingworks/fixtures';
+import {
+  electionCombinedBallotPrimaryFixtures,
+  electionStraightPartyFixtures,
+  readElectionGeneralDefinition,
+} from '@votingworks/fixtures';
 import { renderBallotPreview } from '@votingworks/hmpb';
 import { HP_4001_PRINTER_CONFIG, PrintSides } from '@votingworks/printing';
 import { LogEventId } from '@votingworks/logging';
@@ -37,12 +41,15 @@ import {
   BallotType,
   type CandidateContest,
   type Contest,
+  DEFAULT_SYSTEM_SETTINGS,
+  type Election,
   HmpbBallotPaperSize,
   LanguageCode,
   type Party,
   type PollingPlace,
   type Precinct,
   type StraightPartyContest,
+  type SystemSettings,
   type YesNoContest,
 } from '@votingworks/types';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
@@ -2318,4 +2325,270 @@ test('getElectionPackageRenderingStatus reports whether the built ballot files a
   expect(await api.getElectionPackageRenderingStatus({ electionId })).toEqual(
     expect.objectContaining({ ballotFilesAvailable: true })
   );
+});
+
+describe('createInProgressElectionFromFile', () => {
+  const customSystemSettings: SystemSettings = {
+    ...DEFAULT_SYSTEM_SETTINGS,
+    enableEarlyVoting: true,
+  };
+
+  async function savePackage(): Promise<string> {
+    return saveTmpFile(
+      await createElectionPackageZipArchive({
+        electionDefinition,
+        systemSettings: customSystemSettings,
+      }),
+      '.zip'
+    );
+  }
+
+  test('duplicates an election package with new IDs and its system settings', async () => {
+    const {
+      electionDefinitionApiClient: api,
+      auth,
+      logger,
+      workspace,
+    } = buildTestEnvironment();
+    mockSystemAdministratorAuth(auth);
+    const { election } = electionDefinition;
+    const filePath = await savePackage();
+
+    const electionId = (
+      await api.createInProgressElectionFromFile({ filePath })
+    ).unsafeUnwrap();
+    expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
+      LogEventId.ElectionDefinitionCreated,
+      {
+        message: `Created election definition ${electionId} from ${filePath}.`,
+        disposition: 'success',
+      }
+    );
+    expect(electionId).not.toEqual(election.id);
+    expect(await api.getElectionInfo({ electionId })).toEqual({
+      electionId,
+      type: election.type,
+      isMiCombinedBallotPrimary: false,
+      date: election.date,
+      title: election.title,
+      state: election.state,
+      jurisdictionName: election.jurisdiction.name,
+      seal: election.seal,
+      languageCodes: [LanguageCode.ENGLISH],
+    });
+    expect(
+      workspace.store.electionDefinition.getSystemSettings(electionId)
+    ).toEqual(customSystemSettings);
+
+    const districts = await api.listDistricts({ electionId });
+    expect(districts.map((d) => d.name).sort()).toEqual(
+      election.districts.map((d) => d.name).sort()
+    );
+    expect(districts.map((d) => d.id)).not.toContain(election.districts[0]!.id);
+    expect(await api.listPrecincts({ electionId })).toHaveLength(
+      election.precincts.length
+    );
+    expect(await api.listParties({ electionId })).toHaveLength(
+      election.parties.length
+    );
+    const contests = await api.listContests({ electionId });
+    expect(contests.map((c) => c.title).sort()).toEqual(
+      election.contests.map((c) => c.title).sort()
+    );
+    expect(await api.listPollingPlaces({ electionId })).toHaveLength(
+      election.pollingPlaces.length
+    );
+    expect(await api.getBallotLayoutSettings({ electionId })).toEqual({
+      paperSize: election.ballotLayout.paperSize,
+      compact: false,
+    });
+    expect(await api.listBallotStyles({ electionId })).not.toHaveLength(0);
+  });
+
+  test('duplicates an election file with signature and the state default system settings', async () => {
+    const {
+      electionDefinitionApiClient: api,
+      auth,
+      workspace,
+    } = buildTestEnvironment();
+    mockSystemAdministratorAuth(auth);
+    const election: Election = {
+      ...electionDefinition.election,
+      signature: { image: '<svg>signature</svg>', caption: 'Clerk' },
+    };
+    const filePath = saveTmpFile(JSON.stringify(election), '.json');
+
+    const electionId = (
+      await api.createInProgressElectionFromFile({ filePath })
+    ).unsafeUnwrap();
+    expect(await api.getElectionInfo({ electionId })).toMatchObject({
+      signatureImage: '<svg>signature</svg>',
+      signatureCaption: 'Clerk',
+    });
+    expect(
+      workspace.store.electionDefinition.getSystemSettings(electionId)
+    ).toEqual(stateDefaultSystemSettings('DEMO'));
+  });
+
+  test('drops straight party contests, which are generated from the state instead', async () => {
+    const { electionDefinitionApiClient: api, auth } = buildTestEnvironment();
+    mockSystemAdministratorAuth(auth);
+    const { election } = electionStraightPartyFixtures.readElectionDefinition();
+
+    const electionId = (
+      await api.createInProgressElectionFromFile({
+        filePath: saveTmpFile(JSON.stringify(election), '.json'),
+      })
+    ).unsafeUnwrap();
+    expect(await api.listContests({ electionId })).toHaveLength(
+      election.contests.filter((contest) => contest.type !== 'straight-party')
+        .length
+    );
+  });
+
+  test('duplicates a combined ballot primary when the state supports it', async () => {
+    vi.mocked(getStateFeaturesConfig).mockReturnValue({
+      ...stateFeatureConfigs.DEMO,
+      COMBINED_BALLOT_PRIMARIES: true,
+    });
+    const { electionDefinitionApiClient: api, auth } = buildTestEnvironment();
+    mockSystemAdministratorAuth(auth);
+
+    const electionId = (
+      await api.createInProgressElectionFromFile({
+        filePath: saveTmpFile(
+          electionCombinedBallotPrimaryFixtures.readElectionDefinition()
+            .electionData,
+          '.json'
+        ),
+      })
+    ).unsafeUnwrap();
+    expect(await api.getElectionInfo({ electionId })).toMatchObject({
+      type: 'primary',
+      isMiCombinedBallotPrimary: true,
+    });
+  });
+
+  test('rejects invalid and unsupported files without creating an election definition', async () => {
+    const {
+      electionDefinitionApiClient: api,
+      auth,
+      logger,
+    } = buildTestEnvironment();
+    mockSystemAdministratorAuth(auth);
+
+    const badJsonPath = saveTmpFile('{', '.json');
+    expect(
+      await api.createInProgressElectionFromFile({ filePath: badJsonPath })
+    ).toEqual(err({ type: 'invalid-file', message: expect.any(String) }));
+    expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
+      LogEventId.ElectionDefinitionCreated,
+      {
+        message: expect.stringContaining(
+          `Error creating an election definition from ${badJsonPath}:`
+        ),
+        disposition: 'failure',
+      }
+    );
+
+    expect(
+      await api.createInProgressElectionFromFile({
+        filePath: saveTmpFile('not a zip', '.zip'),
+      })
+    ).toEqual(
+      err({
+        type: 'invalid-file',
+        message: 'The election package is invalid (invalid-zip).',
+      })
+    );
+
+    expect(
+      await api.createInProgressElectionFromFile({
+        filePath: saveTmpFile('text', '.txt'),
+      })
+    ).toEqual(
+      err({
+        type: 'invalid-file',
+        message: 'Choose an election package (.zip) or election (.json) file.',
+      })
+    );
+
+    expect(
+      await api.createInProgressElectionFromFile({
+        filePath: saveTmpFile(
+          electionCombinedBallotPrimaryFixtures.readElectionDefinition()
+            .electionData,
+          '.json'
+        ),
+      })
+    ).toEqual(
+      err({
+        type: 'unsupported-election',
+        message: 'Combined ballot primaries are not supported in this state.',
+      })
+    );
+
+    const { election } = electionDefinition;
+    const duplicateDistrictsElection: Election = {
+      ...election,
+      districts: [
+        election.districts[0]!,
+        { ...election.districts[1]!, name: election.districts[0]!.name },
+        ...election.districts.slice(2),
+      ],
+    };
+    expect(
+      await api.createInProgressElectionFromFile({
+        filePath: saveTmpFile(
+          JSON.stringify(duplicateDistrictsElection),
+          '.json'
+        ),
+      })
+    ).toEqual(err({ type: 'invalid-election', message: expect.any(String) }));
+
+    expect(await api.getCurrentInProgressElection()).toEqual(null);
+  });
+
+  test('requires removable media in production, no election definition and no configured election', async () => {
+    const {
+      apiClient,
+      electionDefinitionApiClient: api,
+      auth,
+    } = buildTestEnvironment();
+    mockSystemAdministratorAuth(auth);
+    const filePath = saveTmpFile(
+      JSON.stringify(electionDefinition.election),
+      '.json'
+    );
+
+    vi.stubEnv('NODE_ENV', 'production');
+    await suppressingConsoleOutput(() =>
+      expect(
+        api.createInProgressElectionFromFile({ filePath })
+      ).rejects.toThrow(
+        'Can only duplicate elections from removable media in production'
+      )
+    );
+    vi.stubEnv('NODE_ENV', 'test');
+
+    await api.createInProgressElection();
+    await suppressingConsoleOutput(() =>
+      expect(
+        api.createInProgressElectionFromFile({ filePath })
+      ).rejects.toThrow('An election definition already exists.')
+    );
+    const electionInfo = assertDefined(
+      await api.getCurrentInProgressElection()
+    );
+    await api.deleteElection({ electionId: electionInfo.electionId });
+
+    await configureMachine(apiClient, auth, electionDefinition);
+    await suppressingConsoleOutput(() =>
+      expect(
+        api.createInProgressElectionFromFile({ filePath })
+      ).rejects.toThrow(
+        'Cannot create an election definition while an election is configured.'
+      )
+    );
+  });
 });

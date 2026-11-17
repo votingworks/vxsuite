@@ -1,7 +1,7 @@
 import { createReadStream, existsSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, matchesGlob, normalize } from 'node:path';
 import type { DippedSmartCardAuthApi } from '@votingworks/auth';
-import type { ExportDataResult } from '@votingworks/backend';
+import { type ExportDataResult, getNodeEnv } from '@votingworks/backend';
 import {
   assert,
   assertDefined,
@@ -65,8 +65,15 @@ import {
   unsafeParse,
 } from '@votingworks/types';
 import { type Printer, PrintSides } from '@votingworks/printing';
-import type { UsbDrive } from '@votingworks/usb-drive';
-import { generateId, isSystemAdministratorAuth } from '@votingworks/utils';
+import {
+  getRealUsbDriveGlobPattern,
+  type UsbDrive,
+} from '@votingworks/usb-drive';
+import {
+  generateId,
+  isIntegrationTest,
+  isSystemAdministratorAuth,
+} from '@votingworks/utils';
 import { z } from 'zod/v4';
 import { constructAuthMachineState } from '../util/auth.js';
 import { buildExporter } from '../util/exporter.js';
@@ -77,6 +84,10 @@ import {
   clearElectionPackageFiles,
   getElectionPackageFilesPath,
 } from './election_package.js';
+import {
+  createElectionDefinitionFromFile,
+  type ElectionImportError,
+} from './election_import.js';
 import { createEnglishOnlyTranslator } from './english_only_translator.js';
 import { getMachineState, isElectionDefinitionEnabled } from './state.js';
 import type { ElectionDefinitionPackage } from './store.js';
@@ -290,6 +301,46 @@ function createElectionDefinitionApiMethods({
         disposition: 'success',
       });
       return electionId;
+    },
+
+    async createInProgressElectionFromFile(input: {
+      filePath: string;
+    }): Promise<Result<ElectionId, ElectionImportError>> {
+      assert(
+        getNodeEnv() === 'production' && !isIntegrationTest()
+          ? matchesGlob(normalize(input.filePath), getRealUsbDriveGlobPattern())
+          : true,
+        'Can only duplicate elections from removable media in production'
+      );
+      assert(
+        store.getCurrentElectionId() === undefined,
+        'Cannot create an election definition while an election is configured.'
+      );
+      assert(
+        store.electionDefinition.getElectionInfo() === undefined,
+        'An election definition already exists.'
+      );
+      const { stateCode, features } = assertDefined(getMachineState());
+      const result = await createElectionDefinitionFromFile({
+        store: store.electionDefinition,
+        filePath: input.filePath,
+        newId: generateId(),
+        stateCode,
+        stateFeatures: features,
+      });
+      await logger.logAsCurrentRole(
+        LogEventId.ElectionDefinitionCreated,
+        result.isOk()
+          ? {
+              message: `Created election definition ${result.ok()} from ${input.filePath}.`,
+              disposition: 'success',
+            }
+          : {
+              message: `Error creating an election definition from ${input.filePath}: ${result.err().message}`,
+              disposition: 'failure',
+            }
+      );
+      return result;
     },
 
     async deleteElection(input: ElectionInput): Promise<void> {
