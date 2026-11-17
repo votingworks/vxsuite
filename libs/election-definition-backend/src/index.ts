@@ -3,6 +3,7 @@ export type {
   ElectionInput,
 } from './election_definition_methods.js';
 export * from './contests.js';
+export * from './election_import.js';
 export * from './election_package/ballot_pdfs.js';
 export * from './election_package/election_export.js';
 export * from './election_package/file_storage_client.js';
