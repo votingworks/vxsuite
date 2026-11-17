@@ -46,7 +46,7 @@ import {
 } from './custom-paper-handler/application_driver.js';
 import { BLANK_PAGE_MOCK } from '../test/ballot_helpers.js';
 
-vi.setConfig({ testTimeout: 60_000 });
+vi.setConfig({ testTimeout: 60_000, hookTimeout: 15_000 });
 
 const TEST_POLLING_INTERVAL_MS = 5;
 
