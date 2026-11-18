@@ -325,7 +325,7 @@ test('election manager and poll worker configuration', async () => {
   // Open the polls
   apiMock.expectGetScannerStatus(statusNoPaper);
   apiMock.expectOpenPolls();
-  apiMock.expectPrintReportSection(0).resolve();
+  apiMock.expectPrintReport().resolve();
   apiMock.expectGetPollsInfo('polls_open');
   apiMock.expectGetQuickResultsReportingUrl();
   apiMock.authenticateAsPollWorker(electionDefinition);
@@ -360,7 +360,7 @@ test('election manager and poll worker configuration', async () => {
   // Open the polls again
   apiMock.expectGetScannerStatus(statusNoPaper);
   apiMock.expectOpenPolls();
-  apiMock.expectPrintReportSection(0).resolve();
+  apiMock.expectPrintReport().resolve();
   apiMock.expectGetPollsInfo('polls_open');
   apiMock.expectGetQuickResultsReportingUrl();
   apiMock.authenticateAsPollWorker(electionDefinition);
@@ -460,11 +460,11 @@ test('voter can cast a ballot that scans successfully', async () => {
 
   // Close Polls
   apiMock.expectClosePolls();
-  const printReportSection = apiMock.expectPrintReportSection(0);
+  const printReport = apiMock.expectPrintReport();
   apiMock.expectGetPollsInfo('polls_closed_final');
   await userEvent.click(await screen.findByText('Close Polls'));
   await screen.findByText('Closing Polls…');
-  printReportSection.resolve();
+  printReport.resolve();
   await screen.findByText('Polls Closed');
 
   // Simulate unmounted usb drive
@@ -675,7 +675,7 @@ test('scanning is not triggered when polls closed or cards present', async () =>
   await screen.findByText('Do you want to open the polls?');
   // Open Polls
   apiMock.expectOpenPolls();
-  apiMock.expectPrintReportSection(0).resolve();
+  apiMock.expectPrintReport().resolve();
   apiMock.expectGetPollsInfo('polls_open');
   await userEvent.click(screen.getByText('Open Polls'));
   await screen.findByText('Polls Opened');
@@ -701,16 +701,16 @@ test('poll worker can open and close polls without scanning any ballots', async 
   apiMock.authenticateAsPollWorker(electionGeneralDefinition);
   await screen.findByText('Do you want to open the polls?');
   apiMock.expectOpenPolls();
-  apiMock.expectPrintReportSection(0).resolve();
+  apiMock.expectPrintReport().resolve();
   apiMock.expectGetPollsInfo('polls_open');
   await userEvent.click(screen.getByRole('button', { name: 'Open Polls' }));
   await screen.findByText('Polls Opened');
-  const printReportSection = apiMock.expectPrintReportSection(0);
+  const printReport = apiMock.expectPrintReport();
   await userEvent.click(
     screen.getByRole('button', { name: 'Reprint Polls Opened Report' })
   );
   await screen.findByText('Printing Report…');
-  printReportSection.resolve();
+  printReport.resolve();
   await screen.findByText('Polls Opened');
   screen.getByRole('button', { name: 'Reprint Polls Opened Report' });
   screen.getByText('Remove the poll worker card', { exact: false });
@@ -722,16 +722,16 @@ test('poll worker can open and close polls without scanning any ballots', async 
   apiMock.authenticateAsPollWorker(electionGeneralDefinition);
   await screen.findByText('Do you want to close the polls?');
   apiMock.expectClosePolls();
-  apiMock.expectPrintReportSection(0).resolve();
+  apiMock.expectPrintReport().resolve();
   apiMock.expectGetPollsInfo('polls_closed_final');
   await userEvent.click(screen.getByRole('button', { name: 'Close Polls' }));
   await screen.findByText('Polls Closed');
-  const printReportSection2 = apiMock.expectPrintReportSection(0);
+  const printReport2 = apiMock.expectPrintReport();
   await userEvent.click(
     screen.getByRole('button', { name: 'Reprint Polls Closed Report' })
   );
   await screen.findByText('Printing Report…');
-  printReportSection2.resolve();
+  printReport2.resolve();
   await screen.findByText('Polls Closed');
   screen.getByRole('button', { name: 'Reprint Polls Closed Report' });
   screen.getByText('Remove the poll worker card', { exact: false });
@@ -756,7 +756,7 @@ test('open polls, scan ballot, close polls, save results', async () => {
   apiMock.authenticateAsPollWorker(electionDefinition);
   await screen.findByText('Do you want to open the polls?');
   apiMock.expectOpenPolls();
-  apiMock.expectPrintReportSection(0).resolve();
+  apiMock.expectPrintReport().resolve();
   apiMock.expectGetPollsInfo('polls_open');
   await userEvent.click(await screen.findByText('Open Polls'));
   await screen.findByText(
@@ -772,11 +772,11 @@ test('open polls, scan ballot, close polls, save results', async () => {
   apiMock.authenticateAsPollWorker(electionDefinition);
   await screen.findByText('Do you want to close the polls?');
   apiMock.expectClosePolls();
-  const printReportSection = apiMock.expectPrintReportSection(0);
+  const printReport = apiMock.expectPrintReport();
   apiMock.expectGetPollsInfo('polls_closed_final');
   await userEvent.click(await screen.findByText('Close Polls'));
   await screen.findByText('Closing Polls…');
-  printReportSection.resolve();
+  printReport.resolve();
   await screen.findByText('Polls Closed');
   await screen.findByText(
     /Remove the poll worker card once you have printed all necessary reports/
@@ -800,7 +800,7 @@ test('poll worker can open, pause, unpause, and close poll without scanning any 
   apiMock.authenticateAsPollWorker(electionGeneralDefinition);
   await screen.findByText('Do you want to open the polls?');
   apiMock.expectOpenPolls();
-  apiMock.expectPrintReportSection(0).resolve();
+  apiMock.expectPrintReport().resolve();
   apiMock.expectGetPollsInfo('polls_open');
   await userEvent.click(await screen.findByText('Open Polls'));
   await screen.findByText(
@@ -815,11 +815,11 @@ test('poll worker can open, pause, unpause, and close poll without scanning any 
   await screen.findByText('Do you want to close the polls?');
   await userEvent.click(await screen.findByText('Menu'));
   apiMock.expectPauseVoting();
-  const printReportSection = apiMock.expectPrintReportSection(0);
+  const printReport = apiMock.expectPrintReport();
   apiMock.expectGetPollsInfo('polls_paused');
   await userEvent.click(await screen.findByText('Pause Voting'));
   await screen.findByText('Pausing Voting…');
-  printReportSection.resolve();
+  printReport.resolve();
   await screen.findByText(
     /Remove the poll worker card once you have printed all necessary reports/
   );
@@ -831,11 +831,11 @@ test('poll worker can open, pause, unpause, and close poll without scanning any 
   apiMock.authenticateAsPollWorker(electionGeneralDefinition);
   await screen.findByText('Do you want to resume voting?');
   apiMock.expectResumeVoting();
-  const printReportSection2 = apiMock.expectPrintReportSection(0);
+  const printReport2 = apiMock.expectPrintReport();
   apiMock.expectGetPollsInfo('polls_open', { type: 'resume_voting' });
   await userEvent.click(await screen.findByText('Resume Voting'));
   await screen.findByText('Resuming Voting…');
-  printReportSection2.resolve();
+  printReport2.resolve();
   await screen.findByText(
     /Remove the poll worker card once you have printed all necessary reports/
   );
@@ -847,11 +847,11 @@ test('poll worker can open, pause, unpause, and close poll without scanning any 
   apiMock.authenticateAsPollWorker(electionGeneralDefinition);
   await screen.findByText('Do you want to close the polls?');
   apiMock.expectClosePolls();
-  const printReportSection3 = apiMock.expectPrintReportSection(0);
+  const printReport3 = apiMock.expectPrintReport();
   apiMock.expectGetPollsInfo('polls_closed_final');
   await userEvent.click(await screen.findByText('Close Polls'));
   await screen.findByText('Closing Polls…');
-  printReportSection3.resolve();
+  printReport3.resolve();
   await screen.findByText(
     /Remove the poll worker card once you have printed all necessary reports/
   );
@@ -881,7 +881,7 @@ test('ballot mode banner consistently displayed in voter screens', async () => {
   apiMock.authenticateAsPollWorker(electionDefinition);
   await screen.findByText('Do you want to open the polls?');
   apiMock.expectOpenPolls();
-  apiMock.expectPrintReportSection(0).resolve();
+  apiMock.expectPrintReport().resolve();
   apiMock.expectGetPollsInfo('polls_open');
   await userEvent.click(await screen.findByText('Open Polls'));
   await screen.findByText('Polls Opened');
@@ -920,11 +920,11 @@ test('ballot mode banner consistently displayed in voter screens', async () => {
   apiMock.authenticateAsPollWorker(electionDefinition);
   await screen.findByText('Do you want to close the polls?');
   apiMock.expectClosePolls();
-  const printReportSection = apiMock.expectPrintReportSection(0);
+  const printReport = apiMock.expectPrintReport();
   apiMock.expectGetPollsInfo('polls_closed_final');
   await userEvent.click(await screen.findByText('Close Polls'));
   await screen.findByText('Closing Polls…');
-  printReportSection.resolve();
+  printReport.resolve();
   await screen.findByText('Polls Closed');
   apiMock.removeCard();
 

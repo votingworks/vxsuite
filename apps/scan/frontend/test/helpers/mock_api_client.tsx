@@ -256,28 +256,16 @@ export function createApiMock() {
         });
     },
 
-    expectPrintReportSection(
-      index: number,
-      errorStatus?: PrinterStatus,
-      numberOfSections = 1
-    ): {
+    expectPrintReport(errorStatus?: PrinterStatus): {
       resolve: () => void;
     } {
-      const { resolve, promise } = deferred<{
-        printResult: PrintResult;
-        numberOfSections: number;
-      }>();
+      const { resolve, promise } = deferred<PrintResult>();
 
-      mockApiClient.printReportSection
-        .expectCallWith({ index })
-        .returns(promise);
+      mockApiClient.printReport.expectCallWith().returns(promise);
 
       return {
         resolve: () => {
-          resolve({
-            printResult: errorStatus ? err(errorStatus) : ok(),
-            numberOfSections,
-          });
+          resolve(errorStatus ? err(errorStatus) : ok());
         },
       };
     },

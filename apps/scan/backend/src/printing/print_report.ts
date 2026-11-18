@@ -10,7 +10,11 @@ import {
   PrecinctScannerBallotCountReport,
   PrecinctScannerTallyReport,
 } from '@votingworks/ui';
-import { PAPER_DIMENSIONS, renderToPdf } from '@votingworks/printing';
+import {
+  concatenatePdfs,
+  PAPER_DIMENSIONS,
+  renderToPdf,
+} from '@votingworks/printing';
 import type {
   FujitsuThermalPrinterInterface,
   PrintResult,
@@ -29,13 +33,13 @@ import { getCurrentTime } from '../util/get_current_time.js';
 import { rootDebug } from '../util/debug.js';
 import { ADJUSTED_MARGIN_DIMENSIONS } from './constants.js';
 
-const debug = rootDebug.extend('print-report-section');
+const debug = rootDebug.extend('print-report');
 
 /**
- * A single section of a polls report — i.e. one page printed by one
- * {@link printReportSection} call. A polls paused/resumed report is a single
- * ballot count section; a tally report (open/close) has one section per party
- * (plus a nonpartisan section).
+ * A single section of a polls report. A polls paused/resumed report is a
+ * single ballot count section; a tally report (open/close) has one section per
+ * party (plus a nonpartisan section). {@link printReport} prints every section
+ * back-to-back as one continuous print.
  */
 type ReportSection =
   | { type: 'ballotCount'; pollsTransitionType: PollsSuspensionTransitionType }
@@ -73,7 +77,8 @@ function getReportSections(store: Store): ReportSection[] {
 
 async function getReportSection(
   store: Store,
-  reportSectionIndex: number
+  reportSection: ReportSection,
+  reportPrintedTime: number
 ): Promise<JSX.Element> {
   const { electionDefinition, electionPackageHash } = assertDefined(
     store.getElectionRecord()
@@ -85,14 +90,6 @@ async function getReportSection(
   assert(pollsTransition);
   assert(pollsTransition.ballotCount === store.getBallotsCounted());
   const allBatches = store.getBatches();
-
-  const reportSections = getReportSections(store);
-  assert(
-    reportSectionIndex < reportSections.length,
-    `report section index ${reportSectionIndex} is out of range`
-  );
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const reportSection = reportSections[reportSectionIndex]!;
 
   if (reportSection.type === 'ballotCount') {
     debug(
@@ -114,7 +111,7 @@ async function getReportSection(
       batches: allBatches,
       pollsTransition: reportSection.pollsTransitionType,
       pollsTransitionedTime: pollsTransition.time,
-      reportPrintedTime: getCurrentTime(),
+      reportPrintedTime,
       isLiveMode,
       precinctScannerMachineId: machineId,
     });
@@ -146,7 +143,7 @@ async function getReportSection(
     pollsTransitionedTime: pollsTransition.time,
     contests: reportSectionContests,
     isLiveMode,
-    reportPrintedTime: getCurrentTime(),
+    reportPrintedTime,
     precinctScannerMachineId: machineId,
     scannedElectionResults,
     batches: tallyReportBatches,
@@ -158,24 +155,29 @@ function contestsForPollingPlace(election: Election, placeId?: string) {
   return pollingPlaceContests(election, place);
 }
 
-export async function printReportSection({
+export async function printReport({
   store,
   printer,
-  index,
 }: {
   store: Store;
   printer: FujitsuThermalPrinterInterface;
-  index: number;
-}): Promise<{ printResult: PrintResult; numberOfSections: number }> {
-  const reportSections = getReportSections(store);
-  const section = await getReportSection(store, index);
-  const data = (
-    await renderToPdf({
-      document: section,
-      paperDimensions: PAPER_DIMENSIONS.LetterRoll,
-      marginDimensions: ADJUSTED_MARGIN_DIMENSIONS,
-    })
+}): Promise<PrintResult> {
+  const reportPrintedTime = getCurrentTime();
+  const sectionPdfs = (
+    await renderToPdf(
+      await Promise.all(
+        getReportSections(store).map(async (reportSection) => ({
+          document: await getReportSection(
+            store,
+            reportSection,
+            reportPrintedTime
+          ),
+          paperDimensions: PAPER_DIMENSIONS.LetterRoll,
+          marginDimensions: ADJUSTED_MARGIN_DIMENSIONS,
+        }))
+      )
+    )
   ).unsafeUnwrap();
-  const printResult = await printer.printPdf(data);
-  return { printResult, numberOfSections: reportSections.length };
+  const data = (await concatenatePdfs(sectionPdfs)).unsafeUnwrap();
+  return printer.printPdf(data);
 }

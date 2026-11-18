@@ -183,7 +183,7 @@ test('shows message when printer cover is open', async () => {
     expect(screen.getButton('Open Polls')).toBeEnabled();
   });
   apiMock.expectOpenPolls();
-  apiMock.expectPrintReportSection(0).resolve();
+  apiMock.expectPrintReport().resolve();
   apiMock.expectGetPollsInfo('polls_open');
   await userEvent.click(await screen.findByText('Open Polls'));
 
@@ -344,7 +344,7 @@ test('shows message when scanner cover is open', async () => {
   apiMock.authenticateAsPollWorker(electionGeneralDefinition);
   await screen.findByText('Open Polls');
   apiMock.expectOpenPolls();
-  apiMock.expectPrintReportSection(0).resolve();
+  apiMock.expectPrintReport().resolve();
   apiMock.expectGetPollsInfo('polls_open');
   await userEvent.click(await screen.findByText('Open Polls'));
   await screen.findByText('Polls Opened');
