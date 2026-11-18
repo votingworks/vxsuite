@@ -45,6 +45,7 @@
     "@vitest/coverage-istanbul": "5.0.2",
     "@votingworks/coverage-check": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
+    "@votingworks/test-utils": "workspace:*",
     "eslint-plugin-vx": "workspace:*",
     "vitest": "5.0.2"
   },

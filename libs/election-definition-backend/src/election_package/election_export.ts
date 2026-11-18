@@ -10,11 +10,8 @@ import {
   type SystemSettings,
   type UiStringsPackage,
 } from '@votingworks/types';
-import type { BallotTemplateId } from '@votingworks/hmpb';
-import { throwIllegalValue } from '@votingworks/basics';
 import { createHash } from 'node:crypto';
-import { getStateFeaturesConfig } from '@votingworks/election-definition-backend';
-import type { Jurisdiction } from './types.js';
+import { getStateFeaturesConfig, type StateCode } from '../state_features.js';
 
 function allPrecinctsWhole(election: Election): PollingPlace['precincts'] {
   return Object.fromEntries(
@@ -28,7 +25,7 @@ function allPrecinctsWhole(election: Election): PollingPlace['precincts'] {
  */
 export function addPollingPlacesForExport(
   election: Election,
-  jurisdiction: Jurisdiction,
+  jurisdiction: { stateCode: StateCode },
   systemSettings: SystemSettings
 ): Election {
   const stateFeatures = getStateFeaturesConfig(jurisdiction);
