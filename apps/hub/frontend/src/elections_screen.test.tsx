@@ -33,7 +33,7 @@ import { routes } from './routes.js';
 // Pin all IDs to a known value for deterministic tests.
 const ID = 'ID';
 const ELECTION_ID = unsafeParse(ElectionIdSchema, ID);
-vi.mock(import('./utils.js'), async (importActual) => ({
+vi.mock(import('@votingworks/utils'), async (importActual) => ({
   ...(await importActual()),
   generateId: () => ID,
 }));

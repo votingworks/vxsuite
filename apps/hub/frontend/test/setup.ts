@@ -16,8 +16,9 @@ beforeEach(() => {
   idFactory.reset();
 });
 
-vi.mock(import('nanoid'), () => ({
-  customAlphabet: () => () => idFactory.next(),
+vi.mock(import('@votingworks/utils'), async (importActual) => ({
+  ...(await importActual()),
+  generateId: () => idFactory.next(),
 }));
 
 // Don't load the real react-pdf: importing it evaluates pdfjs-dist, which

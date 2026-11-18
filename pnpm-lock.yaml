@@ -1088,9 +1088,6 @@ importers:
       luxon:
         specifier: ^3.0.0
         version: 3.3.0
-      nanoid:
-        specifier: ^3.3.20
-        version: 3.3.20
       path:
         specifier: ^0.12.7
         version: 0.12.7
