@@ -54,6 +54,7 @@ import {
   type PollingPlaceType,
   pollingPlaceGenerateFromPrecinct,
   type ElectionRegisteredVoterCounts,
+  getTotalRegisteredVoterCount,
   isPrecinctCount,
   isSplitCounts,
   type PrecinctRegisteredVoterCountEntry,
@@ -1838,7 +1839,7 @@ export class Store {
               values ($1, $2)
             `,
             precinct.id,
-            registeredVoterCounts
+            getTotalRegisteredVoterCount(registeredVoterCounts)
           );
         }
         await client.query(
@@ -1864,7 +1865,7 @@ export class Store {
                   values ($1, $2)
                 `,
                 split.id,
-                splitCount
+                getTotalRegisteredVoterCount(splitCount)
               );
             }
           }

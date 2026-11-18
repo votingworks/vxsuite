@@ -15,11 +15,13 @@ import {
   ElectionStringKey,
   safeParseInt,
   hasSplits,
+  getTotalRegisteredVoterCount,
   isPrecinctCount,
   isSplitCounts,
   type Precinct,
   type PrecinctSplit,
   type PrecinctRegisteredVoterCountEntry,
+  type RegisteredVoterCount,
 } from '@votingworks/types';
 
 import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
@@ -59,6 +61,12 @@ export interface PrecinctFormProps {
   precinctRoutes: ListDetailRoutes;
   savedPrecinct?: Precinct;
   title: React.ReactNode;
+}
+
+function registeredVoterCountInputValue(
+  count?: RegisteredVoterCount
+): number | '' {
+  return count === undefined ? '' : getTotalRegisteredVoterCount(count);
 }
 
 export function PrecinctForm(props: PrecinctFormProps): JSX.Element | null {
@@ -391,7 +399,9 @@ function PrecinctFormContents(
                             value={
                               registeredVoterCounts !== undefined &&
                               isSplitCounts(registeredVoterCounts)
-                                ? (registeredVoterCounts.splits[split.id] ?? '')
+                                ? registeredVoterCountInputValue(
+                                    registeredVoterCounts.splits[split.id]
+                                  )
                                 : ''
                             }
                             onChange={(e) => {
@@ -400,7 +410,10 @@ function PrecinctFormContents(
                                 isSplitCounts(registeredVoterCounts)
                                   ? registeredVoterCounts.splits
                                   : {};
-                              const newSplits: Record<string, number> = {
+                              const newSplits: Record<
+                                string,
+                                RegisteredVoterCount
+                              > = {
                                 ...currentSplits,
                               };
                               if (e.target.value) {
@@ -531,7 +544,9 @@ function PrecinctFormContents(
                       value={
                         registeredVoterCounts !== undefined &&
                         isPrecinctCount(registeredVoterCounts)
-                          ? registeredVoterCounts
+                          ? registeredVoterCountInputValue(
+                              registeredVoterCounts
+                            )
                           : ''
                       }
                       onChange={(e) => {

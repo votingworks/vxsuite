@@ -56,6 +56,8 @@ import {
   type ElectionId,
   type ElectionRegisteredVoterCounts,
   ElectionRegisteredVoterCountsSchema,
+  getTotalRegisteredVoterCount,
+  isSplitCounts,
   type UserRole,
   isCombinedBallotPrimary,
   type PartyId,
@@ -689,17 +691,7 @@ export class Store implements BaseStore {
     counts: ElectionRegisteredVoterCounts
   ): void {
     for (const [precinctId, entry] of Object.entries(counts)) {
-      if (typeof entry === 'number') {
-        this.client.run(
-          `
-            insert into precinct_registered_voter_counts (election_id, precinct_id, count)
-            values (?, ?, ?)
-            `,
-          electionId,
-          precinctId,
-          entry
-        );
-      } else {
+      if (isSplitCounts(entry)) {
         for (const [splitId, count] of Object.entries(entry.splits)) {
           this.client.run(
             `
@@ -709,9 +701,19 @@ export class Store implements BaseStore {
             electionId,
             precinctId,
             splitId,
-            count
+            getTotalRegisteredVoterCount(count)
           );
         }
+      } else {
+        this.client.run(
+          `
+            insert into precinct_registered_voter_counts (election_id, precinct_id, count)
+            values (?, ?, ?)
+            `,
+          electionId,
+          precinctId,
+          getTotalRegisteredVoterCount(entry)
+        );
       }
     }
   }
@@ -748,7 +750,7 @@ export class Store implements BaseStore {
     for (const { precinctId, splitId, count } of splitRows) {
       const existing = counts[precinctId];
       assert(
-        typeof existing !== 'number',
+        existing === undefined || isSplitCounts(existing),
         `Precinct ${precinctId} has both a flat count and split counts`
       );
       if (existing === undefined) {
