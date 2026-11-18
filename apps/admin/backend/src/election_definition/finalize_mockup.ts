@@ -21,7 +21,14 @@ export interface FinalizeProgress {
 export type FinalizeStatus =
   | { readonly status: 'not-finalized' }
   | { readonly status: 'finalizing'; readonly progress: FinalizeProgress }
-  | { readonly status: 'finalized' };
+  | {
+      readonly status: 'finalized';
+      /**
+       * Whether cast vote records, adjudications or manual tallies exist,
+       * which blocks unfinalizing. Always false in the mockup.
+       */
+      readonly hasResultsData: boolean;
+    };
 
 /** Delay between fake progress steps. */
 const STEP_DELAY_MS = 400;
@@ -65,7 +72,10 @@ export function createFinalizeMockup(): FinalizeMockup {
       }
     }
     if (current?.electionId === electionId) {
-      current = { electionId, status: { status: 'finalized' } };
+      current = {
+        electionId,
+        status: { status: 'finalized', hasResultsData: false },
+      };
     }
   }
 

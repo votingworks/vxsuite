@@ -1406,6 +1406,20 @@ export const finalizeElection = {
   },
 } as const;
 
+export const unfinalizeElection = {
+  useMutation() {
+    const apiClient = useElectionDefinitionApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.unfinalizeElection, {
+      async onSuccess(_data, { electionId }) {
+        await queryClient.invalidateQueries(
+          getFinalizeStatusQueryKey(electionId)
+        );
+      },
+    });
+  },
+} as const;
+
 export const saveFinalizedBallots = {
   useMutation() {
     const apiClient = useElectionDefinitionApiClient();

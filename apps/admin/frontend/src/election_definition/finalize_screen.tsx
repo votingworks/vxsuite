@@ -22,6 +22,7 @@ import {
   ProgressBar,
 } from '@votingworks/ui';
 import { NavigationScreen } from '../components/navigation_screen.js';
+import { OfficialResultsCard } from '../components/official_results_card.js';
 import { SaveBackendFileModal } from '../components/save_backend_file_modal.js';
 import { routerPaths } from '../router_paths.js';
 import {
@@ -30,6 +31,7 @@ import {
   getCurrentInProgressElection,
   getFinalizeStatus,
   saveFinalizedBallots,
+  unfinalizeElection,
 } from '../api.js';
 import { getNavItems } from './nav_items.js';
 import {
@@ -147,6 +149,64 @@ function SaveBallotsCard({
   );
 }
 
+function UnfinalizeElectionButton({
+  electionId,
+  disabled,
+}: {
+  electionId: ElectionId;
+  disabled: boolean;
+}): JSX.Element {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const unfinalizeElectionMutation = unfinalizeElection.useMutation();
+
+  return (
+    <React.Fragment>
+      <Button
+        icon="Undo"
+        color="danger"
+        fill="outlined"
+        disabled={disabled}
+        onPress={() => setIsModalOpen(true)}
+      >
+        Unfinalize Election
+      </Button>
+      {isModalOpen && (
+        <Modal
+          title="Unfinalize Election"
+          content={
+            <P>
+              After unfinalizing, the election can be edited again and VxAdmin
+              will no longer be configured. Previously saved ballots and
+              election packages should be voided. After the election is
+              finalized again, ballots must be saved again, smart cards
+              reprogrammed, and machines reconfigured.
+            </P>
+          }
+          actions={
+            <React.Fragment>
+              <Button
+                icon="Undo"
+                variant="danger"
+                onPress={() =>
+                  unfinalizeElectionMutation.mutate(
+                    { electionId },
+                    { onSuccess: () => setIsModalOpen(false) }
+                  )
+                }
+                disabled={unfinalizeElectionMutation.isLoading}
+              >
+                Unfinalize Election
+              </Button>
+              <Button onPress={() => setIsModalOpen(false)}>Cancel</Button>
+            </React.Fragment>
+          }
+          onOverlayClick={() => setIsModalOpen(false)}
+        />
+      )}
+    </React.Fragment>
+  );
+}
+
 function FinalizeStatusPanel({
   electionId,
 }: {
@@ -186,14 +246,28 @@ function FinalizeStatusPanel({
   if (finalizeStatus.status === 'finalized') {
     return (
       <React.Fragment>
-        <Callout
-          color="primary"
-          icon={<Icons.Done color="primary" />}
-          title="Election Finalized"
-        >
-          The election can no longer be edited. Save ballots to a USB drive for
-          printing.
-        </Callout>
+        <OfficialResultsCard style={{ marginBottom: 0 }}>
+          <H3>
+            <Icons.Done color="success" />
+            Election is Finalized
+          </H3>
+          <UnfinalizeElectionButton
+            electionId={electionId}
+            disabled={finalizeStatus.hasResultsData}
+          />
+        </OfficialResultsCard>
+        {finalizeStatus.hasResultsData ? (
+          <P>
+            Cast vote records have been loaded, so the election can no longer be
+            unfinalized. To start over, unconfigure VxAdmin from the Election
+            screen.
+          </P>
+        ) : (
+          <P>
+            The election can no longer be edited. Save ballots to a USB drive
+            for printing.
+          </P>
+        )}
         <SaveBallotsCard electionId={electionId} kind="official" />
         <SaveBallotsCard electionId={electionId} kind="test" />
       </React.Fragment>

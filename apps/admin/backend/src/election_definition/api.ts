@@ -667,6 +667,16 @@ function createElectionDefinitionApiMethods({
       );
     },
 
+    unfinalizeElection(input: ElectionInput): void {
+      loadInProgressElectionInfo(input);
+      const finalizeStatus = finalizeMockup.getStatus(input.electionId);
+      assert(
+        finalizeStatus.status === 'finalized' && !finalizeStatus.hasResultsData,
+        'Election definition cannot be unfinalized'
+      );
+      finalizeMockup.reset();
+    },
+
     async saveFinalizedBallots(
       input: ElectionInput & { kind: FinalizedBallotsKind; filename: string }
     ): Promise<ExportDataResult> {
