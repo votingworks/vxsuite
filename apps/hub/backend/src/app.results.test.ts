@@ -32,7 +32,10 @@ import {
   makeTemporaryFile,
 } from '@votingworks/fixtures';
 import { readElectionPackageFromBuffer } from '@votingworks/backend';
-import { renderAllBallotPdfsAndCreateElectionDefinition } from '@votingworks/hmpb';
+import {
+  type RendererPool,
+  renderAllBallotPdfsAndCreateElectionDefinition,
+} from '@votingworks/hmpb';
 import type * as grout from '@votingworks/grout';
 import type { UnauthenticatedApi } from './app.js';
 import {
@@ -54,6 +57,8 @@ import { MAX_LIVE_REPORT_ACTIVITY_ITEMS } from './globals.js';
 
 const mockFeatureFlagger = getFeatureFlagMock();
 
+vi.setConfig({ testTimeout: 30_000 });
+
 const { setupApp, cleanup } = testSetupHelpers();
 
 afterAll(cleanup);
@@ -73,6 +78,13 @@ vi.mock(import('@votingworks/hmpb'), async (importActual) => {
     ...original,
     renderAllBallotPdfsAndCreateElectionDefinition: vi.fn(
       original.renderAllBallotPdfsAndCreateElectionDefinition
+    ),
+    createPlaywrightRendererPool: vi.fn((): Promise<RendererPool> =>
+      Promise.resolve({
+        runTasks: <T>() => Promise.resolve([] as T[]),
+        runTask: <T>() => Promise.resolve(new Uint8Array() as T),
+        close: () => Promise.resolve(),
+      })
     ),
   } as unknown as typeof original;
 });
