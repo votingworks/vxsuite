@@ -4,10 +4,8 @@ import { resolve } from 'node:path';
 import { BaseLogger, LogSource } from '@votingworks/logging';
 import { assertDefined } from '@votingworks/basics';
 import { safeParse, SoftwareVersionSchema } from '@votingworks/types';
-import {
-  generateId,
-  StateCodeSchema,
-} from '@votingworks/election-definition-backend';
+import { StateCodeSchema } from '@votingworks/election-definition-backend';
+import { generateId } from '@votingworks/utils';
 import { createWorkspace } from '../workspace.js';
 import { WORKSPACE } from '../globals.js';
 import type { Jurisdiction } from '../types.js';

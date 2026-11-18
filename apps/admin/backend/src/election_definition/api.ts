@@ -25,7 +25,6 @@ import {
   type ElectionInfoUpdate,
   ElectionInfoUpdateSchema,
   type ElectionInput,
-  generateId,
   type PartiesUpdate,
   type PollingPlaceDelete,
   type PollingPlaceSet,
@@ -62,7 +61,7 @@ import {
 } from '@votingworks/types';
 import { type Printer, PrintSides } from '@votingworks/printing';
 import type { UsbDrive } from '@votingworks/usb-drive';
-import { isSystemAdministratorAuth } from '@votingworks/utils';
+import { generateId, isSystemAdministratorAuth } from '@votingworks/utils';
 import { z } from 'zod/v4';
 import { constructAuthMachineState } from '../util/auth.js';
 import { buildExporter } from '../util/exporter.js';

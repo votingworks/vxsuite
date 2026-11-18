@@ -107,7 +107,7 @@ function regenerateElectionIds(election: Election, precincts: Precinct[]) {
 export const shorthands: ColumnDefinitions | undefined = undefined;
 
 export async function up(pgm: MigrationBuilder): Promise<void> {
-  ({ generateId } = await import('@votingworks/election-definition-backend'));
+  ({ generateId } = await import('@votingworks/utils'));
   const allElections = await pgm.db.select({
     text: 'SELECT id, election_data, precinct_data FROM elections',
   });

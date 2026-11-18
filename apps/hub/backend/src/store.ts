@@ -67,6 +67,7 @@ import {
 import {
   singlePrecinctSelectionFor,
   combineAndDecodeCompressedElectionResults,
+  generateId,
 } from '@votingworks/utils';
 import { randomUUID as uuid } from 'node:crypto';
 import type { BaseLogger } from '@votingworks/logging';
@@ -81,7 +82,6 @@ import {
   type DuplicatePartyError,
   type DuplicatePrecinctError,
   type ExternalElectionSource,
-  generateId,
   getStateFeaturesConfig,
   hasDuplicateOptionLabels,
   type PartiesUpdate,

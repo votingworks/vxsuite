@@ -1,10 +1,8 @@
 import React from 'react';
 import { Route, useHistory } from 'react-router-dom';
 import styled from 'styled-components';
-import {
-  type DuplicatePartyError,
-  generateId,
-} from '@votingworks/election-definition-backend';
+import type { DuplicatePartyError } from '@votingworks/election-definition-backend';
+import { generateId } from '@votingworks/utils';
 import {
   type ElectionId,
   ElectionStringKey,
