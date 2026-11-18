@@ -11,6 +11,8 @@ import {
 } from '@votingworks/basics';
 import type { Bindable, Client as DbClient } from '@votingworks/db';
 import {
+  type BallotLayoutSettings,
+  type BallotLayoutSettingsUpdate,
   type ContestCreate,
   type ContestDelete,
   type ContestsReorder,
@@ -32,7 +34,9 @@ import {
   type PrecinctUpdate,
   type SetPollingPlaceError,
 } from '@votingworks/election-definition-backend';
+import { generateBallotStyles } from '@votingworks/hmpb';
 import {
+  type BallotStyle,
   type Candidate,
   type CandidateContest,
   type CandidateId,
@@ -49,7 +53,7 @@ import {
   hasSplits,
   isPrecinctCount,
   isSplitCounts,
-  HmpbBallotPaperSize,
+  type HmpbBallotPaperSize,
   type LanguageCode,
   LanguageCodeSchema,
   type NhPrecinctSplitOptions,
@@ -392,13 +396,67 @@ export class ElectionDefinitionStore {
       pollingPlaces: this.listPollingPlaces(electionId),
       parties: this.listParties(electionId),
       contests: this.listContests(electionId),
-      ballotStyles: [],
+      ballotStyles: this.listBallotStyles(electionId),
       ballotLayout: {
-        paperSize: HmpbBallotPaperSize.Letter,
+        paperSize: this.getBallotLayoutSettings(electionId).paperSize,
         metadataEncoding: 'qr-code',
       },
       ballotStrings: {},
     };
+  }
+
+  getBallotLayoutSettings(electionId: ElectionId): BallotLayoutSettings {
+    const row = assertDefined(
+      this.client.one(
+        `
+        select
+          ballot_paper_size as paperSize,
+          ballot_compact as compact
+        from design_elections
+        where id = ?
+      `,
+        electionId
+      ) as { paperSize: HmpbBallotPaperSize; compact: number } | undefined,
+      'Election not found'
+    );
+    return { paperSize: row.paperSize, compact: row.compact === 1 };
+  }
+
+  updateBallotLayoutSettings(input: BallotLayoutSettingsUpdate): void {
+    assert(
+      this.client.one(
+        `
+        update design_elections
+        set
+          ballot_paper_size = ?,
+          ballot_compact = ?,
+          updated_at = current_timestamp
+        where id = ?
+        returning id
+      `,
+        input.paperSize,
+        input.compact ? 1 : 0,
+        input.electionId
+      ),
+      'Election not found'
+    );
+  }
+
+  listBallotStyles(electionId: ElectionId): BallotStyle[] {
+    const electionInfo = assertDefined(this.getElectionInfo());
+    assert(electionInfo.electionId === electionId, 'Election not found');
+    return generateBallotStyles({
+      ballotLanguageConfigs: electionInfo.languageCodes.map((languageCode) => ({
+        languages: [languageCode],
+      })),
+      contests: this.listContests(electionId),
+      electionType: electionInfo.type,
+      isMiCombinedBallotPrimary: false,
+      parties: this.listParties(electionId),
+      precincts: this.listPrecincts(electionId),
+      ballotTemplateId: 'VxDefaultBallot',
+      electionId,
+    }).ballotStyles;
   }
 
   createInProgressElection(electionInfo: ElectionInfoUpdate): void {

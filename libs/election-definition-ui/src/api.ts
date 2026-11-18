@@ -57,6 +57,16 @@ export function listPollingPlacesQueryKey(electionId: ElectionId): QueryKey {
   return ['listPollingPlaces', electionId];
 }
 
+export function listBallotStylesQueryKey(electionId: ElectionId): QueryKey {
+  return ['listBallotStyles', electionId];
+}
+
+export function getBallotLayoutSettingsQueryKey(
+  electionId: ElectionId
+): QueryKey {
+  return ['getBallotLayoutSettings', electionId];
+}
+
 async function invalidateElectionDefinitionQueries(
   queryClient: QueryClient,
   electionId: ElectionId
@@ -69,6 +79,7 @@ async function invalidateElectionDefinitionQueries(
     queryClient.invalidateQueries(listPrecinctsQueryKey(electionId)),
     queryClient.invalidateQueries(getRegisteredVoterCountsQueryKey(electionId)),
     queryClient.invalidateQueries(listPollingPlacesQueryKey(electionId)),
+    queryClient.invalidateQueries(listBallotStylesQueryKey(electionId)),
   ]);
 }
 
@@ -313,6 +324,37 @@ function createReactQueryApi(
         return useMutation(apiClient.deletePollingPlace, {
           async onSuccess(_, { electionId }) {
             await invalidateElectionQueries(queryClient, electionId);
+          },
+        });
+      },
+    },
+    listBallotStyles: {
+      queryKey: listBallotStylesQueryKey,
+      useQuery(electionId: ElectionId) {
+        const apiClient = getApiClient();
+        return useQuery(listBallotStylesQueryKey(electionId), () =>
+          apiClient.listBallotStyles({ electionId })
+        );
+      },
+    },
+    getBallotLayoutSettings: {
+      queryKey: getBallotLayoutSettingsQueryKey,
+      useQuery(electionId: ElectionId) {
+        const apiClient = getApiClient();
+        return useQuery(getBallotLayoutSettingsQueryKey(electionId), () =>
+          apiClient.getBallotLayoutSettings({ electionId })
+        );
+      },
+    },
+    updateBallotLayoutSettings: {
+      useMutation() {
+        const apiClient = getApiClient();
+        const queryClient = useQueryClient();
+        return useMutation(apiClient.updateBallotLayoutSettings, {
+          async onSuccess(_, { electionId }) {
+            await queryClient.invalidateQueries(
+              getBallotLayoutSettingsQueryKey(electionId)
+            );
           },
         });
       },

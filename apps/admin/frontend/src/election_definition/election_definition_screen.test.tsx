@@ -13,6 +13,7 @@ import {
   mockSystemAdministratorUser,
 } from '@votingworks/test-utils';
 import {
+  type BallotStyle,
   type CandidateContest,
   type DippedSmartCardAuth,
   type District,
@@ -20,6 +21,7 @@ import {
   type PollingPlace,
   type Precinct,
   constructElectionKey,
+  HmpbBallotPaperSize,
   LanguageCode,
 } from '@votingworks/types';
 import { screen, waitFor, within } from '../../test/react_testing_library.js';
@@ -116,6 +118,13 @@ function getNavItems(): Array<string | null> {
     .map((button) => button.textContent);
 }
 
+function getActiveNavItems(): Array<string | null> {
+  return within(screen.getByRole('navigation'))
+    .getAllByRole('button')
+    .filter((button) => button.querySelector('[data-icon="chevron-right"]'))
+    .map((button) => button.textContent);
+}
+
 function expectCurrentInProgressElection(electionInfo: ElectionInfo | null) {
   apiMock.electionDefinitionApiClient.getCurrentInProgressElection
     .expectCallWith()
@@ -154,7 +163,7 @@ test('Create New Election creates an election and opens Election Info', async ()
   expect(history.location.pathname).toEqual(
     routerPaths.electionDefinitionInfo(electionId)
   );
-  expect(getNavItems()).toEqual(['Back', 'Definition']);
+  expect(getNavItems()).toEqual(['Back', 'Definition', 'Proof Ballots']);
   expect(await screen.findByLabelText('Title')).toBeEnabled();
   expect(screen.queryByText('Ballot Languages')).not.toBeInTheDocument();
   expect(screen.queryByText('Signature')).not.toBeInTheDocument();
@@ -516,6 +525,79 @@ test('the Contests tab edits the election contests', async () => {
   expect(screen.queryButton(/preview or edit audio/i)).not.toBeInTheDocument();
 });
 
+test('Proof Ballots lists ballot styles and edits the ballot layout in tabs', async () => {
+  const precinct: Precinct = {
+    id: 'precinct-1',
+    name: 'Precinct 1',
+    districtIds: ['district-1'],
+  };
+  const ballotStyle: BallotStyle = {
+    id: '1_en',
+    groupId: '1',
+    precincts: [precinct.id],
+    districts: ['district-1'],
+    languages: [LanguageCode.ENGLISH],
+  };
+  expectCurrentInProgressElection(generalElectionInfo);
+  expectElectionInfoQueries(generalElectionInfo);
+  apiMock.electionDefinitionApiClient.listPrecincts
+    .expectCallWith({ electionId })
+    .resolves([precinct]);
+  apiMock.electionDefinitionApiClient.listBallotStyles
+    .expectCallWith({ electionId })
+    .resolves([ballotStyle]);
+  apiMock.electionDefinitionApiClient.listParties
+    .expectCallWith({ electionId })
+    .resolves([]);
+  const history = renderScreen(routerPaths.proofBallotsForElection(electionId));
+  await screen.findByRole('heading', { name: 'Proof Ballots' });
+  const table = await screen.findByRole('table');
+  expect(history.location.pathname).toEqual(
+    routerPaths.proofBallotsBallotStyles(electionId)
+  );
+  screen.getByRole('tab', { name: 'Ballot Styles', selected: true });
+  expect(getNavItems()).toEqual(['Back', 'Definition', 'Proof Ballots']);
+  expect(getActiveNavItems()).toEqual(['Proof Ballots']);
+  within(table).getByRole('cell', { name: 'Precinct 1' });
+  within(table).getByRole('cell', { name: '1_en' });
+  expect(
+    within(table).queryByRole('button', { name: 'View Ballot' })
+  ).not.toBeInTheDocument();
+  expect(
+    screen.queryByRole('radiogroup', { name: 'Paper Size' })
+  ).not.toBeInTheDocument();
+
+  apiMock.electionDefinitionApiClient.getBallotLayoutSettings
+    .expectCallWith({ electionId })
+    .resolves({ paperSize: HmpbBallotPaperSize.Letter, compact: false });
+  await userEvent.click(screen.getByRole('tab', { name: 'Ballot Layout' }));
+  await screen.findByRole('radiogroup', { name: 'Paper Size' });
+  screen.getByRole('tab', { name: 'Ballot Layout', selected: true });
+  expect(getActiveNavItems()).toEqual(['Proof Ballots']);
+  expect(history.location.pathname).toEqual(
+    routerPaths.proofBallotsBallotLayout(electionId)
+  );
+  expect(screen.queryByRole('table')).not.toBeInTheDocument();
+
+  await userEvent.click(screen.getButton('Edit'));
+  await userEvent.click(screen.getByLabelText('8.5 x 14 inches (Legal)'));
+  await userEvent.click(screen.getByLabelText('Compact'));
+  apiMock.electionDefinitionApiClient.updateBallotLayoutSettings
+    .expectCallWith({
+      electionId,
+      paperSize: HmpbBallotPaperSize.Legal,
+      compact: true,
+    })
+    .resolves();
+  apiMock.electionDefinitionApiClient.getBallotLayoutSettings
+    .expectCallWith({ electionId })
+    .resolves({ paperSize: HmpbBallotPaperSize.Legal, compact: true });
+  await userEvent.click(screen.getButton('Save'));
+  await screen.findButton('Edit');
+  expect(screen.getByLabelText('8.5 x 14 inches (Legal)')).toBeChecked();
+  expect(screen.getByLabelText('Compact')).toBeChecked();
+});
+
 test('an election definition in progress is shown on the Election screen', async () => {
   apiMock.expectListPotentialElectionPackagesOnUsbDrive([]);
   apiMock.electionDefinitionApiClient.getCurrentInProgressElection
@@ -577,17 +659,35 @@ test('Delete Election discards the election definition', async () => {
   expect(history.location.pathname).toEqual(routerPaths.election);
 });
 
-test('the Definition nav item opens the current election definition', async () => {
-  apiMock.electionDefinitionApiClient.getCurrentInProgressElection
-    .expectCallWith()
+test('the Definition nav item opens Election Info from Proof Ballots', async () => {
+  expectCurrentInProgressElection(generalElectionInfo);
+  apiMock.electionDefinitionApiClient.getElectionInfo
+    .expectCallWith({ electionId })
     .resolves(generalElectionInfo);
-  expectElectionInfoQueries(generalElectionInfo);
-  const history = renderScreen(routerPaths.electionDefinition);
+  apiMock.electionDefinitionApiClient.listPrecincts
+    .expectCallWith({ electionId })
+    .resolves([]);
+  apiMock.electionDefinitionApiClient.listBallotStyles
+    .expectCallWith({ electionId })
+    .resolves([]);
+  apiMock.electionDefinitionApiClient.listParties
+    .expectCallWith({ electionId })
+    .resolves([]);
+  const history = renderScreen(routerPaths.proofBallotsForElection(electionId));
+  await screen.findByRole('tab', { name: 'Ballot Styles', selected: true });
+  expect(getActiveNavItems()).toEqual(['Proof Ballots']);
 
+  apiMock.electionDefinitionApiClient.getStateFeatures
+    .expectCallWith({ electionId })
+    .resolves({});
+  await userEvent.click(
+    within(screen.getByRole('navigation')).getButton('Definition')
+  );
   await screen.findButton('Edit');
   expect(history.location.pathname).toEqual(
     routerPaths.electionDefinitionInfo(electionId)
   );
+  expect(getActiveNavItems()).toEqual(['Definition']);
 });
 
 test('the Definition area redirects to the Election screen without an election definition', async () => {
@@ -595,7 +695,7 @@ test('the Definition area redirects to the Election screen without an election d
     .expectCallWith()
     .resolves(null);
   apiMock.expectListPotentialElectionPackagesOnUsbDrive([]);
-  const history = renderScreen(routerPaths.electionDefinition);
+  const history = renderScreen(routerPaths.electionDefinitionInfo(electionId));
 
   await screen.findButton('Create New Election');
   expect(history.location.pathname).toEqual(routerPaths.election);
@@ -628,17 +728,65 @@ test('back returns to the Election screen', async () => {
   await screen.findByRole('link', { name: /General Election/ });
 });
 
-test('a definition URL for an old election opens the current one', async () => {
+test('a definition URL for an old election opens the Election screen', async () => {
   expectCurrentInProgressElection(generalElectionInfo);
-  expectElectionInfoQueries(generalElectionInfo);
+  apiMock.expectListPotentialElectionPackagesOnUsbDrive([]);
   const history = renderScreen(
     routerPaths.electionDefinitionInfo('old-election')
   );
 
+  await screen.findByRole('link', { name: /General Election/ });
+  expect(history.location.pathname).toEqual(routerPaths.election);
+});
+
+test('the Proof Ballots nav item opens ballot proofing for the current election', async () => {
+  expectCurrentInProgressElection(generalElectionInfo);
+  expectElectionInfoQueries(generalElectionInfo);
+  const history = renderScreen(routerPaths.electionDefinitionInfo(electionId));
   await screen.findButton('Edit');
-  expect(history.location.pathname).toEqual(
-    routerPaths.electionDefinitionInfo(electionId)
+
+  apiMock.electionDefinitionApiClient.listPrecincts
+    .expectCallWith({ electionId })
+    .resolves([]);
+  apiMock.electionDefinitionApiClient.listBallotStyles
+    .expectCallWith({ electionId })
+    .resolves([]);
+  apiMock.electionDefinitionApiClient.listParties
+    .expectCallWith({ electionId })
+    .resolves([]);
+  await userEvent.click(
+    within(screen.getByRole('navigation')).getButton('Proof Ballots')
   );
+  await screen.findByRole('tab', { name: 'Ballot Styles', selected: true });
+  expect(history.location.pathname).toEqual(
+    routerPaths.proofBallotsBallotStyles(electionId)
+  );
+  await waitFor(() => apiMock.assertComplete());
+});
+
+test.each([routerPaths.electionDefinition, routerPaths.proofBallots])(
+  '%s without an election id opens the Election screen',
+  async (path) => {
+    apiMock.electionDefinitionApiClient.getCurrentInProgressElection
+      .expectCallWith()
+      .resolves(null);
+    apiMock.expectListPotentialElectionPackagesOnUsbDrive([]);
+    const history = renderScreen(path);
+
+    await screen.findButton('Create New Election');
+    expect(history.location.pathname).toEqual(routerPaths.election);
+  }
+);
+
+test('a Proof Ballots URL for an old election opens the Election screen', async () => {
+  expectCurrentInProgressElection(generalElectionInfo);
+  apiMock.expectListPotentialElectionPackagesOnUsbDrive([]);
+  const history = renderScreen(
+    routerPaths.proofBallotsForElection('old-election')
+  );
+
+  await screen.findByRole('link', { name: /General Election/ });
+  expect(history.location.pathname).toEqual(routerPaths.election);
 });
 
 test('there is no Definition area when election definition is disabled', async () => {

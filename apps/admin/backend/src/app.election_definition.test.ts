@@ -11,6 +11,7 @@ import { LogEventId } from '@votingworks/logging';
 import {
   type CandidateContest,
   type Contest,
+  HmpbBallotPaperSize,
   LanguageCode,
   type Party,
   type PollingPlace,
@@ -812,6 +813,122 @@ test('rejects invalid contests and unknown elections', async () => {
     ).rejects.toThrow('Election definition not found');
   });
   expect(await api.listContests({ electionId })).toEqual([]);
+});
+
+test('ballot layout settings and ballot styles', async () => {
+  const {
+    electionDefinitionApiClient: api,
+    auth,
+    logger,
+  } = buildTestEnvironment();
+  mockSystemAdministratorAuth(auth);
+  const electionId = await createElectionWithDistrict(api);
+  expect(await api.getBallotLayoutSettings({ electionId })).toEqual({
+    paperSize: HmpbBallotPaperSize.Letter,
+    compact: false,
+  });
+
+  await api.updateBallotLayoutSettings({
+    electionId,
+    paperSize: HmpbBallotPaperSize.Legal,
+    compact: true,
+  });
+  expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
+    LogEventId.ElectionDefinitionBallotLayoutSettingsUpdated,
+    {
+      message: `Updated ballot layout settings in election definition ${electionId}: paper size legal, compact density.`,
+      disposition: 'success',
+    }
+  );
+  expect(await api.getBallotLayoutSettings({ electionId })).toEqual({
+    paperSize: HmpbBallotPaperSize.Legal,
+    compact: true,
+  });
+
+  await api.updateBallotLayoutSettings({
+    electionId,
+    paperSize: HmpbBallotPaperSize.Letter,
+    compact: false,
+  });
+  expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
+    LogEventId.ElectionDefinitionBallotLayoutSettingsUpdated,
+    {
+      message: `Updated ballot layout settings in election definition ${electionId}: paper size letter, default density.`,
+      disposition: 'success',
+    }
+  );
+
+  expect(await api.listBallotStyles({ electionId })).toEqual([]);
+  (
+    await api.createPrecinct({
+      electionId,
+      newPrecinct: {
+        id: 'precinct-1',
+        name: 'Precinct 1',
+        districtIds: ['district-1'],
+      },
+    })
+  ).unsafeUnwrap();
+  (await api.createContest({ electionId, newContest: measure })).unsafeUnwrap();
+  expect(await api.listBallotStyles({ electionId })).toEqual([
+    {
+      id: '1_en',
+      groupId: '1',
+      precincts: ['precinct-1'],
+      districts: ['district-1'],
+      languages: [LanguageCode.ENGLISH],
+    },
+  ]);
+});
+
+test('rejects invalid ballot layout settings and unknown elections', async () => {
+  const {
+    electionDefinitionApiClient: api,
+    auth,
+    logger,
+  } = buildTestEnvironment();
+  mockSystemAdministratorAuth(auth);
+  const electionId = await createElectionWithDistrict(api);
+
+  await suppressingConsoleOutput(async () => {
+    await expect(
+      api.updateBallotLayoutSettings({
+        electionId,
+        paperSize: 'tabloid' as HmpbBallotPaperSize,
+        compact: false,
+      })
+    ).rejects.toThrow();
+    await expect(
+      api.updateBallotLayoutSettings({
+        electionId,
+        paperSize: HmpbBallotPaperSize.Legal,
+        compact: 'false' as unknown as boolean,
+      })
+    ).rejects.toThrow();
+
+    const missing = { electionId: 'missing' } as const;
+    await expect(api.listBallotStyles(missing)).rejects.toThrow(
+      'Election definition not found'
+    );
+    await expect(api.getBallotLayoutSettings(missing)).rejects.toThrow(
+      'Election definition not found'
+    );
+    await expect(
+      api.updateBallotLayoutSettings({
+        ...missing,
+        paperSize: HmpbBallotPaperSize.Legal,
+        compact: true,
+      })
+    ).rejects.toThrow('Election definition not found');
+  });
+  expect(logger.logAsCurrentRole).not.toHaveBeenCalledWith(
+    LogEventId.ElectionDefinitionBallotLayoutSettingsUpdated,
+    expect.anything()
+  );
+  expect(await api.getBallotLayoutSettings({ electionId })).toEqual({
+    paperSize: HmpbBallotPaperSize.Letter,
+    compact: false,
+  });
 });
 
 test('edit precincts', async () => {

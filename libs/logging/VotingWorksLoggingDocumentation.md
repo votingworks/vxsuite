@@ -822,6 +822,10 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)
 **Description:** A user deleted a contest from the election definition being designed.
 **Machines:** vx-admin
+### election-definition-ballot-layout-settings-updated
+**Type:** [user-action](#user-action)
+**Description:** A user changed the ballot paper size or density of the election definition being designed.
+**Machines:** vx-admin
 ### election-definition-discarded
 **Type:** [user-action](#user-action)
 **Description:** A user discarded the election definition being designed.

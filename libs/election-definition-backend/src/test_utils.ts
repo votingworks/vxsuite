@@ -4,6 +4,7 @@ import {
   type Candidate,
   type CandidateContest,
   type ElectionId,
+  HmpbBallotPaperSize,
   LanguageCode,
   type Party,
   type PollingPlace,
@@ -1269,6 +1270,115 @@ export function describeElectionDefinitionMethods(
     );
     await expectRejection(
       methods.deletePollingPlace({ electionId: 'unknown', id: 'place-1' })
+    );
+  });
+
+  test('ballot layout settings default to letter and can be updated', async () => {
+    const { methods, createElection } = await setUp();
+    const electionId = await createElection();
+    expect(await methods.getBallotLayoutSettings({ electionId })).toEqual({
+      paperSize: HmpbBallotPaperSize.Letter,
+      compact: false,
+    });
+
+    await methods.updateBallotLayoutSettings({
+      electionId,
+      paperSize: HmpbBallotPaperSize.Legal,
+      compact: true,
+    });
+    expect(await methods.getBallotLayoutSettings({ electionId })).toEqual({
+      paperSize: HmpbBallotPaperSize.Legal,
+      compact: true,
+    });
+  });
+
+  test('updateBallotLayoutSettings rejects an invalid paper size', async () => {
+    const { methods, createElection } = await setUp();
+    const electionId = await createElection();
+
+    await expectRejection(
+      methods.updateBallotLayoutSettings({
+        electionId,
+        paperSize: 'tabloid' as HmpbBallotPaperSize,
+        compact: false,
+      })
+    );
+    expect(await methods.getBallotLayoutSettings({ electionId })).toEqual({
+      paperSize: HmpbBallotPaperSize.Letter,
+      compact: false,
+    });
+  });
+
+  test('listBallotStyles groups precincts with the same contests', async () => {
+    const harness = await setUp();
+    const { methods } = harness;
+    const electionId = await createElectionWithDistricts(harness);
+    expect(await methods.listBallotStyles({ electionId })).toEqual([]);
+
+    for (const precinct of [
+      { id: 'precinct-1', name: 'Precinct 1', districtIds: ['district-1'] },
+      { id: 'precinct-2', name: 'Precinct 2', districtIds: ['district-1'] },
+      {
+        id: 'precinct-3',
+        name: 'Precinct 3',
+        districtIds: ['district-1', 'district-2'],
+      },
+    ]) {
+      expect(
+        await methods.createPrecinct({ electionId, newPrecinct: precinct })
+      ).toEqual(ok());
+    }
+    for (const districtId of ['district-1', 'district-2']) {
+      const districtMeasure: YesNoContest = {
+        id: `measure-${districtId}`,
+        type: 'yesno',
+        title: `Measure ${districtId}`,
+        districtId,
+        description: '<p>Should we?</p>',
+        options: [
+          { id: `measure-${districtId}-yes`, label: 'Yes' },
+          { id: `measure-${districtId}-no`, label: 'No' },
+        ],
+      };
+      expect(
+        await methods.createContest({
+          electionId,
+          newContest: districtMeasure,
+        })
+      ).toEqual(ok());
+    }
+
+    expect(await methods.listBallotStyles({ electionId })).toEqual([
+      {
+        id: '1_en',
+        groupId: '1',
+        precincts: ['precinct-1', 'precinct-2'],
+        districts: ['district-1'],
+        languages: [LanguageCode.ENGLISH],
+      },
+      {
+        id: '2_en',
+        groupId: '2',
+        precincts: ['precinct-3'],
+        districts: ['district-1', 'district-2'],
+        languages: [LanguageCode.ENGLISH],
+      },
+    ]);
+  });
+
+  test('ballot style and layout methods reject an unknown election', async () => {
+    const { methods } = await setUp();
+
+    await expectRejection(methods.listBallotStyles({ electionId: 'unknown' }));
+    await expectRejection(
+      methods.getBallotLayoutSettings({ electionId: 'unknown' })
+    );
+    await expectRejection(
+      methods.updateBallotLayoutSettings({
+        electionId: 'unknown',
+        paperSize: HmpbBallotPaperSize.Legal,
+        compact: true,
+      })
     );
   });
 }

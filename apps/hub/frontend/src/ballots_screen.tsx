@@ -1,349 +1,41 @@
-import {
-  H1,
-  Table,
-  TH,
-  TD,
-  LinkButton,
-  Button,
-  RadioGroup,
-  MainContent,
-  TabPanel,
-  RouterTabBar,
-  Font,
-  Callout,
-} from '@votingworks/ui';
+import { H1, MainContent, TabPanel, RouterTabBar } from '@votingworks/ui';
 import { Redirect, Route, Switch, useParams } from 'react-router-dom';
-import { find } from '@votingworks/basics';
 import {
-  HmpbBallotPaperSize,
-  type ElectionId,
-  hasSplits,
-} from '@votingworks/types';
-import { useState } from 'react';
-import styled from 'styled-components';
-import { ballotStyleHasPrecinctOrSplit } from '@votingworks/utils';
-import type { BallotTemplateId } from '@votingworks/hub-backend';
-import { Column } from '@votingworks/election-definition-ui';
-import {
-  getBallotsFinalizedAt,
-  getBallotLayoutSettings,
-  getBallotTemplate,
-  updateBallotLayoutSettings,
-  listBallotStyles,
-  getElectionInfo,
-  electionDefinitionApi,
-} from './api.js';
-import { Form, FormActionsRow, NestedTr } from './layout.js';
+  BallotLayoutForm,
+  BallotStylesTable,
+  Column,
+} from '@votingworks/election-definition-ui';
+import { getBallotsFinalizedAt, getBallotTemplate } from './api.js';
 import { ElectionNavScreen, Header } from './nav_screen.js';
 import {
   type ElectionIdParams,
   electionParamRoutes,
   routes,
 } from './routes.js';
-import { BallotScreen, paperSizeLabels } from './ballot_screen.js';
+import { BallotScreen } from './ballot_screen.js';
 import { useTitle } from './hooks/use_title.js';
 import { BallotsStatus } from './ballots_status.js';
 
-function BallotDesignForm({
-  electionId,
-  savedLayoutSettings,
-  ballotsFinalizedAt,
-  ballotTemplateId,
-}: {
-  electionId: ElectionId;
-  savedLayoutSettings: {
-    paperSize: HmpbBallotPaperSize;
-    compact: boolean;
-  };
-  ballotsFinalizedAt: Date | null;
-  ballotTemplateId: BallotTemplateId;
-}): JSX.Element | null {
-  const [isEditing, setIsEditing] = useState(false);
-  const [layoutSettings, setLayoutSettings] = useState(savedLayoutSettings);
-
-  const updateBallotLayoutSettingsMutation =
-    updateBallotLayoutSettings.useMutation();
-  const getStateFeaturesQuery =
-    electionDefinitionApi.getStateFeatures.useQuery(electionId);
-
-  // @coverage-exclude
-  if (!getStateFeaturesQuery.isSuccess) {
-    return null;
-  }
-  const features = getStateFeaturesQuery.data;
-
-  function onSubmit() {
-    updateBallotLayoutSettingsMutation.mutate(
-      { electionId, ...layoutSettings },
-      { onSuccess: () => setIsEditing(false) }
-    );
-  }
-
-  return (
-    <Form
-      onSubmit={(e) => {
-        e.preventDefault();
-        onSubmit();
-      }}
-      onReset={(e) => {
-        e.preventDefault();
-        setLayoutSettings(savedLayoutSettings);
-        setIsEditing(false);
-      }}
-    >
-      <div style={{ maxWidth: '16.5rem' }}>
-        <RadioGroup
-          label="Paper Size"
-          options={Object.entries(paperSizeLabels)
-            .filter(([value]) =>
-              features.ONLY_LETTER_AND_LEGAL_PAPER_SIZES
-                ? value === HmpbBallotPaperSize.Letter ||
-                  value === HmpbBallotPaperSize.Legal
-                : true
-            )
-            .map(([value, label]) => ({
-              value,
-              label,
-            }))}
-          value={layoutSettings.paperSize}
-          onChange={(value) =>
-            setLayoutSettings({
-              ...layoutSettings,
-              paperSize: value as HmpbBallotPaperSize,
-            })
-          }
-          disabled={!isEditing}
-        />
-      </div>
-      {ballotTemplateId !== 'MiBallot' &&
-        ballotTemplateId !== 'NhStateBallot' && (
-          <div style={{ maxWidth: '16.5rem' }}>
-            <RadioGroup
-              label="Density"
-              options={[
-                {
-                  label: 'Default',
-                  value: 'default',
-                },
-                {
-                  label: 'Compact',
-                  value: 'compact',
-                },
-              ]}
-              value={layoutSettings.compact ? 'compact' : 'default'}
-              onChange={(value) =>
-                setLayoutSettings({
-                  ...layoutSettings,
-                  compact: value === 'compact',
-                })
-              }
-              disabled={!isEditing}
-            />
-          </div>
-        )}
-      {isEditing ? (
-        <FormActionsRow>
-          <Button type="reset">Cancel</Button>
-          <Button type="submit" variant="primary" icon="Done">
-            Save
-          </Button>
-        </FormActionsRow>
-      ) : (
-        <FormActionsRow>
-          <Button
-            key="edit"
-            variant="primary"
-            icon="Edit"
-            disabled={!!ballotsFinalizedAt}
-            onPress={() => setIsEditing(true)}
-          >
-            Edit
-          </Button>
-        </FormActionsRow>
-      )}
-      {features.ONLY_LETTER_AND_LEGAL_PAPER_SIZES && (
-        <Callout
-          style={{ alignSelf: 'flex-start' }}
-          icon="Info"
-          color="neutral"
-        >
-          Reach out to VotingWorks support if you would prefer a longer paper
-          size.
-        </Callout>
-      )}
-    </Form>
-  );
-}
-
-const BallotStylesTable = styled(Table)`
-  td:last-child {
-    text-align: right;
-    padding-right: 1rem;
-  }
-`;
-
 function BallotStylesTab(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
-  const getElectionInfoQuery = getElectionInfo.useQuery(electionId);
-  const listPrecinctsQuery =
-    electionDefinitionApi.listPrecincts.useQuery(electionId);
-  const listBallotStylesQuery = listBallotStyles.useQuery(electionId);
-  const listPartiesQuery =
-    electionDefinitionApi.listParties.useQuery(electionId);
   const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
 
-  if (
-    !(
-      getElectionInfoQuery.isSuccess &&
-      listPrecinctsQuery.isSuccess &&
-      listBallotStylesQuery.isSuccess &&
-      listPartiesQuery.isSuccess &&
-      getBallotsFinalizedAtQuery.isSuccess
-    )
-  ) {
+  if (!getBallotsFinalizedAtQuery.isSuccess) {
     return null;
   }
-
-  const electionInfo = getElectionInfoQuery.data;
-  const precincts = listPrecinctsQuery.data;
-  const ballotStyles = listBallotStylesQuery.data;
-  const parties = listPartiesQuery.data;
-  const ballotRoutes = routes.election(electionId).ballots;
-  const showPartyColumn =
-    electionInfo.type === 'primary' && !electionInfo.isMiCombinedBallotPrimary;
 
   return (
     <TabPanel>
       <Column style={{ gap: '1rem', maxWidth: '40rem' }}>
         <BallotsStatus />
-
-        {ballotStyles.length > 0 && (
-          <BallotStylesTable>
-            <thead>
-              <tr>
-                <TH>Precinct</TH>
-                <TH>Ballot Style</TH>
-                {showPartyColumn && <TH>Party</TH>}
-                <TH />
-              </tr>
-            </thead>
-            <tbody>
-              {precincts.flatMap((precinct) => {
-                if (!hasSplits(precinct)) {
-                  const precinctBallotStyles = ballotStyles.filter(
-                    (ballotStyle) => ballotStyle.precincts.includes(precinct.id)
-                  );
-
-                  if (precinctBallotStyles.length === 0) {
-                    return (
-                      <tr key={precinct.id}>
-                        <TD>{precinct.name}</TD>
-                        <TD>
-                          <Font italic>No contests assigned</Font>
-                        </TD>
-                        {
-                          // @coverage-exclude
-                          showPartyColumn && <TD />
-                        }
-                        <TD />
-                      </tr>
-                    );
-                  }
-
-                  return precinctBallotStyles.map((ballotStyle) => (
-                    <tr key={precinct.id + ballotStyle.id}>
-                      <TD>{precinct.name}</TD>
-                      <TD>{ballotStyle.id}</TD>
-                      {showPartyColumn && (
-                        <TD>
-                          {
-                            find(
-                              parties,
-                              (party) => party.id === ballotStyle.partyId
-                            ).fullName
-                          }
-                        </TD>
-                      )}
-                      <TD>
-                        <LinkButton
-                          to={
-                            ballotRoutes.viewBallot(ballotStyle.id, precinct.id)
-                              .path
-                          }
-                        >
-                          View Ballot
-                        </LinkButton>
-                      </TD>
-                    </tr>
-                  ));
-                }
-
-                const precinctRow = (
-                  <tr key={precinct.id}>
-                    <TD>{precinct.name}</TD>
-                    <TD />
-                    {showPartyColumn && <TD />}
-                    <TD />
-                  </tr>
-                );
-
-                const splitRows = precinct.splits.flatMap((split) => {
-                  const splitBallotStyles = ballotStyles.filter((ballotStyle) =>
-                    ballotStyleHasPrecinctOrSplit(ballotStyle, {
-                      precinct,
-                      split,
-                    })
-                  );
-
-                  if (splitBallotStyles.length === 0) {
-                    return (
-                      <NestedTr key={split.id}>
-                        <TD>{split.name}</TD>
-                        <TD>
-                          <Font italic>No contests assigned</Font>
-                        </TD>
-                        {
-                          // @coverage-exclude
-                          showPartyColumn && <TD />
-                        }
-                        <TD />
-                      </NestedTr>
-                    );
-                  }
-
-                  return splitBallotStyles.map((ballotStyle) => (
-                    <NestedTr key={split.id + ballotStyle.id}>
-                      <TD>{split.name}</TD>
-                      <TD>{ballotStyle.id}</TD>
-                      {showPartyColumn && (
-                        <TD>
-                          {
-                            find(
-                              parties,
-                              (party) => party.id === ballotStyle.partyId
-                            ).fullName
-                          }
-                        </TD>
-                      )}
-                      <TD>
-                        <LinkButton
-                          to={
-                            ballotRoutes.viewBallot(ballotStyle.id, precinct.id)
-                              .path
-                          }
-                        >
-                          View Ballot
-                        </LinkButton>
-                      </TD>
-                    </NestedTr>
-                  ));
-                });
-
-                return [precinctRow, ...splitRows];
-              })}
-            </tbody>
-          </BallotStylesTable>
-        )}
+        <BallotStylesTable
+          electionId={electionId}
+          getViewBallotPath={(ballotStyleId, precinctId) =>
+            routes
+              .election(electionId)
+              .ballots.viewBallot(ballotStyleId, precinctId).path
+          }
+        />
       </Column>
     </TabPanel>
   );
@@ -351,32 +43,26 @@ function BallotStylesTab(): JSX.Element | null {
 
 function BallotLayoutTab(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
-  const getBallotLayoutSettingsQuery =
-    getBallotLayoutSettings.useQuery(electionId);
   const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
   const getBallotTemplateQuery = getBallotTemplate.useQuery(electionId);
 
   if (
-    !(
-      getBallotLayoutSettingsQuery.isSuccess &&
-      getBallotsFinalizedAtQuery.isSuccess &&
-      getBallotTemplateQuery.isSuccess
-    )
+    !(getBallotsFinalizedAtQuery.isSuccess && getBallotTemplateQuery.isSuccess)
   ) {
     return null;
   }
 
-  const layoutSettings = getBallotLayoutSettingsQuery.data;
-  const ballotsFinalizedAt = getBallotsFinalizedAtQuery.data;
   const ballotTemplateId = getBallotTemplateQuery.data;
 
   return (
     <TabPanel>
-      <BallotDesignForm
+      <BallotLayoutForm
         electionId={electionId}
-        savedLayoutSettings={layoutSettings}
-        ballotsFinalizedAt={ballotsFinalizedAt}
-        ballotTemplateId={ballotTemplateId}
+        isLocked={!!getBallotsFinalizedAtQuery.data}
+        hideDensity={
+          ballotTemplateId === 'MiBallot' ||
+          ballotTemplateId === 'NhStateBallot'
+        }
       />
     </TabPanel>
   );

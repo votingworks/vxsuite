@@ -30,6 +30,7 @@ import {
   hasSplits,
   type SheetPositions,
   type ContestPosition,
+  HmpbBallotPaperSize,
   LanguageCode,
 } from '@votingworks/types';
 import {
@@ -2690,7 +2691,15 @@ test('getElection assembles the in-progress election', () => {
     pollingPlaces: [pollingPlace],
     parties: [party],
     contests: [contest],
-    ballotStyles: [],
+    ballotStyles: [
+      {
+        id: '1_en',
+        groupId: '1',
+        precincts: [precinct.id],
+        districts: ['district-1'],
+        languages: [LanguageCode.ENGLISH],
+      },
+    ],
     ballotLayout: { paperSize: 'letter', metadataEncoding: 'qr-code' },
     ballotStrings: {},
   });
@@ -2706,6 +2715,160 @@ test('getElection assembles the in-progress election', () => {
   expect(
     store.electionDefinition.getElection('design-election')?.signature
   ).toEqual(undefined);
+});
+
+describe('design ballot layout and ballot styles', () => {
+  const electionId = 'design-election';
+
+  function setUpStore(): Store {
+    const store = Store.memoryStore(makeTemporaryDirectory());
+    store.electionDefinition.createInProgressElection({
+      electionId,
+      type: 'general',
+      date: new DateWithoutTime('2026-11-03'),
+      title: '',
+      state: 'DEMO',
+      jurisdictionName: '',
+      seal: '',
+      languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
+    });
+    return store;
+  }
+
+  test('ballot layout settings default to letter and not compact', () => {
+    const store = setUpStore();
+    expect(
+      store.electionDefinition.getBallotLayoutSettings(electionId)
+    ).toEqual({ paperSize: HmpbBallotPaperSize.Letter, compact: false });
+  });
+
+  test('update ballot layout settings', () => {
+    const store = setUpStore();
+    store.electionDefinition.updateBallotLayoutSettings({
+      electionId,
+      paperSize: HmpbBallotPaperSize.Legal,
+      compact: true,
+    });
+    expect(
+      store.electionDefinition.getBallotLayoutSettings(electionId)
+    ).toEqual({ paperSize: HmpbBallotPaperSize.Legal, compact: true });
+    expect(
+      store.electionDefinition.getElection(electionId)?.ballotLayout
+    ).toEqual({
+      paperSize: HmpbBallotPaperSize.Legal,
+      metadataEncoding: 'qr-code',
+    });
+
+    store.electionDefinition.updateBallotLayoutSettings({
+      electionId,
+      paperSize: HmpbBallotPaperSize.Letter,
+      compact: false,
+    });
+    expect(
+      store.electionDefinition.getBallotLayoutSettings(electionId)
+    ).toEqual({ paperSize: HmpbBallotPaperSize.Letter, compact: false });
+  });
+
+  test('ballot layout settings reject an unknown election', () => {
+    const store = setUpStore();
+    expect(() =>
+      store.electionDefinition.getBallotLayoutSettings('other-election')
+    ).toThrow('Election not found');
+    expect(() =>
+      store.electionDefinition.updateBallotLayoutSettings({
+        electionId: 'other-election',
+        paperSize: HmpbBallotPaperSize.Legal,
+        compact: true,
+      })
+    ).toThrow('Election not found');
+  });
+
+  test('ballot styles group precincts by district and language', () => {
+    const store = setUpStore();
+    expect(store.electionDefinition.listBallotStyles(electionId)).toEqual([]);
+
+    store.electionDefinition
+      .updateDistricts({
+        electionId,
+        newDistricts: [
+          { id: 'district-1', name: 'District 1' },
+          { id: 'district-2', name: 'District 2' },
+        ],
+      })
+      .unsafeUnwrap();
+    for (const [id, districtIds] of [
+      ['precinct-1', ['district-1']],
+      ['precinct-2', ['district-1']],
+      ['precinct-3', ['district-1', 'district-2']],
+    ] as const) {
+      store.electionDefinition
+        .createPrecinct({
+          electionId,
+          newPrecinct: { id, name: id, districtIds: [...districtIds] },
+        })
+        .unsafeUnwrap();
+    }
+    for (const districtId of ['district-1', 'district-2']) {
+      store.electionDefinition
+        .createContest({
+          electionId,
+          newContest: {
+            id: `contest-${districtId}`,
+            type: 'yesno',
+            title: `Measure ${districtId}`,
+            districtId,
+            description: 'Description',
+            options: [
+              { id: `yes-${districtId}`, label: 'Yes' },
+              { id: `no-${districtId}`, label: 'No' },
+            ],
+          },
+        })
+        .unsafeUnwrap();
+    }
+
+    expect(store.electionDefinition.listBallotStyles(electionId)).toEqual([
+      {
+        id: '1_en',
+        groupId: '1',
+        precincts: ['precinct-1', 'precinct-2'],
+        districts: ['district-1'],
+        languages: [LanguageCode.ENGLISH],
+      },
+      {
+        id: '1_es-US',
+        groupId: '1',
+        precincts: ['precinct-1', 'precinct-2'],
+        districts: ['district-1'],
+        languages: [LanguageCode.SPANISH],
+      },
+      {
+        id: '2_en',
+        groupId: '2',
+        precincts: ['precinct-3'],
+        districts: ['district-1', 'district-2'],
+        languages: [LanguageCode.ENGLISH],
+      },
+      {
+        id: '2_es-US',
+        groupId: '2',
+        precincts: ['precinct-3'],
+        districts: ['district-1', 'district-2'],
+        languages: [LanguageCode.SPANISH],
+      },
+    ]);
+  });
+
+  test('ballot styles reject an unknown election', () => {
+    const store = Store.memoryStore(makeTemporaryDirectory());
+    expect(() =>
+      store.electionDefinition.listBallotStyles(electionId)
+    ).toThrow();
+    const storeWithElection = setUpStore();
+    expect(() =>
+      storeWithElection.electionDefinition.listBallotStyles('other-election')
+    ).toThrow('Election not found');
+  });
 });
 
 describe('design districts', () => {

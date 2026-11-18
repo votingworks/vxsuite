@@ -9,6 +9,8 @@ import {
   throwIllegalValue,
 } from '@votingworks/basics';
 import {
+  type BallotLayoutSettings,
+  type BallotLayoutSettingsUpdate,
   type ContestCreate,
   type ContestDelete,
   type ContestsReorder,
@@ -37,10 +39,12 @@ import {
 import * as grout from '@votingworks/grout';
 import { LogEventId, type Logger } from '@votingworks/logging';
 import {
+  type BallotStyle,
   type District,
   type Contest,
   type ElectionId,
   type ElectionRegisteredVoterCounts,
+  HmpbBallotPaperSizeSchema,
   LanguageCode,
   type NonEnglishLanguageCode,
   type Party,
@@ -51,6 +55,7 @@ import {
 } from '@votingworks/types';
 import type { UsbDrive } from '@votingworks/usb-drive';
 import { isSystemAdministratorAuth } from '@votingworks/utils';
+import { z } from 'zod/v4';
 import { constructAuthMachineState } from '../util/auth.js';
 import type { Workspace } from '../util/workspace.js';
 import { getMachineState, isElectionDefinitionEnabled } from './state.js';
@@ -494,6 +499,36 @@ function createElectionDefinitionApiMethods({
         LogEventId.ElectionDefinitionPollingPlaceDeleted,
         {
           message: `Deleted polling place ${input.id} from election definition ${input.electionId}.`,
+          disposition: 'success',
+        }
+      );
+    },
+
+    listBallotStyles(input: ElectionInput): BallotStyle[] {
+      loadInProgressElectionInfo(input);
+      return store.electionDefinition.listBallotStyles(input.electionId);
+    },
+
+    getBallotLayoutSettings(input: ElectionInput): BallotLayoutSettings {
+      loadInProgressElectionInfo(input);
+      return store.electionDefinition.getBallotLayoutSettings(input.electionId);
+    },
+
+    async updateBallotLayoutSettings(
+      input: BallotLayoutSettingsUpdate
+    ): Promise<void> {
+      loadInProgressElectionInfo(input);
+      const paperSize = unsafeParse(HmpbBallotPaperSizeSchema, input.paperSize);
+      const compact = unsafeParse(z.boolean(), input.compact);
+      store.electionDefinition.updateBallotLayoutSettings({
+        electionId: input.electionId,
+        paperSize,
+        compact,
+      });
+      await logger.logAsCurrentRole(
+        LogEventId.ElectionDefinitionBallotLayoutSettingsUpdated,
+        {
+          message: `Updated ballot layout settings in election definition ${input.electionId}: paper size ${paperSize}, ${compact ? 'compact' : 'default'} density.`,
           disposition: 'success',
         }
       );

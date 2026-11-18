@@ -79,6 +79,8 @@ import {
   decodeQuickResultsMessage,
 } from '@votingworks/auth';
 import {
+  type BallotLayoutSettings,
+  type BallotLayoutSettingsUpdate,
   type ContestCreate,
   type ContestDelete,
   type ContestsReorder,
@@ -679,15 +681,13 @@ export function buildApi(ctx: AppContext) {
 
     async getBallotLayoutSettings(input: {
       electionId: ElectionId;
-    }): Promise<{ paperSize: HmpbBallotPaperSize; compact: boolean }> {
+    }): Promise<BallotLayoutSettings> {
       return store.getBallotLayoutSettings(input.electionId);
     },
 
-    async updateBallotLayoutSettings(input: {
-      electionId: ElectionId;
-      paperSize: HmpbBallotPaperSize;
-      compact: boolean;
-    }): Promise<void> {
+    async updateBallotLayoutSettings(
+      input: BallotLayoutSettingsUpdate
+    ): Promise<void> {
       const paperSize = unsafeParse(HmpbBallotPaperSizeSchema, input.paperSize);
       await store.updateBallotLayoutSettings(
         input.electionId,

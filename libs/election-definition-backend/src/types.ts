@@ -9,6 +9,7 @@ import {
   ElectionIdSchema,
   type ElectionType,
   ElectionTypeSchema,
+  type HmpbBallotPaperSize,
   type LanguageCode,
   LanguageCodeSchema,
   type Party,
@@ -70,6 +71,15 @@ export interface PartiesUpdate {
   readonly deletedPartyIds?: PartyId[];
   readonly newParties?: Party[];
   readonly updatedParties?: Party[];
+}
+
+export interface BallotLayoutSettings {
+  readonly paperSize: HmpbBallotPaperSize;
+  readonly compact: boolean;
+}
+
+export interface BallotLayoutSettingsUpdate extends BallotLayoutSettings {
+  readonly electionId: ElectionId;
 }
 
 export interface ContestCreate {
