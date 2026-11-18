@@ -4,6 +4,7 @@ import { DateWithoutTime, err, ok } from '@votingworks/basics';
 import {
   type ElectionInfoUpdate,
   getStateFeaturesConfig,
+  stateDefaultSystemSettings,
   stateFeatureConfigs,
 } from '@votingworks/election-definition-backend';
 import { describeElectionDefinitionMethods } from '@votingworks/election-definition-backend/test-utils';
@@ -1570,4 +1571,17 @@ test('creating a precinct creates no polling place without EDIT_POLLING_PLACES',
   ).unsafeUnwrap();
 
   expect(await api.listPollingPlaces({ electionId })).toEqual([]);
+});
+
+test('createInProgressElection seeds system settings from the state profile', async () => {
+  const {
+    electionDefinitionApiClient: api,
+    auth,
+    workspace,
+  } = buildTestEnvironment();
+  mockSystemAdministratorAuth(auth);
+  const electionId = await api.createInProgressElection();
+  expect(
+    workspace.store.electionDefinition.getSystemSettings(electionId)
+  ).toEqual(stateDefaultSystemSettings('DEMO'));
 });

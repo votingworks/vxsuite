@@ -2718,10 +2718,13 @@ test('design election round trip', () => {
     signatureCaption: 'Clerk',
     languageCodes: [LanguageCode.ENGLISH],
   } as const;
-  store.electionDefinition.createInProgressElection({
-    ...electionInfo,
-    languageCodes: [...electionInfo.languageCodes],
-  });
+  store.electionDefinition.createInProgressElection(
+    {
+      ...electionInfo,
+      languageCodes: [...electionInfo.languageCodes],
+    },
+    DEFAULT_SYSTEM_SETTINGS
+  );
   expect(store.electionDefinition.getElectionInfo()).toEqual(electionInfo);
 
   const {
@@ -2758,24 +2761,33 @@ test('only one design election can exist', () => {
     seal: '',
     languageCodes: [LanguageCode.ENGLISH],
   } as const;
-  store.electionDefinition.createInProgressElection({
-    ...electionInfo,
-    languageCodes: [...electionInfo.languageCodes],
-  });
-  expect(() =>
-    store.electionDefinition.createInProgressElection({
+  store.electionDefinition.createInProgressElection(
+    {
       ...electionInfo,
-      electionId: 'another-design-election',
       languageCodes: [...electionInfo.languageCodes],
-    })
+    },
+    DEFAULT_SYSTEM_SETTINGS
+  );
+  expect(() =>
+    store.electionDefinition.createInProgressElection(
+      {
+        ...electionInfo,
+        electionId: 'another-design-election',
+        languageCodes: [...electionInfo.languageCodes],
+      },
+      DEFAULT_SYSTEM_SETTINGS
+    )
   ).toThrow();
 
   store.electionDefinition.deleteInProgressElection();
-  store.electionDefinition.createInProgressElection({
-    ...electionInfo,
-    electionId: 'another-design-election',
-    languageCodes: [...electionInfo.languageCodes],
-  });
+  store.electionDefinition.createInProgressElection(
+    {
+      ...electionInfo,
+      electionId: 'another-design-election',
+      languageCodes: [...electionInfo.languageCodes],
+    },
+    DEFAULT_SYSTEM_SETTINGS
+  );
   expect(store.electionDefinition.getElectionInfo()?.electionId).toEqual(
     'another-design-election'
   );
@@ -2795,10 +2807,13 @@ test('getElection assembles the in-progress election', () => {
     signatureCaption: 'Clerk',
     languageCodes: [LanguageCode.ENGLISH],
   } as const;
-  store.electionDefinition.createInProgressElection({
-    ...electionInfo,
-    languageCodes: [...electionInfo.languageCodes],
-  });
+  store.electionDefinition.createInProgressElection(
+    {
+      ...electionInfo,
+      languageCodes: [...electionInfo.languageCodes],
+    },
+    DEFAULT_SYSTEM_SETTINGS
+  );
   store.electionDefinition
     .updateDistricts({
       electionId: 'design-election',
@@ -2892,21 +2907,188 @@ test('getElection assembles the in-progress election', () => {
   ).toEqual(undefined);
 });
 
+describe('design finalization and election package', () => {
+  const electionId = 'design-election';
+  const designSystemSettings: SystemSettings = {
+    ...DEFAULT_SYSTEM_SETTINGS,
+    enableEarlyVoting: true,
+  };
+
+  function setUpStore(): Store {
+    const store = Store.memoryStore(makeTemporaryDirectory());
+    store.electionDefinition.createInProgressElection(
+      {
+        electionId,
+        type: 'general',
+        date: new DateWithoutTime('2026-11-03'),
+        title: '',
+        state: 'DEMO',
+        jurisdictionName: '',
+        seal: '',
+        languageCodes: [LanguageCode.ENGLISH],
+      },
+      designSystemSettings
+    );
+    return store;
+  }
+
+  test('system settings are kept from creation', () => {
+    const store = setUpStore();
+    expect(store.electionDefinition.getSystemSettings(electionId)).toEqual(
+      designSystemSettings
+    );
+    expect(() =>
+      store.electionDefinition.getSystemSettings('other-election')
+    ).toThrow('Election not found');
+  });
+
+  test('finalize and build', () => {
+    const store = setUpStore();
+    expect(store.electionDefinition.isElectionEditable(electionId)).toEqual(
+      true
+    );
+    expect(store.electionDefinition.getElectionPackage(electionId)).toEqual(
+      undefined
+    );
+
+    store.electionDefinition.finalizeElection(electionId);
+    expect(store.electionDefinition.isElectionEditable(electionId)).toEqual(
+      false
+    );
+    expect(store.electionDefinition.getElectionPackage(electionId)).toEqual({
+      status: 'running',
+    });
+    expect(() => store.electionDefinition.finalizeElection(electionId)).toThrow(
+      'Election is not in progress'
+    );
+
+    store.electionDefinition.updateElectionPackageProgress(electionId, {
+      label: 'Rendering ballots',
+      progress: 1,
+      total: 4,
+    });
+    expect(store.electionDefinition.getElectionPackage(electionId)).toEqual({
+      status: 'running',
+      progress: { label: 'Rendering ballots', progress: 1, total: 4 },
+    });
+
+    store.electionDefinition.completeElectionPackage(electionId, {
+      ballotHash: 'ballot-hash',
+      officialBallotsPath: 'official-ballots.zip',
+      testBallotsPath: 'test-ballots.zip',
+    });
+    expect(store.electionDefinition.getElectionPackage(electionId)).toEqual({
+      status: 'succeeded',
+      ballotHash: 'ballot-hash',
+      officialBallotsPath: 'official-ballots.zip',
+      sampleBallotsPath: undefined,
+      testBallotsPath: 'test-ballots.zip',
+    });
+
+    store.electionDefinition.updateElectionPackageProgress(electionId, {
+      label: 'Rendering ballots',
+      progress: 2,
+      total: 4,
+    });
+    store.electionDefinition.failElectionPackage(electionId, 'too late');
+    expect(store.electionDefinition.getElectionPackage(electionId)).toEqual(
+      expect.objectContaining({ status: 'succeeded' })
+    );
+
+    expect(store.electionDefinition.isElectionEditable(electionId)).toEqual(
+      false
+    );
+  });
+
+  test('an election package can have sample ballots and no test ballots', () => {
+    const store = setUpStore();
+    store.electionDefinition.finalizeElection(electionId);
+    store.electionDefinition.completeElectionPackage(electionId, {
+      ballotHash: 'ballot-hash',
+      officialBallotsPath: 'official-ballots.zip',
+      sampleBallotsPath: 'sample-ballots.zip',
+    });
+    expect(store.electionDefinition.getElectionPackage(electionId)).toEqual({
+      status: 'succeeded',
+      ballotHash: 'ballot-hash',
+      officialBallotsPath: 'official-ballots.zip',
+      sampleBallotsPath: 'sample-ballots.zip',
+      testBallotsPath: undefined,
+    });
+  });
+
+  test('a failed election package keeps its error and returns the election to editing, and it can be finalized again', () => {
+    const store = setUpStore();
+    store.electionDefinition.finalizeElection(electionId);
+    store.electionDefinition.failElectionPackage(electionId, 'layout error');
+    expect(store.electionDefinition.getElectionPackage(electionId)).toEqual({
+      status: 'failed',
+      error: 'layout error',
+    });
+    expect(store.electionDefinition.isElectionEditable(electionId)).toEqual(
+      true
+    );
+
+    store.electionDefinition.finalizeElection(electionId);
+    expect(store.electionDefinition.getElectionPackage(electionId)).toEqual({
+      status: 'running',
+    });
+  });
+
+  test('fails interrupted election packages', () => {
+    const store = setUpStore();
+    expect(
+      store.electionDefinition.failInterruptedElectionPackages('restarted')
+    ).toEqual([]);
+
+    store.electionDefinition.finalizeElection(electionId);
+    expect(
+      store.electionDefinition.failInterruptedElectionPackages('restarted')
+    ).toEqual([electionId]);
+    expect(store.electionDefinition.getElectionPackage(electionId)).toEqual({
+      status: 'failed',
+      error: 'restarted',
+    });
+    expect(store.electionDefinition.isElectionEditable(electionId)).toEqual(
+      true
+    );
+  });
+
+  test('editability rejects an unknown election', () => {
+    const store = setUpStore();
+    expect(() =>
+      store.electionDefinition.isElectionEditable('other-election')
+    ).toThrow('Election not found');
+  });
+
+  test('deleting the election deletes its election package', () => {
+    const store = setUpStore();
+    store.electionDefinition.finalizeElection(electionId);
+    store.electionDefinition.deleteInProgressElection();
+    expect(store.electionDefinition.getElectionPackage(electionId)).toEqual(
+      undefined
+    );
+  });
+});
+
 describe('design ballot layout and ballot styles', () => {
   const electionId = 'design-election';
 
   function setUpStore(): Store {
     const store = Store.memoryStore(makeTemporaryDirectory());
-    store.electionDefinition.createInProgressElection({
-      electionId,
-      type: 'general',
-      date: new DateWithoutTime('2026-11-03'),
-      title: '',
-      state: 'DEMO',
-      jurisdictionName: '',
-      seal: '',
-      languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
-    });
+    store.electionDefinition.createInProgressElection(
+      {
+        electionId,
+        type: 'general',
+        date: new DateWithoutTime('2026-11-03'),
+        title: '',
+        state: 'DEMO',
+        jurisdictionName: '',
+        seal: '',
+        languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
+      },
+      DEFAULT_SYSTEM_SETTINGS
+    );
     return store;
   }
 
@@ -3120,16 +3302,19 @@ describe('design districts', () => {
 
   function setUpStore(): Store {
     const store = Store.memoryStore(makeTemporaryDirectory());
-    store.electionDefinition.createInProgressElection({
-      electionId,
-      type: 'general',
-      date: new DateWithoutTime('2026-11-03'),
-      title: '',
-      state: 'DEMO',
-      jurisdictionName: '',
-      seal: '',
-      languageCodes: [LanguageCode.ENGLISH],
-    });
+    store.electionDefinition.createInProgressElection(
+      {
+        electionId,
+        type: 'general',
+        date: new DateWithoutTime('2026-11-03'),
+        title: '',
+        state: 'DEMO',
+        jurisdictionName: '',
+        seal: '',
+        languageCodes: [LanguageCode.ENGLISH],
+      },
+      DEFAULT_SYSTEM_SETTINGS
+    );
     return store;
   }
 
@@ -3283,16 +3468,19 @@ describe('design parties', () => {
 
   function setUpStore(): Store {
     const store = Store.memoryStore(makeTemporaryDirectory());
-    store.electionDefinition.createInProgressElection({
-      electionId,
-      type: 'general',
-      date: new DateWithoutTime('2026-11-03'),
-      title: '',
-      state: 'DEMO',
-      jurisdictionName: '',
-      seal: '',
-      languageCodes: [LanguageCode.ENGLISH],
-    });
+    store.electionDefinition.createInProgressElection(
+      {
+        electionId,
+        type: 'general',
+        date: new DateWithoutTime('2026-11-03'),
+        title: '',
+        state: 'DEMO',
+        jurisdictionName: '',
+        seal: '',
+        languageCodes: [LanguageCode.ENGLISH],
+      },
+      DEFAULT_SYSTEM_SETTINGS
+    );
     return store;
   }
 
@@ -3582,16 +3770,19 @@ describe('design contests', () => {
 
   function setUpStore(): Store {
     const store = Store.memoryStore(makeTemporaryDirectory());
-    store.electionDefinition.createInProgressElection({
-      electionId,
-      type: 'primary',
-      date: new DateWithoutTime('2026-11-03'),
-      title: '',
-      state: 'DEMO',
-      jurisdictionName: '',
-      seal: '',
-      languageCodes: [LanguageCode.ENGLISH],
-    });
+    store.electionDefinition.createInProgressElection(
+      {
+        electionId,
+        type: 'primary',
+        date: new DateWithoutTime('2026-11-03'),
+        title: '',
+        state: 'DEMO',
+        jurisdictionName: '',
+        seal: '',
+        languageCodes: [LanguageCode.ENGLISH],
+      },
+      DEFAULT_SYSTEM_SETTINGS
+    );
     store.electionDefinition
       .updateDistricts({
         electionId,
@@ -4050,16 +4241,19 @@ describe('design precincts', () => {
 
   function setUpStore(): Store {
     const store = Store.memoryStore(makeTemporaryDirectory());
-    store.electionDefinition.createInProgressElection({
-      electionId,
-      type: 'general',
-      date: new DateWithoutTime('2026-11-03'),
-      title: '',
-      state: 'DEMO',
-      jurisdictionName: '',
-      seal: '',
-      languageCodes: [LanguageCode.ENGLISH],
-    });
+    store.electionDefinition.createInProgressElection(
+      {
+        electionId,
+        type: 'general',
+        date: new DateWithoutTime('2026-11-03'),
+        title: '',
+        state: 'DEMO',
+        jurisdictionName: '',
+        seal: '',
+        languageCodes: [LanguageCode.ENGLISH],
+      },
+      DEFAULT_SYSTEM_SETTINGS
+    );
     store.electionDefinition
       .updateDistricts({
         electionId,
@@ -4421,16 +4615,19 @@ describe('design polling places', () => {
 
   function setUpStore(): Store {
     const store = Store.memoryStore(makeTemporaryDirectory());
-    store.electionDefinition.createInProgressElection({
-      electionId,
-      type: 'general',
-      date: new DateWithoutTime('2026-11-03'),
-      title: '',
-      state: 'DEMO',
-      jurisdictionName: '',
-      seal: '',
-      languageCodes: [LanguageCode.ENGLISH],
-    });
+    store.electionDefinition.createInProgressElection(
+      {
+        electionId,
+        type: 'general',
+        date: new DateWithoutTime('2026-11-03'),
+        title: '',
+        state: 'DEMO',
+        jurisdictionName: '',
+        seal: '',
+        languageCodes: [LanguageCode.ENGLISH],
+      },
+      DEFAULT_SYSTEM_SETTINGS
+    );
     for (const precinct of [
       { id: 'p1', name: 'Precinct 1', districtIds: [] },
       { id: 'p2', name: 'Precinct 2', districtIds: [] },

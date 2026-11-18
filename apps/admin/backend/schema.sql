@@ -376,7 +376,7 @@ end;
 create table design_elections (
   id text primary key,
   status text not null default 'in_progress'
-    check (status = 'in_progress'),
+    check (status in ('in_progress', 'finalized')),
   type text not null check (type in ('general', 'primary')),
   title text not null,
   date text not null,
@@ -388,6 +388,7 @@ create table design_elections (
   language_codes text not null,
   ballot_paper_size text not null default 'letter',
   ballot_compact integer not null default 0,
+  system_settings text not null,
   created_at text not null default current_timestamp,
   updated_at text not null default current_timestamp
 ) strict;
@@ -576,4 +577,22 @@ create table design_translations (
   english_text text not null,
   translated_text text,
   primary key (election_id, language_code, key)
+) strict;
+
+create table design_election_packages (
+  election_id text primary key,
+  status text not null default 'running'
+    check (status in ('running', 'succeeded', 'failed')),
+  progress_label text,
+  progress integer,
+  progress_total integer,
+  error text,
+  ballot_hash text,
+  official_ballots_path text,
+  sample_ballots_path text,
+  test_ballots_path text,
+  started_at text not null default current_timestamp,
+  completed_at text,
+  foreign key (election_id) references design_elections(id)
+    on delete cascade
 ) strict;

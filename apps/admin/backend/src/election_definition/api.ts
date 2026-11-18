@@ -33,6 +33,7 @@ import {
   type PrecinctUpdate,
   type SetPollingPlaceError,
   type StateCode,
+  stateDefaultSystemSettings,
   type StateFeaturesConfig,
 } from '@votingworks/election-definition-backend';
 import * as grout from '@votingworks/grout';
@@ -243,7 +244,8 @@ function createElectionDefinitionApiMethods({
         'An election definition already exists.'
       );
       store.electionDefinition.createInProgressElection(
-        blankElectionInfo(electionId, stateCode)
+        blankElectionInfo(electionId, stateCode),
+        stateDefaultSystemSettings(stateCode)
       );
       await logger.logAsCurrentRole(LogEventId.ElectionDefinitionCreated, {
         message: `Created election definition ${electionId}.`,

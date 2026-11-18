@@ -72,6 +72,8 @@ import {
   PrecinctSchema,
   type PrecinctSplit,
   type PrecinctSplitId,
+  type SystemSettings,
+  SystemSettingsSchema,
   unsafeParse,
   unsafeParseJson,
   type YesNoContest,
@@ -79,6 +81,25 @@ import {
 } from '@votingworks/types';
 import { z } from 'zod/v4';
 import type { TranslatedString } from './translations.js';
+
+/** Progress of building an election package. */
+export interface ElectionPackageProgress {
+  label: string;
+  progress: number;
+  total: number;
+}
+
+/** The election package of a finalized election definition. */
+export type ElectionDefinitionPackage =
+  | { status: 'running'; progress?: ElectionPackageProgress }
+  | {
+      status: 'succeeded';
+      ballotHash: string;
+      officialBallotsPath: string;
+      sampleBallotsPath?: string;
+      testBallotsPath?: string;
+    }
+  | { status: 'failed'; error: string };
 
 const NATURAL_SORT_COLLATOR = new Intl.Collator('en', { numeric: true });
 const ALPHABETICAL_SORT_COLLATOR = new Intl.Collator('en');
@@ -479,7 +500,10 @@ export class ElectionDefinitionStore {
     });
   }
 
-  createInProgressElection(electionInfo: ElectionInfoUpdate): void {
+  createInProgressElection(
+    electionInfo: ElectionInfoUpdate,
+    systemSettings: SystemSettings
+  ): void {
     this.client.run(
       `
       insert into design_elections (
@@ -492,8 +516,9 @@ export class ElectionDefinitionStore {
         seal,
         signature_image,
         signature_caption,
-        language_codes
-      ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        language_codes,
+        system_settings
+      ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `,
       electionInfo.electionId,
       electionInfo.type,
@@ -504,7 +529,8 @@ export class ElectionDefinitionStore {
       electionInfo.seal,
       electionInfo.signatureImage ?? null,
       electionInfo.signatureCaption ?? null,
-      JSON.stringify(electionInfo.languageCodes)
+      JSON.stringify(electionInfo.languageCodes),
+      JSON.stringify(systemSettings)
     );
   }
 
@@ -540,6 +566,233 @@ export class ElectionDefinitionStore {
 
   deleteInProgressElection(): void {
     this.client.run('delete from design_elections');
+  }
+
+  getSystemSettings(electionId: ElectionId): SystemSettings {
+    const row = assertDefined(
+      this.client.one(
+        `
+        select system_settings as systemSettings
+        from design_elections
+        where id = ?
+      `,
+        electionId
+      ) as { systemSettings: string } | undefined,
+      'Election not found'
+    );
+    return unsafeParseJson(row.systemSettings, SystemSettingsSchema);
+  }
+
+  isElectionEditable(electionId: ElectionId): boolean {
+    const row = assertDefined(
+      this.client.one(
+        `
+        select status
+        from design_elections
+        where id = ?
+      `,
+        electionId
+      ) as { status: 'in_progress' | 'finalized' } | undefined,
+      'Election not found'
+    );
+    return row.status === 'in_progress';
+  }
+
+  finalizeElection(electionId: ElectionId): void {
+    this.client.transaction(() => {
+      assert(
+        this.client.one(
+          `
+          update design_elections
+          set
+            status = 'finalized',
+            updated_at = current_timestamp
+          where id = ? and status = 'in_progress'
+          returning id
+        `,
+          electionId
+        ),
+        'Election is not in progress'
+      );
+      this.client.run(
+        'delete from design_election_packages where election_id = ?',
+        electionId
+      );
+      this.client.run(
+        `
+        insert into design_election_packages (election_id)
+        values (?)
+      `,
+        electionId
+      );
+    });
+  }
+
+  getElectionPackage(
+    electionId: ElectionId
+  ): ElectionDefinitionPackage | undefined {
+    const row = this.client.one(
+      `
+      select
+        status,
+        progress_label as progressLabel,
+        progress,
+        progress_total as progressTotal,
+        error,
+        ballot_hash as ballotHash,
+        official_ballots_path as officialBallotsPath,
+        sample_ballots_path as sampleBallotsPath,
+        test_ballots_path as testBallotsPath
+      from design_election_packages
+      where election_id = ?
+    `,
+      electionId
+    ) as
+      | {
+          status: ElectionDefinitionPackage['status'];
+          progressLabel: string | null;
+          progress: number | null;
+          progressTotal: number | null;
+          error: string | null;
+          ballotHash: string | null;
+          officialBallotsPath: string | null;
+          sampleBallotsPath: string | null;
+          testBallotsPath: string | null;
+        }
+      | undefined;
+    if (!row) {
+      return undefined;
+    }
+    switch (row.status) {
+      case 'running':
+        return {
+          status: 'running',
+          progress:
+            row.progressLabel === null
+              ? undefined
+              : {
+                  label: row.progressLabel,
+                  progress: assertDefined(row.progress),
+                  total: assertDefined(row.progressTotal),
+                },
+        };
+      case 'succeeded':
+        return {
+          status: 'succeeded',
+          ballotHash: assertDefined(row.ballotHash),
+          officialBallotsPath: assertDefined(row.officialBallotsPath),
+          sampleBallotsPath: row.sampleBallotsPath ?? undefined,
+          testBallotsPath: row.testBallotsPath ?? undefined,
+        };
+      case 'failed':
+        return { status: 'failed', error: assertDefined(row.error) };
+      default:
+        throwIllegalValue(row.status);
+    }
+  }
+
+  updateElectionPackageProgress(
+    electionId: ElectionId,
+    { label, progress, total }: ElectionPackageProgress
+  ): void {
+    this.client.run(
+      `
+      update design_election_packages
+      set
+        progress_label = ?,
+        progress = ?,
+        progress_total = ?
+      where election_id = ? and status = 'running'
+    `,
+      label,
+      progress,
+      total,
+      electionId
+    );
+  }
+
+  completeElectionPackage(
+    electionId: ElectionId,
+    result: Omit<
+      Extract<ElectionDefinitionPackage, { status: 'succeeded' }>,
+      'status'
+    >
+  ): void {
+    this.client.run(
+      `
+      update design_election_packages
+      set
+        status = 'succeeded',
+        ballot_hash = ?,
+        official_ballots_path = ?,
+        sample_ballots_path = ?,
+        test_ballots_path = ?,
+        completed_at = current_timestamp
+      where election_id = ? and status = 'running'
+    `,
+      result.ballotHash,
+      result.officialBallotsPath,
+      result.sampleBallotsPath ?? null,
+      result.testBallotsPath ?? null,
+      electionId
+    );
+  }
+
+  failElectionPackage(electionId: ElectionId, error: string): void {
+    this.client.transaction(() => {
+      const failed = this.client.one(
+        `
+        update design_election_packages
+        set
+          status = 'failed',
+          error = ?,
+          completed_at = current_timestamp
+        where election_id = ? and status = 'running'
+        returning election_id
+      `,
+        error,
+        electionId
+      );
+      if (failed) {
+        this.returnToEditing(electionId);
+      }
+    });
+  }
+
+  private returnToEditing(electionId: ElectionId): void {
+    this.client.run(
+      `
+      update design_elections
+      set
+        status = 'in_progress',
+        updated_at = current_timestamp
+      where id = ?
+    `,
+      electionId
+    );
+  }
+
+  failInterruptedElectionPackages(error: string): ElectionId[] {
+    return this.client.transaction(() => {
+      const electionIds = (
+        this.client.all(
+          `
+          update design_election_packages
+          set
+            status = 'failed',
+            error = ?,
+            completed_at = current_timestamp
+          where status = 'running'
+          returning election_id as electionId
+        `,
+          error
+        ) as Array<{ electionId: ElectionId }>
+      ).map(({ electionId }) => electionId);
+      for (const electionId of electionIds) {
+        this.returnToEditing(electionId);
+      }
+      return electionIds;
+    });
   }
 
   listDistricts(electionId: ElectionId): District[] {
