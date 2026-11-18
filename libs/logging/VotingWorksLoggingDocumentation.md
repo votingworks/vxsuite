@@ -834,6 +834,14 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)
 **Description:** A user printed a proof of a ballot in the election definition being designed.
 **Machines:** vx-admin
+### election-definition-finalized
+**Type:** [user-action](#user-action)
+**Description:** A user finalized the election definition being designed, which locks it from editing and starts rendering its ballots and building the election package that VxAdmin is then configured with.
+**Machines:** vx-admin
+### election-definition-election-package-built
+**Type:** [application-status](#application-status)
+**Description:** VxAdmin finished rendering the ballots and building the election package for a finalized election definition, or failed to, in which case the election definition can be edited again.
+**Machines:** vx-admin
 ### election-definition-discarded
 **Type:** [user-action](#user-action)
 **Description:** A user discarded the election definition being designed.
