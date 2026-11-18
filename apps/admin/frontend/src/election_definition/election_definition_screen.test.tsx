@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { userEvent } from '@testing-library/user-event';
 import { createMemoryHistory } from 'history';
-import { DateWithoutTime, deferred, ok } from '@votingworks/basics';
+import { DateWithoutTime, deferred, err, ok } from '@votingworks/basics';
 import type { ElectionPackageRenderingStatus } from '@votingworks/admin-backend';
 import type {
   ElectionInfo,
@@ -12,6 +12,7 @@ import * as grout from '@votingworks/grout';
 import {
   suppressingConsoleOutput,
   mockElectionManagerUser,
+  mockKiosk,
   mockSessionExpiresAt,
   mockSystemAdministratorUser,
 } from '@votingworks/test-utils';
@@ -1332,4 +1333,76 @@ test('the ballot layout is locked once the election is finalized', async () => {
     .resolves({ paperSize: HmpbBallotPaperSize.Letter, compact: false });
   renderScreen(routerPaths.proofBallotsBallotLayout(electionId));
   expect(await screen.findButton('Edit')).toBeDisabled();
+});
+
+test('Clone Election creates an election from a file and opens Election Info', async () => {
+  const kiosk = mockKiosk(vi.fn);
+  window.kiosk = kiosk;
+  apiMock.expectListPotentialElectionPackagesOnUsbDrive([]);
+  apiMock.electionDefinitionApiClient.getCurrentInProgressElection
+    .expectCallWith()
+    .resolves(null);
+  const history = renderScreen();
+
+  kiosk.showOpenDialog.mockResolvedValueOnce({ canceled: true, filePaths: [] });
+  await userEvent.click(await screen.findButton('Clone Election'));
+  expect(kiosk.showOpenDialog).toHaveBeenLastCalledWith({
+    properties: ['openFile'],
+    filters: [{ name: '', extensions: ['zip', 'json'] }],
+  });
+
+  kiosk.showOpenDialog.mockResolvedValueOnce({
+    canceled: false,
+    filePaths: ['/media/usb-drive/straight-party.json'],
+  });
+  apiMock.electionDefinitionApiClient.createInProgressElectionFromFile
+    .expectCallWith({ filePath: '/media/usb-drive/straight-party.json' })
+    .resolves(
+      err({
+        type: 'unsupported-election',
+        message: 'Straight party contests are not supported.',
+      })
+    );
+  apiMock.electionDefinitionApiClient.getCurrentInProgressElection
+    .expectCallWith()
+    .resolves(null);
+  await userEvent.click(screen.getButton('Clone Election'));
+  const modal = await screen.findByRole('alertdialog');
+  within(modal).getByText('Unable to Clone Election');
+  within(modal).getByText('Straight party contests are not supported.');
+  await userEvent.click(within(modal).getButton('Close'));
+  expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+
+  kiosk.showOpenDialog.mockResolvedValueOnce({
+    canceled: false,
+    filePaths: ['/media/usb-drive/election-package.zip'],
+  });
+  apiMock.electionDefinitionApiClient.createInProgressElectionFromFile
+    .expectCallWith({ filePath: '/media/usb-drive/election-package.zip' })
+    .resolves(ok(electionId));
+  apiMock.electionDefinitionApiClient.getCurrentInProgressElection
+    .expectCallWith()
+    .resolves(generalElectionInfo);
+  expectElectionInfoQueries(generalElectionInfo);
+  await userEvent.click(screen.getButton('Clone Election'));
+  await screen.findByRole('tab', { name: 'Election Info', selected: true });
+  expect(history.location.pathname).toEqual(
+    routerPaths.electionDefinitionInfo(electionId)
+  );
+});
+
+test('Clone Election is offered next to Create New Election when the USB drive has election packages', async () => {
+  apiMock.expectListPotentialElectionPackagesOnUsbDrive([
+    {
+      name: 'election-package.zip',
+      path: '/media/usb-drive/election-package.zip',
+      ctime: new Date('2026-11-01T00:00:00.000'),
+    },
+  ]);
+  apiMock.electionDefinitionApiClient.getCurrentInProgressElection
+    .expectCallWith()
+    .resolves(null);
+  renderScreen(routerPaths.election, true, mockUsbDriveStatus('mounted'));
+  await screen.findButton('Create New Election');
+  screen.getButton('Clone Election');
 });

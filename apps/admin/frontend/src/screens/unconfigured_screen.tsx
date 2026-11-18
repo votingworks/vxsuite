@@ -30,6 +30,7 @@ import {
 import { AppContext } from '../contexts/app_context.js';
 import { TIME_FORMAT } from '../config/globals.js';
 import { CreateNewElectionButton } from '../election_definition/create_new_election_button.js';
+import { CloneElectionButton } from '../election_definition/clone_election_button.js';
 import { ElectionCardLink } from '../components/election_card.js';
 import { routerPaths } from '../router_paths.js';
 
@@ -191,6 +192,9 @@ function SelectElectionPackage({
           {canCreateNewElection && (
             <CreateNewElectionButton disabled={configureMutation.isLoading} />
           )}
+          {canCreateNewElection && (
+            <CloneElectionButton disabled={configureMutation.isLoading} />
+          )}
         </div>
       </div>
     </React.Fragment>
@@ -314,6 +318,7 @@ export function UnconfiguredScreen(): JSX.Element {
           >
             <RebootInRestoreModeButton />
             {isElectionDefinitionEnabled && <CreateNewElectionButton />}
+            {isElectionDefinitionEnabled && <CloneElectionButton />}
           </div>
         </FullScreenMessage>
       ) : (
