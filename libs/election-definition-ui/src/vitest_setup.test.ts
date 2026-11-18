@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import './vitest_setup.js';
 
-test('mocks the DOM methods tiptap and react-flip-toolkit need', () => {
+test('mocks the DOM methods tiptap needs', () => {
   const element = document.createElement('div');
   expect(element.getBoundingClientRect().toJSON()).toEqual({
     x: 0,
@@ -19,5 +19,4 @@ test('mocks the DOM methods tiptap and react-flip-toolkit need', () => {
   expect(document.createRange().getClientRects()).toHaveLength(0);
   expect(document.createRange().getBoundingClientRect().width).toEqual(0);
   expect(document.elementFromPoint(0, 0)).toBeNull();
-  expect(window.matchMedia('(prefers-reduced-motion)').matches).toEqual(false);
 });

@@ -6,6 +6,7 @@ import { Button, Modal } from '@votingworks/ui';
 
 import { useElectionDefinitionApi } from './election_definition_context.js';
 import { Column, Row } from './layout.js';
+import { useReorderAnimation } from './use_reorder_animation.js';
 import { reorderElement } from './utils.js';
 
 function serializeContestIds(contests: readonly Contest[]): string {
@@ -51,6 +52,42 @@ const DistrictRow = styled(Row)`
   padding: 0.5rem 0;
 `;
 
+function DistrictOrderList({
+  districts,
+  onChange,
+}: {
+  districts: District[];
+  onChange: (districts: District[]) => void;
+}): React.ReactNode {
+  const listRef = useReorderAnimation(districts.map((d) => d.id));
+
+  return (
+    <Column ref={listRef}>
+      {districts.map((district, index) => (
+        <DistrictRow key={district.id}>
+          <span style={{ flexGrow: 1 }}>{district.name}</span>
+          <Button
+            aria-label={`Move Up: ${district.name}`}
+            disabled={index === 0}
+            icon="ChevronUp"
+            onPress={() =>
+              onChange(reorderElement(districts, index, index - 1))
+            }
+          />
+          <Button
+            aria-label={`Move Down: ${district.name}`}
+            disabled={index === districts.length - 1}
+            icon="ChevronDown"
+            onPress={() =>
+              onChange(reorderElement(districts, index, index + 1))
+            }
+          />
+        </DistrictRow>
+      ))}
+    </Column>
+  );
+}
+
 function ReorderContestsByDistrictModal({
   contests,
   districts,
@@ -79,38 +116,14 @@ function ReorderContestsByDistrictModal({
     }
     return districtsOrderedByAppearanceInContests;
   });
-
   return (
     <Modal
       title="Reorder Contests by District"
       content={
-        <Column>
-          {orderedDistricts.map((district, index) => (
-            <DistrictRow key={district.id}>
-              <span style={{ flexGrow: 1 }}>{district.name}</span>
-              <Button
-                aria-label={`Move Up: ${district.name}`}
-                disabled={index === 0}
-                icon="ChevronUp"
-                onPress={() =>
-                  setOrderedDistricts(
-                    reorderElement(orderedDistricts, index, index - 1)
-                  )
-                }
-              />
-              <Button
-                aria-label={`Move Down: ${district.name}`}
-                disabled={index === orderedDistricts.length - 1}
-                icon="ChevronDown"
-                onPress={() =>
-                  setOrderedDistricts(
-                    reorderElement(orderedDistricts, index, index + 1)
-                  )
-                }
-              />
-            </DistrictRow>
-          ))}
-        </Column>
+        <DistrictOrderList
+          districts={orderedDistricts}
+          onChange={setOrderedDistricts}
+        />
       }
       actions={
         <React.Fragment>

@@ -3622,9 +3622,6 @@ importers:
       pdfjs-dist:
         specifier: 5.4.296
         version: 5.4.296
-      react-flip-toolkit:
-        specifier: ^7.1.0
-        version: 7.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-pdf:
         specifier: 10.4.1
         version: 10.4.1(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -10313,10 +10310,6 @@ packages:
   flatted@3.4.4:
     resolution: {integrity: sha512-5+ybhBZANEJxaH3X5evAFatUxLfEHSr7n6kYJ+1Qd0mUqr4eu9gIf6GDbWHf8RJijHrjjO8G+la14SlL2SeS1Q==}
 
-  flip-toolkit@7.1.0:
-    resolution: {integrity: sha512-tvids+uibr8gVFUp1xHMkNSIFvM4++Xr4jAJouUVsId2hv3YvhvC4Ht2FJzdxBZHhI4AeULPFAF6z9fhc20XWQ==}
-    engines: {node: '>=8', npm: '>=5'}
-
   flru@1.0.2:
     resolution: {integrity: sha512-kWyh8ADvHBFz6ua5xYOPnUroZTT/bwWfrCeL0Wj1dzG4/YOmOcfJ99W8dOVyyynJN35rZ9aCOtHChqQovV7yog==}
     engines: {node: '>=6'}
@@ -12451,13 +12444,6 @@ packages:
     peerDependencies:
       react: ^18.3.1
 
-  react-flip-toolkit@7.1.0:
-    resolution: {integrity: sha512-KJ2IecKpYOJWgtXY9myyJzzC96FJaE9/8pFSAKgIoG54tiUAZ64ksDpmB+QmMofqFTa06RK7xWb9Rfavf8qz4Q==}
-    engines: {node: '>=8', npm: '>=5'}
-    peerDependencies:
-      react: '>= 16.x'
-      react-dom: '>= 16.x'
-
   react-i18next@13.2.2:
     resolution: {integrity: sha512-+nFUkbRByFwnrfDcYqvzBuaeZb+nACHx+fAWN/pZMddWOCJH5hoc21+Sa/N/Lqi6ne6/9wC/qRGOoQhJa6IkEQ==}
     peerDependencies:
@@ -12572,9 +12558,6 @@ packages:
 
   relative-luminance@2.0.1:
     resolution: {integrity: sha512-wFuITNthJilFPwkK7gNJcULxXBcfFZvZORsvdvxeOdO44wCeZnuQkf3nFFzOR/dpJNxYsdRZJLsepWbyKhnMww==}
-
-  rematrix@0.2.2:
-    resolution: {integrity: sha512-agFFS3RzrLXJl5LY5xg/xYyXvUuVAnkhgKO7RaO9J1Ssth6yvbO+PIiV67V59MB5NCdAK2flvGvNT4mdKVniFA==}
 
   remove-accents@0.4.2:
     resolution: {integrity: sha512-7pXIJqJOq5tFgG1A2Zxti3Ht8jJF337m4sowbuHsW30ZnkQFnDzy9qBNhgzX8ZLW4+UBcXiiR7SwR6pokHsxiA==}
@@ -19127,10 +19110,6 @@ snapshots:
 
   flatted@3.4.4: {}
 
-  flip-toolkit@7.1.0:
-    dependencies:
-      rematrix: 0.2.2
-
   flru@1.0.2: {}
 
   follow-redirects@1.16.3(debug@4.4.3(supports-color@5.5.0)):
@@ -21704,13 +21683,6 @@ snapshots:
       react: 18.3.1
       scheduler: 0.23.2
 
-  react-flip-toolkit@7.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
-    dependencies:
-      flip-toolkit: 7.1.0
-      prop-types: 15.8.1
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-
   react-i18next@13.2.2(i18next@23.5.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
       '@babel/runtime': 7.29.7
@@ -21888,8 +21860,6 @@ snapshots:
   relative-luminance@2.0.1:
     dependencies:
       esm: 3.2.25
-
-  rematrix@0.2.2: {}
 
   remove-accents@0.4.2: {}
 
