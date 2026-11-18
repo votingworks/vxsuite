@@ -1625,6 +1625,278 @@ test('registered voter counts are stored and retrieved for precincts and splits'
   });
 });
 
+test('registered voter counts broken out by party are stored and retrieved', async () => {
+  const { apiClient, workspace, auth0 } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
+  auth0.setLoggedInUser(nonVxUser);
+  const electionId = (
+    await apiClient.createElection({
+      jurisdictionId: nonVxJurisdiction.id,
+      id: unsafeParse(ElectionIdSchema, 'election-party-rvc'),
+    })
+  ).unsafeUnwrap();
+
+  const districtA: District = {
+    id: unsafeParse(DistrictIdSchema, 'district-a'),
+    name: 'District A',
+  };
+  const districtB: District = {
+    id: unsafeParse(DistrictIdSchema, 'district-b'),
+    name: 'District B',
+  };
+  (
+    await apiClient.updateDistricts({
+      electionId,
+      newDistricts: [districtA, districtB],
+    })
+  ).unsafeUnwrap();
+
+  const democraticParty: Party = {
+    id: 'party-dem',
+    name: 'Democratic',
+    fullName: 'Democratic Party',
+    abbrev: 'D',
+  };
+  const republicanParty: Party = {
+    id: 'party-rep',
+    name: 'Republican',
+    fullName: 'Republican Party',
+    abbrev: 'R',
+  };
+  (
+    await apiClient.updateParties({
+      electionId,
+      newParties: [democraticParty, republicanParty],
+    })
+  ).unsafeUnwrap();
+
+  const precinct1: PrecinctWithoutSplits = {
+    id: 'precinct-1',
+    name: 'Precinct 1',
+    districtIds: [],
+  };
+  (
+    await apiClient.createPrecinct({
+      electionId,
+      newPrecinct: precinct1,
+      registeredVoterCounts: {
+        total: 350,
+        byParty: { [democraticParty.id]: 100, [republicanParty.id]: 200 },
+        nonpartisan: 50,
+      },
+    })
+  ).unsafeUnwrap();
+
+  const precinct2: PrecinctWithSplits = {
+    id: 'precinct-2',
+    name: 'Precinct 2',
+    splits: [
+      { id: 'split-2a', name: 'Split 2A', districtIds: [districtA.id] },
+      { id: 'split-2b', name: 'Split 2B', districtIds: [districtB.id] },
+      { id: 'split-2c', name: 'Split 2C', districtIds: [] },
+    ],
+  };
+  (
+    await apiClient.createPrecinct({
+      electionId,
+      newPrecinct: precinct2,
+      registeredVoterCounts: {
+        splits: {
+          'split-2a': {
+            total: 35,
+            byParty: { [republicanParty.id]: 30 },
+            nonpartisan: 5,
+          },
+          'split-2b': { total: 7, byParty: {}, nonpartisan: 7 },
+          'split-2c': { total: 300 },
+        },
+      },
+    })
+  ).unsafeUnwrap();
+
+  expect(await workspace.store.getRegisteredVoterCounts(electionId)).toEqual({
+    'precinct-1': {
+      total: 350,
+      byParty: { [democraticParty.id]: 100, [republicanParty.id]: 200 },
+      nonpartisan: 50,
+    },
+    'precinct-2': {
+      splits: {
+        'split-2a': {
+          total: 35,
+          byParty: { [republicanParty.id]: 30 },
+          nonpartisan: 5,
+        },
+        'split-2b': { total: 7, byParty: {}, nonpartisan: 7 },
+        'split-2c': { total: 300 },
+      },
+    },
+  });
+
+  // Switching from a party breakdown to a total replaces the breakdown
+  (
+    await apiClient.updatePrecinct({
+      electionId,
+      updatedPrecinct: precinct1,
+      registeredVoterCounts: { total: 400 },
+    })
+  ).unsafeUnwrap();
+  expect(
+    (await workspace.store.getRegisteredVoterCounts(electionId))['precinct-1']
+  ).toEqual({ total: 400 });
+
+  // Switching from a total to a party breakdown replaces the total
+  (
+    await apiClient.updatePrecinct({
+      electionId,
+      updatedPrecinct: precinct1,
+      registeredVoterCounts: {
+        total: 400,
+        byParty: { [democraticParty.id]: 150, [republicanParty.id]: 250 },
+      },
+    })
+  ).unsafeUnwrap();
+  expect(
+    (await workspace.store.getRegisteredVoterCounts(electionId))['precinct-1']
+  ).toEqual({
+    total: 400,
+    byParty: { [democraticParty.id]: 150, [republicanParty.id]: 250 },
+  });
+
+  // Deleting a party deletes its counts but not the total
+  (
+    await apiClient.updateParties({
+      electionId,
+      deletedPartyIds: [republicanParty.id],
+    })
+  ).unsafeUnwrap();
+  expect(await workspace.store.getRegisteredVoterCounts(electionId)).toEqual({
+    'precinct-1': { total: 400, byParty: { [democraticParty.id]: 150 } },
+    'precinct-2': {
+      splits: {
+        'split-2a': { total: 35, byParty: {}, nonpartisan: 5 },
+        'split-2b': { total: 7, byParty: {}, nonpartisan: 7 },
+        'split-2c': { total: 300 },
+      },
+    },
+  });
+
+  // Unsetting counts removes the breakdowns
+  (
+    await apiClient.updatePrecinct({ electionId, updatedPrecinct: precinct2 })
+  ).unsafeUnwrap();
+  expect(await workspace.store.getRegisteredVoterCounts(electionId)).toEqual({
+    'precinct-1': { total: 400, byParty: { [democraticParty.id]: 150 } },
+  });
+});
+
+test('empty registered voter count party breakdowns are preserved', async () => {
+  const { apiClient, workspace, auth0 } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
+  auth0.setLoggedInUser(nonVxUser);
+  const electionId = (
+    await apiClient.createElection({
+      jurisdictionId: nonVxJurisdiction.id,
+      id: unsafeParse(ElectionIdSchema, 'election-empty-party-rvc'),
+    })
+  ).unsafeUnwrap();
+
+  const districtA: District = {
+    id: unsafeParse(DistrictIdSchema, 'district-a'),
+    name: 'District A',
+  };
+  (
+    await apiClient.updateDistricts({ electionId, newDistricts: [districtA] })
+  ).unsafeUnwrap();
+
+  const party: Party = {
+    id: 'party-only',
+    name: 'Only',
+    fullName: 'Only Party',
+    abbrev: 'O',
+  };
+  (
+    await apiClient.updateParties({ electionId, newParties: [party] })
+  ).unsafeUnwrap();
+
+  const emptyPrecinct: PrecinctWithoutSplits = {
+    id: 'precinct-empty',
+    name: 'Precinct Empty',
+    districtIds: [],
+  };
+  const lastPartyPrecinct: PrecinctWithoutSplits = {
+    id: 'precinct-last-party',
+    name: 'Precinct Last Party',
+    districtIds: [],
+  };
+  const precinctWithSplits: PrecinctWithSplits = {
+    id: 'precinct-splits',
+    name: 'Precinct Splits',
+    splits: [
+      { id: 'split-empty', name: 'Split Empty', districtIds: [districtA.id] },
+      { id: 'split-last-party', name: 'Split Last Party', districtIds: [] },
+    ],
+  };
+  (
+    await apiClient.createPrecinct({
+      electionId,
+      newPrecinct: emptyPrecinct,
+      registeredVoterCounts: { total: 0, byParty: {} },
+    })
+  ).unsafeUnwrap();
+  (
+    await apiClient.createPrecinct({
+      electionId,
+      newPrecinct: lastPartyPrecinct,
+      registeredVoterCounts: { total: 10, byParty: { [party.id]: 10 } },
+    })
+  ).unsafeUnwrap();
+  (
+    await apiClient.createPrecinct({
+      electionId,
+      newPrecinct: precinctWithSplits,
+      registeredVoterCounts: {
+        splits: {
+          'split-empty': { total: 0, byParty: {} },
+          'split-last-party': { total: 20, byParty: { [party.id]: 20 } },
+        },
+      },
+    })
+  ).unsafeUnwrap();
+
+  expect(await workspace.store.getRegisteredVoterCounts(electionId)).toEqual({
+    'precinct-empty': { total: 0, byParty: {} },
+    'precinct-last-party': { total: 10, byParty: { [party.id]: 10 } },
+    'precinct-splits': {
+      splits: {
+        'split-empty': { total: 0, byParty: {} },
+        'split-last-party': { total: 20, byParty: { [party.id]: 20 } },
+      },
+    },
+  });
+
+  (
+    await apiClient.updateParties({ electionId, deletedPartyIds: [party.id] })
+  ).unsafeUnwrap();
+
+  expect(await workspace.store.getRegisteredVoterCounts(electionId)).toEqual({
+    'precinct-empty': { total: 0, byParty: {} },
+    'precinct-last-party': { total: 10, byParty: {} },
+    'precinct-splits': {
+      splits: {
+        'split-empty': { total: 0, byParty: {} },
+        'split-last-party': { total: 20, byParty: {} },
+      },
+    },
+  });
+});
+
 test('updateParties', async () => {
   const { apiClient: api, auth0 } = await setupApp({
     organizations,
