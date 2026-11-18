@@ -33,15 +33,18 @@
     "type-check:self": "rm -f tsconfig.tsbuildinfo && tsc -p tsconfig.json"
   },
   "dependencies": {
+    "@types/archiver": "8.0.0",
     "@votingworks/basics": "workspace:*",
     "@votingworks/hmpb": "workspace:*",
     "@votingworks/types": "workspace:*",
+    "archiver": "8.0.0",
     "zod": "4.6.6"
   },
   "devDependencies": {
     "@types/node": "24.19.2",
     "@vitest/coverage-istanbul": "5.0.2",
     "@votingworks/coverage-check": "workspace:*",
+    "@votingworks/fixtures": "workspace:*",
     "eslint-plugin-vx": "workspace:*",
     "vitest": "5.0.2"
   },

@@ -43,6 +43,12 @@ import {
   range,
   throwIllegalValue,
 } from '@votingworks/basics';
+import {
+  Archiver,
+  needsColorNormalization,
+  normalizeBallotColorModeForPrinting,
+  renderCalibrationSheetPdf,
+} from '@votingworks/election-definition-backend';
 import z from 'zod/v4';
 import { Readable } from 'node:stream';
 import { createHash, randomUUID as uuid } from 'node:crypto';
@@ -52,18 +58,12 @@ import {
   addPollingPlacesForExport,
   formatElectionForExport,
 } from '../ballots.js';
-import {
-  needsColorNormalization,
-  normalizeBallotColorModeForPrinting,
-  renderCalibrationSheetPdf,
-} from './ballot_pdfs.js';
 import { CircleCiClient } from '../circleci_client.js';
 import type { FileStorageClient } from '../file_storage_client.js';
 import { baseUrl } from '../globals.js';
 import { QaConfig } from '../qa_config.js';
 import type { Store } from '../store.js';
 import { rootDebug } from '../debug.js';
-import { Archiver } from './zip.js';
 
 const debug = rootDebug.extend('export-qa');
 

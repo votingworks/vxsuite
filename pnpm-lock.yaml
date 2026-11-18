@@ -916,9 +916,6 @@ importers:
       '@sentry/node':
         specifier: ^11.7.0
         version: 11.7.0(@babel/core@7.29.7(supports-color@5.5.0))(rollup@3.29.5)
-      '@types/archiver':
-        specifier: 8.0.0
-        version: 8.0.0
       '@votingworks/auth':
         specifier: workspace:*
         version: link:../../../libs/auth
@@ -958,9 +955,6 @@ importers:
       '@votingworks/utils':
         specifier: workspace:*
         version: link:../../../libs/utils
-      archiver:
-        specifier: 8.0.0
-        version: 8.0.0
       auth0:
         specifier: 4.17.0
         version: 4.17.0
@@ -3522,6 +3516,9 @@ importers:
 
   libs/election-definition-backend:
     dependencies:
+      '@types/archiver':
+        specifier: 8.0.0
+        version: 8.0.0
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../basics
@@ -3531,6 +3528,9 @@ importers:
       '@votingworks/types':
         specifier: workspace:*
         version: link:../types
+      archiver:
+        specifier: 8.0.0
+        version: 8.0.0
       zod:
         specifier: 4.6.6
         version: 4.6.6
@@ -3544,6 +3544,9 @@ importers:
       '@votingworks/coverage-check':
         specifier: workspace:*
         version: link:../coverage-check
+      '@votingworks/fixtures':
+        specifier: workspace:*
+        version: link:../fixtures
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
@@ -22580,7 +22583,7 @@ snapshots:
       b4a: 1.8.1
       bare-fs: 4.8.1
       fast-fifo: 1.3.2
-      streamx: 2.15.1
+      streamx: 2.28.1
     transitivePeerDependencies:
       - bare-abort-controller
       - bare-buffer
