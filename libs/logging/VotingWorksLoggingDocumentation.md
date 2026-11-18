@@ -826,6 +826,14 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)
 **Description:** A user changed the ballot paper size or density of the election definition being designed.
 **Machines:** vx-admin
+### election-definition-ballot-proof-viewed
+**Type:** [user-action](#user-action)
+**Description:** A user viewed a proof of a ballot in the election definition being designed.
+**Machines:** vx-admin
+### election-definition-ballot-proof-printed
+**Type:** [user-action](#user-action)
+**Description:** A user printed a proof of a ballot in the election definition being designed.
+**Machines:** vx-admin
 ### election-definition-discarded
 **Type:** [user-action](#user-action)
 **Description:** A user discarded the election definition being designed.

@@ -13,7 +13,7 @@ import {
   type ElectionStringTranslationOptions,
   extractAndTranslateElectionStrings,
 } from './election_strings.js';
-import type { GoogleCloudTranslator } from './translator.js';
+import type { Translator } from './translator.js';
 import { setUiString } from './utils.js';
 
 /**
@@ -47,7 +47,7 @@ export function getUserDefinedHmpbStrings(
  *  Translates all HMPB strings for the given ballot language configs.
  */
 export async function translateHmpbStrings(
-  translator: GoogleCloudTranslator,
+  translator: Translator,
   hmpbStringsCatalog: Record<string, string>,
   ballotLanguageConfigs: BallotLanguageConfigs
 ): Promise<UiStringsPackage> {
@@ -81,7 +81,7 @@ export async function translateHmpbStrings(
  * HMPB rendering. Includes all election strings and app strings.
  */
 export async function translateElectionAndHmpbStrings(
-  translator: GoogleCloudTranslator,
+  translator: Translator,
   election: Election,
   hmpbStringsCatalog: Record<string, string>,
   ballotLanguageConfigs: BallotLanguageConfigs,
@@ -117,7 +117,7 @@ export async function translateElectionAndHmpbStrings(
  * Includes all election strings and app strings needed for HMPB rendering.
  */
 export async function translateBallotStrings(
-  translator: GoogleCloudTranslator,
+  translator: Translator,
   election: Election,
   hmpbStringsCatalog: Record<string, string>,
   ballotLanguageConfigs: BallotLanguageConfigs,

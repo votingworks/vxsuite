@@ -1300,6 +1300,18 @@ eventType = "user-action"
 documentationMessage = "A user changed the ballot paper size or density of the election definition being designed."
 restrictInDocumentationToApps = ["vx-admin"]
 
+[Events.ElectionDefinitionBallotProofViewed]
+eventId = "election-definition-ballot-proof-viewed"
+eventType = "user-action"
+documentationMessage = "A user viewed a proof of a ballot in the election definition being designed."
+restrictInDocumentationToApps = ["vx-admin"]
+
+[Events.ElectionDefinitionBallotProofPrinted]
+eventId = "election-definition-ballot-proof-printed"
+eventType = "user-action"
+documentationMessage = "A user printed a proof of a ballot in the election definition being designed."
+restrictInDocumentationToApps = ["vx-admin"]
+
 [Events.ElectionDefinitionDiscarded]
 eventId = "election-definition-discarded"
 eventType = "user-action"

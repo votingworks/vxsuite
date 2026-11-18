@@ -37,6 +37,7 @@ vi.mock(
 global.TextEncoder = TextEncoder;
 
 URL.createObjectURL = vi.fn();
+URL.revokeObjectURL = vi.fn();
 
 // Not implemented in jsdom:
 HTMLElement.prototype.scrollIntoView = vi.fn();

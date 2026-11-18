@@ -1,32 +1,109 @@
+import React, { useState } from 'react';
+import { assertDefined } from '@votingworks/basics';
 import { Redirect, Route, Switch, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import {
   BallotLayoutForm,
+  type BallotPreviewInput,
   BallotStylesTable,
+  BallotViewer,
 } from '@votingworks/election-definition-ui';
-import type { ElectionId } from '@votingworks/types';
-import { RouterTabBar, TabPanel } from '@votingworks/ui';
+import type { BallotStyleId, ElectionId, PrecinctId } from '@votingworks/types';
+import { Button, RouterTabBar, TabPanel } from '@votingworks/ui';
 import { NavigationScreen } from '../components/navigation_screen.js';
+import { PrintButton } from '../components/print_button.js';
+import { SaveBackendFileModal } from '../components/save_backend_file_modal.js';
 import { routerPaths } from '../router_paths.js';
-import { getCurrentInProgressElection } from '../api.js';
+import {
+  getCurrentInProgressElection,
+  printBallotPreviewPdf,
+  saveBallotPreviewPdf,
+} from '../api.js';
 import { getNavItems } from './nav_items.js';
 
 const BallotStylesPanel = styled.div`
   max-width: 40rem;
 `;
 
-function ProofBallotsElectionScreen(): JSX.Element | null {
-  const { electionId } = useParams<{ electionId: ElectionId }>();
-  const getCurrentInProgressElectionQuery =
-    getCurrentInProgressElection.useQuery();
+function ProofBallotActions({
+  previewInput,
+  fileName,
+}: {
+  previewInput: BallotPreviewInput;
+  fileName?: string;
+}): JSX.Element {
+  const printBallotPreviewPdfMutation = printBallotPreviewPdf.useMutation();
+  const saveBallotPreviewPdfMutation = saveBallotPreviewPdf.useMutation();
+  const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
 
-  if (!getCurrentInProgressElectionQuery.isSuccess) {
-    return null;
-  }
-  if (getCurrentInProgressElectionQuery.data?.electionId !== electionId) {
-    return <Redirect to={routerPaths.election} />;
-  }
+  return (
+    <React.Fragment>
+      <Button
+        icon="Export"
+        variant="inverseNeutral"
+        onPress={() => setIsSaveModalOpen(true)}
+        disabled={!fileName}
+      >
+        Save PDF
+      </Button>
+      <PrintButton
+        icon="Print"
+        variant="inverseNeutral"
+        print={() => printBallotPreviewPdfMutation.mutateAsync(previewInput)}
+        {...(fileName ? {} : { disabled: true })}
+      >
+        Print
+      </PrintButton>
+      {isSaveModalOpen && (
+        <SaveBackendFileModal
+          saveFileStatus={saveBallotPreviewPdfMutation.status}
+          saveFile={({ filename }) =>
+            saveBallotPreviewPdfMutation.mutate({ ...previewInput, filename })
+          }
+          saveFileResult={saveBallotPreviewPdfMutation.data}
+          resetSaveFileResult={saveBallotPreviewPdfMutation.reset}
+          onClose={() => setIsSaveModalOpen(false)}
+          fileType="ballot proof"
+          fileTypeTitle="Ballot Proof"
+          filename={assertDefined(fileName)}
+        />
+      )}
+    </React.Fragment>
+  );
+}
 
+function ProofBallotViewer({
+  electionId,
+}: {
+  electionId: ElectionId;
+}): JSX.Element {
+  const { ballotStyleId, precinctId } = useParams<{
+    ballotStyleId: BallotStyleId;
+    precinctId: PrecinctId;
+  }>();
+  return (
+    <BallotViewer
+      electionId={electionId}
+      ballotStyleId={ballotStyleId}
+      precinctId={precinctId}
+      ballotTemplateId="VxDefaultBallot"
+      closePath={routerPaths.proofBallotsBallotStyles(electionId)}
+      electionInfoPath={routerPaths.electionDefinitionInfo(electionId)}
+      renderActions={({ previewInput, preview }) => (
+        <ProofBallotActions
+          previewInput={previewInput}
+          fileName={preview?.fileName}
+        />
+      )}
+    />
+  );
+}
+
+function ProofBallotsTabs({
+  electionId,
+}: {
+  electionId: ElectionId;
+}): JSX.Element {
   return (
     <NavigationScreen
       title="Proof Ballots"
@@ -49,7 +126,16 @@ function ProofBallotsElectionScreen(): JSX.Element | null {
         <Route path={routerPaths.proofBallotsBallotStyles(':electionId')}>
           <TabPanel>
             <BallotStylesPanel>
-              <BallotStylesTable electionId={electionId} />
+              <BallotStylesTable
+                electionId={electionId}
+                getViewBallotPath={(ballotStyleId, precinctId) =>
+                  routerPaths.proofBallotsViewBallot(
+                    electionId,
+                    ballotStyleId,
+                    precinctId
+                  )
+                }
+              />
             </BallotStylesPanel>
           </TabPanel>
         </Route>
@@ -61,6 +147,36 @@ function ProofBallotsElectionScreen(): JSX.Element | null {
         <Redirect to={routerPaths.proofBallotsBallotStyles(electionId)} />
       </Switch>
     </NavigationScreen>
+  );
+}
+
+function ProofBallotsElectionScreen(): JSX.Element | null {
+  const { electionId } = useParams<{ electionId: ElectionId }>();
+  const getCurrentInProgressElectionQuery =
+    getCurrentInProgressElection.useQuery();
+
+  if (!getCurrentInProgressElectionQuery.isSuccess) {
+    return null;
+  }
+  if (getCurrentInProgressElectionQuery.data?.electionId !== electionId) {
+    return <Redirect to={routerPaths.election} />;
+  }
+
+  return (
+    <Switch>
+      <Route
+        path={routerPaths.proofBallotsViewBallot(
+          ':electionId',
+          ':ballotStyleId',
+          ':precinctId'
+        )}
+      >
+        <ProofBallotViewer electionId={electionId} />
+      </Route>
+      <Route>
+        <ProofBallotsTabs electionId={electionId} />
+      </Route>
+    </Switch>
   );
 }
 

@@ -1,5 +1,10 @@
 import type { Result } from '@votingworks/basics';
 import type {
+  BallotLayoutError,
+  BallotPreviewPdf,
+  BallotPreviewSpec,
+} from '@votingworks/hmpb';
+import type {
   BallotStyle,
   Contest,
   District,
@@ -92,4 +97,7 @@ export interface ElectionDefinitionMethods {
   updateBallotLayoutSettings(
     input: BallotLayoutSettingsUpdate
   ): MaybePromise<void>;
+  getBallotPreviewPdf(
+    input: ElectionInput & BallotPreviewSpec
+  ): MaybePromise<Result<BallotPreviewPdf, BallotLayoutError>>;
 }

@@ -1,6 +1,7 @@
 import { expect, test, vi } from 'vitest';
 import { DateWithoutTime, err, ok } from '@votingworks/basics';
 import {
+  BallotType,
   type Candidate,
   type CandidateContest,
   type ElectionId,
@@ -36,6 +37,9 @@ function electionInfoUpdate(electionId: ElectionId): ElectionInfoUpdate {
     languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
   };
 }
+
+const VALID_SVG =
+  '<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"></svg>';
 
 function withoutCombinedPrimary(
   update: ElectionInfoUpdate
@@ -1366,6 +1370,58 @@ export function describeElectionDefinitionMethods(
     ]);
   });
 
+  test('getBallotPreviewPdf renders a ballot proof', async () => {
+    const harness = await setUp();
+    const { methods } = harness;
+    const electionId = await createElectionWithDistricts(harness);
+    expect(
+      await methods.updateElectionInfo({
+        ...electionInfoUpdate(electionId),
+        type: 'general',
+        seal: VALID_SVG,
+        signatureImage: VALID_SVG,
+        languageCodes: [LanguageCode.ENGLISH],
+      })
+    ).toEqual(ok());
+    expect(
+      await methods.createPrecinct({
+        electionId,
+        newPrecinct: {
+          id: 'precinct-1',
+          name: 'Precinct 1',
+          districtIds: ['district-1'],
+        },
+      })
+    ).toEqual(ok());
+    expect(
+      await methods.createContest({
+        electionId,
+        newContest: {
+          id: 'measure-1',
+          type: 'yesno',
+          title: 'Measure 1',
+          districtId: 'district-1',
+          description: '<p>Should we?</p>',
+          options: [
+            { id: 'measure-1-yes', label: 'Yes' },
+            { id: 'measure-1-no', label: 'No' },
+          ],
+        },
+      })
+    ).toEqual(ok());
+
+    const result = await methods.getBallotPreviewPdf({
+      electionId,
+      precinctId: 'precinct-1',
+      ballotStyleId: '1_en',
+      ballotType: BallotType.Precinct,
+      ballotMode: 'test',
+    });
+    const { pdfData, fileName } = result.unsafeUnwrap();
+    expect(fileName).toEqual('PROOF-test-precinct-ballot-Precinct_1-1_en.pdf');
+    expect(new TextDecoder().decode(pdfData.slice(0, 5))).toEqual('%PDF-');
+  }, 60_000);
+
   test('ballot style and layout methods reject an unknown election', async () => {
     const { methods } = await setUp();
 
@@ -1378,6 +1434,15 @@ export function describeElectionDefinitionMethods(
         electionId: 'unknown',
         paperSize: HmpbBallotPaperSize.Legal,
         compact: true,
+      })
+    );
+    await expectRejection(
+      methods.getBallotPreviewPdf({
+        electionId: 'unknown',
+        precinctId: 'precinct-1',
+        ballotStyleId: '1_en',
+        ballotType: BallotType.Precinct,
+        ballotMode: 'test',
       })
     );
   });

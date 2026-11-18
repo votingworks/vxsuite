@@ -15,7 +15,7 @@ import {
 } from '@votingworks/types';
 
 import { format } from '@votingworks/utils';
-import type { GoogleCloudTranslator } from './translator.js';
+import type { Translator } from './translator.js';
 import { setUiString } from './utils.js';
 
 /**
@@ -330,7 +330,7 @@ export function extractElectionStrings(
  * the translated results.
  */
 export async function extractAndTranslateElectionStrings(
-  translator: GoogleCloudTranslator,
+  translator: Translator,
   election: Election,
   ballotLanguageConfigs: BallotLanguageConfigs,
   options: ElectionStringTranslationOptions = {}

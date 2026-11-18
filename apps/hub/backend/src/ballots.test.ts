@@ -1,7 +1,5 @@
 import { readElectionGeneral } from '@votingworks/fixtures';
 import {
-  BallotType,
-  type BaseBallotProps,
   centralScanningPollingPlaceId,
   CENTRAL_SCANNING_POLLING_PLACE_NAME,
   DEFAULT_SYSTEM_SETTINGS,
@@ -9,24 +7,15 @@ import {
   EARLY_VOTING_POLLING_PLACE_NAME,
   type Election,
   ElectionStringKey,
-  hasSplits,
   type PollingPlace,
   type Precinct,
   type UiStringsPackage,
 } from '@votingworks/types';
 import { TestLanguageCode } from '@votingworks/test-utils';
 import { expect, test } from 'vitest';
-import {
-  assert,
-  assertDefined,
-  deepEqual,
-  find,
-  iter,
-} from '@votingworks/basics';
-import type { NhBallotProps, NhStateBallotProps } from '@votingworks/hmpb';
+import { assertDefined } from '@votingworks/basics';
 import {
   addPollingPlacesForExport,
-  createBallotPropsForTemplate,
   formatElectionForExport,
 } from './ballots.js';
 import {
@@ -36,71 +25,6 @@ import {
 } from '../test/mocks.js';
 
 const election = readElectionGeneral();
-
-test('createBallotPropsForTemplate', () => {
-  const vxDefaultBallotProps = createBallotPropsForTemplate(
-    'VxDefaultBallot',
-    election,
-    false
-  ) as BaseBallotProps[];
-  for (const props of vxDefaultBallotProps) {
-    expect(props.compact).toEqual(false);
-  }
-
-  const msBallotProps = createBallotPropsForTemplate(
-    'MsBallot',
-    election,
-    false
-  );
-  expect(msBallotProps).toEqual(vxDefaultBallotProps);
-
-  const nhBallotProps = createBallotPropsForTemplate(
-    'NhBallot',
-    election,
-    true
-  ) as NhBallotProps[];
-  assert(election.precincts.some((p) => hasSplits(p)));
-  for (const props of nhBallotProps) {
-    expect(props.compact).toEqual(true);
-    const precinct = find(election.precincts, (p) => p.id === props.precinctId);
-    if (hasSplits(precinct)) {
-      expect('electionTitleOverride' in props).toEqual(true);
-      expect('electionSealOverride' in props).toEqual(true);
-      expect('clerkSignatureImage' in props).toEqual(true);
-      expect('clerkSignatureCaption' in props).toEqual(true);
-    }
-  }
-
-  const nhStateBallotProps: NhStateBallotProps[] = createBallotPropsForTemplate(
-    'NhStateBallot',
-    election,
-    false
-  );
-  const [allDerivedProps, allRegularProps] = iter(nhStateBallotProps).partition(
-    (props) => props.variant !== undefined
-  );
-  for (const regularProps of allRegularProps) {
-    const matchingFooProps = allDerivedProps.find((derivedProps) =>
-      deepEqual(derivedProps, {
-        ...regularProps,
-        variant: 'federalOfficeOnly',
-      })
-    );
-    const matchingUocavaProps = allDerivedProps.find((derivedProps) =>
-      deepEqual(derivedProps, { ...regularProps, variant: 'uocava' })
-    );
-    if (
-      regularProps.ballotMode === 'official' &&
-      regularProps.ballotType === BallotType.Absentee
-    ) {
-      expect(matchingFooProps).toBeDefined();
-      expect(matchingUocavaProps).toBeDefined();
-    } else {
-      expect(matchingFooProps).toBeUndefined();
-      expect(matchingUocavaProps).toBeUndefined();
-    }
-  }
-});
 
 test('formatElectionForExport', () => {
   const { CHINESE_SIMPLIFIED, ENGLISH, SPANISH } = TestLanguageCode;

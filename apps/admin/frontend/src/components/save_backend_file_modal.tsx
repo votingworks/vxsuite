@@ -50,7 +50,6 @@ export function SaveBackendFileModal({
   filename,
 }: SaveBackendFileModalProps): JSX.Element {
   const { usbDriveStatus, auth } = useContext(AppContext);
-  // @coverage-defer
   assert(isElectionManagerAuth(auth) || isSystemAdministratorAuth(auth));
 
   function onClose() {
