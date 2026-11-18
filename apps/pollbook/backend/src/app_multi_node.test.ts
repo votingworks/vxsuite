@@ -84,7 +84,7 @@ const mockHasOnlineInterface = vi.mocked(hasOnlineInterface);
 const mockDiscoverHttpServices = vi.spyOn(AvahiService, 'discoverHttpServices');
 
 beforeEach(() => {
-  vi.useFakeTimers();
+  vi.useFakeTimers({ shouldAdvanceTime: true });
   mockNodeEnv = 'test';
   vi.clearAllMocks();
   mockDiscoverHttpServices.mockResolvedValue([]);

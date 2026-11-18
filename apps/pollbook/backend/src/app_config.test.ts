@@ -53,7 +53,7 @@ vi.mock(
 beforeEach(() => {
   mockNodeEnv = 'test';
   vi.clearAllMocks();
-  vitest.useFakeTimers();
+  vitest.useFakeTimers({ shouldAdvanceTime: true });
 });
 
 afterEach(() => {
