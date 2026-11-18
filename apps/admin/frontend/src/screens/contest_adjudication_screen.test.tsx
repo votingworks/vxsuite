@@ -284,6 +284,7 @@ function renderScreen(
         onClose={onClose}
         ballotImages={images}
         writeInCandidates={writeInCandidates}
+        newWriteInNamesFromOtherContests={[]}
         onConfirmContest={onConfirmContest}
         adjudicatedOptions={adjudicatedOptions}
         selectedStraightPartyId={selectedStraightPartyId}
