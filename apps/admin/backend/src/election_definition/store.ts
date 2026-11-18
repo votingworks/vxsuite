@@ -194,7 +194,7 @@ function hasDuplicateSplitDistricts(precinct: Precinct): boolean {
   );
 }
 
-function catchDuplicateContests(
+function catchDuplicateContestErrors(
   write: () => void
 ): Result<void, DuplicateContestError> {
   try {
@@ -866,7 +866,7 @@ export class ElectionDefinitionStore {
     if (contest.type === 'yesno' && hasDuplicateOptionLabels(contest)) {
       return err('duplicate-option');
     }
-    return catchDuplicateContests(() =>
+    return catchDuplicateContestErrors(() =>
       this.client.transaction(() => {
         writeContestRow(contest);
         this.client.run(
