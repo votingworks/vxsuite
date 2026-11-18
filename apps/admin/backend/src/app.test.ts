@@ -322,6 +322,13 @@ test('managing the current election', async () => {
     electionDefinition: asStoredElectionDefinition(electionDefinition),
   });
 
+  // configuring again without unconfiguring is rejected
+  await suppressingConsoleOutput(() =>
+    expect(
+      apiClient.configure({ electionFilePath: saveTmpFile(goodPackage) })
+    ).rejects.toThrow('VxAdmin is already configured')
+  );
+
   // mark results as official as election manager
   mockElectionManagerAuth(auth, electionDefinition.election);
   await apiClient.markResultsOfficial();
