@@ -6,11 +6,13 @@
     "composite": true
   },
   "references": [
+    { "path": "../backend/tsconfig.build.json" },
     { "path": "../basics/tsconfig.build.json" },
     { "path": "../coverage-check/tsconfig.build.json" },
     { "path": "../fixtures/tsconfig.build.json" },
     { "path": "../hmpb/tsconfig.build.json" },
     { "path": "../test-utils/tsconfig.build.json" },
-    { "path": "../types/tsconfig.build.json" }
+    { "path": "../types/tsconfig.build.json" },
+    { "path": "../utils/tsconfig.build.json" }
   ]
 }

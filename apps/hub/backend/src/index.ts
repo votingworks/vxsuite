@@ -3,16 +3,14 @@ import './configure_sentry.js'; // Must be imported first to instrument code
 import { resolve } from 'node:path';
 import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
 import { BaseLogger, Logger, LogSource } from '@votingworks/logging';
+import { LocalFileStorageClient } from '@votingworks/election-definition-backend';
 import { authEnabled, WORKSPACE } from './globals.js';
 import * as server from './server.js';
 import { createWorkspace } from './workspace.js';
 import { GoogleCloudTranslatorWithDbCache } from './translator.js';
 import { GoogleCloudSpeechSynthesizerWithDbCache } from './speech_synthesizer.js';
 import { Auth0Client } from './auth0_client.js';
-import {
-  LocalFileStorageClient,
-  S3FileStorageClient,
-} from './file_storage_client.js';
+import { S3FileStorageClient } from './file_storage_client.js';
 
 export type { TtsStringDefault } from './tts_strings.js';
 export type {
@@ -73,7 +71,7 @@ async function main(): Promise<number> {
   const fileStorageClient =
     process.env.NODE_ENV === 'production'
       ? new S3FileStorageClient()
-      : new LocalFileStorageClient();
+      : new LocalFileStorageClient(WORKSPACE);
 
   const speechSynthesizer = new GoogleCloudSpeechSynthesizerWithDbCache({
     store,

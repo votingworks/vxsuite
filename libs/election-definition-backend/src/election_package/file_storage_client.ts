@@ -1,20 +1,8 @@
-// eslint-disable-next-line max-classes-per-file
 import { createReadStream } from 'node:fs';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import type { Readable } from 'node:stream';
-import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import { Upload } from '@aws-sdk/lib-storage';
-import { getSignedUrl as s3GetSignedUrl } from '@aws-sdk/s3-request-presigner';
-import {
-  assert,
-  assertDefined,
-  err,
-  ok,
-  type Result,
-} from '@votingworks/basics';
-
-import { WORKSPACE } from './globals.js';
+import { assert, ok, type Result } from '@votingworks/basics';
 
 // TODO: Properly enumerate error cases with FileStorageClientError type
 export type FileStorageClientError =
@@ -35,13 +23,13 @@ export interface FileStorageClient {
 }
 
 /**
- * A file storage client that uses the local file system, for local development
+ * A file storage client that uses the local file system
  */
-export class LocalFileStorageClient {
+export class LocalFileStorageClient implements FileStorageClient {
   private readonly root: string;
 
-  constructor() {
-    this.root = assertDefined(WORKSPACE);
+  constructor(root: string) {
+    this.root = root;
   }
 
   private resolveWithinRoot(filePath: string): string {

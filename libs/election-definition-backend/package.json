@@ -34,6 +34,7 @@
   },
   "dependencies": {
     "@types/archiver": "8.0.0",
+    "@votingworks/backend": "workspace:*",
     "@votingworks/basics": "workspace:*",
     "@votingworks/hmpb": "workspace:*",
     "@votingworks/types": "workspace:*",
@@ -46,6 +47,7 @@
     "@votingworks/coverage-check": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
+    "@votingworks/utils": "workspace:*",
     "eslint-plugin-vx": "workspace:*",
     "vitest": "5.0.2"
   },

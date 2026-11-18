@@ -1,63 +1,23 @@
-import * as os from 'node:os';
-import * as fs from 'node:fs/promises';
-import { createReadStream, createWriteStream } from 'node:fs';
 import {
   type ElectionSerializationFormat,
-  ElectionPackageFileName,
-  type ElectionPackageMetadata,
-  mergeUiStrings,
-  formatElectionHashes,
-  LATEST_METADATA,
   type ElectionId,
-  formatBallotHash,
-  BallotType,
   ElectionIdSchema,
   ElectionSerializationFormatSchema,
-  type EncodedBallotEntry,
-  type BaseBallotProps,
   type SoftwareVersion,
-  type ElectionDefinition,
 } from '@votingworks/types';
 import {
-  hmpbStringsCatalog,
-  ballotTemplates,
-  renderAllBallotPdfsAndCreateElectionDefinition,
   createPlaywrightRendererPool,
-  type ElectionSerializationOptions,
   type ScratchDir,
-  type RendererPool,
-  type BallotTemplateId,
-  randomScratchFilePath,
-  createBallotPropsForTemplate,
-  getBallotPdfFileName,
 } from '@votingworks/hmpb';
+import { extractErrorMessage } from '@votingworks/basics';
 import {
-  generateAudioIdsAndClips,
-  getAllStringsForElectionPackage,
-  HashingPassthrough,
-} from '@votingworks/backend';
-import {
-  extractErrorMessage,
-  find,
-  iter,
-  range,
-  throwIllegalValue,
-} from '@votingworks/basics';
-import {
-  addPollingPlacesForExport,
-  Archiver,
-  formatElectionForExport,
-  needsColorNormalization,
-  normalizeBallotColorModeForPrinting,
-  renderCalibrationSheetPdf,
+  type FileStorageClient,
+  renderElectionPackageAndBallots,
 } from '@votingworks/election-definition-backend';
 import z from 'zod/v4';
-import { Readable } from 'node:stream';
-import { createHash, randomUUID as uuid } from 'node:crypto';
-import { pipeline } from 'node:stream/promises';
+import { randomUUID as uuid } from 'node:crypto';
 import type { EmitProgressFunction, WorkerContext } from './context.js';
 import { CircleCiClient } from '../circleci_client.js';
-import type { FileStorageClient } from '../file_storage_client.js';
 import { baseUrl } from '../globals.js';
 import { QaConfig } from '../qa_config.js';
 import type { Store } from '../store.js';
@@ -194,4 +154,95 @@ async function triggerCircleCiQaBuild(params: {
       statusMessage: `Error starting QA job in CircleCI: ${message}`,
     });
   }
+}
+
+export async function generateElectionPackageAndBallots(
+  ctx: WorkerContext,
+  {
+    electionId,
+    electionSerializationFormat,
+    shouldExportAudio,
+    shouldExportSampleBallots,
+    shouldExportTestBallots,
+    numAuditIdBallots,
+  }: GenerateElectionPackageAndBallotsPayload,
+  emitProgress: EmitProgressFunction,
+  scratchDir: ScratchDir
+): Promise<void> {
+  const { speechSynthesizer, translator } = ctx;
+  const { store } = ctx.workspace;
+
+  const electionRecord = await store.getElection(electionId);
+  const {
+    ballotLanguageConfigs,
+    ballotTemplateId,
+    candidateOrderings,
+    jurisdictionId,
+    systemSettings,
+  } = electionRecord;
+  const { compact } = await store.getBallotLayoutSettings(electionId);
+  const jurisdiction = await store.getJurisdiction(jurisdictionId);
+
+  const {
+    electionDefinition,
+    electionPackagePath,
+    officialBallotsPath,
+    sampleBallotsPath,
+    testBallotsPath,
+  } = await renderElectionPackageAndBallots(
+    {
+      translator,
+      createRendererPool: () => createPlaywrightRendererPool(),
+      fileStorageClient: ctx.fileStorageClient,
+      outputDirectory: jurisdictionId,
+      scratchDir,
+      emitProgress,
+    },
+    {
+      election: electionRecord.election,
+      stateCode: jurisdiction.stateCode,
+      ballotLanguageConfigs,
+      ballotTemplateId,
+      getCandidateOrderings: (bs) => candidateOrderings.get(bs),
+      compact,
+      systemSettings,
+      registeredVoterCounts: await store.getRegisteredVoterCounts(electionId),
+      softwareVersion: jurisdiction.softwareVersion,
+      electionSerializationFormat,
+      audio: shouldExportAudio
+        ? {
+            speechSynthesizer,
+            electionTtsEdits: await store.ttsEditsAll({ jurisdictionId }),
+          }
+        : undefined,
+      shouldExportSampleBallots,
+      shouldExportTestBallots,
+      numAuditIdBallots,
+    }
+  );
+
+  const electionPackageUrl = fileUrl(electionPackagePath);
+  await store.setElectionPackageExportInformation({
+    electionId,
+    ballotHash: electionDefinition.ballotHash,
+    electionPackageUrl,
+    electionData: electionDefinition.electionData,
+    officialBallotsUrl: fileUrl(officialBallotsPath),
+    sampleBallotsUrl: sampleBallotsPath && fileUrl(sampleBallotsPath),
+    testBallotsUrl: testBallotsPath && fileUrl(testBallotsPath),
+  });
+
+  // Trigger CircleCI QA build if enabled
+  await triggerCircleCiQaBuild({
+    store,
+    electionId,
+    electionPackageUrl,
+    fileStorageClient: ctx.fileStorageClient,
+    organizationId: jurisdiction.organization.id,
+    vxsuiteVersion: jurisdiction.softwareVersion,
+  });
+}
+
+function fileUrl(relativePath: string): string {
+  return `/files/${relativePath}`;
 }

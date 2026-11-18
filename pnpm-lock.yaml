@@ -3519,6 +3519,9 @@ importers:
       '@types/archiver':
         specifier: 8.0.0
         version: 8.0.0
+      '@votingworks/backend':
+        specifier: workspace:*
+        version: link:../backend
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../basics
@@ -3550,6 +3553,9 @@ importers:
       '@votingworks/test-utils':
         specifier: workspace:*
         version: link:../test-utils
+      '@votingworks/utils':
+        specifier: workspace:*
+        version: link:../utils
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx

@@ -1,69 +1,30 @@
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
-import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import { getSignedUrl as s3GetSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { expect, test } from 'vitest';
 import { Readable } from 'node:stream';
 import { text } from 'node:stream/consumers';
-import {
-  LocalFileStorageClient,
-  S3FileStorageClient,
-} from './file_storage_client.js';
+import { readFile } from 'node:fs/promises';
+import { join } from 'node:path';
+import { makeTemporaryDirectory } from '@votingworks/fixtures';
+import { LocalFileStorageClient } from './file_storage_client.js';
 
-const mockWorkspace = vi.hoisted(() => ({ root: '' }));
+test('LocalFileStorageClient writes and reads files under its root', async () => {
+  const root = makeTemporaryDirectory();
+  const client = new LocalFileStorageClient(root);
 
-vi.mock('@aws-sdk/s3-request-presigner', () => ({
-  getSignedUrl: vi.fn(),
-}));
+  await client.streamFile('a/b/file.txt', Readable.from(['hello']));
+  expect(await readFile(join(root, 'a/b/file.txt'), 'utf-8')).toEqual('hello');
 
-vi.mock(import('./globals.js'), async (importActual) => ({
-  ...(await importActual()),
-  get WORKSPACE() {
-    return mockWorkspace.root;
-  },
-}));
+  const contents = (await client.readFile('a/b/file.txt')).unsafeUnwrap();
+  expect(await text(contents)).toEqual('hello');
+});
 
-const mockedS3GetSignedUrl = vi.mocked(s3GetSignedUrl);
+test('LocalFileStorageClient rejects paths outside its root', async () => {
+  const client = new LocalFileStorageClient(makeTemporaryDirectory());
 
-describe('LocalFileStorageClient', () => {
-  beforeEach(() => {
-    mockWorkspace.root = mkdtempSync(join(tmpdir(), 'hub-file-storage-'));
-  });
-
-  afterEach(() => {
-    rmSync(mockWorkspace.root, { recursive: true, force: true });
-  });
-
-  test('streamFile writes under the root and readFile reads it back', async () => {
-    const client = new LocalFileStorageClient();
-    await client.streamFile(
-      'jurisdiction-1/ballots.zip',
-      Readable.from('contents')
-    );
-
-    expect(
-      readFileSync(
-        join(mockWorkspace.root, 'jurisdiction-1/ballots.zip'),
-        'utf8'
-      )
-    ).toEqual('contents');
-
-    const readResult = await client.readFile('jurisdiction-1/ballots.zip');
-    expect(await text(readResult.unsafeUnwrap())).toEqual('contents');
-  });
-
-  test('readFile and streamFile reject paths outside the root', async () => {
-    const client = new LocalFileStorageClient();
-
-    expect(() => client.readFile('jurisdiction-1/../../outside.txt')).toThrow(
-      'file path escapes storage root'
-    );
-    await expect(
-      client.streamFile('../outside.txt', Readable.from('contents'))
-    ).rejects.toThrow('file path escapes storage root');
-    expect(() => client.readFile('.')).toThrow(
-      'file path escapes storage root'
-    );
-  });
+  expect(() => client.readFile('jurisdiction-1/../../outside.txt')).toThrow(
+    'file path escapes storage root'
+  );
+  await expect(
+    client.streamFile('../outside.txt', Readable.from('contents'))
+  ).rejects.toThrow('file path escapes storage root');
+  expect(() => client.readFile('.')).toThrow('file path escapes storage root');
 });

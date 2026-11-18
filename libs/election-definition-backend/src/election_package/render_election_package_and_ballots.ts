@@ -1,67 +1,109 @@
 import * as os from 'node:os';
 import * as fs from 'node:fs/promises';
 import { createReadStream, createWriteStream } from 'node:fs';
+import { Readable } from 'node:stream';
+import { createHash } from 'node:crypto';
+import { pipeline } from 'node:stream/promises';
 import {
-  type ElectionSerializationFormat,
+  type BallotLanguageConfigs,
+  BallotType,
+  type BaseBallotProps,
+  type Election,
+  type ElectionDefinition,
+  type ElectionDefinitionWithData,
   ElectionPackageFileName,
   type ElectionPackageMetadata,
-  mergeUiStrings,
-  formatElectionHashes,
-  LATEST_METADATA,
-  type ElectionId,
-  formatBallotHash,
-  BallotType,
-  ElectionIdSchema,
-  ElectionSerializationFormatSchema,
+  type ElectionRegisteredVoterCounts,
+  type ElectionSerializationFormat,
   type EncodedBallotEntry,
-  type BaseBallotProps,
+  formatBallotHash,
+  formatElectionHashes,
+  type GetCandidateOrderingsFn,
+  LATEST_METADATA,
+  mergeUiStrings,
   type SoftwareVersion,
-  type ElectionDefinition,
+  type SystemSettings,
+  type TtsEditEntry,
 } from '@votingworks/types';
 import {
-  hmpbStringsCatalog,
   ballotTemplates,
-  renderAllBallotPdfsAndCreateElectionDefinition,
-  createPlaywrightRendererPool,
-  type ElectionSerializationOptions,
-  type ScratchDir,
-  type RendererPool,
   type BallotTemplateId,
-  randomScratchFilePath,
   createBallotPropsForTemplate,
+  type ElectionSerializationOptions,
   getBallotPdfFileName,
+  hmpbStringsCatalog,
+  randomScratchFilePath,
+  renderAllBallotPdfsAndCreateElectionDefinition,
+  type RendererPool,
+  type ScratchDir,
 } from '@votingworks/hmpb';
 import {
   generateAudioIdsAndClips,
   getAllStringsForElectionPackage,
   HashingPassthrough,
+  type SpeechSynthesizer,
+  type Translator,
 } from '@votingworks/backend';
+import { find, iter, range, throwIllegalValue } from '@votingworks/basics';
 import {
-  extractErrorMessage,
-  find,
-  iter,
-  range,
-  throwIllegalValue,
-} from '@votingworks/basics';
-import {
-  addPollingPlacesForExport,
-  Archiver,
-  formatElectionForExport,
   needsColorNormalization,
   normalizeBallotColorModeForPrinting,
   renderCalibrationSheetPdf,
-} from '@votingworks/election-definition-backend';
-import z from 'zod/v4';
-import { Readable } from 'node:stream';
-import { createHash, randomUUID as uuid } from 'node:crypto';
-import { pipeline } from 'node:stream/promises';
-import type { EmitProgressFunction, WorkerContext } from './context.js';
-import { CircleCiClient } from '../circleci_client.js';
-import type { FileStorageClient } from '../file_storage_client.js';
-import { baseUrl } from '../globals.js';
-import { QaConfig } from '../qa_config.js';
-import type { Store } from '../store.js';
-import { rootDebug } from '../debug.js';
+} from './ballot_pdfs.js';
+import {
+  addPollingPlacesForExport,
+  formatElectionForExport,
+} from './election_export.js';
+import type { FileStorageClient } from './file_storage_client.js';
+import type { StateCode } from '../state_features.js';
+import { Archiver } from './zip.js';
+
+export type EmitProgressFunction = (
+  label: string,
+  progress: number,
+  total: number
+) => void;
+
+export interface ElectionPackageAndBallotsInput {
+  election: Election;
+  stateCode: StateCode;
+  ballotLanguageConfigs: BallotLanguageConfigs;
+  ballotTemplateId: BallotTemplateId;
+  getCandidateOrderings: GetCandidateOrderingsFn;
+  compact: boolean;
+  systemSettings: SystemSettings;
+  registeredVoterCounts: ElectionRegisteredVoterCounts;
+  softwareVersion: SoftwareVersion;
+  electionSerializationFormat: ElectionSerializationFormat;
+  audio?: {
+    speechSynthesizer: SpeechSynthesizer;
+    electionTtsEdits: TtsEditEntry[];
+  };
+  shouldExportSampleBallots?: boolean;
+  shouldExportTestBallots?: boolean;
+  numAuditIdBallots?: number;
+}
+
+export interface ElectionPackageAndBallotsContext {
+  translator: Translator;
+  createRendererPool: () => Promise<RendererPool>;
+  fileStorageClient: FileStorageClient;
+  outputDirectory: string;
+  scratchDir: ScratchDir;
+  emitProgress: EmitProgressFunction;
+}
+
+/**
+ * Where the election package and ballot zips were written, as paths relative
+ * to the file storage client's root.
+ */
+export interface ElectionPackageAndBallotsOutput {
+  electionDefinition: ElectionDefinitionWithData;
+  electionPackagePath: string;
+  officialBallotsPath: string;
+  sampleBallotsPath?: string;
+  testBallotsPath?: string;
+}
 
 function generateEncodedBallots(p: {
   ballotProps: BaseBallotProps[];
@@ -86,15 +128,17 @@ function generateEncodedBallots(p: {
   );
 }
 
-export async function generateElectionPackageAndBallots(
-  ctx: WorkerContext,
-  payload: GenerateElectionPackageAndBallotsPayload,
-  emitProgress: EmitProgressFunction,
-  scratchDir: ScratchDir
-): Promise<void> {
-  const rendererPool = await createPlaywrightRendererPool();
+/**
+ * Renders every ballot for an election and writes the election package and the
+ * official, sample and test ballot zips to file storage.
+ */
+export async function renderElectionPackageAndBallots(
+  ctx: ElectionPackageAndBallotsContext,
+  input: ElectionPackageAndBallotsInput
+): Promise<ElectionPackageAndBallotsOutput> {
+  const rendererPool = await ctx.createRendererPool();
   try {
-    await generate(ctx, payload, rendererPool, emitProgress, scratchDir);
+    return await generate(ctx, input, rendererPool);
   } finally {
     // eslint-disable-next-line no-console
     rendererPool.close().catch(console.error);
@@ -102,31 +146,22 @@ export async function generateElectionPackageAndBallots(
 }
 
 async function generate(
-  ctx: WorkerContext,
-  {
-    electionId,
-    electionSerializationFormat,
-    shouldExportAudio,
-    shouldExportSampleBallots,
-    shouldExportTestBallots,
-    numAuditIdBallots,
-  }: GenerateElectionPackageAndBallotsPayload,
-  rendererPool: RendererPool,
-  emitProgress: EmitProgressFunction,
-  scratchDir: ScratchDir
-): Promise<void> {
-  const { speechSynthesizer, translator } = ctx;
-  const { store } = ctx.workspace;
-
-  const electionRecord = await store.getElection(electionId);
+  ctx: ElectionPackageAndBallotsContext,
+  input: ElectionPackageAndBallotsInput,
+  rendererPool: RendererPool
+): Promise<ElectionPackageAndBallotsOutput> {
+  const { translator, emitProgress, scratchDir } = ctx;
   const {
     ballotLanguageConfigs,
     ballotTemplateId,
-    candidateOrderings,
-    jurisdictionId,
-  } = electionRecord;
-  let { systemSettings } = electionRecord;
-  const { compact } = await store.getBallotLayoutSettings(electionId);
+    compact,
+    electionSerializationFormat,
+    audio,
+    shouldExportSampleBallots,
+    shouldExportTestBallots,
+    numAuditIdBallots,
+  } = input;
+  let { systemSettings } = input;
 
   const officialBallotsZip = new Archiver();
   const sampleBallotsZip = new Archiver();
@@ -139,10 +174,9 @@ async function generate(
     name: ElectionPackageFileName.METADATA,
   });
 
-  const jurisdiction = await store.getJurisdiction(jurisdictionId);
   const election = addPollingPlacesForExport(
-    electionRecord.election,
-    jurisdiction,
+    input.election,
+    { stateCode: input.stateCode },
     systemSettings
   );
 
@@ -192,7 +226,7 @@ async function generate(
   if (numAuditIdBallots) {
     // Turn on the system setting so VxScan knows to expect ballot audit IDs.
     systemSettings = {
-      ...electionRecord.systemSettings,
+      ...input.systemSettings,
       precinctScanEnableBallotAuditIds: true,
     };
 
@@ -215,7 +249,7 @@ async function generate(
   const serializationOptions: ElectionSerializationOptions = {
     compact: systemSettings.splitElectionDefinition,
     format: electionSerializationFormat,
-    version: jurisdiction.softwareVersion,
+    version: input.softwareVersion,
   };
 
   const {
@@ -227,7 +261,7 @@ async function generate(
     rendererPool,
     ballotTemplates[ballotTemplateId],
     allBallotProps,
-    (bs) => candidateOrderings.get(bs),
+    input.getCandidateOrderings,
     serializationOptions,
     systemSettings,
     scratchDir,
@@ -265,18 +299,19 @@ async function generate(
     name: ElectionPackageFileName.SYSTEM_SETTINGS,
   });
 
-  const registeredVoterCounts =
-    await store.getRegisteredVoterCounts(electionId);
-  electionPackageZip.addEntry(JSON.stringify(registeredVoterCounts, null, 2), {
-    name: ElectionPackageFileName.REGISTERED_VOTER_COUNTS,
-  });
+  electionPackageZip.addEntry(
+    JSON.stringify(input.registeredVoterCounts, null, 2),
+    {
+      name: ElectionPackageFileName.REGISTERED_VOTER_COUNTS,
+    }
+  );
 
-  if (shouldExportAudio) {
+  if (audio) {
     const { uiStringAudioIds, uiStringAudioClips } = generateAudioIdsAndClips({
       appStrings,
       electionStrings,
-      electionTtsEdits: await store.ttsEditsAll({ jurisdictionId }),
-      speechSynthesizer,
+      electionTtsEdits: audio.electionTtsEdits,
+      speechSynthesizer: audio.speechSynthesizer,
       emitProgress: (progress, total) =>
         emitProgress('Generating audio', progress, total),
     });
@@ -337,56 +372,43 @@ async function generate(
 
   const ballotHash = formatBallotHash(electionDefinition.ballotHash);
   const [
-    electionPackageUrl,
-    officialBallotsUrl,
-    sampleBallotsUrl,
-    testBallotsUrl,
+    electionPackagePath,
+    officialBallotsPath,
+    sampleBallotsPath,
+    testBallotsPath,
   ] = await Promise.all([
-    writeElectionZip(ctx, electionDefinition, {
-      jurisdictionId,
-      scratchDir,
-      zip: electionPackageZip,
-    }),
+    writeElectionZip(ctx, electionDefinition, electionPackageZip),
 
-    writeZipFile(ctx, officialBallotsZip.finalize(), {
-      jurisdictionId,
-      name: `official-ballots-${ballotHash}.zip`,
-    }),
+    writeZipFile(
+      ctx,
+      officialBallotsZip.finalize(),
+      `official-ballots-${ballotHash}.zip`
+    ),
 
     shouldExportSampleBallots
-      ? writeZipFile(ctx, sampleBallotsZip.finalize(), {
-          jurisdictionId,
-          name: `sample-ballots-${ballotHash}.zip`,
-        })
+      ? writeZipFile(
+          ctx,
+          sampleBallotsZip.finalize(),
+          `sample-ballots-${ballotHash}.zip`
+        )
       : undefined,
 
     shouldExportTestBallots
-      ? writeZipFile(ctx, testBallotsZip.finalize(), {
-          jurisdictionId,
-          name: `test-ballots-${ballotHash}.zip`,
-        })
+      ? writeZipFile(
+          ctx,
+          testBallotsZip.finalize(),
+          `test-ballots-${ballotHash}.zip`
+        )
       : undefined,
   ]);
 
-  await store.setElectionPackageExportInformation({
-    electionId,
-    ballotHash: electionDefinition.ballotHash,
-    electionPackageUrl,
-    electionData: electionDefinition.electionData,
-    officialBallotsUrl,
-    sampleBallotsUrl,
-    testBallotsUrl,
-  });
-
-  // Trigger CircleCI QA build if enabled
-  await triggerCircleCiQaBuild({
-    store,
-    electionId,
-    electionPackageUrl,
-    fileStorageClient: ctx.fileStorageClient,
-    organizationId: jurisdiction.organization.id,
-    vxsuiteVersion: jurisdiction.softwareVersion,
-  });
+  return {
+    electionDefinition,
+    electionPackagePath,
+    officialBallotsPath,
+    sampleBallotsPath,
+    testBallotsPath,
+  };
 }
 
 /**
@@ -417,13 +439,15 @@ async function normalizeBallots(p: {
 }
 
 async function writeElectionZip(
-  ctx: WorkerContext,
+  ctx: ElectionPackageAndBallotsContext,
   electionDefinition: ElectionDefinition,
-  p: { jurisdictionId: string; scratchDir: ScratchDir; zip: Archiver }
+  zip: Archiver
 ) {
-  const scratchPath = randomScratchFilePath(p.scratchDir, { extension: 'zip' });
+  const scratchPath = randomScratchFilePath(ctx.scratchDir, {
+    extension: 'zip',
+  });
 
-  const contentStream = p.zip.finalize();
+  const contentStream = zip.finalize();
   const hashingStream = new HashingPassthrough(createHash('sha256'));
   await pipeline(contentStream, hashingStream, createWriteStream(scratchPath));
 
@@ -433,19 +457,19 @@ async function writeElectionZip(
     electionPackageHash
   );
 
-  return writeZipFile(ctx, createReadStream(scratchPath), {
-    jurisdictionId: p.jurisdictionId,
-    name: `election-package-${combinedHash}.zip`,
-  });
+  return writeZipFile(
+    ctx,
+    createReadStream(scratchPath),
+    `election-package-${combinedHash}.zip`
+  );
 }
 
 async function writeZipFile(
-  ctx: WorkerContext,
+  ctx: ElectionPackageAndBallotsContext,
   contents: Readable,
-  p: { jurisdictionId: string; name: string }
+  name: string
 ) {
-  const relativePath = `${p.jurisdictionId}/${p.name}`;
+  const relativePath = `${ctx.outputDirectory}/${name}`;
   await ctx.fileStorageClient.streamFile(relativePath, contents);
-
-  return `/files/${relativePath}`;
+  return relativePath;
 }
