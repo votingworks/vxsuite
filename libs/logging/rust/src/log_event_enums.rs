@@ -511,6 +511,14 @@ pub enum EventId {
     TranslationsFileSaved,
     #[serde(rename = "translations-file-loaded")]
     TranslationsFileLoaded,
+    #[serde(rename = "election-definition-contest-created")]
+    ElectionDefinitionContestCreated,
+    #[serde(rename = "election-definition-contest-updated")]
+    ElectionDefinitionContestUpdated,
+    #[serde(rename = "election-definition-contests-reordered")]
+    ElectionDefinitionContestsReordered,
+    #[serde(rename = "election-definition-contest-deleted")]
+    ElectionDefinitionContestDeleted,
     #[serde(rename = "election-definition-discarded")]
     ElectionDefinitionDiscarded,
 }

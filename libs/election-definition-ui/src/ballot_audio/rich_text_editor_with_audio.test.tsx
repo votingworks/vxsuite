@@ -1,19 +1,13 @@
 import { expect, test, vi } from 'vitest';
 import { sleep } from '@votingworks/basics';
+import { fireEvent, render, screen } from '../../test/react_testing_library.js';
 import {
   type AudioLinkButtonProps,
   AudioLinkButton,
-} from '@votingworks/election-definition-ui';
-import { fireEvent, render, screen } from '../../test/react_testing_library.js';
+} from './audio_link_button.js';
 import { RichTextEditorWithAudio } from './rich_text_editor_with_audio.js';
 
-vi.mock(
-  import('@votingworks/election-definition-ui'),
-  async (importActual) => ({
-    ...(await importActual()),
-    AudioLinkButton: vi.fn(),
-  })
-);
+vi.mock('./audio_link_button.js');
 
 test('passes through editor props', async () => {
   const onChange = vi.fn((content: string) => {
@@ -73,6 +67,19 @@ test('omits button when empty', () => {
   );
 
   screen.getByTestId('rich-text-editor');
+  expect(screen.queryButton('Preview or Edit Audio')).not.toBeInTheDocument();
+});
+
+test('omits button without an audio screen URL', () => {
+  render(
+    <RichTextEditorWithAudio
+      editing={false}
+      initialHtmlContent="<p>Do you agree?<p>"
+      onChange={vi.fn()}
+    />
+  );
+
+  screen.getByText('Do you agree?');
   expect(screen.queryButton('Preview or Edit Audio')).not.toBeInTheDocument();
 });
 

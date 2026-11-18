@@ -1270,6 +1270,30 @@ eventType = "user-action"
 documentationMessage = "A user loaded a translations file for the election definition being designed, or failed to. Success or failure indicated by disposition."
 restrictInDocumentationToApps = ["vx-admin"]
 
+[Events.ElectionDefinitionContestCreated]
+eventId = "election-definition-contest-created"
+eventType = "user-action"
+documentationMessage = "A user added a contest to the election definition being designed, or failed to. Success or failure indicated by disposition."
+restrictInDocumentationToApps = ["vx-admin"]
+
+[Events.ElectionDefinitionContestUpdated]
+eventId = "election-definition-contest-updated"
+eventType = "user-action"
+documentationMessage = "A user edited a contest in the election definition being designed, or failed to. Success or failure indicated by disposition."
+restrictInDocumentationToApps = ["vx-admin"]
+
+[Events.ElectionDefinitionContestsReordered]
+eventId = "election-definition-contests-reordered"
+eventType = "user-action"
+documentationMessage = "A user reordered the contests in the election definition being designed."
+restrictInDocumentationToApps = ["vx-admin"]
+
+[Events.ElectionDefinitionContestDeleted]
+eventId = "election-definition-contest-deleted"
+eventType = "user-action"
+documentationMessage = "A user deleted a contest from the election definition being designed."
+restrictInDocumentationToApps = ["vx-admin"]
+
 [Events.ElectionDefinitionDiscarded]
 eventId = "election-definition-discarded"
 eventType = "user-action"

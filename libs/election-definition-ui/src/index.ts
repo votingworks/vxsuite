@@ -1,6 +1,7 @@
 export * from './api.js';
 export * from './ballot_audio/audio_link_button.js';
 export * from './ballot_audio/input_with_audio.js';
+export * from './contests_editor.js';
 export * from './delete_election_button.js';
 export * from './districts_editor.js';
 export * from './election_definition_context.js';
@@ -13,6 +14,8 @@ export * from './layout.js';
 export * from './parties_editor.js';
 export * from './polling_places_editor.js';
 export * from './precincts_editor.js';
+export * from './reorder_contests_by_district_button.js';
+export * from './rich_text_editor.js';
 export * from './seal_image_input.js';
 export * from './signature_image_input.js';
 export * from './tooltip.js';

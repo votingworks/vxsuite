@@ -1,17 +1,11 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { assert, assertDefined } from '@votingworks/basics';
-import type { Contest, District } from '@votingworks/types';
+import type { Contest, District, ElectionId } from '@votingworks/types';
 import { Button, Modal } from '@votingworks/ui';
 
-import { Row, Column } from '@votingworks/election-definition-ui';
-import {
-  getBallotsFinalizedAt,
-  getElectionInfo,
-  listContests,
-  listDistricts,
-  reorderContests,
-} from './api.js';
+import { useElectionDefinitionApi } from './election_definition_context.js';
+import { Column, Row } from './layout.js';
 import { reorderElement } from './utils.js';
 
 function serializeContestIds(contests: readonly Contest[]): string {
@@ -140,20 +134,21 @@ function ReorderContestsByDistrictModal({
 
 export function ReorderContestsByDistrictButton({
   electionId,
+  isLocked,
 }: {
-  electionId: string;
+  electionId: ElectionId;
+  isLocked?: boolean;
 }): JSX.Element | null {
-  const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
-  const getElectionInfoQuery = getElectionInfo.useQuery(electionId);
-  const listContestsQuery = listContests.useQuery(electionId);
-  const listDistrictsQuery = listDistricts.useQuery(electionId);
-  const reorderContestsMutation = reorderContests.useMutation();
+  const api = useElectionDefinitionApi();
+  const getElectionInfoQuery = api.getElectionInfo.useQuery(electionId);
+  const listContestsQuery = api.listContests.useQuery(electionId);
+  const listDistrictsQuery = api.listDistricts.useQuery(electionId);
+  const reorderContestsMutation = api.reorderContests.useMutation();
 
   const [showDistrictReorderModal, setShowDistrictReorderModal] =
     useState(false);
 
   if (
-    !getBallotsFinalizedAtQuery.isSuccess ||
     !getElectionInfoQuery.isSuccess ||
     !listContestsQuery.isSuccess ||
     !listDistrictsQuery.isSuccess
@@ -161,7 +156,6 @@ export function ReorderContestsByDistrictButton({
     return null;
   }
 
-  const ballotsFinalizedAt = getBallotsFinalizedAtQuery.data;
   const electionInfo = getElectionInfoQuery.data;
   const contests = listContestsQuery.data;
   const districts = listDistrictsQuery.data;
@@ -170,7 +164,7 @@ export function ReorderContestsByDistrictButton({
     <React.Fragment>
       <Button
         disabled={
-          ballotsFinalizedAt !== null ||
+          !!isLocked ||
           Boolean(electionInfo.externalSource) ||
           contests.length === 0
         }

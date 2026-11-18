@@ -90,7 +90,8 @@ export function ContestDescriptionPreview(props: {
   electionId: string;
 }): React.ReactNode {
   const { contestId, electionId } = props;
-  const contests = api.listContests.useQuery(electionId).data;
+  const contests =
+    api.electionDefinitionApi.listContests.useQuery(electionId).data;
 
   const contest = React.useMemo(() => {
     if (!contests) return undefined;

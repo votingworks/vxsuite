@@ -2,12 +2,11 @@ import React from 'react';
 import styled from 'styled-components';
 import { Flipped, Flipper } from 'react-flip-toolkit';
 import { Button } from '@votingworks/ui';
-import type { Contest, Party } from '@votingworks/types';
-import { useHistory, useParams } from 'react-router-dom';
+import type { Contest, ContestId, ElectionId, Party } from '@votingworks/types';
 import { groupBy } from '@votingworks/basics';
-import { Row, Column, EntityList } from '@votingworks/election-definition-ui';
-import * as api from './api.js';
-import { type ElectionIdParams, routes } from './routes.js';
+import { useElectionDefinitionApi } from './election_definition_context.js';
+import { EntityList } from './entity_list.js';
+import { Column, Row } from './layout.js';
 
 const CLASS_REORDER_BUTTON = 'contestReorderButton';
 
@@ -32,8 +31,11 @@ export interface ReorderParams {
 
 export interface ContestListProps {
   contests: readonly Contest[];
+  electionId: ElectionId;
+  onSelect: (contestId: ContestId) => void;
   reordering: boolean;
   reorder: (params: ReorderParams) => void;
+  selectedId?: ContestId;
 }
 
 // [TODO] Might make sense, visually and functionally, to move the controls for
@@ -41,14 +43,10 @@ export interface ContestListProps {
 // footer. With recent changes the "reorder" button is a bit too far off now and
 // there may be plans to add support for custom contest grouping down the line.
 export function ContestList(props: ContestListProps): React.ReactNode {
-  const { contests, reorder, reordering } = props;
-  const { contestId = null, electionId } = useParams<
-    ElectionIdParams & { contestId?: string }
-  >();
+  const { contests, electionId, onSelect, reorder, reordering, selectedId } =
+    props;
 
-  const history = useHistory();
-  const contestRoutes = routes.election(electionId).contests;
-
+  const api = useElectionDefinitionApi();
   const parties = api.listParties.useQuery(electionId);
   const districts = api.listDistricts.useQuery(electionId);
 
@@ -56,10 +54,6 @@ export function ContestList(props: ContestListProps): React.ReactNode {
     () => new Map((districts.data || []).map((d) => [d.id, d.name])),
     [districts.data]
   );
-
-  function onSelect(id: string) {
-    history.push(contestRoutes.view(id).path);
-  }
 
   if (!parties.isSuccess || !districts.isSuccess) {
     return null;
@@ -86,7 +80,7 @@ export function ContestList(props: ContestListProps): React.ReactNode {
               parties={parties.data}
               reordering={reordering}
               reorder={reorder}
-              selectedId={contestId}
+              selectedId={selectedId}
               title={title}
             />
           )
@@ -102,7 +96,7 @@ export function Sublist(props: {
   parties: readonly Party[];
   reorder: (params: ReorderParams) => void;
   reordering: boolean;
-  selectedId: string | null;
+  selectedId?: ContestId;
   title: string;
 }): React.ReactNode {
   const {

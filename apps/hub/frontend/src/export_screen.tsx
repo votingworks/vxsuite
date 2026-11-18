@@ -17,7 +17,11 @@ import { useParams } from 'react-router-dom';
 import type { ElectionSerializationFormat } from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
 import type { BallotTemplateId } from '@votingworks/hub-backend';
-import { InputGroup, Column } from '@votingworks/election-definition-ui';
+import {
+  InputGroup,
+  Column,
+  ReorderContestsByDistrictButton,
+} from '@votingworks/election-definition-ui';
 import {
   exportElectionPackage,
   exportTestDecks,
@@ -29,14 +33,13 @@ import {
   getTestDecks,
   getBallotTemplate,
   decryptCvrBallotAuditIds,
-  getStateFeatures,
   getSystemSettings,
+  electionDefinitionApi,
 } from './api.js';
 import { ElectionNavScreen, Header } from './nav_screen.js';
 import { type ElectionIdParams, routes } from './routes.js';
 import { downloadFile } from './utils.js';
 import { useTitle } from './hooks/use_title.js';
-import { ReorderContestsByDistrictButton } from './reorder_contests_by_district_button.js';
 import { Downloads } from './downloads.js';
 import { ProofingStatus } from './proofing_status.js';
 import { TaskProgress } from './task_progress.js';
@@ -57,7 +60,8 @@ export function ExportScreen(): JSX.Element | null {
   const [shouldExportTestBallots, setShouldExportTestBallots] = useState(false);
   useTitle(routes.election(electionId).export.title);
   const getUserFeaturesQuery = getUserFeatures.useQuery();
-  const getStateFeaturesQuery = getStateFeatures.useQuery(electionId);
+  const getStateFeaturesQuery =
+    electionDefinitionApi.getStateFeatures.useQuery(electionId);
   const getElectionInfoQuery = getElectionInfo.useQuery(electionId);
   const electionPackageQuery = getElectionPackage.useQuery(electionId);
   const exportElectionPackageMutation = exportElectionPackage.useMutation();
@@ -201,7 +205,10 @@ export function ExportScreen(): JSX.Element | null {
 
         <Column style={{ alignItems: 'flex-start', gap: '0.5rem' }}>
           <H2 style={{ margin: 0 }}>Contests</H2>
-          <ReorderContestsByDistrictButton electionId={electionId} />
+          <ReorderContestsByDistrictButton
+            electionId={electionId}
+            isLocked={Boolean(ballotsFinalizedAt)}
+          />
         </Column>
 
         {/* Prevent any further exports after finalizing ballots: */}

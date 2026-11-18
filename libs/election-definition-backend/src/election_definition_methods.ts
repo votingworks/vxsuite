@@ -1,5 +1,6 @@
 import type { Result } from '@votingworks/basics';
 import type {
+  Contest,
   District,
   ElectionId,
   ElectionRegisteredVoterCounts,
@@ -8,6 +9,7 @@ import type {
   Precinct,
 } from '@votingworks/types';
 import type {
+  DuplicateContestError,
   DuplicateDistrictError,
   DuplicateElectionError,
   DuplicatePartyError,
@@ -16,6 +18,10 @@ import type {
 } from './error_types.js';
 import type { StateFeaturesConfig } from './state_features.js';
 import type {
+  ContestCreate,
+  ContestDelete,
+  ContestsReorder,
+  ContestUpdate,
   DistrictsUpdate,
   ElectionInfo,
   ElectionInfoUpdate,
@@ -49,6 +55,15 @@ export interface ElectionDefinitionMethods {
   updateParties(
     input: PartiesUpdate
   ): MaybePromise<Result<void, DuplicatePartyError>>;
+  listContests(input: ElectionInput): MaybePromise<readonly Contest[]>;
+  createContest(
+    input: ContestCreate
+  ): MaybePromise<Result<void, DuplicateContestError>>;
+  updateContest(
+    input: ContestUpdate
+  ): MaybePromise<Result<void, DuplicateContestError>>;
+  reorderContests(input: ContestsReorder): MaybePromise<void>;
+  deleteContest(input: ContestDelete): MaybePromise<void>;
   listPrecincts(input: ElectionInput): MaybePromise<readonly Precinct[]>;
   createPrecinct(
     input: PrecinctCreate

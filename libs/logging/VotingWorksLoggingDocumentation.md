@@ -806,6 +806,22 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)
 **Description:** A user loaded a translations file for the election definition being designed, or failed to. Success or failure indicated by disposition.
 **Machines:** vx-admin
+### election-definition-contest-created
+**Type:** [user-action](#user-action)
+**Description:** A user added a contest to the election definition being designed, or failed to. Success or failure indicated by disposition.
+**Machines:** vx-admin
+### election-definition-contest-updated
+**Type:** [user-action](#user-action)
+**Description:** A user edited a contest in the election definition being designed, or failed to. Success or failure indicated by disposition.
+**Machines:** vx-admin
+### election-definition-contests-reordered
+**Type:** [user-action](#user-action)
+**Description:** A user reordered the contests in the election definition being designed.
+**Machines:** vx-admin
+### election-definition-contest-deleted
+**Type:** [user-action](#user-action)
+**Description:** A user deleted a contest from the election definition being designed.
+**Machines:** vx-admin
 ### election-definition-discarded
 **Type:** [user-action](#user-action)
 **Description:** A user discarded the election definition being designed.
