@@ -65,6 +65,7 @@ import {
   getExportedCastVoteRecordIds,
   splitPerPrecinctTallyIntoSinglePrecinctTallies,
   decodeAndReadPerPrecinctCompressedTally,
+  hasValidRegisteredVoterCountParties,
 } from '@votingworks/utils';
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { dirSync, tmpNameSync } from 'tmp';
@@ -734,6 +735,15 @@ export function buildApi(ctx: AppContext) {
         assert(
           !hasPartialRegisteredVoterCounts(precincts, registeredVoterCounts),
           'Registered voter counts must be provided for all precincts and splits or none'
+        );
+        assert(
+          ElectionRegisteredVoterCountsSchema.safeParse(registeredVoterCounts)
+            .success,
+          'Party and nonpartisan registered voter counts must sum to the total'
+        );
+        assert(
+          hasValidRegisteredVoterCountParties(election, registeredVoterCounts),
+          'Registered voter counts by party must include exactly the parties with ballot styles in each precinct and split'
         );
       }
 
