@@ -106,7 +106,7 @@ const ItemContainer = styled.li`
     outline: none;
   }
 
-  :active,
+  :active:not(:has(button:active)),
   &[aria-selected='true'] {
     background-color: ${DesktopPalette.Purple10};
     box-shadow: inset 0.35rem 0 0 ${DesktopPalette.Purple60};
