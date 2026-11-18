@@ -8,9 +8,7 @@ import {
   type SystemSettings,
 } from '@votingworks/types';
 
-import type { StateCode } from '@votingworks/election-definition-backend';
-import { sliOrganizationId } from './globals.js';
-import { type Jurisdiction, resultsReportingUrl } from './types.js';
+import type { StateCode } from './state_features.js';
 
 /**
  * Default settings applied across customers and SLI
@@ -31,105 +29,117 @@ const commonCustomerSettings = {
   precinctScanDisableScreenReaderAudio: true,
 } as const;
 
-export const stateDefaultSystemSettings: Record<StateCode, SystemSettings> = {
-  DEMO: {
-    ...commonSettings,
-    ...commonCustomerSettings,
+export function stateDefaultSystemSettings(
+  stateCode: StateCode,
+  { quickResultsReportingUrl }: { quickResultsReportingUrl?: string } = {}
+): SystemSettings {
+  const quickResultsReportingSettings = quickResultsReportingUrl
+    ? { quickResultsReportingUrl }
+    : {};
+  const settings: Record<StateCode, SystemSettings> = {
+    DEMO: {
+      ...commonSettings,
+      ...commonCustomerSettings,
 
-    markThresholds: DEFAULT_MARK_THRESHOLDS_MARGINAL_MARK_ADJUDICATION_ENABLED,
+      markThresholds:
+        DEFAULT_MARK_THRESHOLDS_MARGINAL_MARK_ADJUDICATION_ENABLED,
 
-    precinctScanAdjudicationReasons: [
-      AdjudicationReason.Overvote,
-      AdjudicationReason.BlankBallot,
-      AdjudicationReason.UnmarkedWriteIn,
-    ],
-    disallowCastingOvervotes: false,
-    centralScanAdjudicationReasons: [AdjudicationReason.UnmarkedWriteIn],
-    adminAdjudicationReasons: [
-      AdjudicationReason.Overvote,
-      AdjudicationReason.BlankBallot,
-      AdjudicationReason.MarginalMark,
-    ],
+      precinctScanAdjudicationReasons: [
+        AdjudicationReason.Overvote,
+        AdjudicationReason.BlankBallot,
+        AdjudicationReason.UnmarkedWriteIn,
+      ],
+      disallowCastingOvervotes: false,
+      centralScanAdjudicationReasons: [AdjudicationReason.UnmarkedWriteIn],
+      adminAdjudicationReasons: [
+        AdjudicationReason.Overvote,
+        AdjudicationReason.BlankBallot,
+        AdjudicationReason.MarginalMark,
+      ],
 
-    bmdPrintMode: 'bubble_ballot',
-    enableEarlyVoting: true,
-    enableTestDeckPrinting: true,
-    quickResultsReportingUrl: resultsReportingUrl(),
-  },
+      bmdPrintMode: 'bubble_ballot',
+      enableEarlyVoting: true,
+      enableTestDeckPrinting: true,
+      ...quickResultsReportingSettings,
+    },
 
-  MI: {
-    ...commonSettings,
-    ...commonCustomerSettings,
+    MI: {
+      ...commonSettings,
+      ...commonCustomerSettings,
 
-    markThresholds: DEFAULT_MARK_THRESHOLDS_MARGINAL_MARK_ADJUDICATION_ENABLED,
+      markThresholds:
+        DEFAULT_MARK_THRESHOLDS_MARGINAL_MARK_ADJUDICATION_ENABLED,
 
-    precinctScanAdjudicationReasons: [
-      AdjudicationReason.Overvote,
-      AdjudicationReason.BlankBallot,
-    ],
-    disallowCastingOvervotes: false,
-    centralScanAdjudicationReasons: [],
-    adminAdjudicationReasons: [
-      AdjudicationReason.Overvote,
-      AdjudicationReason.BlankBallot,
-      AdjudicationReason.MarginalMark,
-    ],
+      precinctScanAdjudicationReasons: [
+        AdjudicationReason.Overvote,
+        AdjudicationReason.BlankBallot,
+      ],
+      disallowCastingOvervotes: false,
+      centralScanAdjudicationReasons: [],
+      adminAdjudicationReasons: [
+        AdjudicationReason.Overvote,
+        AdjudicationReason.BlankBallot,
+        AdjudicationReason.MarginalMark,
+      ],
 
-    areWriteInCandidatesQualified: true,
-    bmdPrintMode: 'bubble_ballot',
-    enableEarlyVoting: true,
-    precinctScanEnableWriteInImageReport: true,
-    quickResultsReportingUrl: resultsReportingUrl(),
-  },
+      areWriteInCandidatesQualified: true,
+      bmdPrintMode: 'bubble_ballot',
+      enableEarlyVoting: true,
+      precinctScanEnableWriteInImageReport: true,
+      ...quickResultsReportingSettings,
+    },
 
-  MS: {
-    ...commonSettings,
-    ...commonCustomerSettings,
+    MS: {
+      ...commonSettings,
+      ...commonCustomerSettings,
 
-    markThresholds: DEFAULT_MARK_THRESHOLDS,
+      markThresholds: DEFAULT_MARK_THRESHOLDS,
 
-    precinctScanAdjudicationReasons: [
-      AdjudicationReason.Overvote,
-      AdjudicationReason.Undervote,
-      AdjudicationReason.BlankBallot,
-    ],
-    disallowCastingOvervotes: false,
-    centralScanAdjudicationReasons: [
-      AdjudicationReason.Overvote,
-      AdjudicationReason.BlankBallot,
-    ],
-    adminAdjudicationReasons: [],
+      precinctScanAdjudicationReasons: [
+        AdjudicationReason.Overvote,
+        AdjudicationReason.Undervote,
+        AdjudicationReason.BlankBallot,
+      ],
+      disallowCastingOvervotes: false,
+      centralScanAdjudicationReasons: [
+        AdjudicationReason.Overvote,
+        AdjudicationReason.BlankBallot,
+      ],
+      adminAdjudicationReasons: [],
 
-    bmdPrintMode: 'summary',
-    disallowClosingPollsBeforeElectionDayPollsCloseTime: true,
-    electionDayPollsCloseTime: '19:00:00',
-    enableEarlyVoting: true,
-    enableTestDeckPrinting: true,
-    precinctScanNumberOfReportCopies: 2,
-    quickResultsReportingUrl: resultsReportingUrl(),
-  },
+      bmdPrintMode: 'summary',
+      disallowClosingPollsBeforeElectionDayPollsCloseTime: true,
+      electionDayPollsCloseTime: '19:00:00',
+      enableEarlyVoting: true,
+      enableTestDeckPrinting: true,
+      precinctScanNumberOfReportCopies: 2,
+      ...quickResultsReportingSettings,
+    },
 
-  NH: {
-    ...commonSettings,
-    ...commonCustomerSettings,
+    NH: {
+      ...commonSettings,
+      ...commonCustomerSettings,
 
-    markThresholds: DEFAULT_MARK_THRESHOLDS,
+      markThresholds: DEFAULT_MARK_THRESHOLDS,
 
-    precinctScanAdjudicationReasons: [
-      AdjudicationReason.Overvote,
-      AdjudicationReason.UnmarkedWriteIn,
-    ],
-    disallowCastingOvervotes: true,
-    centralScanAdjudicationReasons: [
-      AdjudicationReason.Overvote,
-      AdjudicationReason.UnmarkedWriteIn,
-    ],
-    adminAdjudicationReasons: [],
+      precinctScanAdjudicationReasons: [
+        AdjudicationReason.Overvote,
+        AdjudicationReason.UnmarkedWriteIn,
+      ],
+      disallowCastingOvervotes: true,
+      centralScanAdjudicationReasons: [
+        AdjudicationReason.Overvote,
+        AdjudicationReason.UnmarkedWriteIn,
+      ],
+      adminAdjudicationReasons: [],
 
-    allowOfficialBallotsInTestMode: true,
-    bmdPrintMode: 'bubble_ballot',
-  },
-};
+      allowOfficialBallotsInTestMode: true,
+      bmdPrintMode: 'bubble_ballot',
+    },
+  };
+
+  return settings[stateCode];
+}
 
 export const SLI_DEFAULT_SYSTEM_SETTINGS: SystemSettings = {
   ...commonSettings,
