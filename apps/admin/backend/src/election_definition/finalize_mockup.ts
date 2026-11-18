@@ -24,8 +24,8 @@ export type FinalizeStatus =
   | {
       readonly status: 'finalized';
       /**
-       * Whether cast vote records, adjudications or manual tallies exist,
-       * which blocks unfinalizing. Always false in the mockup.
+       * Whether cast vote records or manual tallies are loaded, which blocks
+       * unfinalizing until they are removed. Always false in the mockup.
        */
       readonly hasResultsData: boolean;
     };

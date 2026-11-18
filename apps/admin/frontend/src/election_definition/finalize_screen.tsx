@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Redirect, Route, Switch, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import type { FinalizedBallotsKind } from '@votingworks/admin-backend';
-import { Row } from '@votingworks/election-definition-ui';
+import { InputGroup, Row } from '@votingworks/election-definition-ui';
 import {
   getPrecinctsWithoutAbsenteePollingPlace,
   hasPartialRegisteredVoterCounts,
@@ -41,6 +41,10 @@ import {
   useElectionStrings,
   useLanguageMockupState,
 } from './language_mockup.js';
+
+const ReasonTextArea = styled.textarea`
+  width: 100%;
+`;
 
 const Content = styled.div`
   display: flex;
@@ -157,7 +161,13 @@ function UnfinalizeElectionButton({
   disabled: boolean;
 }): JSX.Element {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [reason, setReason] = useState('');
   const unfinalizeElectionMutation = unfinalizeElection.useMutation();
+
+  function closeModal() {
+    setIsModalOpen(false);
+    setReason('');
+  }
 
   return (
     <React.Fragment>
@@ -174,13 +184,25 @@ function UnfinalizeElectionButton({
         <Modal
           title="Unfinalize Election"
           content={
-            <P>
-              After unfinalizing, the election can be edited again and VxAdmin
-              will no longer be configured. Previously saved ballots and
-              election packages should be voided. After the election is
-              finalized again, ballots must be saved again, smart cards
-              reprogrammed, and machines reconfigured.
-            </P>
+            <div>
+              <P>
+                After unfinalizing, the election can be edited again and VxAdmin
+                will no longer be configured. Previously saved ballots and
+                election packages should be voided. After the election is
+                finalized again, ballots must be saved again, smart cards
+                reprogrammed, and machines reconfigured.
+              </P>
+              <P as="div">
+                <InputGroup label="Reason for Unfinalizing">
+                  <ReasonTextArea
+                    id="reason-for-unfinalizing"
+                    maxLength={500}
+                    value={reason}
+                    onChange={(event) => setReason(event.target.value)}
+                  />
+                </InputGroup>
+              </P>
+            </div>
           }
           actions={
             <React.Fragment>
@@ -189,18 +211,20 @@ function UnfinalizeElectionButton({
                 variant="danger"
                 onPress={() =>
                   unfinalizeElectionMutation.mutate(
-                    { electionId },
-                    { onSuccess: () => setIsModalOpen(false) }
+                    { electionId, reason: reason.trim() },
+                    { onSuccess: closeModal }
                   )
                 }
-                disabled={unfinalizeElectionMutation.isLoading}
+                disabled={
+                  !reason.trim() || unfinalizeElectionMutation.isLoading
+                }
               >
                 Unfinalize Election
               </Button>
-              <Button onPress={() => setIsModalOpen(false)}>Cancel</Button>
+              <Button onPress={closeModal}>Cancel</Button>
             </React.Fragment>
           }
-          onOverlayClick={() => setIsModalOpen(false)}
+          onOverlayClick={closeModal}
         />
       )}
     </React.Fragment>
@@ -258,9 +282,8 @@ function FinalizeStatusPanel({
         </OfficialResultsCard>
         {finalizeStatus.hasResultsData ? (
           <P>
-            Cast vote records have been loaded, so the election can no longer be
-            unfinalized. To start over, unconfigure VxAdmin from the Election
-            screen.
+            The election can&apos;t be unfinalized while cast vote records
+            (CVRs) or manual tallies are loaded.
           </P>
         ) : (
           <P>

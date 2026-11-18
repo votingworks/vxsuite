@@ -667,7 +667,7 @@ function createElectionDefinitionApiMethods({
       );
     },
 
-    unfinalizeElection(input: ElectionInput): void {
+    unfinalizeElection(input: ElectionInput & { reason: string }): void {
       loadInProgressElectionInfo(input);
       const finalizeStatus = finalizeMockup.getStatus(input.electionId);
       assert(
