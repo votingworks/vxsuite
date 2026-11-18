@@ -1,5 +1,3 @@
-import { vi } from 'vitest';
-
 // Mock some DOM methods that don't exist in jsdom but are required by tiptap
 // (our rich text editor library).
 // See https://github.com/ueberdosis/tiptap/discussions/4008
@@ -31,6 +29,3 @@ HTMLElement.prototype.getBoundingClientRect = getBoundingClientRect;
 HTMLElement.prototype.getClientRects = (): DOMRectList => new FakeDOMRectList();
 Range.prototype.getBoundingClientRect = getBoundingClientRect;
 Range.prototype.getClientRects = (): DOMRectList => new FakeDOMRectList();
-
-// Mock needed for react-flip-toolkit:
-window.matchMedia = vi.fn().mockImplementation(() => ({ matches: false }));
