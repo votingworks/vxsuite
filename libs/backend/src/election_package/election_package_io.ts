@@ -69,6 +69,7 @@ import { validateElectionDefinitionAgainstSystemLimits } from './system_limits.j
  */
 export type ElectionPackageError =
   | {
+      message?: string;
       type:
         | 'invalid-election'
         | 'invalid-metadata'
@@ -421,19 +422,32 @@ export async function readElectionPackageFromFile(
  * parse errors are unexpected at that point and throw.
  */
 async function* streamElectionPackageJsonlEntry<T>(
-  electionPackageZip: ElectionPackageZip,
+  zip: ElectionPackageZip,
   entryName: string,
   schema: z.ZodType<T>
 ): AsyncIterable<T> {
-  if (!electionPackageZip.hasEntry(entryName)) return;
+  const results = safeStreamElectionPackageJsonlEntry(zip, entryName, schema);
+  for await (const result of results) yield result.unsafeUnwrap();
+}
 
-  const entryStream = await electionPackageZip.openEntryStream(entryName);
+/**
+ * Streams a JSONL entry from an election package zip, one line at a time.
+ * Blank lines are skipped.
+ */
+export async function* safeStreamElectionPackageJsonlEntry<T>(
+  zip: ElectionPackageZip,
+  entryName: string,
+  schema: z.ZodType<T>
+): AsyncIterable<Result<T, SyntaxError | z.ZodError>> {
+  if (!zip.hasEntry(entryName)) return;
+
+  const entryStream = await zip.openEntryStream(entryName);
   const fileLines = readline.createInterface(entryStream);
 
   try {
     for await (const line of fileLines) {
       if (line.trim().length === 0) continue;
-      yield safeParseJson(line, schema).unsafeUnwrap();
+      yield safeParseJson(line, schema);
     }
   } finally {
     fileLines.close();

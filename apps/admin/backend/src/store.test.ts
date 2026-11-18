@@ -32,6 +32,7 @@ import {
   type ContestPosition,
   HmpbBallotPaperSize,
   LanguageCode,
+  validateCandidateOrderings,
 } from '@votingworks/types';
 import {
   assert,
@@ -41,6 +42,7 @@ import {
   find,
   ok,
   typedAs,
+  type Result,
 } from '@votingworks/basics';
 import { join } from 'node:path';
 import { createHash } from 'node:crypto';
@@ -51,7 +53,10 @@ import {
   toSplitFileElection,
 } from '@votingworks/test-utils';
 import { mockBaseLogger } from '@votingworks/logging';
-import { createElectionPackageZipArchive } from '@votingworks/backend';
+import {
+  createElectionPackageZipArchive,
+  type ElectionPackageError,
+} from '@votingworks/backend';
 import {
   generateElectionBasedSubfolderName,
   getGroupedBallotStyles,
@@ -71,6 +76,14 @@ import { STALE_MACHINE_THRESHOLD_MS } from './globals.js';
 import { writeTempElectionZip } from '../test/app.js';
 
 vi.mock('./get_current_time');
+
+vi.mock(import('@votingworks/types'), async (importActual) => {
+  const actual = await importActual();
+  return {
+    ...actual,
+    validateCandidateOrderings: vi.fn(actual.validateCandidateOrderings),
+  };
+});
 
 const systemSettings: SystemSettings = {
   ...DEFAULT_SYSTEM_SETTINGS,
@@ -300,16 +313,139 @@ describe('importElectionPackage populates candidate_orderings', () => {
     expect(readdirSync(store.getElectionPackagesPath())).toEqual([]);
   });
 
-  async function configure(
+  test('rolls back and returns error for failed contest validation', async () => {
+    const store = Store.memoryStore(makeTemporaryDirectory());
+    const splitElection = toSplitFileElection(fixtures.readElection());
+    const { ballotPositions, candidateOrderings } = splitElection;
+    const firstGroupId = candidateOrderings[0]!.ballotStyleGroupId;
+
+    vi.mocked(validateCandidateOrderings).mockImplementationOnce(() => [
+      { contestId: 'cc1', message: 'err1' },
+      { contestId: 'cc2', message: 'err2' },
+    ]);
+
+    const res = await configureFallible(store, {
+      ballotPositions,
+      candidateOrderings,
+      electionData: fixtures.electionJson.asBuffer(),
+      settings: { ...DEFAULT_SYSTEM_SETTINGS, splitElectionDefinition: true },
+    });
+
+    const expectedMessage = new RegExp(
+      `invalid candidate ordering .+ '${firstGroupId}', contest 'cc1': err1`
+    );
+    expect(res.err()).toEqual({
+      message: expect.stringMatching(expectedMessage),
+      type: 'invalid-election',
+    });
+
+    expect(store.getElections()).toHaveLength(0);
+    expect(readdirSync(store.getElectionPackagesPath())).toEqual([]);
+  });
+
+  test('rolls back and returns error for failed candidate validation', async () => {
+    const store = Store.memoryStore(makeTemporaryDirectory());
+    const splitElection = toSplitFileElection(fixtures.readElection());
+    const { ballotPositions, candidateOrderings } = splitElection;
+    const secondGroupId = candidateOrderings[1]!.ballotStyleGroupId;
+
+    vi.mocked(validateCandidateOrderings)
+      .mockImplementationOnce(() => [])
+      .mockImplementationOnce(() => [
+        { contestId: 'cc2', candidateId: 'can3', message: 'err2' },
+      ]);
+
+    const res = await configureFallible(store, {
+      ballotPositions,
+      candidateOrderingsBatchSize: 1,
+      candidateOrderings,
+      electionData: fixtures.electionJson.asBuffer(),
+      settings: { ...DEFAULT_SYSTEM_SETTINGS, splitElectionDefinition: true },
+    });
+
+    const expectedMessage = new RegExp(
+      `'${secondGroupId}', contest 'cc2', candidate 'can3': err2`
+    );
+    expect(res.err()).toEqual({
+      message: expect.stringMatching(expectedMessage),
+      type: 'invalid-election',
+    });
+
+    expect(store.getElections()).toHaveLength(0);
+    expect(readdirSync(store.getElectionPackagesPath())).toEqual([]);
+  });
+
+  test('rolls back and returns error for invalid ballot style group ID', async () => {
+    const store = Store.memoryStore(makeTemporaryDirectory());
+    const splitElection = toSplitFileElection(fixtures.readElection());
+    const { ballotPositions, candidateOrderings } = splitElection;
+
+    const orderingsWithInvalidGroup: BallotCandidateOrderings[] = [
+      ...candidateOrderings,
+      { ...candidateOrderings[0]!, ballotStyleGroupId: 'invalid-group' },
+    ];
+
+    const res = await configureFallible(store, {
+      ballotPositions,
+      candidateOrderings: orderingsWithInvalidGroup,
+      electionData: fixtures.electionJson.asBuffer(),
+      settings: { ...DEFAULT_SYSTEM_SETTINGS, splitElectionDefinition: true },
+    });
+
+    const expectedMessage = `invalid ballot style group ID 'invalid-group'`;
+    expect(res.err()).toEqual({
+      message: expect.stringContaining(expectedMessage),
+      type: 'invalid-election',
+    });
+
+    expect(store.getElections()).toHaveLength(0);
+    expect(readdirSync(store.getElectionPackagesPath())).toEqual([]);
+  });
+
+  test('rolls back and returns error for repeated ballot style group ID', async () => {
+    const store = Store.memoryStore(makeTemporaryDirectory());
+    const splitElection = toSplitFileElection(fixtures.readElection());
+    const { ballotPositions, candidateOrderings } = splitElection;
+
+    const orderingsWithRepeatedGroup: BallotCandidateOrderings[] = [
+      ...candidateOrderings,
+      candidateOrderings[0]!,
+    ];
+
+    const res = await configureFallible(store, {
+      ballotPositions,
+      candidateOrderings: orderingsWithRepeatedGroup,
+      electionData: fixtures.electionJson.asBuffer(),
+      settings: { ...DEFAULT_SYSTEM_SETTINGS, splitElectionDefinition: true },
+    });
+
+    expect(res.err()).toEqual({
+      message: expect.stringContaining('duplicate candidate orderings'),
+      type: 'invalid-election',
+    });
+
+    expect(store.getElections()).toHaveLength(0);
+    expect(readdirSync(store.getElectionPackagesPath())).toEqual([]);
+  });
+
+  interface ConfigureParams {
+    ballotPositions?: BallotPositions[];
+    candidateOrderings?: BallotCandidateOrderings[];
+    candidateOrderingsBatchSize?: number;
+    electionData: Buffer;
+    settings: SystemSettings;
+  }
+
+  async function configure(store: Store, p: ConfigureParams) {
+    return (await configureFallible(store, p)).unsafeUnwrap();
+  }
+
+  async function configureFallible(
     store: Store,
-    p: {
-      ballotPositions?: BallotPositions[];
-      candidateOrderings?: BallotCandidateOrderings[];
-      candidateOrderingsBatchSize?: number;
-      electionData: Buffer;
-      settings: SystemSettings;
-    }
-  ) {
+    p: ConfigureParams
+  ): Promise<
+    Result<{ election: Election; electionId: string }, ElectionPackageError>
+  > {
     const importResult = await store.importElectionPackage({
       candidateOrderingsBatchSize: p.candidateOrderingsBatchSize,
       packagePath: await writeTempElectionZip({
@@ -323,13 +459,15 @@ describe('importElectionPackage populates candidate_orderings', () => {
         systemSettings: p.settings,
       }),
     });
-    const { electionId } = importResult.unsafeUnwrap();
+    if (importResult.isErr()) return importResult;
+
+    const { electionId } = importResult.ok();
 
     const election = assertDefined(
       store.getElection(electionId)?.electionDefinition.election
     );
 
-    return { election, electionId };
+    return ok({ election, electionId });
   }
 });
 
@@ -411,6 +549,43 @@ describe('max sheets per ballot', () => {
 
     const { electionId } = importResult.unsafeUnwrap();
     expect(store.getMaxSheetsPerBallot({ electionId })).toEqual(5);
+  });
+
+  test('configuration is rolled back and returns error for invalid ballot positions', async () => {
+    const splitElection = toSplitFileElection(fixtures.readElection());
+    const { candidateOrderings, election } = splitElection;
+    const [bs1, bs2] = election.ballotStyles;
+
+    const store = Store.memoryStore(makeTemporaryDirectory());
+    const importResult = await store.importElectionPackage({
+      packagePath: await writeTempElectionZip({
+        ballotPositions: [
+          { ballotStyleId: bs1!.id, positions: makePositions({ count: 1 }) },
+          { ballotStyleId: bs2!.id, positions: makePositions({ count: 5 }) },
+          // @ts-expect-error - testing invalid schema
+          { ballotStyleGroupId: 'dud', positions: makePositions({ count: 4 }) },
+        ],
+        candidateOrderings,
+        electionDefinition: {
+          ballotHash: 'unused',
+          election,
+          electionData: Buffer.from(JSON.stringify(election)),
+        },
+        systemSettings: {
+          ...DEFAULT_SYSTEM_SETTINGS,
+          splitElectionDefinition: true,
+        },
+      }),
+    });
+
+    expect(importResult).toEqual(
+      err<void, ElectionPackageError>({
+        type: 'invalid-election',
+        message: expect.stringContaining('ballotStyleId'),
+      })
+    );
+    expect(store.getElections()).toHaveLength(0);
+    expect(readdirSync(store.getElectionPackagesPath())).toEqual([]);
   });
 
   test('getMaxSheetsPerBallot returns 0 if no positions exist', async () => {

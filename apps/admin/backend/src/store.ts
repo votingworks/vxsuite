@@ -63,6 +63,10 @@ import {
   type CandidateOrderings,
   unsafeParseJson,
   CandidateOrderingsSchema,
+  validateCandidateOrderings,
+  ElectionPackageFileName,
+  BallotCandidateOrderingsSchema,
+  BallotPositionsSchema,
 } from '@votingworks/types';
 import {
   mkdirSync,
@@ -91,8 +95,7 @@ import {
   addDiagnosticRecord,
   getMostRecentDiagnosticRecord,
   readElectionPackageFromFile,
-  streamBallotPositions,
-  streamCandidateOrderings,
+  safeStreamElectionPackageJsonlEntry,
   withElectionPackageZip,
   type ElectionPackageError,
   type ElectionPackageZip,
@@ -426,6 +429,7 @@ export class Store implements BaseStore {
     );
     await mkdir(dirname(packageLocalPath), { recursive: true });
 
+    let succeeded = false;
     try {
       await copyFile(p.packagePath, packageLocalPath);
 
@@ -434,12 +438,13 @@ export class Store implements BaseStore {
 
       const { electionPackage, electionPackageHash } = packageResult.ok();
 
-      await withElectionPackageZip(packageLocalPath, async (zip) => {
-        const maxSheetsPerBallot = await this.calculateMaxSheetsPerBallot(
+      const r = await withElectionPackageZip(packageLocalPath, async (zip) => {
+        const maxSheetsPerBallotResult = await this.calculateMaxSheetsPerBallot(
           zip,
           electionPackage.electionDefinition.election,
           electionPackage.systemSettings
         );
+        if (maxSheetsPerBallotResult.isErr()) return maxSheetsPerBallotResult;
 
         this.withTransaction(() => {
           this.client.run(
@@ -457,7 +462,7 @@ export class Store implements BaseStore {
             JSON.stringify(electionPackage.electionDefinition.election),
             electionPackage.electionDefinition.ballotHash,
             JSON.stringify(electionPackage.systemSettings),
-            maxSheetsPerBallot,
+            maxSheetsPerBallotResult.ok(),
             electionPackageHash
           );
 
@@ -467,7 +472,7 @@ export class Store implements BaseStore {
           });
         });
 
-        await this.importCandidateOrderings({
+        return this.importCandidateOrderings({
           batchSize: p.candidateOrderingsBatchSize,
           election: electionPackage.electionDefinition.election,
           electionId: id,
@@ -475,18 +480,21 @@ export class Store implements BaseStore {
           zip,
         });
       });
+      if (r.isErr()) return r;
 
+      succeeded = true;
       return ok({ electionId: id, electionPackage });
-    } catch (error) {
-      this.client.run(`delete from elections where id = ?`, id);
-      this.cachedElection = undefined;
+    } finally {
+      if (!succeeded) {
+        this.client.run(`delete from elections where id = ?`, id);
+        this.cachedElection = undefined;
 
-      // Be sure to clean up the election package file in case of failure.
-      // The file may not exist if the copy itself failed (e.g. the source
-      // was missing), so ignore missing-file errors rather than masking the
-      // original error.
-      await rm(packageLocalPath, { force: true });
-      throw error;
+        // Be sure to clean up the election package file in case of failure.
+        // The file may not exist if the copy itself failed (e.g. the source
+        // was missing), so ignore missing-file errors rather than masking the
+        // original error.
+        await rm(packageLocalPath, { force: true });
+      }
     }
   }
 
@@ -1067,7 +1075,7 @@ export class Store implements BaseStore {
     electionId: string;
     settings: SystemSettings;
     zip: ElectionPackageZip;
-  }): Promise<void> {
+  }): Promise<Result<void, ElectionPackageError>> {
     const { electionId } = p;
 
     if (!p.settings.splitElectionDefinition) {
@@ -1079,7 +1087,8 @@ export class Store implements BaseStore {
 
           if (!b.orderedCandidatesByContest) continue;
 
-          this.addCandidateOrderings({
+          // Orderings are validated while parsing the single-file election.
+          this.addValidCandidateOrderings({
             electionId,
             ballotOrderings: {
               ballotStyleGroupId: b.groupId,
@@ -1087,8 +1096,16 @@ export class Store implements BaseStore {
             },
           });
         }
+
+        return ok();
       });
     }
+
+    const contestsById = new Map(p.election.contests.map((c) => [c.id, c]));
+    const validGroupIds = new Set(
+      p.election.ballotStyles.map((b) => b.groupId)
+    );
+    const seenGroupIds = new Set<BallotStyleGroupId>();
 
     // Raw JSON orderings are < 20 KB in well-formed packages at the high end of
     // current supported scale. This batch size leaves ample wiggle room for
@@ -1099,53 +1116,117 @@ export class Store implements BaseStore {
     // networking-related DB activity happening concurrently:
     const batchSize = p.batchSize || DEFAULT_BATCH_SIZE;
     const batch: BallotCandidateOrderings[] = [];
-    for await (const orderings of streamCandidateOrderings(p.zip)) {
-      // [TODO] Validate orderings against referenced election entities.
-      batch.push(orderings);
+
+    const orderingsStream = safeStreamElectionPackageJsonlEntry(
+      p.zip,
+      ElectionPackageFileName.CANDIDATE_ORDERINGS,
+      BallotCandidateOrderingsSchema
+    );
+    for await (const entryResult of orderingsStream) {
+      if (entryResult.isErr()) {
+        return err({
+          type: 'invalid-election',
+          message: entryResult.err().message,
+        });
+      }
+      const entry = entryResult.ok();
+
+      if (seenGroupIds.has(entry.ballotStyleGroupId)) {
+        return err({
+          type: 'invalid-election',
+          message: [
+            `duplicate candidate orderings for`,
+            `ballot style group '${entry.ballotStyleGroupId}`,
+          ].join(' '),
+        });
+      }
+      seenGroupIds.add(entry.ballotStyleGroupId);
+
+      if (!validGroupIds.has(entry.ballotStyleGroupId)) {
+        return err({
+          type: 'invalid-election',
+          message: `invalid ballot style group ID '${entry.ballotStyleGroupId}'`,
+        });
+      }
+
+      const [firstError] = validateCandidateOrderings({
+        contestsById,
+        orderings: entry.orderings,
+      });
+
+      if (firstError) {
+        const { contestId, message, candidateId } = firstError;
+
+        const path = [
+          `ballot style group '${entry.ballotStyleGroupId}'`,
+          `contest '${contestId}'`,
+        ];
+        if (candidateId) path.push(`candidate '${candidateId}'`);
+
+        return err({
+          type: 'invalid-election',
+          message: `invalid candidate ordering for ${path.join(', ')}: ${message}`,
+        });
+      }
+
+      batch.push(entry);
 
       if (batch.length === batchSize) {
-        this.addCandidateOrderingsBatch({ electionId, batch });
+        this.addValidCandidateOrderingsBatch({ electionId, batch });
         batch.length = 0;
       }
     }
 
-    this.addCandidateOrderingsBatch({ electionId, batch });
+    this.addValidCandidateOrderingsBatch({ electionId, batch });
+
+    return ok();
   }
 
   private async calculateMaxSheetsPerBallot(
     zip: ElectionPackageZip,
     election: Election,
     settings: SystemSettings
-  ): Promise<number> {
+  ): Promise<Result<number, ElectionPackageError>> {
     if (!settings.splitElectionDefinition) {
       let max = 0;
       for (const b of election.ballotStyles) {
         if (!b.ballotPositions) continue;
         max = Math.max(max, b.ballotPositions.length);
       }
-      return max;
+      return ok(max);
     }
 
+    const positionsStream = safeStreamElectionPackageJsonlEntry(
+      zip,
+      ElectionPackageFileName.BALLOT_POSITIONS,
+      BallotPositionsSchema
+    );
     let max = 0;
-    for await (const pos of streamBallotPositions(zip)) {
-      max = Math.max(max, pos.positions.length);
+    for await (const pos of positionsStream) {
+      if (pos.isErr()) {
+        return err({
+          type: 'invalid-election',
+          message: pos.err().message,
+        });
+      }
+      max = Math.max(max, pos.ok().positions.length);
     }
-    return max;
+    return ok(max);
   }
 
-  private addCandidateOrderingsBatch(p: {
+  private addValidCandidateOrderingsBatch(p: {
     electionId: string;
     batch: BallotCandidateOrderings[];
   }): void {
     this.withTransaction(() => {
       const { electionId } = p;
       for (const ballotOrderings of p.batch) {
-        this.addCandidateOrderings({ electionId, ballotOrderings });
+        this.addValidCandidateOrderings({ electionId, ballotOrderings });
       }
     });
   }
 
-  private addCandidateOrderings(p: {
+  private addValidCandidateOrderings(p: {
     electionId: string;
     ballotOrderings: BallotCandidateOrderings;
   }): void {
