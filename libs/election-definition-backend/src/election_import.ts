@@ -159,25 +159,11 @@ export function splitCandidateName(
 }
 
 /**
- * Prepares an existing election for editing as a new election: regenerates
- * entity IDs, splits candidate names and drops ballot styles so they are
- * generated again.
+ * Splits candidate names into first, middle, and last names, if they are not
+ * already split.
  */
-export function prepareElectionForEditing({
-  election,
-  newId,
-  stateFeatures,
-}: {
-  election: Election;
-  newId: Election['id'];
-  stateFeatures: StateFeaturesConfig;
-}): Election {
-  const { districts, precincts, parties, contests, pollingPlaces } =
-    regenerateElectionIds(election, stateFeatures);
-
-  // Split candidate names into first, middle, and last names, if they are
-  // not already split
-  const contestsWithSplitCandidateNames = contests.map((contest) => {
+export function splitCandidateNames(contests: readonly Contest[]): Contest[] {
+  return contests.map((contest) => {
     if (contest.type !== 'candidate') return contest;
     return {
       ...contest,
@@ -196,6 +182,26 @@ export function prepareElectionForEditing({
       }),
     };
   });
+}
+
+/**
+ * Prepares an existing election for editing as a new election: regenerates
+ * entity IDs, splits candidate names and drops ballot styles so they are
+ * generated again.
+ */
+export function prepareElectionForEditing({
+  election,
+  newId,
+  stateFeatures,
+}: {
+  election: Election;
+  newId: Election['id'];
+  stateFeatures: StateFeaturesConfig;
+}): Election {
+  const { districts, precincts, parties, contests, pollingPlaces } =
+    regenerateElectionIds(election, stateFeatures);
+
+  const contestsWithSplitCandidateNames = splitCandidateNames(contests);
 
   return {
     ...election,
