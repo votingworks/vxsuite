@@ -15,6 +15,7 @@ export * from './merge_objects.js';
 export * from './result.js';
 export * from './range.js';
 export * from './sleep.js';
+export * from './timeout.js';
 export * from './typed_as.js';
 export * from './types.js';
 export * from './type_guards.js';

@@ -28,6 +28,7 @@ import {
   ok,
   type Optional,
   type Result,
+  timeout,
 } from '@votingworks/basics';
 import express, { type Application } from 'express';
 import {
@@ -177,7 +178,6 @@ import { constructAuthMachineState, getUserRole } from './util/auth.js';
 import { parseElectionResultsReportingFile } from './tabulation/election_results_reporting.js';
 import { generateReportsDirectoryPath } from './util/filenames.js';
 import { getHostServiceName } from './networking.js';
-import { timeout } from './util/timeout.js';
 import {
   startBackup,
   type BackupController,
