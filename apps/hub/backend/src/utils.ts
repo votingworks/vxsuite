@@ -14,10 +14,8 @@ import {
   straightPartyNotYetImplemented,
 } from '@votingworks/types';
 import { Buffer } from 'node:buffer';
-import {
-  generateId,
-  type StateFeaturesConfig,
-} from '@votingworks/election-definition-backend';
+import type { StateFeaturesConfig } from '@votingworks/election-definition-backend';
+import { generateId } from '@votingworks/utils';
 import { MAX_POSTGRES_INDEX_KEY_BYTES } from './globals.js';
 import type { Jurisdiction, User } from './types.js';
 

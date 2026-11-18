@@ -16,7 +16,7 @@ import {
   type Precinct,
 } from '@votingworks/types';
 import { assertDefined, find, throwIllegalValue } from '@votingworks/basics';
-import { generateId } from '@votingworks/election-definition-backend';
+import { generateId } from '@votingworks/utils';
 
 import { InputWithAudio } from './ballot_audio/input_with_audio.js';
 import { useElectionDefinitionApi } from './election_definition_context.js';

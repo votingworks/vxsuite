@@ -8,13 +8,10 @@ configure({ reactStrictMode: true });
 
 const idFactory = makeIdFactory();
 
-vi.mock(
-  import('@votingworks/election-definition-backend'),
-  async (importActual) => ({
-    ...(await importActual()),
-    generateId: () => idFactory.next(),
-  })
-);
+vi.mock(import('@votingworks/utils'), async (importActual) => ({
+  ...(await importActual()),
+  generateId: () => idFactory.next(),
+}));
 beforeEach(() => idFactory.reset());
 
 HTMLElement.prototype.scrollIntoView = vi.fn();

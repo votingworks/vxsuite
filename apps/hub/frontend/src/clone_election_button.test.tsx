@@ -3,6 +3,7 @@ import { createMemoryHistory } from 'history';
 import { userEvent } from '@testing-library/user-event';
 import type { ElectionId } from '@votingworks/types';
 import { sleep } from '@votingworks/basics';
+import { generateId } from '@votingworks/utils';
 import {
   createMockApiClient,
   type MockApiClient,
@@ -20,12 +21,11 @@ import {
 } from '../test/fixtures.js';
 import { render, screen, within } from '../test/react_testing_library.js';
 import { CloneElectionButton } from './clone_election_button.js';
-import { generateId } from './utils.js';
 import { withRoute } from '../test/routing_helpers.js';
 import { routes } from './routes.js';
 import * as api from './api.js';
 
-vi.mock(import('./utils.js'), async (importActual) => ({
+vi.mock(import('@votingworks/utils'), async (importActual) => ({
   ...(await importActual()),
   generateId: vi.fn(),
 }));

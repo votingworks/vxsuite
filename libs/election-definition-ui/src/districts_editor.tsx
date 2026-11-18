@@ -2,10 +2,8 @@ import React from 'react';
 import { Route, useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { assertDefined } from '@votingworks/basics';
-import {
-  type DuplicateDistrictError,
-  generateId,
-} from '@votingworks/election-definition-backend';
+import type { DuplicateDistrictError } from '@votingworks/election-definition-backend';
+import { generateId } from '@votingworks/utils';
 import {
   type District,
   type DistrictId,

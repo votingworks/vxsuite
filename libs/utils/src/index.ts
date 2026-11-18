@@ -14,6 +14,7 @@ export * from './features_mock.js';
 export * from './filenames.js';
 export * from './file_reading.js';
 export * from './hmpb/index.js';
+export * from './ids.js';
 export * from './languages.js';
 export * from './multi_language_mock.js';
 export * from './mutex.js';

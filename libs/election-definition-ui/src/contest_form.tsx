@@ -35,7 +35,7 @@ import {
   Table,
 } from '@votingworks/ui';
 
-import { generateId } from '@votingworks/election-definition-backend';
+import { generateId } from '@votingworks/utils';
 
 import { AudioLinkButton } from './ballot_audio/audio_link_button.js';
 import { InputWithAudio } from './ballot_audio/input_with_audio.js';
