@@ -47,6 +47,7 @@ const Header = styled(H2)`
   position: sticky;
   top: 0;
   white-space: nowrap;
+  z-index: 1;
 
   :not(:first-child) {
     border-top: var(--entity-list-border);
