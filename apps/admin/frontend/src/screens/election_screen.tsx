@@ -17,7 +17,11 @@ import { routerPaths } from '../router_paths.js';
 import { OfficialResultsCard } from '../components/official_results_card.js';
 import { RevertResultsToUnofficialButton } from '../components/mark_official_button.js';
 import { SaveBackupButton } from '../components/save_backup_button.js';
-import { ElectionCard } from '../components/election_card.js';
+import {
+  ElectionCard,
+  type ElectionCardProps,
+} from '../components/election_card.js';
+import { LoadedElectionCard } from '../election_definition/loaded_election_definition.js';
 
 export function ElectionScreen(): JSX.Element {
   const { electionDefinition, configuredAt, auth, isOfficialResults } =
@@ -28,6 +32,13 @@ export function ElectionScreen(): JSX.Element {
   assert(isSystemAdministratorAuth(auth) || isElectionManagerAuth(auth));
   assert(electionDefinition && typeof configuredAt === 'string');
   const { election } = electionDefinition;
+  const electionCardProps: ElectionCardProps = {
+    seal: election.seal,
+    title: election.title,
+    jurisdictionName: election.jurisdiction.name,
+    state: election.state,
+    date: election.date,
+  };
 
   async function unconfigureMachine() {
     try {
@@ -53,13 +64,11 @@ export function ElectionScreen(): JSX.Element {
         Configured with the current election at{' '}
         {format.localeLongDateAndTime(new Date(configuredAt))}.
       </P>
-      <ElectionCard
-        seal={election.seal}
-        title={election.title}
-        jurisdictionName={election.jurisdiction.name}
-        state={election.state}
-        date={election.date}
-      />
+      {isSystemAdministratorAuth(auth) ? (
+        <LoadedElectionCard {...electionCardProps} />
+      ) : (
+        <ElectionCard {...electionCardProps} />
+      )}
       <div style={{ display: 'flex', gap: '0.5rem' }}>
         <ExportElectionPackageModalButton />
         {isSystemAdministratorAuth(auth) && (

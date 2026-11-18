@@ -2,6 +2,7 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { userEvent } from '@testing-library/user-event';
 import { createMemoryHistory } from 'history';
 import { DateWithoutTime, deferred, ok } from '@votingworks/basics';
+import type { ElectionDefinitionPackage } from '@votingworks/admin-backend';
 import type {
   ElectionInfo,
   StateFeaturesConfig,
@@ -139,14 +140,24 @@ function expectCurrentInProgressElection(electionInfo: ElectionInfo | null) {
 
 function expectElectionInfoQueries(
   electionInfo: ElectionInfo,
-  stateFeatures: StateFeaturesConfig = {}
+  stateFeatures: StateFeaturesConfig = {},
+  electionPackage: ElectionDefinitionPackage | null = null
 ) {
+  apiMock.electionDefinitionApiClient.getElectionPackage
+    .expectOptionalRepeatedCallsWith({ electionId })
+    .resolves(electionPackage);
   apiMock.electionDefinitionApiClient.getElectionInfo
     .expectCallWith({ electionId })
     .resolves(electionInfo);
   apiMock.electionDefinitionApiClient.getStateFeatures
     .expectCallWith({ electionId })
     .resolves(stateFeatures);
+}
+
+function expectNoElectionPackage() {
+  apiMock.electionDefinitionApiClient.getElectionPackage
+    .expectOptionalRepeatedCallsWith({ electionId })
+    .resolves(null);
 }
 
 test('Create New Election creates an election and opens Election Info', async () => {
@@ -169,7 +180,12 @@ test('Create New Election creates an election and opens Election Info', async ()
   expect(history.location.pathname).toEqual(
     routerPaths.electionDefinitionInfo(electionId)
   );
-  expect(getNavItems()).toEqual(['Back', 'Definition', 'Proof Ballots']);
+  expect(getNavItems()).toEqual([
+    'Back',
+    'Definition',
+    'Proof Ballots',
+    'Finalize',
+  ]);
   expect(await screen.findByLabelText('Title')).toBeEnabled();
   expect(screen.queryByText('Ballot Languages')).not.toBeInTheDocument();
   expect(screen.queryByText('Signature')).not.toBeInTheDocument();
@@ -555,6 +571,7 @@ test('Proof Ballots lists ballot styles and edits the ballot layout in tabs', as
   apiMock.electionDefinitionApiClient.listParties
     .expectCallWith({ electionId })
     .resolves([]);
+  expectNoElectionPackage();
   const history = renderScreen(routerPaths.proofBallotsForElection(electionId));
   await screen.findByRole('heading', { name: 'Proof Ballots' });
   const table = await screen.findByRole('table');
@@ -562,7 +579,12 @@ test('Proof Ballots lists ballot styles and edits the ballot layout in tabs', as
     routerPaths.proofBallotsBallotStyles(electionId)
   );
   screen.getByRole('tab', { name: 'Ballot Styles', selected: true });
-  expect(getNavItems()).toEqual(['Back', 'Definition', 'Proof Ballots']);
+  expect(getNavItems()).toEqual([
+    'Back',
+    'Definition',
+    'Proof Ballots',
+    'Finalize',
+  ]);
   expect(getActiveNavItems()).toEqual(['Proof Ballots']);
   within(table).getByRole('cell', { name: 'Precinct 1' });
   within(table).getByRole('cell', { name: '1_en' });
@@ -629,6 +651,7 @@ test('View Ballot opens a ballot proof to save, print and close back to Ballot S
   apiMock.electionDefinitionApiClient.listParties
     .expectCallWith({ electionId })
     .resolves([]);
+  expectNoElectionPackage();
   const history = renderScreen(
     routerPaths.proofBallotsBallotStyles(electionId),
     true,
@@ -705,6 +728,7 @@ test('View Ballot opens a ballot proof to save, print and close back to Ballot S
   await vi.runOnlyPendingTimersAsync();
   expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 
+  expectNoElectionPackage();
   await userEvent.click(screen.getButton('Close'));
   await screen.findByRole('tab', { name: 'Ballot Styles', selected: true });
   expect(history.location.pathname).toEqual(
@@ -718,6 +742,9 @@ test('an election definition in progress is shown on the Election screen', async
   apiMock.electionDefinitionApiClient.getCurrentInProgressElection
     .expectCallWith()
     .resolves(generalElectionInfo);
+  apiMock.electionDefinitionApiClient.getElectionPackage
+    .expectOptionalRepeatedCallsWith({ electionId })
+    .resolves(null);
   const history = renderScreen();
 
   const card = await screen.findByRole('link', { name: /General Election/ });
@@ -738,6 +765,9 @@ test('an untitled election definition is shown as Untitled Election', async () =
   apiMock.electionDefinitionApiClient.getCurrentInProgressElection
     .expectCallWith()
     .resolves(blankElectionInfo);
+  apiMock.electionDefinitionApiClient.getElectionPackage
+    .expectOptionalRepeatedCallsWith({ electionId })
+    .resolves(null);
   renderScreen();
 
   const card = await screen.findByRole('link', { name: /Untitled Election/ });
@@ -788,13 +818,14 @@ test('the Definition nav item opens Election Info from Proof Ballots', async () 
   apiMock.electionDefinitionApiClient.listParties
     .expectCallWith({ electionId })
     .resolves([]);
+  expectNoElectionPackage();
+  apiMock.electionDefinitionApiClient.getStateFeatures
+    .expectCallWith({ electionId })
+    .resolves({});
   const history = renderScreen(routerPaths.proofBallotsForElection(electionId));
   await screen.findByRole('tab', { name: 'Ballot Styles', selected: true });
   expect(getActiveNavItems()).toEqual(['Proof Ballots']);
 
-  apiMock.electionDefinitionApiClient.getStateFeatures
-    .expectCallWith({ electionId })
-    .resolves({});
   await userEvent.click(
     within(screen.getByRole('navigation')).getButton('Definition')
   );
@@ -846,6 +877,9 @@ test('back returns to the Election screen', async () => {
 test('a definition URL for an old election opens the Election screen', async () => {
   expectCurrentInProgressElection(generalElectionInfo);
   apiMock.expectListPotentialElectionPackagesOnUsbDrive([]);
+  apiMock.electionDefinitionApiClient.getElectionPackage
+    .expectOptionalRepeatedCallsWith({ electionId })
+    .resolves(null);
   const history = renderScreen(
     routerPaths.electionDefinitionInfo('old-election')
   );
@@ -869,6 +903,7 @@ test('the Proof Ballots nav item opens ballot proofing for the current election'
   apiMock.electionDefinitionApiClient.listParties
     .expectCallWith({ electionId })
     .resolves([]);
+  expectNoElectionPackage();
   await userEvent.click(
     within(screen.getByRole('navigation')).getButton('Proof Ballots')
   );
@@ -879,23 +914,27 @@ test('the Proof Ballots nav item opens ballot proofing for the current election'
   await waitFor(() => apiMock.assertComplete());
 });
 
-test.each([routerPaths.electionDefinition, routerPaths.proofBallots])(
-  '%s without an election id opens the Election screen',
-  async (path) => {
-    apiMock.electionDefinitionApiClient.getCurrentInProgressElection
-      .expectCallWith()
-      .resolves(null);
-    apiMock.expectListPotentialElectionPackagesOnUsbDrive([]);
-    const history = renderScreen(path);
+test.each([
+  routerPaths.electionDefinition,
+  routerPaths.proofBallots,
+  routerPaths.finalize,
+])('%s without an election id opens the Election screen', async (path) => {
+  apiMock.electionDefinitionApiClient.getCurrentInProgressElection
+    .expectCallWith()
+    .resolves(null);
+  apiMock.expectListPotentialElectionPackagesOnUsbDrive([]);
+  const history = renderScreen(path);
 
-    await screen.findButton('Create New Election');
-    expect(history.location.pathname).toEqual(routerPaths.election);
-  }
-);
+  await screen.findButton('Create New Election');
+  expect(history.location.pathname).toEqual(routerPaths.election);
+});
 
 test('a Proof Ballots URL for an old election opens the Election screen', async () => {
   expectCurrentInProgressElection(generalElectionInfo);
   apiMock.expectListPotentialElectionPackagesOnUsbDrive([]);
+  apiMock.electionDefinitionApiClient.getElectionPackage
+    .expectOptionalRepeatedCallsWith({ electionId })
+    .resolves(null);
   const history = renderScreen(
     routerPaths.proofBallotsForElection('old-election')
   );
@@ -930,4 +969,269 @@ test('election manager has no Definition area when the flag is on', async () => 
   await waitFor(() =>
     expect(history.location.pathname).toEqual(routerPaths.election)
   );
+});
+
+const finalizePrecinct: Precinct = {
+  id: 'precinct-1',
+  name: 'Precinct 1',
+  districtIds: ['district-1'],
+};
+
+const finalizeBallotStyle: BallotStyle = {
+  id: '1_en',
+  groupId: '1',
+  precincts: [finalizePrecinct.id],
+  districts: ['district-1'],
+  languages: [LanguageCode.ENGLISH],
+};
+
+const absenteePollingPlace: PollingPlace = {
+  id: 'absentee-place',
+  name: 'Town Hall',
+  type: 'absentee',
+  precincts: { [finalizePrecinct.id]: { type: 'whole' } },
+};
+
+const builtElectionPackage: ElectionDefinitionPackage = {
+  status: 'succeeded',
+  ballotHash: 'ballot-hash',
+  electionPackagePath: 'election-1/election-package.zip',
+  officialBallotsPath: 'election-1/official-ballots.zip',
+  testBallotsPath: 'election-1/test-ballots.zip',
+};
+
+function expectElectionPackage(
+  electionPackage: ElectionDefinitionPackage | null
+) {
+  apiMock.electionDefinitionApiClient.getElectionPackage
+    .expectCallWith({ electionId })
+    .resolves(electionPackage);
+}
+
+function expectFinalizeQueries({
+  electionInfo = generalElectionInfo,
+  ballotStyles = [finalizeBallotStyle],
+  precincts = [finalizePrecinct],
+  registeredVoterCounts = {},
+  pollingPlaces = [absenteePollingPlace],
+}: {
+  electionInfo?: ElectionInfo;
+  ballotStyles?: BallotStyle[];
+  precincts?: Precinct[];
+  registeredVoterCounts?: Record<string, number>;
+  pollingPlaces?: PollingPlace[];
+} = {}) {
+  apiMock.electionDefinitionApiClient.getElectionInfo
+    .expectCallWith({ electionId })
+    .resolves(electionInfo);
+  apiMock.electionDefinitionApiClient.getStateFeatures
+    .expectCallWith({ electionId })
+    .resolves({ EDIT_POLLING_PLACES: true });
+  apiMock.electionDefinitionApiClient.listBallotStyles
+    .expectCallWith({ electionId })
+    .resolves(ballotStyles);
+  apiMock.electionDefinitionApiClient.listPrecincts
+    .expectCallWith({ electionId })
+    .resolves(precincts);
+  apiMock.electionDefinitionApiClient.getRegisteredVoterCounts
+    .expectCallWith({ electionId })
+    .resolves(registeredVoterCounts);
+  apiMock.electionDefinitionApiClient.listPollingPlaces
+    .expectCallWith({ electionId })
+    .resolves(pollingPlaces);
+}
+
+test('Finalize Election renders every ballot with progress, then offers the official and test ballots to save', async () => {
+  vi.useFakeTimers({ shouldAdvanceTime: true });
+  expectCurrentInProgressElection(generalElectionInfo);
+  expectElectionPackage(null);
+  expectFinalizeQueries();
+  renderScreen(
+    routerPaths.finalizeForElection(electionId),
+    true,
+    mockUsbDriveStatus('mounted')
+  );
+  await screen.findByText('Election Not Finalized');
+  screen.getByRole('heading', { name: 'Finalize' });
+  expect(getNavItems()).toEqual([
+    'Back',
+    'Definition',
+    'Proof Ballots',
+    'Finalize',
+  ]);
+  expect(getActiveNavItems()).toEqual(['Finalize']);
+  screen.getByText('Proof each ballot style, then finalize the election.');
+
+  await userEvent.click(screen.getButton('Finalize Election'));
+  let modal = await screen.findByRole('alertdialog');
+  await userEvent.click(within(modal).getButton('Cancel'));
+  expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+
+  await userEvent.click(screen.getButton('Finalize Election'));
+  modal = await screen.findByRole('alertdialog');
+  within(modal).getByText(/VxAdmin will be configured for it/);
+  apiMock.electionDefinitionApiClient.finalizeElection
+    .expectCallWith({ electionId })
+    .resolves();
+  expectElectionPackage({ status: 'running' });
+  await userEvent.click(within(modal).getButton('Finalize Election'));
+  await screen.findByText('Finalizing Election');
+  expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+  screen.getByText('Preparing to render ballots');
+
+  expectElectionPackage({
+    status: 'running',
+    progress: { label: 'Rendering test ballots', progress: 1, total: 2 },
+  });
+  await vi.advanceTimersByTimeAsync(1000);
+  await screen.findByText('Rendering test ballots');
+  screen.getByRole('progressbar');
+
+  expectElectionPackage(builtElectionPackage);
+  await vi.advanceTimersByTimeAsync(1000);
+  await screen.findByText('Election Finalized');
+  screen.getByText(
+    'The election can no longer be edited. Save ballots to a USB drive for printing.'
+  );
+  screen.getByText(
+    'Official precinct and absentee ballots, ready for printing.'
+  );
+  screen.getByText(
+    'Unofficial ballots for use with VotingWorks machines in Test Mode.'
+  );
+
+  for (const [title, ballotMode] of [
+    ['Official Ballots', 'official'],
+    ['Test Ballots', 'test'],
+  ] as const) {
+    await userEvent.click(screen.getButton(`Save ${title}`));
+    const saveModal = await screen.findByRole('alertdialog');
+    within(saveModal).getByText(`${ballotMode}-ballots.zip`);
+    apiMock.electionDefinitionApiClient.saveElectionPackageBallots
+      .expectCallWith({
+        electionId,
+        ballotMode,
+        filename: `${ballotMode}-ballots.zip`,
+      })
+      .resolves(ok([`/media/usb-drive/${ballotMode}-ballots.zip`]));
+    await userEvent.click(within(saveModal).getButton('Save'));
+    await screen.findByText(`${title} Saved`);
+    await userEvent.click(within(saveModal).getButton('Close'));
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+  }
+  vi.useRealTimers();
+});
+
+test('a failed build shows its error and the election can be finalized again', async () => {
+  expectCurrentInProgressElection(generalElectionInfo);
+  expectElectionPackage({ status: 'failed', error: 'Contest is too long' });
+  expectFinalizeQueries();
+  renderScreen(routerPaths.finalizeForElection(electionId));
+  await screen.findByText('Finalizing Failed');
+  screen.getByText('Contest is too long');
+  await screen.findButton('Finalize Election');
+});
+
+test('a build without progress totals shows an empty progress bar', async () => {
+  expectCurrentInProgressElection(generalElectionInfo);
+  expectElectionPackage({
+    status: 'running',
+    progress: { label: 'Laying out ballots', progress: 0, total: 0 },
+  });
+  renderScreen(routerPaths.finalizeForElection(electionId));
+  await screen.findByText('Laying out ballots');
+});
+
+test('a finalized election without test ballots offers only official ballots', async () => {
+  expectCurrentInProgressElection(generalElectionInfo);
+  expectElectionPackage({
+    ...builtElectionPackage,
+    testBallotsPath: undefined,
+  });
+  renderScreen(routerPaths.finalizeForElection(electionId));
+  await screen.findButton('Save Official Ballots');
+  expect(screen.queryButton('Save Test Ballots')).not.toBeInTheDocument();
+});
+
+test.each<{
+  description: string;
+  queries: Parameters<typeof expectFinalizeQueries>[0];
+  title: string;
+}>([
+  {
+    description: 'incomplete election info',
+    queries: { electionInfo: blankElectionInfo },
+    title: 'Election Incomplete',
+  },
+  {
+    description: 'no ballot styles',
+    queries: { ballotStyles: [] },
+    title: 'Ballots Incomplete',
+  },
+  {
+    description: 'partial registered voter counts',
+    queries: {
+      precincts: [
+        finalizePrecinct,
+        { ...finalizePrecinct, id: 'precinct-2', name: 'Precinct 2' },
+      ],
+      registeredVoterCounts: { [finalizePrecinct.id]: 100 },
+    },
+    title:
+      'Registered voter counts must be provided for all precincts and splits, or none.',
+  },
+  {
+    description: 'precincts without an absentee polling place',
+    queries: { pollingPlaces: [] },
+    title: 'Absentee polling places must cover every precinct.',
+  },
+])(
+  'the election cannot be finalized with $description',
+  async ({ queries, title }) => {
+    expectCurrentInProgressElection(generalElectionInfo);
+    expectElectionPackage(null);
+    expectFinalizeQueries(queries);
+    renderScreen(routerPaths.finalizeForElection(electionId));
+    await screen.findByText(title);
+    expect(screen.queryButton('Finalize Election')).not.toBeInTheDocument();
+  }
+);
+
+test('a Finalize URL for an old election opens the Election screen', async () => {
+  expectCurrentInProgressElection(generalElectionInfo);
+  apiMock.expectListPotentialElectionPackagesOnUsbDrive([]);
+  const history = renderScreen(routerPaths.finalizeForElection('old-election'));
+  await screen.findByRole('link', { name: /General Election/ });
+  expect(history.location.pathname).toEqual(routerPaths.election);
+});
+
+test('a finalized election definition cannot be edited', async () => {
+  expectCurrentInProgressElection(generalElectionInfo);
+  expectElectionInfoQueries(generalElectionInfo, {}, builtElectionPackage);
+  renderScreen(routerPaths.electionDefinitionInfo(electionId));
+  expect(await screen.findButton('Edit')).toBeDisabled();
+});
+
+test('a failed build leaves the election definition editable', async () => {
+  expectCurrentInProgressElection(generalElectionInfo);
+  expectElectionInfoQueries(
+    generalElectionInfo,
+    {},
+    { status: 'failed', error: 'Contest is too long' }
+  );
+  renderScreen(routerPaths.electionDefinitionInfo(electionId));
+  expect(await screen.findButton('Edit')).toBeEnabled();
+});
+
+test('the ballot layout is locked once the election is finalized', async () => {
+  expectCurrentInProgressElection(generalElectionInfo);
+  expectElectionPackage(builtElectionPackage);
+  apiMock.electionDefinitionApiClient.getStateFeatures
+    .expectCallWith({ electionId })
+    .resolves({});
+  apiMock.electionDefinitionApiClient.getBallotLayoutSettings
+    .expectCallWith({ electionId })
+    .resolves({ paperSize: HmpbBallotPaperSize.Letter, compact: false });
+  renderScreen(routerPaths.proofBallotsBallotLayout(electionId));
+  expect(await screen.findButton('Edit')).toBeDisabled();
 });

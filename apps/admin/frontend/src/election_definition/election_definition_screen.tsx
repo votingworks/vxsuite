@@ -18,7 +18,11 @@ import type { ElectionId } from '@votingworks/types';
 import { DesktopPalette, RouterTabBar } from '@votingworks/ui';
 import { NavScreenLite } from '../components/navigation_screen.js';
 import { routerPaths } from '../router_paths.js';
-import { electionDefinitionApi, getCurrentInProgressElection } from '../api.js';
+import {
+  electionDefinitionApi,
+  getCurrentInProgressElection,
+  getElectionPackage,
+} from '../api.js';
 import { getNavItems } from './nav_items.js';
 
 const Container = styled.div`
@@ -61,6 +65,8 @@ function DefinitionTabs({
   const history = useHistory();
   const getStateFeaturesQuery =
     electionDefinitionApi.getStateFeatures.useQuery(electionId);
+  const getElectionPackageQuery =
+    getElectionPackage.usePollingQuery(electionId);
   const infoPath = routerPaths.electionDefinitionInfo(electionId);
   const districtsPath = routerPaths.electionDefinitionDistricts(electionId);
   const precinctsPath = routerPaths.electionDefinitionPrecincts(electionId);
@@ -69,9 +75,11 @@ function DefinitionTabs({
   const partiesPath = routerPaths.electionDefinitionParties(electionId);
   const contestsPath = routerPaths.electionDefinitionContests(electionId);
 
-  if (!getStateFeaturesQuery.isSuccess) {
+  if (!getStateFeaturesQuery.isSuccess || !getElectionPackageQuery.isSuccess) {
     return null;
   }
+  const electionPackage = getElectionPackageQuery.data;
+  const isLocked = !!electionPackage && electionPackage.status !== 'failed';
   const canEditPollingPlaces = !!getStateFeaturesQuery.data.EDIT_POLLING_PLACES;
 
   return (
@@ -96,27 +104,31 @@ function DefinitionTabs({
           <Route exact path={routerPaths.electionDefinitionInfo(':electionId')}>
             <ElectionInfoEditor
               electionId={electionId}
+              isLocked={isLocked}
               onElectionDeleted={() => history.push(routerPaths.election)}
             />
           </Route>
           <Route path={routerPaths.electionDefinitionDistricts(':electionId')}>
-            <DistrictsEditor electionId={electionId} />
+            <DistrictsEditor electionId={electionId} isLocked={isLocked} />
           </Route>
           <Route path={routerPaths.electionDefinitionPrecincts(':electionId')}>
-            <PrecinctsEditor electionId={electionId} />
+            <PrecinctsEditor electionId={electionId} isLocked={isLocked} />
           </Route>
           {canEditPollingPlaces && (
             <Route
               path={routerPaths.electionDefinitionPollingPlaces(':electionId')}
             >
-              <PollingPlacesEditor electionId={electionId} />
+              <PollingPlacesEditor
+                electionId={electionId}
+                isLocked={isLocked}
+              />
             </Route>
           )}
           <Route path={routerPaths.electionDefinitionParties(':electionId')}>
-            <PartiesEditor electionId={electionId} />
+            <PartiesEditor electionId={electionId} isLocked={isLocked} />
           </Route>
           <Route path={routerPaths.electionDefinitionContests(':electionId')}>
-            <ContestsEditor electionId={electionId} />
+            <ContestsEditor electionId={electionId} isLocked={isLocked} />
           </Route>
           <Redirect to={infoPath} />
         </Switch>

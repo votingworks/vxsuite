@@ -1375,3 +1375,49 @@ export const saveBallotPreviewPdf = {
     return useMutation(apiClient.saveBallotPreviewPdf);
   },
 } as const;
+
+export const getElectionPackage = {
+  queryKey(electionId: ElectionId): QueryKey {
+    return ['getElectionPackage', electionId];
+  },
+  usePollingQuery(electionId: ElectionId) {
+    const apiClient = useElectionDefinitionApiClient();
+    const queryClient = useQueryClient();
+    return usePollingQuery(
+      this.queryKey(electionId),
+      () => apiClient.getElectionPackage({ electionId }),
+      (electionPackage) =>
+        electionPackage?.status === 'running' ? 1000 : false,
+      {
+        async onSuccess(electionPackage) {
+          if (electionPackage?.status === 'succeeded') {
+            await queryClient.invalidateQueries(
+              getCurrentElectionMetadata.queryKey()
+            );
+          }
+        },
+      }
+    );
+  },
+} as const;
+
+export const finalizeElection = {
+  useMutation() {
+    const apiClient = useElectionDefinitionApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.finalizeElection, {
+      async onSuccess(_, { electionId }) {
+        await queryClient.invalidateQueries(
+          getElectionPackage.queryKey(electionId)
+        );
+      },
+    });
+  },
+} as const;
+
+export const saveElectionPackageBallots = {
+  useMutation() {
+    const apiClient = useElectionDefinitionApiClient();
+    return useMutation(apiClient.saveElectionPackageBallots);
+  },
+} as const;

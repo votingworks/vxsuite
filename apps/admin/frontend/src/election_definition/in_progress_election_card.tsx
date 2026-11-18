@@ -1,8 +1,12 @@
+import React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import type { ElectionInfo } from '@votingworks/election-definition-backend';
 import { Icons } from '@votingworks/ui';
-import { ElectionCard } from '../components/election_card.js';
+import {
+  ElectionCard,
+  type ElectionCardProps,
+} from '../components/election_card.js';
 import { routerPaths } from '../router_paths.js';
 
 const EditLabel = styled.span`
@@ -25,24 +29,47 @@ const CardLink = styled(Link)`
   }
 `;
 
+export function ElectionCardLink({
+  to,
+  action,
+  ...cardProps
+}: ElectionCardProps & {
+  to: string;
+  action: 'edit' | 'view';
+}): JSX.Element {
+  return (
+    <CardLink to={to}>
+      <ElectionCard {...cardProps}>
+        <EditLabel>
+          {action === 'view' ? (
+            <React.Fragment>
+              <Icons.Eye /> View
+            </React.Fragment>
+          ) : (
+            <React.Fragment>
+              <Icons.Edit /> Edit
+            </React.Fragment>
+          )}
+        </EditLabel>
+      </ElectionCard>
+    </CardLink>
+  );
+}
+
 export function InProgressElectionCard({
   electionInfo,
 }: {
   electionInfo: ElectionInfo;
 }): JSX.Element {
   return (
-    <CardLink to={routerPaths.electionDefinitionInfo(electionInfo.electionId)}>
-      <ElectionCard
-        seal={electionInfo.seal}
-        title={electionInfo.title || 'Untitled Election'}
-        jurisdictionName={electionInfo.jurisdictionName}
-        state={electionInfo.state}
-        date={electionInfo.date}
-      >
-        <EditLabel>
-          <Icons.Edit /> Edit
-        </EditLabel>
-      </ElectionCard>
-    </CardLink>
+    <ElectionCardLink
+      to={routerPaths.electionDefinitionInfo(electionInfo.electionId)}
+      action="edit"
+      seal={electionInfo.seal}
+      title={electionInfo.title || 'Untitled Election'}
+      jurisdictionName={electionInfo.jurisdictionName}
+      state={electionInfo.state}
+      date={electionInfo.date}
+    />
   );
 }

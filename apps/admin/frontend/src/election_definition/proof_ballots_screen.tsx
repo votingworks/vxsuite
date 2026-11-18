@@ -16,6 +16,7 @@ import { SaveBackendFileModal } from '../components/save_backend_file_modal.js';
 import { routerPaths } from '../router_paths.js';
 import {
   getCurrentInProgressElection,
+  getElectionPackage,
   printBallotPreviewPdf,
   saveBallotPreviewPdf,
 } from '../api.js';
@@ -103,7 +104,16 @@ function ProofBallotsTabs({
   electionId,
 }: {
   electionId: ElectionId;
-}): JSX.Element {
+}): JSX.Element | null {
+  const getElectionPackageQuery =
+    getElectionPackage.usePollingQuery(electionId);
+
+  if (!getElectionPackageQuery.isSuccess) {
+    return null;
+  }
+  const electionPackage = getElectionPackageQuery.data;
+  const isLocked = !!electionPackage && electionPackage.status !== 'failed';
+
   return (
     <NavigationScreen
       title="Proof Ballots"
@@ -141,7 +151,7 @@ function ProofBallotsTabs({
         </Route>
         <Route path={routerPaths.proofBallotsBallotLayout(':electionId')}>
           <TabPanel>
-            <BallotLayoutForm electionId={electionId} />
+            <BallotLayoutForm electionId={electionId} isLocked={isLocked} />
           </TabPanel>
         </Route>
         <Redirect to={routerPaths.proofBallotsBallotStyles(electionId)} />
