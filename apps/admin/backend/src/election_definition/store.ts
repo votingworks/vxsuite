@@ -921,17 +921,22 @@ export class ElectionDefinitionStore {
           new Set(contestIds).size === contestIds.length,
         'Contest list is out of date'
       );
-      for (const [index, contestId] of contestIds.entries()) {
-        assert(
-          this.client.one(
-            'update design_contests set ballot_order = ? where id = ? and election_id = ? returning id',
-            index,
-            contestId,
-            electionId
-          ),
-          `Contest not found: ${contestId}`
-        );
-      }
+      const updatedRows = this.client.all(
+        `
+        update design_contests
+        set ballot_order = contest_order.key
+        from json_each(?) as contest_order
+        where design_contests.id = contest_order.value
+          and design_contests.election_id = ?
+        returning design_contests.id
+      `,
+        JSON.stringify(contestIds),
+        electionId
+      );
+      assert(
+        updatedRows.length === contestIds.length,
+        'Contest list is out of date'
+      );
     });
   }
 

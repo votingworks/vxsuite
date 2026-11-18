@@ -3376,7 +3376,7 @@ describe('design contests', () => {
         electionId,
         contestIds: [council.id, mayor.id, 'missing'],
       })
-    ).toThrow('Contest not found: missing');
+    ).toThrow('Contest list is out of date');
     expect(
       store.electionDefinition.listContests(electionId).map((c) => c.id)
     ).toEqual([measure.id, mayor.id, council.id]);
