@@ -107,6 +107,7 @@ import { isElectionDefinitionEnabled } from './election_definition/state.js';
 import { buildElectionDefinitionApi } from './election_definition/api.js';
 import { configureFromElectionPackageFile } from './configure_from_election_package.js';
 import { isElectionPackageBuildRunning } from './election_definition/election_package.js';
+import { importConfiguredElection } from './election_definition/election_import.js';
 import { getMachineConfig } from './machine_config.js';
 import { isMultiStationAdjudicationEnabled } from './multi_station_config.js';
 import type { MachineModeController } from './machine_mode.js';
@@ -662,11 +663,38 @@ function buildApi({
       }
 
       try {
-        return await configureFromElectionPackageFile({
+        const result = await configureFromElectionPackageFile({
           store,
           logger,
           packagePath,
         });
+        if (
+          result.isOk() &&
+          isElectionDefinitionEnabled() &&
+          store.electionDefinition.getElectionInfo() === undefined
+        ) {
+          const { electionId } = result.ok();
+          const importResult = importConfiguredElection({
+            store: store.electionDefinition,
+            election: assertDefined(store.getElection(electionId))
+              .electionDefinition.election,
+            systemSettings: store.getSystemSettings(electionId),
+          });
+          await logger.logAsCurrentRole(
+            LogEventId.ElectionDefinitionCreated,
+            importResult.isOk()
+              ? {
+                  message:
+                    'Added the configured election to the election definition area as read-only.',
+                  disposition: 'success',
+                }
+              : {
+                  message: `The configured election can't be viewed in the election definition area: ${importResult.err()}`,
+                  disposition: 'failure',
+                }
+          );
+        }
+        return result;
       } finally {
         // Clean up the temporary package built from a bare election.json,
         // even when configuration fails partway

@@ -30,7 +30,9 @@ import {
 } from '@votingworks/election-definition-backend';
 import { describeElectionDefinitionMethods } from '@votingworks/election-definition-backend/test-utils';
 import {
+  asElectionDefinition,
   electionCombinedBallotPrimaryFixtures,
+  electionFamousNames2021Fixtures,
   electionStraightPartyFixtures,
   readElectionGeneralDefinition,
 } from '@votingworks/fixtures';
@@ -2421,6 +2423,138 @@ describe('createInProgressElectionFromFile', () => {
       ).rejects.toThrow(
         'Cannot create an election definition while an election is configured.'
       )
+    );
+  });
+});
+
+describe('viewing a configured election', () => {
+  test('configuring from a USB drive adds the election to the election definition area as read-only', async () => {
+    const {
+      apiClient,
+      electionDefinitionApiClient: api,
+      auth,
+      logger,
+    } = buildTestEnvironment();
+    const loadedElectionDefinition =
+      electionFamousNames2021Fixtures.readElectionDefinition();
+    const { election } = loadedElectionDefinition;
+    await configureMachine(apiClient, auth, loadedElectionDefinition);
+    expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+      LogEventId.ElectionDefinitionCreated,
+      {
+        message:
+          'Added the configured election to the election definition area as read-only.',
+        disposition: 'success',
+      }
+    );
+
+    const electionId = election.id;
+    expect(await api.getCurrentInProgressElection()).toMatchObject({
+      electionId,
+      title: election.title,
+    });
+    expect(await api.getElectionPackageRenderingStatus({ electionId })).toEqual(
+      {
+        status: 'loaded',
+      }
+    );
+    expect(
+      (await api.listDistricts({ electionId })).map((d) => d.id).sort()
+    ).toEqual(election.districts.map((d) => d.id).sort());
+    expect(
+      (await api.listContests({ electionId })).map((c) => c.id).sort()
+    ).toEqual(election.contests.map((c) => c.id).sort());
+    expect(await api.listPollingPlaces({ electionId })).toHaveLength(
+      election.pollingPlaces.length
+    );
+
+    await expect(
+      api.updateBallotLayoutSettings({
+        electionId,
+        paperSize: HmpbBallotPaperSize.Legal,
+        compact: false,
+      })
+    ).rejects.toThrow('Election definition is finalized');
+    await expect(api.finalizeElection({ electionId })).rejects.toThrow(
+      'Election definition is finalized'
+    );
+    await expect(api.deleteElection({ electionId })).rejects.toThrow(
+      'Cannot discard an election definition while VxAdmin is configured'
+    );
+
+    await apiClient.unconfigure();
+    expect(await api.getCurrentInProgressElection()).toEqual(null);
+  });
+
+  test.each<{ description: string; election: Election; message: string }>([
+    {
+      description: 'unsupported contests',
+      election: electionStraightPartyFixtures.readElection(),
+      message: 'Straight party contests are not supported.',
+    },
+    {
+      description: 'duplicate district names',
+      election: {
+        ...electionDefinition.election,
+        districts: [
+          electionDefinition.election.districts[0]!,
+          {
+            ...electionDefinition.election.districts[1]!,
+            name: electionDefinition.election.districts[0]!.name,
+          },
+          ...electionDefinition.election.districts.slice(2),
+        ],
+      },
+      message: '',
+    },
+    {
+      description: 'polling places that cover only part of a precinct',
+      election: {
+        ...electionDefinition.election,
+        pollingPlaces: [
+          {
+            id: 'partial-place',
+            name: 'Partial Place',
+            type: 'absentee',
+            precincts: { '21': { type: 'partial', splitIds: ['21-1'] } },
+          },
+        ],
+      },
+      message: '',
+    },
+  ])(
+    'a configured election with $description is not added to the election definition area',
+    async ({ election, message }) => {
+      const {
+        apiClient,
+        electionDefinitionApiClient: api,
+        auth,
+        logger,
+      } = buildTestEnvironment();
+      await configureMachine(apiClient, auth, asElectionDefinition(election));
+      expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+        LogEventId.ElectionDefinitionCreated,
+        {
+          message: expect.stringContaining(
+            "The configured election can't be viewed in the election definition area"
+          ),
+          disposition: 'failure',
+        }
+      );
+      expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+        LogEventId.ElectionDefinitionCreated,
+        expect.objectContaining({ message: expect.stringContaining(message) })
+      );
+      expect(await api.getCurrentInProgressElection()).toEqual(null);
+    }
+  );
+
+  test('a configured election is not added when election definition is disabled', async () => {
+    const { apiClient, auth, workspace } = buildTestEnvironment();
+    featureFlagMock.resetFeatureFlags();
+    await configureMachine(apiClient, auth, electionDefinition);
+    expect(workspace.store.electionDefinition.getElectionInfo()).toEqual(
+      undefined
     );
   });
 });

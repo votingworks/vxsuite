@@ -1,10 +1,11 @@
 import { readFile } from 'node:fs/promises';
 import { extname } from 'node:path';
 import { readElectionPackageFromFile } from '@votingworks/backend';
-import { assertDefined, err, ok, type Result } from '@votingworks/basics';
+import { err, extractErrorMessage, ok, type Result } from '@votingworks/basics';
 import {
   type ElectionInfoUpdate,
   prepareElectionForEditing,
+  splitCandidateNames,
   type StateCode,
   type StateFeaturesConfig,
   stateDefaultSystemSettings,
@@ -109,7 +110,7 @@ function writeImportedElection(
     ...election.contests.map(
       (newContest) => () => store.createContest({ electionId, newContest })
     ),
-    ...assertDefined(election.pollingPlaces).map(
+    ...election.pollingPlaces.map(
       (place) => () => store.setPollingPlace({ electionId, place })
     ),
   ];
@@ -164,4 +165,38 @@ export async function createElectionDefinitionFromFile({
     return err({ type: 'invalid-election', message: writeResult.err() });
   }
   return ok(newId);
+}
+
+/**
+ * Adds the election VxAdmin was configured with to the election definition
+ * store, read-only and with its own IDs, so it can be viewed.
+ */
+export function importConfiguredElection({
+  store,
+  election,
+  systemSettings,
+}: {
+  store: ElectionDefinitionStore;
+  election: Election;
+  systemSettings: SystemSettings;
+}): Result<void, string> {
+  const unsupportedContent = findUnsupportedContent(election);
+  if (unsupportedContent) {
+    return err(unsupportedContent);
+  }
+  try {
+    const writeResult = writeImportedElection(
+      store,
+      { ...election, contests: splitCandidateNames(election.contests) },
+      systemSettings
+    );
+    if (writeResult.isErr()) {
+      return writeResult;
+    }
+    store.markElectionLoaded(election.id);
+    return ok();
+  } catch (error) {
+    store.deleteInProgressElection();
+    return err(extractErrorMessage(error));
+  }
 }

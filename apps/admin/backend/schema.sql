@@ -582,7 +582,7 @@ create table design_translations (
 create table design_election_packages (
   election_id text primary key,
   status text not null default 'running'
-    check (status in ('running', 'succeeded', 'failed')),
+    check (status in ('running', 'succeeded', 'failed', 'loaded')),
   progress_label text,
   progress integer,
   progress_total integer,

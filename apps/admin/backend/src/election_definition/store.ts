@@ -99,7 +99,8 @@ export type ElectionDefinitionPackage =
       sampleBallotsPath?: string;
       testBallotsPath?: string;
     }
-  | { status: 'failed'; error: string };
+  | { status: 'failed'; error: string }
+  | { status: 'loaded' };
 
 const NATURAL_SORT_COLLATOR = new Intl.Collator('en', { numeric: true });
 const ALPHABETICAL_SORT_COLLATOR = new Intl.Collator('en');
@@ -599,10 +600,13 @@ export class ElectionDefinitionStore {
   }
 
   finalizeElection(electionId: ElectionId): void {
-    this.client.transaction(() => {
-      assert(
-        this.client.one(
-          `
+    this.client.transaction(() => this.writeFinalizedElection(electionId));
+  }
+
+  private writeFinalizedElection(electionId: ElectionId): void {
+    assert(
+      this.client.one(
+        `
           update design_elections
           set
             status = 'finalized',
@@ -610,18 +614,31 @@ export class ElectionDefinitionStore {
           where id = ? and status = 'in_progress'
           returning id
         `,
-          electionId
-        ),
-        'Election is not in progress'
-      );
-      this.client.run(
-        'delete from design_election_packages where election_id = ?',
         electionId
-      );
-      this.client.run(
-        `
+      ),
+      'Election is not in progress'
+    );
+    this.client.run(
+      'delete from design_election_packages where election_id = ?',
+      electionId
+    );
+    this.client.run(
+      `
         insert into design_election_packages (election_id)
         values (?)
+      `,
+      electionId
+    );
+  }
+
+  markElectionLoaded(electionId: ElectionId): void {
+    this.client.transaction(() => {
+      this.writeFinalizedElection(electionId);
+      this.client.run(
+        `
+        update design_election_packages
+        set status = 'loaded'
+        where election_id = ?
       `,
         electionId
       );
@@ -686,6 +703,8 @@ export class ElectionDefinitionStore {
         };
       case 'failed':
         return { status: 'failed', error: assertDefined(row.error) };
+      case 'loaded':
+        return { status: 'loaded' };
       default:
         throwIllegalValue(row.status);
     }

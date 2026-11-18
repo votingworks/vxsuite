@@ -327,6 +327,9 @@ function FinalizeContent({
         </React.Fragment>
       );
 
+    case 'loaded':
+      return <Redirect to={routerPaths.electionDefinitionInfo(electionId)} />;
+
     default: {
       throwIllegalValue(electionPackage, 'status');
     }
