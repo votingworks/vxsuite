@@ -351,7 +351,7 @@ function FinalizeElection({
   return (
     <NavigationScreen
       title="Finalize"
-      navItems={getNavItems(electionId)}
+      navItems={getNavItems(electionId, getElectionPackageQuery.data)}
       backRouterPath={routerPaths.election}
     >
       <Content>

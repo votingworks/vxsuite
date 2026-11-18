@@ -873,6 +873,7 @@ export const configure = {
     return useMutation(apiClient.configure, {
       async onSuccess() {
         await invalidateConfiguredElectionPackageQueries(queryClient);
+        await invalidateCurrentInProgressElection(queryClient);
       },
     });
   },
@@ -1323,6 +1324,12 @@ export const getCurrentInProgressElection = {
     );
   },
 } as const;
+
+async function invalidateCurrentInProgressElection(
+  queryClient: QueryClient
+): Promise<void> {
+  await queryClient.invalidateQueries(getCurrentInProgressElection.queryKey());
+}
 
 async function invalidateElectionQueries(
   queryClient: QueryClient,

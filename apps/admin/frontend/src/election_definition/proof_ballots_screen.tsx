@@ -113,11 +113,14 @@ function ProofBallotsTabs({
   }
   const electionPackage = getElectionPackageQuery.data;
   const isLocked = !!electionPackage && electionPackage.status !== 'failed';
+  if (electionPackage?.status === 'loaded') {
+    return <Redirect to={routerPaths.electionDefinitionInfo(electionId)} />;
+  }
 
   return (
     <NavigationScreen
       title="Proof Ballots"
-      navItems={getNavItems(electionId)}
+      navItems={getNavItems(electionId, electionPackage)}
       backRouterPath={routerPaths.election}
     >
       <RouterTabBar

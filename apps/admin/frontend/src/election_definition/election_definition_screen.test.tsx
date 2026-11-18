@@ -1406,3 +1406,27 @@ test('Clone Election is offered next to Create New Election when the USB drive h
   await screen.findButton('Create New Election');
   screen.getButton('Clone Election');
 });
+
+test('an election loaded from a USB drive shows only its read-only definition', async () => {
+  expectCurrentInProgressElection(generalElectionInfo);
+  expectElectionInfoQueries(generalElectionInfo, {}, { status: 'loaded' });
+  renderScreen(routerPaths.electionDefinitionInfo(electionId));
+  expect(await screen.findButton('Edit')).toBeDisabled();
+  expect(getNavItems()).toEqual(['Back', 'Definition']);
+});
+
+test.each([
+  routerPaths.proofBallotsBallotStyles(electionId),
+  routerPaths.finalizeForElection(electionId),
+])(
+  '%s opens the definition for an election loaded from a USB drive',
+  async (path) => {
+    expectCurrentInProgressElection(generalElectionInfo);
+    expectElectionInfoQueries(generalElectionInfo, {}, { status: 'loaded' });
+    const history = renderScreen(path);
+    await screen.findButton('Edit');
+    expect(history.location.pathname).toEqual(
+      routerPaths.electionDefinitionInfo(electionId)
+    );
+  }
+);

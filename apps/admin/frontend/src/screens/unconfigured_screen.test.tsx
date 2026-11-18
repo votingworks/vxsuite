@@ -13,7 +13,11 @@ import { renderInAppContext } from '../../test/render_in_app_context.js';
 import { screen, waitFor, within } from '../../test/react_testing_library.js';
 
 import { UnconfiguredScreen } from './unconfigured_screen.js';
-import { type ApiClient, createQueryClient } from '../api.js';
+import {
+  type ApiClient,
+  createQueryClient,
+  getCurrentInProgressElection,
+} from '../api.js';
 import {
   type ApiMock,
   createApiMock,
@@ -120,6 +124,32 @@ test('configures from election packages on USB drive', async () => {
   );
   configure.resolve(ok({ electionId: 'anything' }));
   await vi.waitFor(() => apiMock.assertComplete());
+});
+
+test('configuring refreshes the election definition, which loading from USB may have created', async () => {
+  const queryClient = createQueryClient();
+  const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries');
+  const electionPackage = {
+    path: '/election-package.zip',
+    name: 'election-package.zip',
+    ctime: new Date('2023-01-01T00:00:00.000'),
+  } as const;
+  apiMock.expectListPotentialElectionPackagesOnUsbDrive([electionPackage]);
+  renderInAppContext(<UnconfiguredScreen />, {
+    apiMock,
+    queryClient,
+    usbDriveStatus: mockUsbDriveStatus('mounted'),
+  });
+
+  apiMock.apiClient.configure
+    .expectCallWith({ electionFilePath: electionPackage.path })
+    .resolves(ok({ electionId: 'anything' }));
+  await userEvent.click(await screen.findByText('election-package.zip'));
+  await vi.waitFor(() =>
+    expect(invalidateQueries).toHaveBeenCalledWith(
+      getCurrentInProgressElection.queryKey()
+    )
+  );
 });
 
 test('configures from selected file', async () => {

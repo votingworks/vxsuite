@@ -84,7 +84,7 @@ function DefinitionTabs({
 
   return (
     <NavScreenLite
-      navItems={getNavItems(electionId)}
+      navItems={getNavItems(electionId, electionPackage)}
       backRouterPath={routerPaths.election}
     >
       <Container>
