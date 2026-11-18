@@ -1442,3 +1442,17 @@ export const saveElectionPackageBallots = {
     return useMutation(apiClient.saveElectionPackageBallots);
   },
 } as const;
+
+export const createInProgressElectionFromFile = {
+  useMutation() {
+    const apiClient = useElectionDefinitionApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.createInProgressElectionFromFile, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(
+          getCurrentInProgressElection.queryKey()
+        );
+      },
+    });
+  },
+} as const;
