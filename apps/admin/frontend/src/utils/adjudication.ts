@@ -69,39 +69,6 @@ export function newWriteInNamesFromOtherContests(
   return [...namesByNormalizedName.values()];
 }
 
-export function newWriteInNamesFromOtherContests(
-  adjudicatedContests: AdjudicatedContests,
-  existingWriteInCandidates: readonly WriteInCandidateRecord[],
-  excludedContestId: ContestId
-): string[] {
-  const namesByNormalizedName = new Map<string, string>();
-  for (const {
-    contestId,
-    adjudicatedContestOptionById,
-  } of adjudicatedContests.values()) {
-    if (contestId === excludedContestId) continue;
-    for (const option of Object.values(adjudicatedContestOptionById)) {
-      if (
-        option.type !== 'write-in-option' ||
-        !option.hasVote ||
-        option.candidateType !== 'write-in-candidate'
-      ) {
-        continue;
-      }
-      const normalizedName = normalizeWriteInName(option.candidateName);
-      const isExistingCandidate = existingWriteInCandidates.some(
-        (c) =>
-          c.contestId === contestId &&
-          normalizeWriteInName(c.name) === normalizedName
-      );
-      if (!isExistingCandidate && !namesByNormalizedName.has(normalizedName)) {
-        namesByNormalizedName.set(normalizedName, option.candidateName);
-      }
-    }
-  }
-  return [...namesByNormalizedName.values()];
-}
-
 export function getOptionCoordinates(
   optionsLayout: readonly BallotPageContestOptionLayout[],
   optionId: ContestOptionId
