@@ -7,6 +7,7 @@ import {
   makeTemporaryFile,
 } from '@votingworks/fixtures';
 import {
+  DEFAULT_SYSTEM_SETTINGS,
   type District,
   LanguageCode,
   type NonEnglishLanguageCode,
@@ -50,7 +51,7 @@ function setupStore(
 ): ElectionDefinitionStore {
   const store = Store.memoryStore(makeTemporaryDirectory()).electionDefinition;
   const electionInfo: ElectionInfoUpdate = { ...ELECTION_INFO, ...overrides };
-  store.createInProgressElection(electionInfo);
+  store.createInProgressElection(electionInfo, DEFAULT_SYSTEM_SETTINGS);
   store
     .updateDistricts({
       electionId: electionInfo.electionId,
