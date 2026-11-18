@@ -1,3 +1,5 @@
+import { createReadStream } from 'node:fs';
+import { join } from 'node:path';
 import type { DippedSmartCardAuthApi } from '@votingworks/auth';
 import type { ExportDataResult } from '@votingworks/backend';
 import {
@@ -58,6 +60,8 @@ import {
   type Party,
   type PollingPlace,
   pollingPlaceGenerateFromPrecinct,
+  getPrecinctsWithoutAbsenteePollingPlace,
+  hasPartialRegisteredVoterCounts,
   type Precinct,
   unsafeParse,
 } from '@votingworks/types';
@@ -69,8 +73,14 @@ import { constructAuthMachineState } from '../util/auth.js';
 import { buildExporter } from '../util/exporter.js';
 import { sanitizeFilenameForUsbDrive } from '../util/filenames.js';
 import type { Workspace } from '../util/workspace.js';
+import {
+  buildElectionPackage,
+  clearElectionPackageFiles,
+  getElectionPackageFilesPath,
+} from './election_package.js';
 import { createEnglishOnlyTranslator } from './english_only_translator.js';
 import { getMachineState, isElectionDefinitionEnabled } from './state.js';
+import type { ElectionDefinitionPackage } from './store.js';
 import {
   exportTranslations,
   importTranslations,
@@ -228,6 +238,22 @@ function createElectionDefinitionApiMethods({
     return electionInfo;
   }
 
+  function loadEditableElectionInfo(input: ElectionInput): ElectionInfo {
+    const electionInfo = loadInProgressElectionInfo(input);
+    assert(
+      store.electionDefinition.isElectionEditable(input.electionId),
+      'Election definition is finalized'
+    );
+    return electionInfo;
+  }
+
+  function isElectionPackageRunning(electionId: ElectionId): boolean {
+    return (
+      store.electionDefinition.getElectionPackage(electionId)?.status ===
+      'running'
+    );
+  }
+
   const methods = {
     getCurrentInProgressElection(): ElectionInfo | null {
       return store.electionDefinition.getElectionInfo() ?? null;
@@ -257,7 +283,16 @@ function createElectionDefinitionApiMethods({
 
     async deleteElection(input: ElectionInput): Promise<void> {
       loadInProgressElectionInfo(input);
+      assert(
+        !isElectionPackageRunning(input.electionId),
+        'Cannot discard an election definition while its election package is being built'
+      );
+      assert(
+        store.getCurrentElectionId() === undefined,
+        'Cannot discard an election definition while VxAdmin is configured'
+      );
       store.electionDefinition.deleteInProgressElection();
+      await clearElectionPackageFiles(store);
       await logger.logAsCurrentRole(LogEventId.ElectionDefinitionDiscarded, {
         message: `Discarded election definition ${input.electionId}.`,
         disposition: 'success',
@@ -276,7 +311,7 @@ function createElectionDefinitionApiMethods({
         !electionInfoUpdate.isMiCombinedBallotPrimary,
         'Combined ballot primaries are not supported.'
       );
-      loadInProgressElectionInfo(electionInfoUpdate);
+      loadEditableElectionInfo(electionInfoUpdate);
       store.electionDefinition.updateInProgressElectionInfo(electionInfoUpdate);
       await logger.logAsCurrentRole(LogEventId.ElectionDefinitionInfoUpdated, {
         message: `Updated election info for election definition ${input.electionId}.`,
@@ -298,7 +333,7 @@ function createElectionDefinitionApiMethods({
     async updateDistricts(
       input: DistrictsUpdate
     ): Promise<Result<void, DuplicateDistrictError>> {
-      loadInProgressElectionInfo(input);
+      loadEditableElectionInfo(input);
       const result = store.electionDefinition.updateDistricts(input);
       if (result.isErr()) {
         await logger.logAsCurrentRole(
@@ -328,7 +363,7 @@ function createElectionDefinitionApiMethods({
     async updateParties(
       input: PartiesUpdate
     ): Promise<Result<void, DuplicatePartyError>> {
-      loadInProgressElectionInfo(input);
+      loadEditableElectionInfo(input);
       const result = store.electionDefinition.updateParties(input);
       if (result.isErr()) {
         await logger.logAsCurrentRole(
@@ -358,7 +393,7 @@ function createElectionDefinitionApiMethods({
     async createContest(
       input: ContestCreate
     ): Promise<Result<void, DuplicateContestError>> {
-      loadInProgressElectionInfo(input);
+      loadEditableElectionInfo(input);
       const result = store.electionDefinition.createContest(input);
       if (result.isErr()) {
         await logger.logAsCurrentRole(
@@ -383,7 +418,7 @@ function createElectionDefinitionApiMethods({
     async updateContest(
       input: ContestUpdate
     ): Promise<Result<void, DuplicateContestError>> {
-      loadInProgressElectionInfo(input);
+      loadEditableElectionInfo(input);
       const result = store.electionDefinition.updateContest(input);
       if (result.isErr()) {
         await logger.logAsCurrentRole(
@@ -406,7 +441,7 @@ function createElectionDefinitionApiMethods({
     },
 
     async reorderContests(input: ContestsReorder): Promise<void> {
-      loadInProgressElectionInfo(input);
+      loadEditableElectionInfo(input);
       store.electionDefinition.reorderContests(input);
       await logger.logAsCurrentRole(
         LogEventId.ElectionDefinitionContestsReordered,
@@ -418,7 +453,7 @@ function createElectionDefinitionApiMethods({
     },
 
     async deleteContest(input: ContestDelete): Promise<void> {
-      loadInProgressElectionInfo(input);
+      loadEditableElectionInfo(input);
       store.electionDefinition.deleteContest(input);
       await logger.logAsCurrentRole(
         LogEventId.ElectionDefinitionContestDeleted,
@@ -437,7 +472,7 @@ function createElectionDefinitionApiMethods({
     async createPrecinct(
       input: PrecinctCreate
     ): Promise<Result<void, DuplicatePrecinctError>> {
-      loadInProgressElectionInfo(input);
+      loadEditableElectionInfo(input);
       const { features } = assertDefined(getMachineState());
       const result = store.electionDefinition.createPrecinct(
         input,
@@ -472,7 +507,7 @@ function createElectionDefinitionApiMethods({
     async updatePrecinct(
       input: PrecinctUpdate
     ): Promise<Result<void, DuplicatePrecinctError>> {
-      loadInProgressElectionInfo(input);
+      loadEditableElectionInfo(input);
       const result = store.electionDefinition.updatePrecinct(input);
       if (result.isErr()) {
         await logger.logAsCurrentRole(
@@ -495,7 +530,7 @@ function createElectionDefinitionApiMethods({
     },
 
     async deletePrecinct(input: PrecinctDelete): Promise<void> {
-      loadInProgressElectionInfo(input);
+      loadEditableElectionInfo(input);
       store.electionDefinition.deletePrecinct(input);
       await logger.logAsCurrentRole(
         LogEventId.ElectionDefinitionPrecinctDeleted,
@@ -523,7 +558,7 @@ function createElectionDefinitionApiMethods({
     async setPollingPlace(
       input: PollingPlaceSet
     ): Promise<Result<void, SetPollingPlaceError>> {
-      loadInProgressElectionInfo(input);
+      loadEditableElectionInfo(input);
       const result = store.electionDefinition.setPollingPlace(input);
       if (result.isErr()) {
         await logger.logAsCurrentRole(
@@ -546,7 +581,7 @@ function createElectionDefinitionApiMethods({
     },
 
     async deletePollingPlace(input: PollingPlaceDelete): Promise<void> {
-      loadInProgressElectionInfo(input);
+      loadEditableElectionInfo(input);
       store.electionDefinition.deletePollingPlace(input);
       await logger.logAsCurrentRole(
         LogEventId.ElectionDefinitionPollingPlaceDeleted,
@@ -570,7 +605,7 @@ function createElectionDefinitionApiMethods({
     async updateBallotLayoutSettings(
       input: BallotLayoutSettingsUpdate
     ): Promise<void> {
-      loadInProgressElectionInfo(input);
+      loadEditableElectionInfo(input);
       const paperSize = unsafeParse(HmpbBallotPaperSizeSchema, input.paperSize);
       const compact = unsafeParse(z.boolean(), input.compact);
       store.electionDefinition.updateBallotLayoutSettings({
@@ -657,6 +692,98 @@ function createElectionDefinitionApiMethods({
       return exportResult;
     },
 
+    getElectionPackage(input: ElectionInput): ElectionDefinitionPackage | null {
+      loadInProgressElectionInfo(input);
+      return (
+        store.electionDefinition.getElectionPackage(input.electionId) ?? null
+      );
+    },
+
+    async finalizeElection(input: ElectionInput): Promise<void> {
+      const electionInfo = loadEditableElectionInfo(input);
+      assert(
+        electionInfo.title !== '' && electionInfo.jurisdictionName !== '',
+        'Election info is incomplete'
+      );
+      const { features } = assertDefined(getMachineState());
+      const precincts = store.electionDefinition.listPrecincts(
+        input.electionId
+      );
+      assert(
+        store.electionDefinition.listBallotStyles(input.electionId).length > 0,
+        'Election definition has no ballot styles'
+      );
+      assert(
+        !hasPartialRegisteredVoterCounts(
+          precincts,
+          store.electionDefinition.getRegisteredVoterCounts(input.electionId)
+        ),
+        'Registered voter counts must be provided for all precincts and splits or none'
+      );
+      if (
+        features.EDIT_POLLING_PLACES &&
+        !features.OMIT_ABSENTEE_POLLING_PLACES
+      ) {
+        assert(
+          getPrecinctsWithoutAbsenteePollingPlace(
+            precincts,
+            store.electionDefinition.listPollingPlaces(input.electionId)
+          ).length === 0,
+          'Absentee polling places must cover every precinct for central scanning'
+        );
+      }
+      assert(
+        store.getCurrentElectionId() === undefined,
+        'Cannot finalize an election definition while VxAdmin is configured'
+      );
+      store.electionDefinition.finalizeElection(input.electionId);
+      await logger.logAsCurrentRole(LogEventId.ElectionDefinitionFinalized, {
+        message: `Finalized election definition ${input.electionId}; rendering its ballots, building its election package and configuring VxAdmin with it.`,
+        disposition: 'success',
+      });
+      void buildElectionPackage({
+        store,
+        logger,
+        electionId: input.electionId,
+      });
+    },
+
+    async saveElectionPackageBallots(
+      input: ElectionInput & {
+        ballotMode: 'official' | 'test';
+        filename: string;
+      }
+    ): Promise<ExportDataResult> {
+      loadInProgressElectionInfo(input);
+      const electionPackage = store.electionDefinition.getElectionPackage(
+        input.electionId
+      );
+      assert(
+        electionPackage?.status === 'succeeded',
+        'Election package has not been built'
+      );
+      const ballotsPath = assertDefined(
+        input.ballotMode === 'official'
+          ? electionPackage.officialBallotsPath
+          : electionPackage.testBallotsPath,
+        `Election package has no ${input.ballotMode} ballots`
+      );
+      const filename = sanitizeFilenameForUsbDrive(input.filename);
+      const exportResult = await buildExporter(usbDrive).exportDataToUsbDrive(
+        '',
+        filename,
+        createReadStream(join(getElectionPackageFilesPath(store), ballotsPath))
+      );
+      await logger.logAsCurrentRole(LogEventId.FileSaved, {
+        disposition: exportResult.isOk() ? 'success' : 'failure',
+        message: `${
+          exportResult.isOk() ? 'Saved' : 'Failed to save'
+        } ${input.ballotMode} ballots for election definition ${input.electionId} to ${filename} on the USB drive.`,
+        path: filename,
+      });
+      return exportResult;
+    },
+
     async saveTranslationsFile(
       input: ElectionInput & { languageCode: NonEnglishLanguageCode }
     ): Promise<ExportDataResult> {
@@ -688,7 +815,7 @@ function createElectionDefinitionApiMethods({
         filePath: string;
       }
     ): Promise<Result<void, TranslationsImportError>> {
-      loadInProgressElectionInfo(input);
+      loadEditableElectionInfo(input);
       const result = await importTranslations(
         store.electionDefinition,
         input.electionId,

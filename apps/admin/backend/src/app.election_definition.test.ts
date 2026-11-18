@@ -1,11 +1,28 @@
-import { readFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
-import { DateWithoutTime, err, ok } from '@votingworks/basics';
+import { dirname, join } from 'node:path';
+import {
+  createElectionPackageZipArchive,
+  readElectionPackageFromFile,
+} from '@votingworks/backend';
+import {
+  assert,
+  assertDefined,
+  DateWithoutTime,
+  deferred,
+  err,
+  ok,
+} from '@votingworks/basics';
 import {
   type ElectionInfoUpdate,
   getStateFeaturesConfig,
+  stateDefaultSystemSettings,
   stateFeatureConfigs,
 } from '@votingworks/election-definition-backend';
+import {
+  type ElectionPackageAndBallotsOutput,
+  renderElectionPackageAndBallots,
+} from '@votingworks/election-definition-backend/election-package';
 import { describeElectionDefinitionMethods } from '@votingworks/election-definition-backend/test-utils';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { renderBallotPreview } from '@votingworks/hmpb';
@@ -34,6 +51,7 @@ import {
   mockElectionManagerAuth,
   mockSystemAdministratorAuth,
 } from '../test/app.js';
+import { getElectionPackageFilesPath } from './election_definition/election_package.js';
 
 const featureFlagMock = getFeatureFlagMock();
 vi.mock(import('@votingworks/utils'), async (importActual) => ({
@@ -49,6 +67,19 @@ vi.mock(
     return {
       ...actual,
       getStateFeaturesConfig: vi.fn(actual.getStateFeaturesConfig),
+    };
+  }
+);
+
+vi.mock(
+  import('@votingworks/election-definition-backend/election-package'),
+  async (importActual) => {
+    const actual = await importActual();
+    return {
+      ...actual,
+      renderElectionPackageAndBallots: vi.fn(
+        actual.renderElectionPackageAndBallots
+      ),
     };
   }
 );
@@ -74,6 +105,7 @@ beforeEach(() => {
 afterEach(() => {
   featureFlagMock.resetFeatureFlags();
   vi.mocked(getStateFeaturesConfig).mockReset();
+  vi.mocked(renderElectionPackageAndBallots).mockReset();
   vi.unstubAllEnvs();
   vi.useRealTimers();
 });
@@ -1570,4 +1602,452 @@ test('creating a precinct creates no polling place without EDIT_POLLING_PLACES',
   ).unsafeUnwrap();
 
   expect(await api.listPollingPlaces({ electionId })).toEqual([]);
+});
+
+async function createFinalizableElection(
+  api: ReturnType<typeof buildTestEnvironment>['electionDefinitionApiClient'],
+  { withAbsenteePollingPlace = true } = {}
+) {
+  const spec = await createElectionWithBallotStyle(api, {
+    contests: [mayor, measure],
+  });
+  (
+    await api.updateElectionInfo({
+      ...(await api.getElectionInfo({ electionId: spec.electionId })),
+      title: 'General Election',
+      jurisdictionName: 'Demo County',
+    })
+  ).unsafeUnwrap();
+  if (!withAbsenteePollingPlace) {
+    return spec.electionId;
+  }
+  (
+    await api.setPollingPlace({
+      electionId: spec.electionId,
+      place: {
+        id: 'absentee-place',
+        name: 'Town Hall',
+        type: 'absentee',
+        precincts: { 'precinct-1': { type: 'whole' } },
+      },
+    })
+  ).unsafeUnwrap();
+  return spec.electionId;
+}
+
+async function waitForElectionPackage(
+  api: ReturnType<typeof buildTestEnvironment>['electionDefinitionApiClient'],
+  electionId: string
+) {
+  return await vi.waitFor(
+    async () => {
+      const electionPackage = await api.getElectionPackage({ electionId });
+      if (electionPackage?.status === 'running') {
+        throw new Error('Election package is still being built');
+      }
+      return electionPackage;
+    },
+    { timeout: 60_000, interval: 100 }
+  );
+}
+
+test('createInProgressElection seeds system settings from the state profile', async () => {
+  const {
+    electionDefinitionApiClient: api,
+    auth,
+    workspace,
+  } = buildTestEnvironment();
+  mockSystemAdministratorAuth(auth);
+  const electionId = await api.createInProgressElection();
+  expect(
+    workspace.store.electionDefinition.getSystemSettings(electionId)
+  ).toEqual(stateDefaultSystemSettings('DEMO'));
+});
+
+test('finalize locks the election definition, builds its election package and configures VxAdmin with it until unconfigure', async () => {
+  const {
+    apiClient,
+    electionDefinitionApiClient: api,
+    auth,
+    logger,
+    workspace,
+  } = buildTestEnvironment();
+  mockSystemAdministratorAuth(auth);
+  const electionId = await createFinalizableElection(api);
+  expect(await api.getElectionPackage({ electionId })).toEqual(null);
+
+  await api.finalizeElection({ electionId });
+  expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+    LogEventId.ElectionDefinitionFinalized,
+    {
+      message: `Finalized election definition ${electionId}; rendering its ballots, building its election package and configuring VxAdmin with it.`,
+      disposition: 'success',
+    }
+  );
+  await expect(
+    api.updateBallotLayoutSettings({
+      electionId,
+      paperSize: HmpbBallotPaperSize.Legal,
+      compact: false,
+    })
+  ).rejects.toThrow('Election definition is finalized');
+  await expect(api.finalizeElection({ electionId })).rejects.toThrow(
+    'Election definition is finalized'
+  );
+
+  const electionPackage = await waitForElectionPackage(api, electionId);
+  assert(electionPackage?.status === 'succeeded');
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.ElectionDefinitionElectionPackageBuilt,
+    'system',
+    {
+      message: `Built the election package for election definition ${electionId}.`,
+      disposition: 'success',
+    }
+  );
+  expect(vi.mocked(renderElectionPackageAndBallots)).toHaveBeenLastCalledWith(
+    expect.objectContaining({ outputDirectory: electionId }),
+    expect.objectContaining({
+      stateCode: 'DEMO',
+      ballotTemplateId: 'VxDefaultBallot',
+      ballotLanguageConfigs: [{ languages: [LanguageCode.ENGLISH] }],
+      shouldExportSampleBallots: false,
+      shouldExportTestBallots: true,
+    })
+  );
+  expect(electionPackage.sampleBallotsPath).toBeUndefined();
+
+  const filesPath = getElectionPackageFilesPath(workspace.store);
+  const electionPackagePath = join(
+    filesPath,
+    electionPackage.electionPackagePath
+  );
+  const { electionPackage: parsedPackage } = (
+    await readElectionPackageFromFile(electionPackagePath)
+  ).unsafeUnwrap();
+  expect(parsedPackage.electionDefinition.ballotHash).toEqual(
+    electionPackage.ballotHash
+  );
+  expect(parsedPackage.electionDefinition.election.contests).toHaveLength(2);
+  expect(parsedPackage.systemSettings).toEqual(
+    stateDefaultSystemSettings('DEMO')
+  );
+  expect(
+    existsSync(join(filesPath, electionPackage.officialBallotsPath))
+  ).toEqual(true);
+  expect(
+    existsSync(join(filesPath, assertDefined(electionPackage.testBallotsPath)))
+  ).toEqual(true);
+
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.ElectionConfigured,
+    'system',
+    {
+      disposition: 'success',
+      newBallotHash: electionPackage.ballotHash,
+      message: `Configured VxAdmin with the election package built from election definition ${electionId}.`,
+    },
+    undefined
+  );
+  const electionRecord = assertDefined(
+    await apiClient.getCurrentElectionMetadata()
+  );
+  expect(electionRecord.electionDefinition.ballotHash).toEqual(
+    electionPackage.ballotHash
+  );
+  expect(await apiClient.getSystemSettings()).toEqual(
+    stateDefaultSystemSettings('DEMO')
+  );
+
+  expect(await api.getElectionInfo({ electionId })).toMatchObject({
+    title: 'General Election',
+  });
+  await expect(api.finalizeElection({ electionId })).rejects.toThrow(
+    'Election definition is finalized'
+  );
+  await expect(api.deleteElection({ electionId })).rejects.toThrow(
+    'Cannot discard an election definition while VxAdmin is configured'
+  );
+
+  await apiClient.unconfigure();
+  expect(await apiClient.getCurrentElectionMetadata()).toEqual(null);
+  expect(await api.getCurrentInProgressElection()).toEqual(null);
+  expect(existsSync(filesPath)).toEqual(false);
+}, 60_000);
+
+test('finalize rejects an election definition that is not ready', async () => {
+  const { electionDefinitionApiClient: api, auth } = buildTestEnvironment();
+  mockSystemAdministratorAuth(auth);
+
+  const electionId = await createElectionWithDistrict(api);
+  await expect(api.finalizeElection({ electionId })).rejects.toThrow(
+    'Election info is incomplete'
+  );
+  (
+    await api.updateElectionInfo({
+      ...(await api.getElectionInfo({ electionId })),
+      title: 'General Election',
+      jurisdictionName: 'Demo County',
+    })
+  ).unsafeUnwrap();
+  await expect(api.finalizeElection({ electionId })).rejects.toThrow(
+    'Election definition has no ballot styles'
+  );
+
+  (
+    await api.createPrecinct({
+      electionId,
+      newPrecinct: {
+        id: 'precinct-1',
+        name: 'Precinct 1',
+        districtIds: ['district-1'],
+      },
+    })
+  ).unsafeUnwrap();
+  (await api.createContest({ electionId, newContest: measure })).unsafeUnwrap();
+  await expect(api.finalizeElection({ electionId })).rejects.toThrow(
+    'Absentee polling places must cover every precinct for central scanning'
+  );
+
+  (
+    await api.createPrecinct({
+      electionId,
+      newPrecinct: {
+        id: 'precinct-2',
+        name: 'Precinct 2',
+        districtIds: ['district-1'],
+      },
+      registeredVoterCounts: 100,
+    })
+  ).unsafeUnwrap();
+  await expect(api.finalizeElection({ electionId })).rejects.toThrow(
+    'Registered voter counts must be provided for all precincts and splits or none'
+  );
+  expect(await api.getElectionPackage({ electionId })).toEqual(null);
+});
+
+test('finalize skips the absentee polling place check when polling places are generated', async () => {
+  vi.mocked(getStateFeaturesConfig).mockReturnValue({
+    ...stateFeatureConfigs.DEMO,
+    EDIT_POLLING_PLACES: false,
+  });
+  const { electionDefinitionApiClient: api, auth } = buildTestEnvironment();
+  mockSystemAdministratorAuth(auth);
+  const electionId = await createFinalizableElection(api, {
+    withAbsenteePollingPlace: false,
+  });
+  vi.mocked(renderElectionPackageAndBallots).mockRejectedValueOnce(
+    new Error('not rendered')
+  );
+
+  await api.finalizeElection({ electionId });
+  expect(await waitForElectionPackage(api, electionId)).toEqual({
+    status: 'failed',
+    error: 'not rendered',
+  });
+});
+
+test('a failed election package build returns the election definition to editing, and it can be finalized again', async () => {
+  const {
+    apiClient,
+    electionDefinitionApiClient: api,
+    auth,
+    logger,
+    workspace,
+  } = buildTestEnvironment();
+  mockSystemAdministratorAuth(auth);
+  const electionId = await createFinalizableElection(api);
+  vi.mocked(renderElectionPackageAndBallots).mockRejectedValueOnce(
+    new Error('Contest is too long')
+  );
+
+  await api.finalizeElection({ electionId });
+  expect(await waitForElectionPackage(api, electionId)).toEqual({
+    status: 'failed',
+    error: 'Contest is too long',
+  });
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.ElectionDefinitionElectionPackageBuilt,
+    'system',
+    {
+      message: `Error building the election package for election definition ${electionId}: Contest is too long`,
+      disposition: 'failure',
+    }
+  );
+  await api.updateBallotLayoutSettings({
+    electionId,
+    paperSize: HmpbBallotPaperSize.Legal,
+    compact: false,
+  });
+
+  const invalidPackagePath = join(
+    getElectionPackageFilesPath(workspace.store),
+    electionId,
+    'election-package.zip'
+  );
+  mkdirSync(dirname(invalidPackagePath), { recursive: true });
+  writeFileSync(invalidPackagePath, 'not a zip');
+  vi.mocked(renderElectionPackageAndBallots).mockResolvedValueOnce({
+    electionDefinition,
+    electionPackagePath: `${electionId}/election-package.zip`,
+    officialBallotsPath: `${electionId}/official-ballots.zip`,
+  });
+  await api.finalizeElection({ electionId });
+  expect(await waitForElectionPackage(api, electionId)).toEqual({
+    status: 'failed',
+    error:
+      'VxAdmin could not be configured with the election package (invalid-zip).',
+  });
+  expect(await apiClient.getCurrentElectionMetadata()).toEqual(null);
+});
+
+test('an election definition cannot be finalized while VxAdmin is configured from a USB drive', async () => {
+  const {
+    apiClient,
+    electionDefinitionApiClient: api,
+    auth,
+  } = buildTestEnvironment();
+  mockSystemAdministratorAuth(auth);
+  const electionId = await createFinalizableElection(api);
+  await configureMachine(apiClient, auth, electionDefinition);
+  await expect(api.finalizeElection({ electionId })).rejects.toThrow(
+    'Cannot finalize an election definition while VxAdmin is configured'
+  );
+});
+
+test('an election definition cannot be discarded while its election package is being built', async () => {
+  const { electionDefinitionApiClient: api, auth } = buildTestEnvironment();
+  mockSystemAdministratorAuth(auth);
+  const electionId = await createFinalizableElection(api);
+  const render = deferred<ElectionPackageAndBallotsOutput>();
+  vi.mocked(renderElectionPackageAndBallots).mockReturnValueOnce(
+    render.promise
+  );
+
+  await api.finalizeElection({ electionId });
+  expect(await api.getElectionPackage({ electionId })).toEqual({
+    status: 'running',
+  });
+  await expect(api.deleteElection({ electionId })).rejects.toThrow(
+    'Cannot discard an election definition while its election package is being built'
+  );
+
+  await vi.waitFor(() =>
+    expect(vi.mocked(renderElectionPackageAndBallots)).toHaveBeenCalled()
+  );
+  render.reject(new Error('stopped'));
+  await waitForElectionPackage(api, electionId);
+  await api.deleteElection({ electionId });
+  expect(await api.getCurrentInProgressElection()).toEqual(null);
+});
+
+test('getElectionPackage rejects an unknown election definition', async () => {
+  const { electionDefinitionApiClient: api, auth } = buildTestEnvironment();
+  mockSystemAdministratorAuth(auth);
+  await api.createInProgressElection();
+  await expect(
+    api.getElectionPackage({ electionId: 'missing' })
+  ).rejects.toThrow('Election definition not found');
+});
+
+test('saveElectionPackageBallots saves the built official and test ballot zips to the USB drive', async () => {
+  const {
+    apiClient,
+    electionDefinitionApiClient: api,
+    auth,
+    logger,
+    usbPlatform,
+    workspace,
+  } = buildTestEnvironment();
+  mockSystemAdministratorAuth(auth);
+  const electionId = await createFinalizableElection(api);
+  await expect(
+    api.saveElectionPackageBallots({
+      electionId,
+      ballotMode: 'official',
+      filename: 'official-ballots.zip',
+    })
+  ).rejects.toThrow('Election package has not been built');
+
+  await api.finalizeElection({ electionId });
+  const electionPackage = await waitForElectionPackage(api, electionId);
+  assert(electionPackage?.status === 'succeeded');
+  const filesPath = getElectionPackageFilesPath(workspace.store);
+
+  expect(
+    await api.saveElectionPackageBallots({
+      electionId,
+      ballotMode: 'official',
+      filename: 'official-ballots.zip',
+    })
+  ).toEqual(err({ type: 'missing-usb-drive', message: 'No USB drive found' }));
+  expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
+    LogEventId.FileSaved,
+    {
+      message: `Failed to save official ballots for election definition ${electionId} to official-ballots.zip on the USB drive.`,
+      disposition: 'failure',
+      path: 'official-ballots.zip',
+    }
+  );
+
+  await attachUsbDrive(apiClient, usbPlatform);
+  for (const [ballotMode, storedPath] of [
+    ['official', electionPackage.officialBallotsPath],
+    ['test', assertDefined(electionPackage.testBallotsPath)],
+  ] as const) {
+    const filename = `${ballotMode}/ballots?.zip`;
+    const [savedPath] = (
+      await api.saveElectionPackageBallots({
+        electionId,
+        ballotMode,
+        filename,
+      })
+    ).unsafeUnwrap();
+    expect(savedPath).toMatch(new RegExp(`/${ballotMode}_ballots_\\.zip$`));
+    expect(readFileSync(assertDefined(savedPath))).toEqual(
+      readFileSync(join(filesPath, storedPath))
+    );
+    expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
+      LogEventId.FileSaved,
+      {
+        message: `Saved ${ballotMode} ballots for election definition ${electionId} to ${ballotMode}_ballots_.zip on the USB drive.`,
+        disposition: 'success',
+        path: `${ballotMode}_ballots_.zip`,
+      }
+    );
+  }
+}, 60_000);
+
+test('saveElectionPackageBallots rejects ballots the election package does not have', async () => {
+  const {
+    electionDefinitionApiClient: api,
+    auth,
+    workspace,
+  } = buildTestEnvironment();
+  mockSystemAdministratorAuth(auth);
+  const electionId = await createFinalizableElection(api);
+  const packagePath = join(
+    getElectionPackageFilesPath(workspace.store),
+    'election-package.zip'
+  );
+  mkdirSync(dirname(packagePath), { recursive: true });
+  writeFileSync(
+    packagePath,
+    await createElectionPackageZipArchive({ electionDefinition })
+  );
+  vi.mocked(renderElectionPackageAndBallots).mockResolvedValueOnce({
+    electionDefinition,
+    electionPackagePath: 'election-package.zip',
+    officialBallotsPath: 'official-ballots.zip',
+  });
+  await api.finalizeElection({ electionId });
+  await waitForElectionPackage(api, electionId);
+
+  await expect(
+    api.saveElectionPackageBallots({
+      electionId,
+      ballotMode: 'test',
+      filename: 'test-ballots.zip',
+    })
+  ).rejects.toThrow('Election package has no test ballots');
 });
