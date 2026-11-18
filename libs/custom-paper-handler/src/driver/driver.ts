@@ -7,7 +7,7 @@ import {
   type EnumValues,
   type Optional,
   type Result,
-  sleep,
+  timeout,
 } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import {
@@ -265,10 +265,8 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
     let bufferClear = false;
     let i = -1;
     while (!bufferClear) {
-      bufferClear = await Promise.race([
-        sleep(1000).then(() => true),
-        this.transferInGeneric().then(() => false),
-      ]);
+      bufferClear =
+        (await timeout(1000, this.transferInGeneric())).type === 'timeout';
       i += 1;
     }
     debug(`${i} packets cleared`);

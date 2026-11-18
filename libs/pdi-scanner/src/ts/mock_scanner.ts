@@ -6,7 +6,7 @@ import {
   type PropertyAssigner,
 } from 'xstate';
 import type { SheetOf, GrayImageData } from '@votingworks/types';
-import { assertDefined, err, ok, sleep } from '@votingworks/basics';
+import { assertDefined, err, ok, sleep, timeout } from '@votingworks/basics';
 import makeDebug from 'debug';
 import type {
   EjectMotion,
@@ -188,9 +188,7 @@ export function createMockPdiScanner(
     on: {
       DISCONNECT: 'disconnected',
       '*': {
-        // @coverage-defer
         actions: (_, event) => {
-          // @coverage-exclude
           emitScannerEvent({
             event: 'error',
             code: 'other',
@@ -309,22 +307,25 @@ export function createMockPdiScanner(
 
   async function waitForState(
     stateMatch: string,
-    timeout = 1000
+    timeoutMs = 1000
   ): Promise<void> {
-    await Promise.race([
-      new Promise<void>((resolve) => {
-        mockScanner.onTransition(function listener(state) {
-          // @coverage-defer
-          if (state.matches(stateMatch)) {
-            mockScanner.off(listener);
-            resolve();
+    const result = await timeout(
+      timeoutMs,
+      (signal) =>
+        new Promise<void>((resolve) => {
+          function listener(state: typeof mockScanner.state): void {
+            if (state.matches(stateMatch)) {
+              mockScanner.off(listener);
+              resolve();
+            }
           }
-        });
-      }),
-      sleep(timeout).then(() => {
-        throw new Error(`Timed out waiting for state: ${stateMatch}`);
-      }),
-    ]);
+          mockScanner.onTransition(listener);
+          signal.addEventListener('abort', () => mockScanner.off(listener));
+        })
+    );
+    if (result.type === 'timeout') {
+      throw new Error(`Timed out waiting for state: ${stateMatch}`);
+    }
   }
 
   function simulateCommandDelay() {

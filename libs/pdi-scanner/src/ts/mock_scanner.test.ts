@@ -208,4 +208,29 @@ describe('mock scanner', () => {
     mockScanner.insertSheet(mockSheetImageDatas);
     expect(mockScanner.getSheetStatus()).toEqual('noSheetDisabled');
   });
+
+  test('connect times out when the scanner never becomes idle', async () => {
+    const { client } = mockScanner;
+    expect(await client.connect()).toEqual(ok());
+    expect(
+      await client.enableScanning({
+        doubleFeedDetectionEnabled: false,
+        paperLengthInches: 11,
+      })
+    ).toEqual(ok());
+
+    const listener = mockFunction('listener');
+    client.addListener(listener);
+    listener
+      .expectCallWith({
+        event: 'error',
+        code: 'other',
+        message: 'Unexpected mock scanner machine event: CONNECT',
+      })
+      .returns(undefined);
+    await expect(client.connect()).rejects.toThrow(
+      'Timed out waiting for state: idleScanningDisabled'
+    );
+    listener.assertComplete();
+  });
 });
