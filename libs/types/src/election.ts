@@ -1,7 +1,6 @@
 import {
   type Optional,
   type DateWithoutTime,
-  iter,
   deepEqual,
   type EnumValues,
 } from '@votingworks/basics';
@@ -931,85 +930,29 @@ export const ElectionSchema = z
       }
     }
 
-    for (const [
-      ballotStyleIndex,
-      ballotStyle,
-    ] of election.ballotStyles.entries()) {
-      if (ballotStyle.orderedCandidatesByContest) {
-        for (const [contestId, orderedCandidates] of Object.entries(
-          ballotStyle.orderedCandidatesByContest
-        )) {
-          const contest = contestsById.get(contestId);
-          if (!contest) {
-            ctx.issues.push({
-              code: 'custom',
-              path: [
-                'ballotStyles',
-                ballotStyleIndex,
-                'orderedCandidatesByContest',
-                contestId,
-              ],
-              message: `Ballot style '${ballotStyle.id}' has ordered candidates for contest '${contestId}', but no such contest is defined.`,
-              input: election,
-            });
-            continue;
-          }
-          // @coverage-defer
-          if (contest.type === 'candidate') {
-            for (const [candidateId, candidateOptions] of iter(
-              orderedCandidates
-            )
-              .toMap(({ id }) => id)
-              .entries()) {
-              const candidate = contest.candidates.find(
-                (c) => c.id === candidateId
-              );
-              if (!candidate) {
-                ctx.issues.push({
-                  code: 'custom',
-                  path: [
-                    'ballotStyles',
-                    ballotStyleIndex,
-                    'orderedCandidatesByContest',
-                    contestId,
-                    candidateId,
-                  ],
-                  message: `Ordered candidate '${candidateId}' in ballot style '${ballotStyle.id}' for contest '${contestId}' does not exist in that contest.`,
-                  input: election,
-                });
-                continue;
-              }
-              const candidatePartyIds = candidate.partyIds
-                ? [...candidate.partyIds].sort()
-                : [];
-              const orderedCandidatePartyIds = [...candidateOptions]
-                .flatMap((oc) => oc.partyIds ?? [])
-                .sort();
-              if (
-                JSON.stringify(candidatePartyIds) !==
-                JSON.stringify(orderedCandidatePartyIds)
-              ) {
-                ctx.issues.push({
-                  code: 'custom',
-                  path: [
-                    'ballotStyles',
-                    ballotStyleIndex,
-                    'orderedCandidatesByContest',
-                    contestId,
-                    candidateId,
-                    'partyIds',
-                  ],
-                  message: `Ordered candidate '${candidateId}' has party IDs [${orderedCandidatePartyIds.join(
-                    ', '
-                  )}], but candidate in contest has party IDs [${candidatePartyIds.join(
-                    ', '
-                  )}].`,
-                  input: election,
-                });
-              }
-            }
-          }
-        }
+    for (const [index, bs] of election.ballotStyles.entries()) {
+      if (!bs.orderedCandidatesByContest) continue;
+
+      const candidateOrderingErrors = validateCandidateOrderings({
+        contestsById,
+        orderings: bs.orderedCandidatesByContest,
+      });
+
+      for (const error of candidateOrderingErrors) {
+        const path: PropertyKey[] = [
+          'ballotStyles',
+          index,
+          'orderedCandidatesByContest',
+          error.contestId,
+        ];
+        if (error.candidateId) path.push(error.candidateId);
+
+        ctx.issues.push({
+          code: 'custom',
+          input: election,
+          message: error.message,
+          path,
+        });
       }
     }
 
@@ -1032,6 +975,8 @@ export const ElectionSchema = z
           candidateIndex,
           candidate,
         ] of contest.candidates.entries()) {
+          const seenParties: string[] = [];
+
           for (const [i, partyId] of (candidate.partyIds ?? []).entries()) {
             if (!definedPartyIds.has(partyId)) {
               ctx.issues.push({
@@ -1052,6 +997,23 @@ export const ElectionSchema = z
                 input: election,
               });
             }
+
+            if (seenParties.includes(partyId)) {
+              ctx.issues.push({
+                code: 'custom',
+                path: [
+                  'contests',
+                  contestIndex,
+                  'candidates',
+                  candidateIndex,
+                  'partyIds',
+                  i,
+                ],
+                message: `Candidate party '${partyId}' is repeated.`,
+                input: election,
+              });
+            }
+            seenParties.push(partyId);
           }
         }
       }
@@ -1076,6 +1038,108 @@ export const ElectionSchema = z
     }
   }) satisfies z.ZodType<Election>;
 export type OptionalElection = Optional<Election>;
+
+/** {@link validateCandidateOrderings} error. */
+export interface CandidateOrderingValidationError {
+  readonly candidateId?: string;
+  readonly contestId: string;
+  readonly message: string;
+}
+
+/**
+ * Validates candidate orderings for a ballot style against the corresponding
+ * election contests.
+ */
+export function validateCandidateOrderings(p: {
+  contestsById: ReadonlyMap<ContestId, Contest>;
+  orderings: CandidateOrderings;
+}): CandidateOrderingValidationError[] {
+  const errors: CandidateOrderingValidationError[] = [];
+
+  /* eslint-disable @typescript-eslint/no-non-null-assertion */
+  for (const contestId of Object.keys(p.orderings)) {
+    const contest = p.contestsById.get(contestId);
+    if (!contest) {
+      errors.push({ contestId, message: 'No matching contest found.' });
+      continue;
+    }
+
+    if (contest.type !== 'candidate') {
+      errors.push({ contestId, message: 'Non-candidate contest ordering.' });
+      continue;
+    }
+
+    const candidateInstanceCounts = contest.candidates.map(() => 0);
+    const hasInstanceWithNoParty = contest.candidates.map(() => false);
+    const aggregatePartyIds = contest.candidates.map((): PartyId[] => []);
+
+    for (const o of p.orderings[contestId]!) {
+      const i = contest.candidates.findIndex((c) => c.id === o.id);
+      if (i < 0) {
+        errors.push({
+          candidateId: o.id,
+          contestId,
+          message: 'Ordered candidate not found in base contest.',
+        });
+        continue;
+      }
+
+      candidateInstanceCounts[i]! += 1;
+      if (o.partyIds?.length) aggregatePartyIds[i]!.push(...o.partyIds);
+      else hasInstanceWithNoParty[i] = true;
+    }
+
+    for (const [i, candidate] of contest.candidates.entries()) {
+      if (candidateInstanceCounts[i] === 0) {
+        errors.push({
+          candidateId: candidate.id,
+          contestId,
+          message: 'Candidate missing in ballot style ordering.',
+        });
+        continue;
+      }
+
+      if (!partyIdsMatchCandidate(candidate, aggregatePartyIds[i]!)) {
+        const expectedPartiesStr = (candidate.partyIds ?? []).join(', ');
+        const partiesStr = aggregatePartyIds[i]!.join(', ');
+
+        errors.push({
+          candidateId: candidate.id,
+          contestId,
+          message: [
+            `Ordered candidate has aggregate party IDs [${partiesStr}],`,
+            `but candidate in contest has party IDs [${expectedPartiesStr}].`,
+          ].join(' '),
+        });
+      }
+
+      if (candidateInstanceCounts[i]! > 1 && hasInstanceWithNoParty[i]) {
+        errors.push({
+          candidateId: candidate.id,
+          contestId,
+          message: candidate.partyIds?.length
+            ? 'Party ID missing for a cross-endorsed candidate instance.'
+            : 'Duplicate ordered candidate instance.',
+        });
+      }
+    }
+  }
+  /* eslint-enable @typescript-eslint/no-non-null-assertion */
+
+  return errors;
+}
+
+function partyIdsMatchCandidate(
+  candidate: Candidate,
+  ids: readonly PartyId[]
+): boolean {
+  const expected = candidate.partyIds ?? [];
+  return (
+    expected.length === ids.length &&
+    expected.every((id) => ids.includes(id)) &&
+    ids.every((id) => expected.includes(id))
+  );
+}
 
 /**
  * @deprecated `Election` alone no longer describes a configuration: ballot
