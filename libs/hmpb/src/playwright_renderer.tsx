@@ -16,6 +16,11 @@ import {
   createDocument,
   createScratchpad,
 } from './renderer.js';
+import {
+  isFontServingEnabled,
+  startServingFonts,
+  stopServingFonts,
+} from './served_fonts.js';
 
 function launchChromium() {
   return chromium.launch({
@@ -168,6 +173,8 @@ export async function createPlaywrightRendererPool(
   // @coverage-defer
   size = cpus().length || 2
 ): Promise<RendererPool> {
+  let servesFonts = isFontServingEnabled();
+  if (servesFonts) await startServingFonts();
   const browser = await launchChromium();
   const context = await browser.newContext();
 
@@ -229,6 +236,10 @@ export async function createPlaywrightRendererPool(
     async close(): Promise<void> {
       await context.close();
       await browser.close();
+      if (servesFonts) {
+        servesFonts = false;
+        await stopServingFonts();
+      }
     },
   };
 }

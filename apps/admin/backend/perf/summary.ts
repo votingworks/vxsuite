@@ -17,6 +17,7 @@ export interface RunConfig {
   readonly election: string;
   readonly pool: number;
   readonly modes: readonly string[];
+  readonly variant?: string;
   readonly stats: {
     readonly ballotStyles: number;
     readonly precincts: number;
@@ -32,6 +33,7 @@ export interface RunResult {
   readonly error?: string;
   readonly phases: PhaseTimes;
   readonly pdfCount: number;
+  readonly ballotHash?: string;
   readonly pagesPerPdf?: { min: number; max: number };
   readonly outputBytes?: number;
 }
@@ -242,6 +244,7 @@ export function summarizeRun(dir: string): RunSummary | undefined {
     label: config.label,
     election: config.election,
     pool: config.pool,
+    variant: config.variant ?? 'baseline',
     modes: config.modes.join('+'),
     styles: config.stats.ballotStyles,
     precincts: config.stats.precincts,
@@ -249,6 +252,7 @@ export function summarizeRun(dir: string): RunSummary | undefined {
     expected_pdfs: config.expectedPdfs,
     pdfs,
     status: result?.status ?? 'crashed',
+    ballot_hash: result?.ballotHash?.slice(0, 7),
     error: result?.error,
     wall_s: seconds(wallMs),
     setup_s: seconds(
@@ -428,6 +432,7 @@ const TABLE_COLUMNS: Array<[string, string]> = [
   ['run', 'Run'],
   ['election', 'Election'],
   ['pool', 'Pool'],
+  ['variant', 'Variant'],
   ['modes', 'Modes'],
   ['styles', 'Styles'],
   ['pdfs', 'PDFs'],
@@ -438,6 +443,7 @@ const TABLE_COLUMNS: Array<[string, string]> = [
   ['package_s', 'Package s'],
   ['s_per_pdf', 's/PDF'],
   ['pages_per_pdf', 'Pages'],
+  ['ballot_hash', 'Ballot hash'],
   ['peak_tree_pss_mb', 'Peak tree PSS MB'],
   ['peak_node_pss_mb', 'Peak node PSS MB'],
   ['peak_heap_used_mb', 'Peak heap MB'],

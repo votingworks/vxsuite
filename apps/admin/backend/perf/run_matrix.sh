@@ -2,6 +2,15 @@
 set -uo pipefail
 
 PERF_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+if [[ -z ${VX_PERF_INHIBITED:-} ]] &&
+  systemd-inhibit --what=idle:sleep --who=vx-perf --why=check true 2>/dev/null; then
+  VX_PERF_INHIBITED=1 exec systemd-inhibit --what=idle:sleep \
+    --who=vx-perf --why='Rendering benchmarks' "$0" "$@"
+fi
+if [[ -z ${VX_PERF_INHIBITED:-} ]]; then
+  echo "warning: couldn't block sleep; keep the machine awake yourself" >&2
+fi
 RESULTS="${RESULTS:-$PERF_DIR/results/matrix-$(date +%Y%m%d-%H%M%S)-$(hostname)}"
 BASELINE_S="${BASELINE_S:-60}"
 COOLDOWN_S="${COOLDOWN_S:-60}"

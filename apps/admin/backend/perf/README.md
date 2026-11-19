@@ -39,9 +39,10 @@ Before measuring:
 - Plug in power and keep the lid open. Thermal behavior differs on battery.
 - Stop any running VxAdmin dev server (`pnpm kill-dev` from the repo root),
   unless you're doing the UI run below.
-- Stop the screen from locking or sleeping during long runs. Run the commands
-  under `systemd-inhibit --what=idle:sleep ...` or turn off the screen lock in
-  settings.
+- Keep the machine from sleeping. `run_matrix.sh` and `run_experiments.sh` block
+  idle and sleep themselves with `systemd-inhibit`. For a single `run.ts`, run
+  it under `systemd-inhibit --what=idle:sleep node run.ts ...`. Keep the lid
+  open.
 
 ## Commands
 
@@ -105,6 +106,45 @@ To re-summarize any results directory:
 ```bash
 node summarize.ts results/matrix-<timestamp>-<host>
 ```
+
+### Experiments
+
+```bash
+./run_experiments.sh
+```
+
+This tries possible speedups against the same baseline, one run at a time with
+the same idle baseline and cooldowns as the matrix:
+
+| Run                                    | What it tests                                                                                               |
+| -------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| Shawnee general, pool 4                | Baseline (today's code)                                                                                     |
+| `--fonts served`                       | Fonts loaded once per browser from a local server instead of inlined (about 810 KB of base64) in every page |
+| `--seal none`                          | The most the 37 KB seal can cost                                                                            |
+| `--pool 6`, `--pool 8`                 | Whether more Chromium pages still help                                                                      |
+| `--pool 6 --fonts served`              | Whether serving fonts changes the best pool size                                                            |
+| `--pool 2 --shards 2`, `--shards 3`    | Splitting ballot styles across 2 or 3 Node processes, each with 2 pages (Brian's sharding)                  |
+| `--pool 2 --shards 2 --fonts served`   | Both together                                                                                               |
+| System limit, pool 4, `--fonts served` | The font fix at scale; compare with the matrix's system-limit run                                           |
+
+`INCLUDE_SANTA_CLARA=1` adds Santa Clara at pool 4, inline and served (about 1.5
+h more). `INCLUDE_SYSTEM_LIMIT=0`, `REPEAT`, `PRECINCTS`, `COOLDOWN_S` and
+`RESULTS` work as in the matrix. Expect about 30 min for the Shawnee runs plus
+25–40 min for system limit.
+
+The switches also work on `run.ts` directly:
+
+- `--fonts served` sets `VX_HMPB_FONTS=served`, which makes
+  `createPlaywrightRendererPool` in `libs/hmpb` start a small HTTP server on
+  127.0.0.1 for the Roboto fonts and point the ballot styles at it, so Chromium
+  fetches and decodes each font once and caches it. Ballots are unchanged:
+  served and inline runs give the same ballot hash (`ballot_hash` in the
+  summary) and identical word positions. This is the only change to production
+  code on this branch, and it's off unless the variable is set.
+- `--shards N` renders ballots only (layout and PDFs, no zips or election
+  package), since each process builds its own election definition. Compare its
+  layout and render times, not package time. Memory includes all the shard
+  processes (`node-worker` in the per-role fields).
 
 ### Inspect a generated election
 

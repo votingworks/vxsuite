@@ -485,3 +485,15 @@ export function generateElection(spec: ElectionSpec): GeneratedElection {
     },
   };
 }
+
+/** Replaces the election's seal: `none` removes it, `fixture` keeps it. */
+export function withSeal(election: Election, seal: string): Election {
+  switch (seal) {
+    case 'fixture':
+      return election;
+    case 'none':
+      return { ...election, seal: '' };
+    default:
+      throw new Error(`Unknown seal option: ${seal}`);
+  }
+}

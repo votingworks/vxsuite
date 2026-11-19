@@ -178,6 +178,7 @@ function processRole(pid: number, rootPid?: number): string {
     return `chromium-${type === 'gpu-process' ? 'gpu' : type}`;
   }
   if (/chrom|headless_shell/.test(program)) return 'chromium-browser';
+  if (program === 'node') return 'node-worker';
   return `other-${program || 'unknown'}`;
 }
 
@@ -373,6 +374,10 @@ function main(): void {
             }
             previousMainThreadTicks = mainThread.cpuTicks;
           }
+        } else if (role === 'node-worker') {
+          totals.nodeRss += memory.rssKb;
+          totals.nodePss += memory.pssKb;
+          totals.nodeCpu += cpuPct;
         } else if (role.startsWith('chromium')) {
           totals.chromiumRss += memory.rssKb;
           totals.chromiumPss += memory.pssKb;
