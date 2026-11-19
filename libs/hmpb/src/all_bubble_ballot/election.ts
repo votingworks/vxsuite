@@ -1,10 +1,13 @@
-import { DateWithoutTime, range } from '@votingworks/basics';
+import { assert, assertDefined, DateWithoutTime } from '@votingworks/basics';
 import type {
   BallotStyleGroupId,
   BallotStyleId,
   CandidateContest,
+  ContestPosition,
   DistrictId,
   Election,
+  GridRect,
+  OptionPosition,
 } from '@votingworks/types';
 import type { AllBubbleBallotConfig } from './config.js';
 
@@ -16,50 +19,37 @@ export function candidateId(page: number, row: number, column: number): string {
   return `test-candidate-page-${page}-row-${row}-column-${column}`;
 }
 
-export function createElection({
-  ballotPaperSize,
-  gridColumns,
-  gridRows,
-  footerRowHeight,
-  numPages,
-}: AllBubbleBallotConfig): Election {
+export function createElection(config: AllBubbleBallotConfig): Election {
   const districtId = 'test-district' as DistrictId;
   const precinctId = 'test-precinct';
 
-  const gridPositions = range(1, numPages + 1).flatMap((page) =>
-    range(1, gridRows - footerRowHeight - 1).flatMap((row) =>
-      range(1, gridColumns - 1).map((column) => ({
-        page,
-        row,
-        column,
-      }))
-    )
-  );
+  const positions = allBubbleBallotPositions(config).flat();
   const ballotStyleId = 'sheet-1' as BallotStyleId;
   const ballotStyleGroupId = 'sheet-1' as BallotStyleGroupId;
 
-  const contests: CandidateContest[] = range(1, 3).map((page) => {
-    const pageGridPositions = gridPositions.filter(
-      (position) => position.page === page
-    );
+  const contests: CandidateContest[] = positions.map((pagePositions, i) => {
+    assert(pagePositions.length === 1, 'expected one contest per page');
+    const contestPositions = assertDefined(pagePositions[0]);
+
+    const page = i + 1;
     return {
-      id: contestId(page),
+      id: contestPositions.contestId,
       type: 'candidate',
       title: `Test Contest - Page ${page}`,
       districtId,
-      candidates: pageGridPositions.map(({ row, column }) => ({
-        id: candidateId(page, row, column),
-        name: `Page ${page}, Row ${row}, Column ${column}`,
+      candidates: contestPositions.options.map((o) => ({
+        id: o.optionId,
+        name: `Page ${page}, Row ${o.bubbleCenter.row}, Column ${o.bubbleCenter.column}`,
       })),
       allowWriteIns: false,
-      seats: pageGridPositions.length,
+      seats: contestPositions.options.length,
     };
   });
 
   return {
     id: 'all-bubble-ballot-election',
     ballotLayout: {
-      paperSize: ballotPaperSize,
+      paperSize: config.ballotPaperSize,
       metadataEncoding: 'qr-code',
     },
     ballotStyles: [
@@ -105,4 +95,46 @@ export function createElection({
     seal: '',
     ballotStrings: {},
   };
+}
+
+type NonWriteInContestPosition = Omit<ContestPosition, 'options'> & {
+  readonly options: readonly OptionPosition[];
+};
+
+type NonWriteInSheetPositions = readonly [
+  front: readonly NonWriteInContestPosition[],
+  back: readonly NonWriteInContestPosition[],
+];
+
+export function allBubbleBallotPositions(
+  config: AllBubbleBallotConfig
+): NonWriteInSheetPositions[] {
+  const lastCol = config.gridColumns - 2;
+  const lastRow = config.gridRows - config.footerRowHeight - 2;
+
+  const contestBounds: GridRect = {
+    column: 1,
+    row: 1,
+    width: lastCol - 1,
+    height: lastRow - 1,
+  };
+
+  function positionsForPage(page: 1 | 2): NonWriteInContestPosition {
+    const options: OptionPosition[] = [];
+
+    for (let row = 1; row <= lastRow; row += 1) {
+      for (let column = 1; column <= lastCol; column += 1) {
+        options.push({
+          bubbleCenter: { column, row },
+          bounds: { column, row, height: 0, width: 0 },
+          optionId: candidateId(page, row, column),
+          type: 'option',
+        });
+      }
+    }
+
+    return { bounds: contestBounds, contestId: contestId(page), options };
+  }
+
+  return [[[positionsForPage(1)], [positionsForPage(2)]]];
 }

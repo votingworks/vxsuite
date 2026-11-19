@@ -5,7 +5,11 @@ import {
   deepEqual,
   ok,
 } from '@votingworks/basics';
-import type { Contest, OptionalCandidateOrderings } from '@votingworks/types';
+import type {
+  Contest,
+  OptionalCandidateOrderings,
+  SheetPositions,
+} from '@votingworks/types';
 import type { BaseStylesProps } from './base_styles.js';
 import type { Renderer, RenderDocument, RenderScratchpad } from './renderer.js';
 import {
@@ -71,6 +75,13 @@ export interface BallotPageTemplate<P extends object> {
   ) => readonly Contest[];
   contentComponent: ContentComponent<P>;
   isAllBubbleBallot?: boolean;
+
+  /**
+   * Optional override for bubble position extraction, for ballots with
+   * pre-computed positions (e.g. all-bubble ballot). If absent, positions are
+   * queried directly from the rendered ballot document.
+   */
+  ballotPositions?: (props: P) => SheetPositions[];
 }
 
 /**
