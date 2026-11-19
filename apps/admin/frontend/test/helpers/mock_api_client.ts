@@ -56,6 +56,7 @@ import {
   type Tabulation,
   DEV_MACHINE_ID,
   type CandidateOrderings,
+  TEST_JURISDICTION,
 } from '@votingworks/types';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
@@ -302,6 +303,7 @@ export function createApiMock(
       machineConfig: MachineConfig = {
         machineId: DEV_MACHINE_ID,
         codeVersion: 'dev',
+        jurisdiction: TEST_JURISDICTION,
       }
     ) {
       apiClient.getMachineConfig.expectCallWith().resolves(machineConfig);

@@ -14,6 +14,7 @@ import {
   type ElectionDefinition,
   type Id,
   type SystemSettings,
+  TEST_JURISDICTION,
 } from '@votingworks/types';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
@@ -71,6 +72,7 @@ export function createClientApiMock(
       machineConfig: MachineConfig = {
         machineId: DEV_MACHINE_ID,
         codeVersion: 'dev',
+        jurisdiction: TEST_JURISDICTION,
       }
     ) {
       apiClient.getMachineConfig.expectCallWith().resolves(machineConfig);

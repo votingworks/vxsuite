@@ -54,6 +54,34 @@ describe('ElectionInfoBar', () => {
 
     const machineIdLabel = screen.getByText('Machine ID');
     expect(machineIdLabel.parentElement?.lastChild).toHaveTextContent('0000');
+
+    expect(screen.queryByText('Machine Jurisdiction')).not.toBeInTheDocument();
+  });
+
+  test('Renders machine jurisdiction between version and machine ID', () => {
+    render(
+      <ElectionInfoBar
+        machineId="0000"
+        machineJurisdiction="nh.backup"
+        codeVersion="DEV"
+        mode="admin"
+      />
+    );
+    const jurisdictionLabel = screen.getByText('Machine Jurisdiction');
+    expect(jurisdictionLabel.parentElement?.lastChild).toHaveTextContent(
+      'nh.backup'
+    );
+
+    expect(
+      screen
+        .getAllByText(/^(Version|Machine Jurisdiction|Machine ID)$/)
+        .map((label) => label.textContent)
+    ).toEqual(['Version', 'Machine Jurisdiction', 'Machine ID']);
+  });
+
+  test('Hides machine jurisdiction in voter mode', () => {
+    render(<ElectionInfoBar machineJurisdiction="nh.backup" mode="voter" />);
+    expect(screen.queryByText('nh.backup')).not.toBeInTheDocument();
   });
 
   test('Renders lifetime sheet count outside voter mode', () => {

@@ -7,6 +7,7 @@ import {
   readElectionGeneralDefinition,
 } from '@votingworks/fixtures';
 import { LogEventId } from '@votingworks/logging';
+import { DEV_JURISDICTION } from '@votingworks/auth';
 import { Buffer } from 'node:buffer';
 import { readdirSync } from 'node:fs';
 import {
@@ -68,12 +69,14 @@ test('uses machine config from env', async () => {
     ...originalEnv,
     VX_MACHINE_ID: 'test-machine-id',
     VX_CODE_VERSION: 'test-code-version',
+    VX_MACHINE_JURISDICTION: 'test-jurisdiction',
   };
 
   const { apiClient } = buildTestEnvironment();
   expect(await apiClient.getMachineConfig()).toEqual({
     machineId: 'test-machine-id',
     codeVersion: 'test-code-version',
+    jurisdiction: 'test-jurisdiction',
   });
 
   process.env = originalEnv;
@@ -84,6 +87,7 @@ test('uses default machine config if not set', async () => {
   expect(await apiClient.getMachineConfig()).toEqual({
     machineId: DEV_MACHINE_ID,
     codeVersion: 'dev',
+    jurisdiction: DEV_JURISDICTION,
   });
 });
 

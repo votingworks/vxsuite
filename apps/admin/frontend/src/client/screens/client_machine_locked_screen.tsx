@@ -37,6 +37,7 @@ function LockScreenFooter(): JSX.Element | null {
         electionDefinition={electionDefinition}
         electionPackageHash={electionPackageHash}
         codeVersion={machineConfig.codeVersion}
+        machineJurisdiction={machineConfig.jurisdiction}
         machineId={machineConfig.machineId}
       />
     );
@@ -47,6 +48,7 @@ function LockScreenFooter(): JSX.Element | null {
       <SystemInfo
         mode="admin"
         codeVersion={machineConfig.codeVersion}
+        machineJurisdiction={machineConfig.jurisdiction}
         machineId={machineConfig.machineId}
       />
     </InfoBar>

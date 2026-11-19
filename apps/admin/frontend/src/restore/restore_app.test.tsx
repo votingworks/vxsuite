@@ -6,7 +6,11 @@ import {
   mockSystemAdministratorUser,
 } from '@votingworks/test-utils';
 import type { BackupListing, RestoreStatus } from '@votingworks/admin-backend';
-import { DEV_MACHINE_ID, type DippedSmartCardAuth } from '@votingworks/types';
+import {
+  DEV_MACHINE_ID,
+  type DippedSmartCardAuth,
+  TEST_JURISDICTION,
+} from '@votingworks/types';
 import { AUTH_STATUS_POLLING_INTERVAL_MS } from '@votingworks/ui';
 import { DEFAULT_QUERY_REFETCH_INTERVAL } from '../utils/globals.js';
 import {
@@ -80,6 +84,10 @@ test('asks for a system administrator card while locked', async () => {
   screen.getByText('Insert system administrator card to unlock.');
   screen.getByText('Restore Mode');
   screen.getByText(DEV_MACHINE_ID);
+  const jurisdictionLabel = screen.getByText('Machine Jurisdiction');
+  expect(jurisdictionLabel.parentElement?.lastChild).toHaveTextContent(
+    TEST_JURISDICTION
+  );
   screen.getButton('Exit Restore Mode');
 });
 

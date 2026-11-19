@@ -88,6 +88,7 @@ interface SystemInfoProps {
   electionDefinition?: ElectionDefinition;
   electionPackageHash?: string;
   codeVersion?: string;
+  machineJurisdiction?: string;
   machineId?: string;
   lifetimeSheetsCounted?: number;
 }
@@ -98,6 +99,7 @@ export function SystemInfo({
   electionDefinition,
   electionPackageHash,
   codeVersion,
+  machineJurisdiction,
   machineId,
   lifetimeSheetsCounted,
 }: SystemInfoProps): JSX.Element {
@@ -115,6 +117,15 @@ export function SystemInfo({
       <Caption noWrap>
         <LabelledText label="Version">
           <Font weight="bold">{codeVersion}</Font>
+        </LabelledText>
+      </Caption>
+    ) : null;
+
+  const machineJurisdictionInfo =
+    mode !== 'voter' && machineJurisdiction ? (
+      <Caption noWrap>
+        <LabelledText label="Machine Jurisdiction">
+          <Font weight="bold">{machineJurisdiction}</Font>
         </LabelledText>
       </Caption>
     ) : null;
@@ -145,6 +156,7 @@ export function SystemInfo({
     <SystemInfoContainer>
       {lifetimeSheetsCountedInfo}
       {codeVersionInfo}
+      {machineJurisdictionInfo}
       {machineIdInfo}
       {electionIdInfo}
     </SystemInfoContainer>
@@ -156,6 +168,7 @@ export interface ElectionInfoBarProps {
   electionDefinition?: ElectionDefinition;
   electionPackageHash?: string;
   codeVersion?: string;
+  machineJurisdiction?: string;
   machineId?: string;
   pollingPlaceId?: string;
   lifetimeSheetsCounted?: number;
@@ -166,6 +179,7 @@ export function ElectionInfoBar({
   electionDefinition,
   electionPackageHash,
   codeVersion,
+  machineJurisdiction,
   machineId,
   pollingPlaceId,
   lifetimeSheetsCounted,
@@ -183,6 +197,7 @@ export function ElectionInfoBar({
         electionDefinition={electionDefinition}
         electionPackageHash={electionPackageHash}
         codeVersion={codeVersion}
+        machineJurisdiction={machineJurisdiction}
         machineId={machineId}
         lifetimeSheetsCounted={lifetimeSheetsCounted}
       />
@@ -207,7 +222,9 @@ export function VerticalElectionInfoBar({
   pollingPlaceId,
   lifetimeSheetsCounted,
   inverse,
-}: ElectionInfoBarProps & { inverse?: boolean }): JSX.Element {
+}: Omit<ElectionInfoBarProps, 'machineJurisdiction'> & {
+  inverse?: boolean;
+}): JSX.Element {
   const lifetimeSheetsCountedInfo = mode !== 'voter' &&
     typeof lifetimeSheetsCounted === 'number' && (
       <div>

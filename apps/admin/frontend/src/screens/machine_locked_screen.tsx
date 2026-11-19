@@ -37,6 +37,7 @@ export function MachineLockedScreen({
         electionDefinition={electionDefinition}
         electionPackageHash={electionPackageHash}
         codeVersion={machineConfig.codeVersion}
+        machineJurisdiction={machineConfig.jurisdiction}
         machineId={machineConfig.machineId}
       />
     </Screen>

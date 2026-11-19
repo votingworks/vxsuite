@@ -8,6 +8,7 @@ import {
   type DippedSmartCardAuth,
   constructElectionKey,
   DEV_MACHINE_ID,
+  TEST_JURISDICTION,
 } from '@votingworks/types';
 
 import { type QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -113,6 +114,7 @@ export function renderInAppContext(
     machineConfig = {
       machineId: DEV_MACHINE_ID,
       codeVersion: 'dev',
+      jurisdiction: TEST_JURISDICTION,
     },
     isElectionDefinitionEnabled = false,
     apiMock,

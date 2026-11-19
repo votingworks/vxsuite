@@ -91,6 +91,7 @@ test('getMachineConfig returns machine config', async () => {
   expect(config).toEqual({
     machineId: DEV_MACHINE_ID,
     codeVersion: 'dev',
+    jurisdiction: DEV_JURISDICTION,
   });
 });
 

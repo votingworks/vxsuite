@@ -19,6 +19,7 @@ import {
   anyPollingPlace,
   constructElectionKey,
   formatElectionHashes,
+  TEST_JURISDICTION,
 } from '@votingworks/types';
 import {
   fireEvent,
@@ -163,6 +164,10 @@ test('authentication works', async () => {
   renderApp();
 
   await screen.findByText('VxAdmin Locked');
+  const jurisdictionLabel = screen.getByText('Machine Jurisdiction');
+  expect(jurisdictionLabel.parentElement?.lastChild).toHaveTextContent(
+    TEST_JURISDICTION
+  );
 
   // Disconnect card reader
   apiMock.setAuthStatus({
@@ -234,6 +239,7 @@ test('authentication works', async () => {
     sessionExpiresAt: mockSessionExpiresAt(),
   });
   await screen.findByText('Lock Machine');
+  expect(screen.queryByText('Machine Jurisdiction')).not.toBeInTheDocument();
 
   // Lock the machine
   apiMock.expectLogOut();

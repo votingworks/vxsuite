@@ -2,7 +2,11 @@ import { createMemoryHistory, type MemoryHistory } from 'history';
 import type React from 'react';
 import { Router } from 'react-router-dom';
 
-import { type DippedSmartCardAuth, DEV_MACHINE_ID } from '@votingworks/types';
+import {
+  type DippedSmartCardAuth,
+  DEV_MACHINE_ID,
+  TEST_JURISDICTION,
+} from '@votingworks/types';
 
 import { type QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { MachineConfig } from '@votingworks/admin-backend';
@@ -56,6 +60,7 @@ export function renderInClientContext(
     machineConfig = {
       machineId: DEV_MACHINE_ID,
       codeVersion: 'dev',
+      jurisdiction: TEST_JURISDICTION,
     },
     apiMock,
     queryClient = createQueryClient(),
