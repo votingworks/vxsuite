@@ -35,9 +35,24 @@ export interface MissingCargoBinaryOutputIssue {
   readonly expectedOutput: string;
 }
 
+/**
+ * A package's crate belongs to a Cargo workspace whose `Cargo.toml` or
+ * `Cargo.lock` lies outside the package, so turbo doesn't hash it unless it's a
+ * `build:self` input. Without it, changing the workspace's dependency versions
+ * or lockfile would leave turbo reporting a (stale) cache hit.
+ */
+export interface UntrackedCargoWorkspaceFileIssue {
+  readonly kind: 'UntrackedCargoWorkspaceFile';
+  readonly packageName: string;
+  readonly packageDir: string;
+  readonly workspaceFile: string;
+  readonly suggestedInput: string;
+}
+
 export type ValidationIssue =
   | UntrackedCargoPathDependencyIssue
-  | MissingCargoBinaryOutputIssue;
+  | MissingCargoBinaryOutputIssue
+  | UntrackedCargoWorkspaceFileIssue;
 
 export type ValidationIssueKind = ValidationIssue['kind'];
 
@@ -134,15 +149,20 @@ function turboBuildSelfInputs(pkgDir: string): string[] {
   return readTurboJson(turboJsonPath).tasks?.['build:self']?.inputs ?? [];
 }
 
+/** Whether any of the turbo `inputs` covers `path`, a file or directory. */
 function inputsCover(
+  root: string,
   pkgDir: string,
   inputs: readonly string[],
-  depDir: string
+  path: string
 ): boolean {
   return inputs.some((input) => {
     if (input === '$TURBO_DEFAULT$') return false;
-    const base = resolve(pkgDir, input.replace(/[/\\]\*.*$/, ''));
-    return depDir === base || depDir.startsWith(`${base}/`);
+    const base = resolve(
+      pkgDir,
+      input.replace(/^\$TURBO_ROOT\$/, root).replace(/[/\\]\*.*$/, '')
+    );
+    return path === base || path.startsWith(`${base}/`);
   });
 }
 
@@ -160,6 +180,45 @@ function rustBuildCommand(pkg: PnpmPackageInfo): string {
   return [scripts['build:self'], scripts['build:rust-addon']]
     .filter((script): script is string => typeof script === 'string')
     .join(' ');
+}
+
+/**
+ * The directory of the crate the package builds: the `--manifest-path` its
+ * build scripts pass to cargo or napi (e.g. `rust/Cargo.toml`), else the
+ * package itself.
+ */
+function cargoCrateDir(pkg: PnpmPackageInfo): string {
+  const manifestPath = rustBuildCommand(pkg).match(
+    /--manifest-path[ =](\S+)/
+  )?.[1];
+  return manifestPath ? dirname(resolve(pkg.path, manifestPath)) : pkg.path;
+}
+
+/**
+ * The root of the Cargo workspace a crate belongs to, if any: the crate itself
+ * if it declares `[workspace]`, else the nearest ancestor (up to `root`) whose
+ * `[workspace]` lists it in `members`. Like cargo, this takes the nearest
+ * workspace; unlike cargo, it doesn't expand globs in `members`.
+ */
+function cargoWorkspaceDir(root: string, crateDir: string): string | undefined {
+  for (let dir = crateDir; ; dir = dirname(dir)) {
+    const cargoTomlPath = join(dir, 'Cargo.toml');
+    const workspace = existsSync(cargoTomlPath)
+      ? asRecord(parseTomlFile(cargoTomlPath)['workspace'])
+      : undefined;
+    if (workspace) {
+      const members = workspace['members'];
+      const isMember =
+        dir === crateDir ||
+        (Array.isArray(members) &&
+          members.some(
+            (member) =>
+              typeof member === 'string' && resolve(dir, member) === crateDir
+          ));
+      return isMember ? dir : undefined;
+    }
+    if (dir === root || dir === dirname(dir)) return undefined;
+  }
 }
 
 /**
@@ -208,11 +267,13 @@ function outputsCover(outputs: readonly string[], relPath: string): boolean {
 }
 
 /**
- * Check that every Rust-building package's transitive Cargo `path` dependencies
- * are visible to turbo's cache invalidation — either as a pnpm workspace
- * dependency or as an explicit `build:self` input in the package's turbo.json.
+ * Check that the Cargo files outside a Rust-building package that its build
+ * reads are visible to turbo's cache invalidation: its transitive Cargo `path`
+ * dependencies, either as pnpm workspace dependencies or as explicit
+ * `build:self` inputs in the package's turbo.json, and its Cargo workspace's
+ * `Cargo.toml` and `Cargo.lock`, as explicit inputs.
  */
-function* checkCargoPathDepInputs(
+function* checkCargoInputs(
   root: string,
   workspacePackages: ReadonlyMap<string, PnpmPackageInfo>
 ): Generator<ValidationIssue> {
@@ -221,34 +282,46 @@ function* checkCargoPathDepInputs(
   for (const pkg of workspacePackages.values()) {
     if (!pkg.packageJson || !buildsRust(pkg)) continue;
     const pkgDir = pkg.path;
+    const crateDir = cargoCrateDir(pkg);
     const pkgDeps = {
       ...pkg.packageJson.dependencies,
       ...pkg.packageJson.devDependencies,
     };
     const inputs = turboBuildSelfInputs(pkgDir);
 
+    const workspaceDir = cargoWorkspaceDir(root, crateDir);
+    if (workspaceDir) {
+      for (const file of ['Cargo.toml', 'Cargo.lock']) {
+        const workspaceFile = join(workspaceDir, file);
+        if (workspaceFile.startsWith(`${pkgDir}/`)) continue;
+        if (inputsCover(root, pkgDir, inputs, workspaceFile)) continue;
+        yield {
+          kind: 'UntrackedCargoWorkspaceFile',
+          packageName: pkg.name,
+          packageDir: relative(root, pkgDir),
+          workspaceFile: relative(root, workspaceFile),
+          suggestedInput: relative(pkgDir, workspaceFile).split('\\').join('/'),
+        };
+      }
+    }
+
     for (const depDir of collectPathDepDirs(
-      pkgDir,
+      crateDir,
       workspacePathDeps,
       new Set()
     )) {
       // Tracked: the dependency lives inside the package itself.
       if (depDir === pkgDir || depDir.startsWith(`${pkgDir}/`)) continue;
 
-      // Tracked: it's a pnpm workspace dependency, so turbo hashes it via the
-      // package graph.
-      const depPackageJsonPath = join(depDir, 'package.json');
-      if (existsSync(depPackageJsonPath)) {
-        const depName = (
-          JSON.parse(readFileSync(depPackageJsonPath, 'utf-8')) as {
-            name?: string;
-          }
-        ).name;
-        if (depName && depName in pkgDeps) continue;
-      }
+      // Tracked: it's in a pnpm workspace dependency (e.g. its `rust/`
+      // directory), so turbo hashes it via the package graph.
+      const depPackage = [...workspacePackages.values()]
+        .filter(({ path }) => depDir === path || depDir.startsWith(`${path}/`))
+        .sort((a, b) => b.path.length - a.path.length)[0];
+      if (depPackage && depPackage.name in pkgDeps) continue;
 
       // Tracked only if declared in the package's turbo build:self inputs.
-      if (inputsCover(pkgDir, inputs, depDir)) continue;
+      if (inputsCover(root, pkgDir, inputs, depDir)) continue;
 
       yield {
         kind: 'UntrackedCargoPathDependency',
@@ -277,7 +350,7 @@ function* checkCargoBinaryOutputs(
     if (!profile) continue;
     const command = rustBuildCommand(pkg);
     const outputs = turboBuildSelfOutputs(pkg.path, root);
-    for (const binaryName of cargoBinaryNames(pkg.path)) {
+    for (const binaryName of cargoBinaryNames(cargoCrateDir(pkg))) {
       const cargoOutput = `target/${profile}/${binaryName}`;
       const expectedOutput = `build/${binaryName}`;
       if (
@@ -300,13 +373,13 @@ function* checkCargoBinaryOutputs(
 
 /**
  * Validate that per-package turbo.json configs keep turbo's cache correct for
- * Rust: Cargo path-dependency sources are tracked as inputs, and Cargo binaries
- * are copied into `build/`, a turbo output.
+ * Rust: Cargo path-dependency sources and Cargo workspace files are tracked as
+ * inputs, and Cargo binaries are copied into `build/`, a turbo output.
  */
 export function* checkConfig(
   root: string,
   workspacePackages: ReadonlyMap<string, PnpmPackageInfo>
 ): Generator<ValidationIssue> {
-  yield* checkCargoPathDepInputs(root, workspacePackages);
+  yield* checkCargoInputs(root, workspacePackages);
   yield* checkCargoBinaryOutputs(root, workspacePackages);
 }

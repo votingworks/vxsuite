@@ -131,6 +131,12 @@ export async function main({ stderr }: IO): Promise<number> {
         );
         break;
 
+      case 'UntrackedCargoWorkspaceFile':
+        stderr.write(
+          `${issue.packageDir}: Cargo workspace file "${issue.workspaceFile}" is not tracked by turbo. Add it to build:self inputs in ${issue.packageDir}/turbo.json, e.g. "inputs": ["$TURBO_DEFAULT$", "${issue.suggestedInput}"]\n`
+        );
+        break;
+
       case 'MissingCargoBinaryOutput':
         stderr.write(
           `${issue.packageDir}: Cargo binary "${issue.binaryName}" must be copied into build/ by build:self so it runs from there and turbo restores it on a cache hit, e.g. "... && mkdir -p build && cp ${issue.cargoOutput} ${issue.expectedOutput}"\n`
