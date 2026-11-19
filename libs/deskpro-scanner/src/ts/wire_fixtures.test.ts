@@ -74,6 +74,13 @@ const EXPECTED: Record<string, Expected> = {
   'response.error.alreadyConnected': {
     response: { kind: 'error', code: 'alreadyConnected', message: '' },
   },
+  'response.error.scannerInUse': {
+    response: {
+      kind: 'error',
+      code: 'scannerInUse',
+      message: 'ScannerConnect failed',
+    },
+  },
   'response.error.driver': {
     response: { kind: 'error', code: 'driver', message: 'ScanStart failed' },
   },

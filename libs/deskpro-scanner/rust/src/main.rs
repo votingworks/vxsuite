@@ -416,6 +416,10 @@ fn error_response(error: &driver::Error) -> ResponseBody {
     let code = match error {
         driver::Error::Load(_) => ErrorCode::DriverUnavailable,
         driver::Error::AlreadyConnected => ErrorCode::AlreadyConnected,
+        driver::Error::Api {
+            code: driver::ErrorCode(ffi::ERR_SCANNER_CONNECTED),
+            ..
+        } => ErrorCode::ScannerInUse,
         driver::Error::InteriorNul(_) => ErrorCode::BadRequest,
         driver::Error::Api { .. } => ErrorCode::Driver,
     };
@@ -519,6 +523,26 @@ mod tests {
             ffi::CTYPE_STATUS,
             ffi::ERR_BEGINDATAXFER
         )));
+    }
+
+    #[test]
+    fn a_connection_held_by_another_client_means_the_scanner_is_in_use() {
+        let api_error = |code| driver::Error::Api {
+            function: "ScannerConnect",
+            code: driver::ErrorCode(code),
+        };
+        let code = |response| match response {
+            ResponseBody::Error { code, .. } => code,
+            other => panic!("expected an error, got {other:?}"),
+        };
+        assert_eq!(
+            code(error_response(&api_error(ffi::ERR_SCANNER_CONNECTED))),
+            ErrorCode::ScannerInUse
+        );
+        assert_eq!(
+            code(error_response(&api_error(ffi::ERR_SCANNER_NOTREADY))),
+            ErrorCode::Driver
+        );
     }
 
     #[test]

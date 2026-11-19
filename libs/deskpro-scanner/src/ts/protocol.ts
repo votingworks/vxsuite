@@ -178,6 +178,7 @@ const ErrorCodeSchema = z.enum([
   'driverUnavailable',
   'notConnected',
   'alreadyConnected',
+  'scannerInUse',
   'driver',
   'badRequest',
   'other',

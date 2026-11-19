@@ -149,6 +149,8 @@ pub enum ErrorCode {
     DriverUnavailable,
     NotConnected,
     AlreadyConnected,
+    /// The scanner still holds another client's connection.
+    ScannerInUse,
     /// The driver returned a non-zero code.
     Driver,
     /// The command cannot be run in the current state.
@@ -369,6 +371,10 @@ mod tests {
             (
                 "error.alreadyConnected",
                 error(ErrorCode::AlreadyConnected, ""),
+            ),
+            (
+                "error.scannerInUse",
+                error(ErrorCode::ScannerInUse, "ScannerConnect failed"),
             ),
             ("error.driver", error(ErrorCode::Driver, "ScanStart failed")),
             ("error.badRequest", error(ErrorCode::BadRequest, "")),
