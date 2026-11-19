@@ -1,9 +1,8 @@
-import { existsSync, readFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { existsSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
-import { parse as parseToml } from '@iarna/toml';
 import * as ts from 'typescript';
 import type { PnpmPackageInfo } from '@votingworks/monorepo-utils';
-import { findCargoTomlFiles } from './cargo.ts';
 
 /**
  * A package whose turbo build compiles Rust (napi/cargo) depends, via a Cargo
@@ -77,75 +76,73 @@ export type ValidationIssue =
 
 export type ValidationIssueKind = ValidationIssue['kind'];
 
-const CARGO_DEP_SECTIONS = [
-  'dependencies',
-  'build-dependencies',
-  'dev-dependencies',
-] as const;
-
-function parseTomlFile(path: string): Record<string, unknown> {
-  return parseToml(readFileSync(path, 'utf-8')) as Record<string, unknown>;
-}
-
-function asRecord(value: unknown): Record<string, unknown> | undefined {
-  return typeof value === 'object' && value !== null
-    ? (value as Record<string, unknown>)
-    : undefined;
+/** The parts of `cargo metadata --no-deps` output these checks use. */
+interface CargoMetadata {
+  readonly workspace_root: string;
+  readonly packages: ReadonlyArray<{
+    readonly manifest_path: string;
+    readonly dependencies: ReadonlyArray<{ readonly path?: string }>;
+  }>;
 }
 
 /**
- * Map of `[workspace.dependencies]` path-dependency name -> resolved absolute
- * directory, gathered across every Cargo.toml so `dep.workspace = true`
- * references resolve regardless of which workspace defines them.
+ * Reads `cargo metadata` for the Cargo workspace containing `manifestPath`,
+ * caching it under each member's manifest so each workspace is read once.
  */
-function buildWorkspacePathDeps(
-  cargoTomlPaths: readonly string[]
-): Map<string, string> {
-  const map = new Map<string, string>();
-  for (const cargoTomlPath of cargoTomlPaths) {
-    const workspace = asRecord(parseTomlFile(cargoTomlPath)['workspace']);
-    const deps = asRecord(workspace?.['dependencies']);
-    if (!deps) continue;
-    for (const [name, value] of Object.entries(deps)) {
-      const path = asRecord(value)?.['path'];
-      if (typeof path === 'string') {
-        map.set(name, resolve(dirname(cargoTomlPath), path));
-      }
-    }
+function readCargoMetadata(
+  manifestPath: string,
+  cache: Map<string, CargoMetadata>
+): CargoMetadata {
+  const cached = cache.get(manifestPath);
+  if (cached) return cached;
+  let output: string;
+  try {
+    output = execFileSync(
+      'cargo',
+      [
+        'metadata',
+        '--no-deps',
+        '--offline',
+        '--format-version=1',
+        `--manifest-path=${manifestPath}`,
+      ],
+      { encoding: 'utf-8', stdio: ['ignore', 'pipe', 'pipe'] }
+    );
+  } catch (error) {
+    const { stderr, message } = error as Error & { stderr?: string };
+    throw new Error(
+      `cargo metadata failed for ${manifestPath}: ${stderr || message}`
+    );
   }
-  return map;
+  const metadata = JSON.parse(output) as CargoMetadata;
+  cache.set(manifestPath, metadata);
+  for (const pkg of metadata.packages) cache.set(pkg.manifest_path, metadata);
+  return metadata;
 }
 
-/** Transitive set of directories reached via Cargo `path`/workspace path deps. */
-function collectPathDepDirs(
+/**
+ * Directories of the crates `crateDir`'s crate reaches through Cargo path
+ * dependencies, transitively and of every kind, as cargo resolves them
+ * (including `workspace = true` ones).
+ */
+function cargoPathDepDirs(
   crateDir: string,
-  workspacePathDeps: ReadonlyMap<string, string>,
-  seen: Set<string>
+  cache: Map<string, CargoMetadata>
 ): Set<string> {
   const dirs = new Set<string>();
-  const cargoTomlPath = join(crateDir, 'Cargo.toml');
-  if (!existsSync(cargoTomlPath)) return dirs;
-  const parsed = parseTomlFile(cargoTomlPath);
-  for (const section of CARGO_DEP_SECTIONS) {
-    const deps = asRecord(parsed[section]);
-    if (!deps) continue;
-    for (const [name, value] of Object.entries(deps)) {
-      const dep = asRecord(value);
-      let depDir: string | undefined;
-      if (typeof dep?.['path'] === 'string') {
-        depDir = resolve(crateDir, dep['path']);
-      } else if (dep?.['workspace'] === true) {
-        depDir = workspacePathDeps.get(name);
-      }
-      if (depDir && !seen.has(depDir)) {
-        seen.add(depDir);
-        dirs.add(depDir);
-        for (const d of collectPathDepDirs(depDir, workspacePathDeps, seen)) {
-          dirs.add(d);
-        }
+  const visit = (dir: string) => {
+    const manifestPath = join(dir, 'Cargo.toml');
+    const pkg = readCargoMetadata(manifestPath, cache).packages.find(
+      (p) => p.manifest_path === manifestPath
+    );
+    for (const { path } of pkg?.dependencies ?? []) {
+      if (path && !dirs.has(path)) {
+        dirs.add(path);
+        visit(path);
       }
     }
-  }
+  };
+  visit(crateDir);
   return dirs;
 }
 
@@ -217,33 +214,6 @@ function cargoCrateDir(pkg: PnpmPackageInfo): string {
 }
 
 /**
- * The root of the Cargo workspace a crate belongs to, if any: the crate itself
- * if it declares `[workspace]`, else the nearest ancestor (up to `root`) whose
- * `[workspace]` lists it in `members`. Like cargo, this takes the nearest
- * workspace; unlike cargo, it doesn't expand globs in `members`.
- */
-function cargoWorkspaceDir(root: string, crateDir: string): string | undefined {
-  for (let dir = crateDir; ; dir = dirname(dir)) {
-    const cargoTomlPath = join(dir, 'Cargo.toml');
-    const workspace = existsSync(cargoTomlPath)
-      ? asRecord(parseTomlFile(cargoTomlPath)['workspace'])
-      : undefined;
-    if (workspace) {
-      const members = workspace['members'];
-      const isMember =
-        dir === crateDir ||
-        (Array.isArray(members) &&
-          members.some(
-            (member) =>
-              typeof member === 'string' && resolve(dir, member) === crateDir
-          ));
-      return isMember ? dir : undefined;
-    }
-    if (dir === root || dir === dirname(dir)) return undefined;
-  }
-}
-
-/**
  * Check that the Cargo files outside a Rust-building package that its build
  * reads are visible to turbo's cache invalidation: its transitive Cargo `path`
  * dependencies, either as pnpm workspace dependencies or as explicit
@@ -254,7 +224,7 @@ function* checkCargoInputs(
   root: string,
   workspacePackages: ReadonlyMap<string, PnpmPackageInfo>
 ): Generator<ValidationIssue> {
-  const workspacePathDeps = buildWorkspacePathDeps(findCargoTomlFiles(root));
+  const cargoMetadataCache = new Map<string, CargoMetadata>();
 
   for (const pkg of workspacePackages.values()) {
     if (!pkg.packageJson || !buildsRust(pkg)) continue;
@@ -266,27 +236,25 @@ function* checkCargoInputs(
     };
     const inputs = turboBuildSelfInputs(pkgDir);
 
-    const workspaceDir = cargoWorkspaceDir(root, crateDir);
-    if (workspaceDir) {
-      for (const file of ['Cargo.toml', 'Cargo.lock']) {
-        const workspaceFile = join(workspaceDir, file);
-        if (workspaceFile.startsWith(`${pkgDir}/`)) continue;
-        if (inputsCover(root, pkgDir, inputs, workspaceFile)) continue;
-        yield {
-          kind: 'UntrackedCargoWorkspaceFile',
-          packageName: pkg.name,
-          packageDir: relative(root, pkgDir),
-          workspaceFile: relative(root, workspaceFile),
-          suggestedInput: relative(pkgDir, workspaceFile).split('\\').join('/'),
-        };
-      }
+    // For a crate that's its own workspace, this is the crate's directory.
+    const workspaceDir = readCargoMetadata(
+      join(crateDir, 'Cargo.toml'),
+      cargoMetadataCache
+    ).workspace_root;
+    for (const file of ['Cargo.toml', 'Cargo.lock']) {
+      const workspaceFile = join(workspaceDir, file);
+      if (workspaceFile.startsWith(`${pkgDir}/`)) continue;
+      if (inputsCover(root, pkgDir, inputs, workspaceFile)) continue;
+      yield {
+        kind: 'UntrackedCargoWorkspaceFile',
+        packageName: pkg.name,
+        packageDir: relative(root, pkgDir),
+        workspaceFile: relative(root, workspaceFile),
+        suggestedInput: relative(pkgDir, workspaceFile).split('\\').join('/'),
+      };
     }
 
-    for (const depDir of collectPathDepDirs(
-      crateDir,
-      workspacePathDeps,
-      new Set()
-    )) {
+    for (const depDir of cargoPathDepDirs(crateDir, cargoMetadataCache)) {
       // Tracked: the dependency lives inside the package itself.
       if (depDir === pkgDir || depDir.startsWith(`${pkgDir}/`)) continue;
 
