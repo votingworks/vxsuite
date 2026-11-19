@@ -24,7 +24,11 @@ LOG="$RESULTS/rust.log"
 
 for election in $ELECTIONS; do
   jobs_dir="$RESULTS/jobs-$election"
-  node "$PERF_DIR/rust_jobs.ts" --election "$election" --out "$jobs_dir" | tee -a "$LOG"
+  extra_args=()
+  if [[ $election == santa-clara* ]]; then
+    extra_args=(--english-only)
+  fi
+  node "$PERF_DIR/rust_jobs.ts" --election "$election" --out "$jobs_dir" "${extra_args[@]}" | tee -a "$LOG"
   for threads in $THREADS; do
     for by in ballot style; do
       printf '%s threads=%s ' "$election" "$threads" | tee -a "$LOG"
