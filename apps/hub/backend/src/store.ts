@@ -2001,114 +2001,116 @@ export class Store {
   async getRegisteredVoterCounts(
     electionId: ElectionId
   ): Promise<ElectionRegisteredVoterCounts> {
-    return this.db.withClient(async (client) => {
-      const precinctRows = (
-        await client.query(
-          `
-            select
-              p.id,
-              prc.count,
-              prc.has_party_breakdown as "hasPartyBreakdown"
-            from precincts p
-            left join precinct_registered_voter_counts prc on prc.precinct_id = p.id
-            where p.election_id = $1
-          `,
-          electionId
-        )
-      ).rows as Array<{
-        id: PrecinctId;
-        count: number | null;
-        hasPartyBreakdown: boolean | null;
-      }>;
-
-      const splitRows = (
-        await client.query(
-          `
-            select
-              ps.id,
-              ps.precinct_id as "precinctId",
-              psrc.count,
-              psrc.has_party_breakdown as "hasPartyBreakdown"
-            from precinct_splits ps
-            join precincts p on ps.precinct_id = p.id
-            left join precinct_split_registered_voter_counts psrc on psrc.split_id = ps.id
-            where p.election_id = $1
-          `,
-          electionId
-        )
-      ).rows as Array<{
-        id: string;
-        precinctId: PrecinctId;
-        count: number | null;
-        hasPartyBreakdown: boolean | null;
-      }>;
-
-      const precinctPartyCounts = groupPartyRegisteredVoterCounts(
-        (
+    return this.db.withClient((client) =>
+      client.withReadOnlySnapshot(async () => {
+        const precinctRows = (
           await client.query(
             `
-              select pprc.precinct_id as id, pprc.party_id as "partyId", pprc.count
-              from precinct_party_registered_voter_counts pprc
-              join precincts p on pprc.precinct_id = p.id
+              select
+                p.id,
+                prc.count,
+                prc.has_party_breakdown as "hasPartyBreakdown"
+              from precincts p
+              left join precinct_registered_voter_counts prc on prc.precinct_id = p.id
               where p.election_id = $1
             `,
             electionId
           )
-        ).rows as PartyRegisteredVoterCountRow[]
-      );
+        ).rows as Array<{
+          id: PrecinctId;
+          count: number | null;
+          hasPartyBreakdown: boolean | null;
+        }>;
 
-      const splitPartyCounts = groupPartyRegisteredVoterCounts(
-        (
+        const splitRows = (
           await client.query(
             `
-              select psprc.split_id as id, psprc.party_id as "partyId", psprc.count
-              from precinct_split_party_registered_voter_counts psprc
-              join precinct_splits ps on psprc.split_id = ps.id
+              select
+                ps.id,
+                ps.precinct_id as "precinctId",
+                psrc.count,
+                psrc.has_party_breakdown as "hasPartyBreakdown"
+              from precinct_splits ps
               join precincts p on ps.precinct_id = p.id
+              left join precinct_split_registered_voter_counts psrc on psrc.split_id = ps.id
               where p.election_id = $1
             `,
             electionId
           )
-        ).rows as PartyRegisteredVoterCountRow[]
-      );
+        ).rows as Array<{
+          id: string;
+          precinctId: PrecinctId;
+          count: number | null;
+          hasPartyBreakdown: boolean | null;
+        }>;
 
-      const splitsByPrecinctId = new Map<PrecinctId, typeof splitRows>();
-      for (const split of splitRows) {
-        const group = splitsByPrecinctId.get(split.precinctId);
-        if (group) {
-          group.push(split);
-        } else {
-          splitsByPrecinctId.set(split.precinctId, [split]);
+        const precinctPartyCounts = groupPartyRegisteredVoterCounts(
+          (
+            await client.query(
+              `
+                select pprc.precinct_id as id, pprc.party_id as "partyId", pprc.count
+                from precinct_party_registered_voter_counts pprc
+                join precincts p on pprc.precinct_id = p.id
+                where p.election_id = $1
+              `,
+              electionId
+            )
+          ).rows as PartyRegisteredVoterCountRow[]
+        );
+
+        const splitPartyCounts = groupPartyRegisteredVoterCounts(
+          (
+            await client.query(
+              `
+                select psprc.split_id as id, psprc.party_id as "partyId", psprc.count
+                from precinct_split_party_registered_voter_counts psprc
+                join precinct_splits ps on psprc.split_id = ps.id
+                join precincts p on ps.precinct_id = p.id
+                where p.election_id = $1
+              `,
+              electionId
+            )
+          ).rows as PartyRegisteredVoterCountRow[]
+        );
+
+        const splitsByPrecinctId = new Map<PrecinctId, typeof splitRows>();
+        for (const split of splitRows) {
+          const group = splitsByPrecinctId.get(split.precinctId);
+          if (group) {
+            group.push(split);
+          } else {
+            splitsByPrecinctId.set(split.precinctId, [split]);
+          }
         }
-      }
 
-      const counts: ElectionRegisteredVoterCounts = {};
-      for (const row of precinctRows) {
-        const splits = splitsByPrecinctId.get(row.id) ?? [];
-        if (splits.length > 0) {
-          const splitCounts: Record<string, RegisteredVoterCount> = {};
-          for (const split of splits) {
-            if (split.count !== null) {
-              splitCounts[split.id] = buildRegisteredVoterCount(
-                split.count,
-                split.hasPartyBreakdown === true,
-                splitPartyCounts.get(split.id)
-              );
+        const counts: ElectionRegisteredVoterCounts = {};
+        for (const row of precinctRows) {
+          const splits = splitsByPrecinctId.get(row.id) ?? [];
+          if (splits.length > 0) {
+            const splitCounts: Record<string, RegisteredVoterCount> = {};
+            for (const split of splits) {
+              if (split.count !== null) {
+                splitCounts[split.id] = buildRegisteredVoterCount(
+                  split.count,
+                  split.hasPartyBreakdown === true,
+                  splitPartyCounts.get(split.id)
+                );
+              }
             }
+            if (Object.keys(splitCounts).length > 0) {
+              counts[row.id] = { splits: splitCounts };
+            }
+          } else if (row.count !== null) {
+            counts[row.id] = buildRegisteredVoterCount(
+              row.count,
+              row.hasPartyBreakdown === true,
+              precinctPartyCounts.get(row.id)
+            );
           }
-          if (Object.keys(splitCounts).length > 0) {
-            counts[row.id] = { splits: splitCounts };
-          }
-        } else if (row.count !== null) {
-          counts[row.id] = buildRegisteredVoterCount(
-            row.count,
-            row.hasPartyBreakdown === true,
-            precinctPartyCounts.get(row.id)
-          );
         }
-      }
-      return counts;
-    });
+        return counts;
+      })
+    );
   }
 
   async listBallotStyles(
