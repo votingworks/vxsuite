@@ -5,7 +5,7 @@
   "license": "GPL-3.0-only",
   "scripts": {
     "build": "pnpm -w vx-task build $npm_package_name",
-    "build:self": "rm -rf build && cargo build --release --offline --target-dir target && mkdir -p build && cp target/release/fai100-controllerd build/",
+    "build:self": "rm -rf build && pnpm -w vx-cargo-build --target-dir target",
     "clean": "pnpm -w vx-task clean $npm_package_name",
     "clean:self": "rm -rf build target",
     "install:rust-addon": "cargo fetch"

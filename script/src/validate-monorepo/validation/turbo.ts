@@ -21,18 +21,16 @@ export interface UntrackedCargoPathDependencyIssue {
 }
 
 /**
- * A package whose turbo build runs `cargo build` produces a Cargo `[[bin]]`
- * binary that it doesn't copy into `build/` (a turbo `build:self` output).
- * Binaries should run from `build/`, not cargo's `target/` directory, and a
- * turbo cache hit would otherwise skip the build without restoring the binary.
+ * A package's build script runs `cargo build` itself instead of through
+ * `vx-cargo-build`, which copies the binaries into `build/`. Binaries should
+ * run from `build/`, not cargo's `target/` directory, and a turbo cache hit
+ * restores only `build/`.
  */
-export interface MissingCargoBinaryOutputIssue {
-  readonly kind: 'MissingCargoBinaryOutput';
+export interface DirectCargoBuildIssue {
+  readonly kind: 'DirectCargoBuild';
   readonly packageName: string;
   readonly packageDir: string;
-  readonly binaryName: string;
-  readonly cargoOutput: string;
-  readonly expectedOutput: string;
+  readonly script: string;
 }
 
 /**
@@ -51,7 +49,7 @@ export interface UntrackedCargoWorkspaceFileIssue {
 
 export type ValidationIssue =
   | UntrackedCargoPathDependencyIssue
-  | MissingCargoBinaryOutputIssue
+  | DirectCargoBuildIssue
   | UntrackedCargoWorkspaceFileIssue;
 
 export type ValidationIssueKind = ValidationIssue['kind'];
@@ -129,7 +127,7 @@ function collectPathDepDirs(
 }
 
 interface TurboJson {
-  tasks?: Record<string, { inputs?: string[]; outputs?: string[] }>;
+  tasks?: Record<string, { inputs?: string[] }>;
 }
 
 /** Reads a turbo.json, which may contain comments. */
@@ -170,7 +168,8 @@ function buildsRust(pkg: PnpmPackageInfo): boolean {
   const scripts = pkg.packageJson?.scripts ?? {};
   return [scripts['build:self'], scripts['build:rust-addon']].some(
     (script) =>
-      typeof script === 'string' && /napi build|cargo build/.test(script)
+      typeof script === 'string' &&
+      /napi build|cargo build|vx-cargo-build/.test(script)
   );
 }
 
@@ -219,51 +218,6 @@ function cargoWorkspaceDir(root: string, crateDir: string): string | undefined {
     }
     if (dir === root || dir === dirname(dir)) return undefined;
   }
-}
-
-/**
- * If the package builds Rust binaries via `cargo build` (which builds every
- * `[[bin]]`), returns the Cargo profile directory (`release`/`debug`/custom)
- * those binaries land under; otherwise undefined (e.g. napi builds, which
- * produce a `.node` library and no binaries).
- */
-function cargoBuildProfile(pkg: PnpmPackageInfo): string | undefined {
-  const command = rustBuildCommand(pkg);
-  if (!/cargo build/.test(command)) return undefined;
-  if (/--release\b/.test(command)) return 'release';
-  const profile = command.match(/--profile[ =]([\w-]+)/);
-  return profile ? profile[1] : 'debug';
-}
-
-function cargoBinaryNames(crateDir: string): string[] {
-  const cargoTomlPath = join(crateDir, 'Cargo.toml');
-  if (!existsSync(cargoTomlPath)) return [];
-  const bins = parseTomlFile(cargoTomlPath)['bin'];
-  if (!Array.isArray(bins)) return [];
-  return bins
-    .map((bin) => asRecord(bin)?.['name'])
-    .filter((name): name is string => typeof name === 'string');
-}
-
-/** Effective build:self outputs: the package override, else the root config. */
-function turboBuildSelfOutputs(pkgDir: string, root: string): string[] {
-  for (const turboJsonPath of [
-    join(pkgDir, 'turbo.json'),
-    join(root, 'turbo.json'),
-  ]) {
-    if (!existsSync(turboJsonPath)) continue;
-    const outputs = readTurboJson(turboJsonPath).tasks?.['build:self']?.outputs;
-    if (outputs) return outputs;
-  }
-  return [];
-}
-
-function outputsCover(outputs: readonly string[], relPath: string): boolean {
-  return outputs.some((output) => {
-    if (output === relPath) return true;
-    const base = output.replace(/[/\\]\*.*$/, '');
-    return relPath === base || relPath.startsWith(`${base}/`);
-  });
 }
 
 /**
@@ -335,38 +289,24 @@ function* checkCargoInputs(
 }
 
 /**
- * Check that every package building Rust binaries via `cargo build` copies each
- * of its Cargo `[[bin]]` outputs from cargo's `target/` directory into `build/`.
- * Binaries run from `build/`, which ships with the package and which turbo
- * restores on a cache hit; `target/` holds only cargo's intermediate files.
+ * Check that packages build Rust binaries with `vx-cargo-build`, not `cargo
+ * build` directly, so the binaries are copied into `build/`.
  */
-function* checkCargoBinaryOutputs(
+function* checkCargoBuilds(
   root: string,
   workspacePackages: ReadonlyMap<string, PnpmPackageInfo>
 ): Generator<ValidationIssue> {
   for (const pkg of workspacePackages.values()) {
-    if (!pkg.packageJson) continue;
-    const profile = cargoBuildProfile(pkg);
-    if (!profile) continue;
-    const command = rustBuildCommand(pkg);
-    const outputs = turboBuildSelfOutputs(pkg.path, root);
-    for (const binaryName of cargoBinaryNames(cargoCrateDir(pkg))) {
-      const cargoOutput = `target/${profile}/${binaryName}`;
-      const expectedOutput = `build/${binaryName}`;
-      if (
-        command.includes(cargoOutput) &&
-        outputsCover(outputs, expectedOutput)
-      ) {
-        continue;
+    const scripts = pkg.packageJson?.scripts ?? {};
+    for (const script of ['build:self', 'build:rust-addon']) {
+      if (/\bcargo build\b/.test(scripts[script] ?? '')) {
+        yield {
+          kind: 'DirectCargoBuild',
+          packageName: pkg.name,
+          packageDir: relative(root, pkg.path),
+          script,
+        };
       }
-      yield {
-        kind: 'MissingCargoBinaryOutput',
-        packageName: pkg.name,
-        packageDir: relative(root, pkg.path),
-        binaryName,
-        cargoOutput,
-        expectedOutput,
-      };
     }
   }
 }
@@ -374,12 +314,13 @@ function* checkCargoBinaryOutputs(
 /**
  * Validate that per-package turbo.json configs keep turbo's cache correct for
  * Rust: Cargo path-dependency sources and Cargo workspace files are tracked as
- * inputs, and Cargo binaries are copied into `build/`, a turbo output.
+ * inputs, and Cargo binaries are built with `vx-cargo-build`, which copies them
+ * into `build/`, a turbo output.
  */
 export function* checkConfig(
   root: string,
   workspacePackages: ReadonlyMap<string, PnpmPackageInfo>
 ): Generator<ValidationIssue> {
   yield* checkCargoInputs(root, workspacePackages);
-  yield* checkCargoBinaryOutputs(root, workspacePackages);
+  yield* checkCargoBuilds(root, workspacePackages);
 }

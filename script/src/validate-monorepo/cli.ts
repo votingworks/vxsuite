@@ -137,9 +137,9 @@ export async function main({ stderr }: IO): Promise<number> {
         );
         break;
 
-      case 'MissingCargoBinaryOutput':
+      case 'DirectCargoBuild':
         stderr.write(
-          `${issue.packageDir}: Cargo binary "${issue.binaryName}" must be copied into build/ by build:self so it runs from there and turbo restores it on a cache hit, e.g. "... && mkdir -p build && cp ${issue.cargoOutput} ${issue.expectedOutput}"\n`
+          `${issue.packageDir}: "${issue.script}" must build Rust with "pnpm -w vx-cargo-build [cargo args]" instead of "cargo build", so the binaries are copied into build/ to run from there and be restored on a turbo cache hit\n`
         );
         break;
 
