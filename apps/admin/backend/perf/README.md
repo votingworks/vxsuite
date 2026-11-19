@@ -147,6 +147,34 @@ The switches also work on `run.ts` directly:
   layout and render times, not package time. Memory includes all the shard
   processes (`node-worker` in the per-role fields).
 
+### Rust prototype
+
+Brian's Rust renderer prototype (`perf/rust-pdf-rendering`, `libs/hmpb-rs`) lays
+out and writes PDFs without Chromium. `rust_jobs.ts` writes our generated
+elections in the prototype's input format, and `run_rust.sh` times it on each
+English election at several thread counts, both one PDF per ballot and one PDF
+per ballot style. It renders ballots only (no election definition, bubble
+positions or real ballot hash), English only, and the VX template only.
+
+Build the prototype once, outside this checkout:
+
+```bash
+mkdir -p ~/rust-proto && git -C ~/code/vxsuite fetch origin perf/rust-pdf-rendering && git -C ~/code/vxsuite archive FETCH_HEAD libs/hmpb-rs libs/fixtures/data/electionGeneral | tar -x -C ~/rust-proto
+```
+
+```bash
+cd ~/rust-proto/libs/hmpb-rs && cargo build --release
+```
+
+Then, from this folder:
+
+```bash
+./run_rust.sh
+```
+
+`ELECTIONS`, `THREADS`, `PROTOTYPE_DIR` and `RESULTS` override the defaults.
+Results go to `results/rust-<date>-<host>/rust.log`.
+
 ### Inspect a generated election
 
 ```bash
