@@ -75,7 +75,7 @@ function getReportSections(store: Store): ReportSection[] {
   );
 }
 
-async function getReportSection(
+async function buildReportSectionDocument(
   store: Store,
   reportSection: ReportSection,
   reportPrintedTime: number
@@ -167,7 +167,7 @@ export async function printReport({
     await renderToPdf(
       await Promise.all(
         getReportSections(store).map(async (reportSection) => ({
-          document: await getReportSection(
+          document: await buildReportSectionDocument(
             store,
             reportSection,
             reportPrintedTime

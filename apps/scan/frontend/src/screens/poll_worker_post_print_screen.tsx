@@ -14,8 +14,7 @@ import { CenteredText } from '../components/layout.js';
 
 /**
  * Drives printing of report copies one at a time so the poll worker can tear
- * each copy off the thermal roll before printing the next. A copy is a single
- * continuous print, including every party section in a primary.
+ * each copy off the thermal roll before printing the next.
  *
  * The first copy is printed before this screen is shown then this screen
  * prints the remaining copies (if applicable) via "Print Next Copy."
