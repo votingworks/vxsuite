@@ -9,7 +9,6 @@
     { "path": "../basics/tsconfig.build.json" },
     { "path": "../coverage-check/tsconfig.build.json" },
     { "path": "../message-coder/tsconfig.build.json" },
-    { "path": "../fixtures/tsconfig.build.json" },
     { "path": "../image-utils/tsconfig.build.json" },
     { "path": "../test-utils/tsconfig.build.json" },
     { "path": "../types/tsconfig.build.json" },

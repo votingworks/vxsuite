@@ -94,6 +94,18 @@ export async function main({ stderr }: IO): Promise<number> {
         );
         break;
 
+      case 'UnexpectedReference':
+        stderr.write(
+          `${relative(cwd, issue.tsconfigPath)}: unexpected reference to ${relative(
+            cwd,
+            issue.referencePath
+          )} (not a workspace dependency in ${relative(
+            cwd,
+            issue.packageJsonPath
+          )})\n`
+        );
+        break;
+
       case 'MissingWorkspaceDependency':
         stderr.write(
           `${relative(

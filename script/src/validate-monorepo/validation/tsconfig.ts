@@ -30,6 +30,13 @@ export interface MissingReferenceIssue {
   readonly expectedReferencePath: string;
 }
 
+export interface UnexpectedReferenceIssue {
+  readonly kind: 'UnexpectedReference';
+  readonly tsconfigPath: string;
+  readonly packageJsonPath: string;
+  readonly referencePath: string;
+}
+
 export interface MissingWorkspaceDependencyIssue {
   readonly kind: 'MissingWorkspaceDependency';
   readonly packageJsonPath: string;
@@ -40,6 +47,7 @@ export type ValidationIssue =
   | MissingConfigFileIssue
   | InvalidPropertyValueIssue
   | MissingReferenceIssue
+  | UnexpectedReferenceIssue
   | MissingWorkspaceDependencyIssue;
 
 export type ValidationIssueKind = ValidationIssue['kind'];
@@ -182,6 +190,8 @@ export async function* checkTsconfigMatchesPackageJson(
     tsconfig.references?.map(({ path }) => join(tsconfigPath, '..', path)) ?? []
   );
 
+  const expectedReferencePaths = new Set<string>();
+
   for (const workspaceDependencyPackage of workspaceDependencyPackages) {
     if (workspaceDependencyPackage.name.startsWith('@types/')) {
       continue;
@@ -191,6 +201,7 @@ export async function* checkTsconfigMatchesPackageJson(
       workspaceDependencyPackage.path,
       'tsconfig.build.json'
     );
+    expectedReferencePaths.add(expectedWorkspaceDependencyTsconfigBuildPath);
 
     if (
       maybeReadTsconfig(expectedWorkspaceDependencyTsconfigBuildPath) &&
@@ -201,6 +212,17 @@ export async function* checkTsconfigMatchesPackageJson(
         tsconfigPath,
         referencingPath: packageJsonPath,
         expectedReferencePath: expectedWorkspaceDependencyTsconfigBuildPath,
+      };
+    }
+  }
+
+  for (const referencePath of tsconfigReferencesPaths) {
+    if (!expectedReferencePaths.has(referencePath)) {
+      yield {
+        kind: 'UnexpectedReference',
+        tsconfigPath,
+        packageJsonPath,
+        referencePath,
       };
     }
   }

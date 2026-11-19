@@ -17,10 +17,8 @@
     { "path": "../fixtures/tsconfig.build.json" },
     { "path": "../hmpb/tsconfig.build.json" },
     { "path": "../image-utils/tsconfig.build.json" },
-    { "path": "../printing/tsconfig.build.json" },
     { "path": "../types/tsconfig.build.json" },
     { "path": "../test-utils/tsconfig.build.json" },
-    { "path": "../ui/tsconfig.build.json" },
     { "path": "../utils/tsconfig.build.json" },
     { "path": "../bmd-ballot-fixtures/tsconfig.build.json" },
     { "path": "../fs/tsconfig.build.json" }
