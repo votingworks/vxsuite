@@ -11,6 +11,10 @@ import type {
   BatchScanner,
   BatchScannerError,
 } from './batch_scanner.js';
+import {
+  DEFAULT_BATCH_END_GRACE_MS,
+  DeskProBatchFeed,
+} from './deskpro_batch_feed.js';
 
 export const INOTEC_VENDOR_ID = 0x2bcc;
 export const INOTEC_DESKPRO_PRODUCT_ID = 0x0001;
@@ -30,10 +34,12 @@ export interface DeskProBatchScannerOptions {
   readonly connectRetryDelayMs?: number;
   readonly setupTimeoutMs?: number;
   readonly exitTimeoutMs?: number;
+  readonly batchEndGraceMs?: number;
 }
 
 interface Session {
   readonly client: ScannerClient;
+  readonly feed: DeskProBatchFeed;
   readonly closed: Promise<void>;
 }
 
@@ -49,11 +55,15 @@ function scanFailed(step: string, error: ScannerError): BatchScannerError {
   };
 }
 
-function startSession(client: ScannerClient): Session {
+function startSession(client: ScannerClient, batchEndGraceMs: number): Session {
   const closed = new Promise<void>((resolve) => {
     client.once('close', () => resolve());
   });
-  return { client, closed };
+  return {
+    client,
+    feed: new DeskProBatchFeed(client, batchEndGraceMs),
+    closed,
+  };
 }
 
 /** Stops the daemon, which disconnects from the scanner first, and waits for it to go. */
@@ -87,6 +97,7 @@ export class DeskProBatchScanner implements BatchScanner {
   private readonly connectRetryDelayMs: number;
   private readonly setupTimeoutMs: number;
   private readonly exitTimeoutMs: number;
+  private readonly batchEndGraceMs: number;
 
   constructor({
     createClient,
@@ -95,6 +106,7 @@ export class DeskProBatchScanner implements BatchScanner {
     connectRetryDelayMs = DEFAULT_CONNECT_RETRY_DELAY_MS,
     setupTimeoutMs = DEFAULT_SETUP_TIMEOUT_MS,
     exitTimeoutMs = DEFAULT_EXIT_TIMEOUT_MS,
+    batchEndGraceMs = DEFAULT_BATCH_END_GRACE_MS,
   }: DeskProBatchScannerOptions) {
     this.createClient = createClient;
     this.profilePath = profilePath;
@@ -102,6 +114,7 @@ export class DeskProBatchScanner implements BatchScanner {
     this.connectRetryDelayMs = connectRetryDelayMs;
     this.setupTimeoutMs = setupTimeoutMs;
     this.exitTimeoutMs = exitTimeoutMs;
+    this.batchEndGraceMs = batchEndGraceMs;
   }
 
   isAttached(): boolean {
@@ -121,21 +134,26 @@ export class DeskProBatchScanner implements BatchScanner {
 
     return {
       scanSheet: async () => {
-        opening ??= this.openSession();
+        opening ??= this.openSession().then((opened) =>
+          opened.isOk() ? this.startFeeding(opened.ok()) : opened
+        );
         const opened = await opening;
         if (opened.isErr()) {
           return opened;
         }
-        return err({
-          code: 'scan_failed',
-          message: 'Scanning with the DeskPro is not yet supported',
-        });
+        return opened.ok().feed.next();
       },
 
+      // TODO: stop the feed at pauses and review stops (`scanPause`, or one
+      // sheet per `scanStart`) so a resumed batch doesn't drop queued sheets.
       endBatch: async () => {
         const opened = await opening;
         if (opened?.isOk()) {
-          await endSession(opened.ok(), this.exitTimeoutMs);
+          const session = opened.ok();
+          if (session.feed.isScanning()) {
+            await timeout(this.exitTimeoutMs, session.client.scanStop());
+          }
+          await endSession(session, this.exitTimeoutMs);
         }
       },
     };
@@ -145,7 +163,7 @@ export class DeskProBatchScanner implements BatchScanner {
     const profile = await readFile(this.profilePath, 'utf8');
 
     for (let attempt = 1; ; attempt += 1) {
-      const session = startSession(this.createClient());
+      const session = startSession(this.createClient(), this.batchEndGraceMs);
       const setUpResult = await timeout(
         this.setupTimeoutMs,
         this.setUp(session.client, profile)
@@ -173,6 +191,50 @@ export class DeskProBatchScanner implements BatchScanner {
       }
       await sleep(this.connectRetryDelayMs);
     }
+  }
+
+  /** Starts feeding, or ends the feed at once if the feeder is empty; ends the session on failure. */
+  private async startFeeding(
+    session: Session
+  ): Promise<Result<Session, BatchScannerError>> {
+    const startResult = await timeout(
+      this.setupTimeoutMs,
+      this.startScan(session)
+    );
+    if (startResult.type === 'timeout') {
+      await killSession(session);
+      return err({
+        code: 'scan_failed',
+        message: 'DeskPro did not respond while starting the scan',
+      });
+    }
+    const started = startResult.value;
+    if (started.isErr()) {
+      await endSession(session, this.exitTimeoutMs);
+      const { step, error } = started.err();
+      return err(scanFailed(step, error));
+    }
+    return ok(session);
+  }
+
+  private async startScan({
+    client,
+    feed,
+  }: Session): Promise<Result<void, SetupError>> {
+    const status = await client.getStatus();
+    if (status.isErr()) {
+      return err({ step: 'getStatus', error: status.err() });
+    }
+    if (status.ok().feederLoaded === 0) {
+      feed.finish();
+      return ok();
+    }
+    const started = await client.scanStart();
+    if (started.isErr()) {
+      return err({ step: 'scanStart', error: started.err() });
+    }
+    feed.started();
+    return ok();
   }
 
   private async setUp(
