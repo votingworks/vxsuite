@@ -3343,6 +3343,19 @@ test('Finalize ballots - validates registered voter counts by party', async () =
   }
 
   await setAllCounts({ total: 10, byParty: { [party0!.id]: 10 } });
+  await apiClient.finalizeBallots({ electionId });
+  expect(await apiClient.getBallotsFinalizedAt({ electionId })).not.toEqual(
+    null
+  );
+  await apiClient.unfinalizeBallots({ electionId, reason: '' });
+
+  await apiClient.updateSystemSettings({
+    electionId,
+    systemSettings: {
+      ...(await apiClient.getSystemSettings({ electionId })),
+      enumerateRegisteredVoterCountByParty: true,
+    },
+  });
   await expectFinalizeError(
     'Registered voter counts by party must include exactly the parties with ballot styles in each precinct and split'
   );
