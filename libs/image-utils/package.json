@@ -20,6 +20,9 @@
     },
     "./package.json": "./package.json"
   },
+  "files": [
+    "build"
+  ],
   "scripts": {
     "build": "pnpm -w vx-task build $npm_package_name",
     "build:self": "rm -rf build && tsc -p tsconfig.build.json",
