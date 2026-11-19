@@ -6,7 +6,8 @@ use std::ffi::OsStr;
 use std::path::{Path, PathBuf};
 
 use image::{DynamicImage, GrayImage, ImageEncoder, RgbaImage};
-use napi::bindgen_prelude::Buffer;
+use napi::bindgen_prelude::{Buffer, Object, ToNapiValue, Uint8ClampedArray};
+use napi::{Env, sys};
 use napi_derive::napi;
 use serde::{Deserialize, Serialize};
 use std::io::Cursor;
@@ -214,19 +215,67 @@ pub async fn interpret_paths(
     )
     .map_err(|err| napi::Error::from_reason(err.to_string()))?;
 
-    // Decode images in parallel with rayon (CPU-bound)
-    let (side_a_image, side_b_image) = match rayon::join(
-        || image::load_from_memory(&side_a_bytes).map(DynamicImage::into_luma8),
-        || image::load_from_memory(&side_b_bytes).map(DynamicImage::into_luma8),
-    ) {
-        (Err(err), _) | (_, Err(err)) => {
-            return Err(napi::Error::from_reason(err.to_string()));
-        }
-        (Ok(side_a_image), Ok(side_b_image)) => (side_a_image, side_b_image),
-    };
-
+    let (side_a_image, side_b_image) = decode_gray_pair(&side_a_bytes, &side_b_bytes)?;
     let result = interpret(side_a_image, side_b_image, options)?;
     to_json(&result)
+}
+
+// unused_async: napi-rs requires `async fn` to return a Promise in JS.
+#[allow(clippy::unused_async)]
+#[napi(
+    ts_args_type = "sideAImage: Uint8Array, sideBImage: Uint8Array, options: BridgeInterpretOptions",
+    ts_return_type = "Promise<BridgeInterpretResult>"
+)]
+pub async fn interpret_encoded(
+    side_a_image: Buffer,
+    side_b_image: Buffer,
+    options: serde_json::Value,
+) -> napi::Result<serde_json::Value> {
+    let options: JsInterpretOptions = from_json(options)?;
+    let (side_a_image, side_b_image) = decode_gray_pair(&side_a_image, &side_b_image)?;
+    let result = interpret(side_a_image, side_b_image, options)?;
+    to_json(&result)
+}
+
+fn decode_gray(bytes: &[u8]) -> Result<GrayImage, napi::Error> {
+    image::load_from_memory(bytes)
+        .map(DynamicImage::into_luma8)
+        .map_err(|err| napi::Error::from_reason(err.to_string()))
+}
+
+fn decode_gray_pair(
+    side_a_bytes: &[u8],
+    side_b_bytes: &[u8],
+) -> Result<(GrayImage, GrayImage), napi::Error> {
+    match rayon::join(|| decode_gray(side_a_bytes), || decode_gray(side_b_bytes)) {
+        (Err(err), _) | (_, Err(err)) => Err(err),
+        (Ok(side_a_image), Ok(side_b_image)) => Ok((side_a_image, side_b_image)),
+    }
+}
+
+/// Converts to a JS `ImageData` with one byte per pixel.
+pub struct JsGrayImage(GrayImage);
+
+impl ToNapiValue for JsGrayImage {
+    unsafe fn to_napi_value(env: sys::napi_env, val: Self) -> napi::Result<sys::napi_value> {
+        let (width, height) = val.0.dimensions();
+        let mut object = Object::new(&Env::from_raw(env))?;
+        object.set("width", width)?;
+        object.set("height", height)?;
+        object.set("data", Uint8ClampedArray::from(val.0.into_raw()))?;
+        unsafe { Object::to_napi_value(env, object) }
+    }
+}
+
+/// Decodes an encoded image (e.g. JPEG or PNG) to one byte per pixel.
+// unused_async: napi-rs requires `async fn` to return a Promise in JS.
+#[allow(clippy::unused_async)]
+#[napi(
+    ts_args_type = "image: Uint8Array",
+    ts_return_type = "Promise<ImageData>"
+)]
+pub async fn decode_gray_image(image: Buffer) -> napi::Result<JsGrayImage> {
+    decode_gray(&image).map(JsGrayImage)
 }
 
 // unused_async: napi-rs requires `async fn` to return a Promise in JS.
@@ -298,9 +347,7 @@ pub async fn find_timing_mark_grid_from_path(
     let bytes = tokio::fs::read(&image_path)
         .await
         .map_err(|err| napi::Error::from_reason(err.to_string()))?;
-    let image = image::load_from_memory(&bytes)
-        .map(DynamicImage::into_luma8)
-        .map_err(|err| napi::Error::from_reason(err.to_string()))?;
+    let image = decode_gray(&bytes)?;
     let timing_marks = find_timing_mark_grid_inner(image, &label, debug_path.map(Into::into))?;
     to_json(&timing_marks)
 }
@@ -377,11 +424,24 @@ pub async fn run_blank_paper_diagnostic_from_path(
     let bytes = tokio::fs::read(&image_path)
         .await
         .map_err(|err| napi::Error::from_reason(err.to_string()))?;
-    let image = image::load_from_memory(&bytes)
-        .map(DynamicImage::into_luma8)
-        .map_err(|err| napi::Error::from_reason(err.to_string()))?;
     Ok(crate::diagnostic::blank_paper(
-        image,
+        decode_gray(&bytes)?,
+        debug_path.map(PathBuf::from),
+    ))
+}
+
+// unused_async: napi-rs requires `async fn` to return a Promise in JS.
+#[allow(clippy::unused_async)]
+#[napi(
+    ts_args_type = "image: Uint8Array, debugPath?: string",
+    ts_return_type = "Promise<boolean>"
+)]
+pub async fn run_blank_paper_diagnostic_from_encoded(
+    image: Buffer,
+    debug_path: Option<String>,
+) -> napi::Result<bool> {
+    Ok(crate::diagnostic::blank_paper(
+        decode_gray(&image)?,
         debug_path.map(PathBuf::from),
     ))
 }

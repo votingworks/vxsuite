@@ -9,7 +9,11 @@ import type {
   BridgeInterpretResult,
   TimingMarks,
 } from './src/bubble-ballot-ts/types.js';
-import type { BallotImageBitDepth, Election } from '@votingworks/types';
+import type {
+  BallotImageBitDepth,
+  Election,
+  ImageData,
+} from '@votingworks/types';
 
 export interface BridgeInterpretOptions {
   frontNormalizedImageOutputPath?: string;
@@ -48,6 +52,9 @@ export declare function decodeBmdBallotData(election: Election, data: Buffer): P
  */
 export declare function decodeBubbleBallotMetadata(election: Election, data: Buffer, expectedBallotHash: string): Promise<BridgeDecodeBubbleBallotMetadataResult>
 
+/** Decodes an encoded image (e.g. JPEG or PNG) to one byte per pixel. */
+export declare function decodeGrayImage(image: Uint8Array): Promise<ImageData>
+
 /**
  * Encodes a `CastVoteRecord` to raw bytes using the Rust bitstream
  * encoder. Used for cross-language testing to verify the Rust encoder
@@ -66,9 +73,13 @@ export declare function findTimingMarkGridFromImage(imageWidth: number, imageHei
 
 export declare function findTimingMarkGridFromPath(imagePath: string, debugPath?: string): Promise<TimingMarks>
 
+export declare function interpretEncoded(sideAImage: Uint8Array, sideBImage: Uint8Array, options: BridgeInterpretOptions): Promise<BridgeInterpretResult>
+
 export declare function interpretImages(sideAImageWidth: number, sideAImageHeight: number, sideAImageData: Buffer | Uint8ClampedArray, sideBImageWidth: number, sideBImageHeight: number, sideBImageData: Buffer | Uint8ClampedArray, options: BridgeInterpretOptions): Promise<BridgeInterpretResult>
 
 export declare function interpretPaths(sideAImagePath: string, sideBImagePath: string, options: BridgeInterpretOptions): Promise<BridgeInterpretResult>
+
+export declare function runBlankPaperDiagnosticFromEncoded(image: Uint8Array, debugPath?: string): Promise<boolean>
 
 export declare function runBlankPaperDiagnosticFromImage(imageWidth: number, imageHeight: number, imageData: Buffer | Uint8ClampedArray, debugPath?: string): Promise<boolean>
 

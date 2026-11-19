@@ -39,6 +39,7 @@ import {
   type VotesDict,
   WriteInAreaStatus,
   type WriteInId,
+  type EncodedImage,
   type ImageData,
   type RgbaImageData,
   type OptionalCandidateOrderings,
@@ -66,6 +67,7 @@ import {
   type ScoredBubbleMark,
   type ScoredBubbleMarks,
   type ScoredPositionArea,
+  decodeGrayImage,
   writeImageDataToPng,
 } from './bubble-ballot-ts/index.js';
 import type { InterpreterOptions } from './types.js';
@@ -78,6 +80,18 @@ const debug = makeDebug('ballot-interpreter:scan:interpreter');
  * Result of interpreting a sheet of ballot images.
  */
 export type InterpretResult = Result<SheetOf<PageInterpretation>, Error>;
+
+/** A sheet's images, either decoded or still in their file encoding. */
+export type SheetImages = SheetOf<ImageData> | SheetOf<EncodedImage>;
+
+async function decodeSheetImages(
+  sheet: SheetImages
+): Promise<SheetOf<ImageData>> {
+  return await mapSheet<ImageData | EncodedImage, ImageData>(
+    sheet,
+    async (image) => ('encoded' in image ? await decodeGrayImage(image) : image)
+  );
+}
 
 /**
  * Conversion intermediary for marks containing the grid position, associated
@@ -471,7 +485,7 @@ export function convertRustInterpretResult(
   options: InterpreterOptions,
   getCandidateOrderings: GetCandidateOrderingsFn,
   result: HmpbInterpretResult,
-  sheet: SheetOf<ImageData>
+  sheet: SheetOf<unknown>
 ): InterpretResult {
   if (result.isErr()) {
     const error = result.err();
@@ -579,7 +593,7 @@ function validateInterpretResults(
  * and the converted `PageInterpretation` array (for TS-level validation).
  */
 async function interpretHmpb(
-  sheet: SheetOf<ImageData>,
+  sheet: SheetImages,
   options: InterpreterOptions,
   getCandidateOrderings: GetCandidateOrderingsFn
 ): Promise<{
@@ -619,7 +633,6 @@ async function interpretHmpb(
  */
 function ensureRgba(image: ImageData): RgbaImageData {
   if (isRgba(image)) return image;
-  // @coverage-defer
   return fromGrayScale(image.data, image.width, image.height);
 }
 
@@ -820,7 +833,7 @@ function chooseInterpretationToUse(
 export async function interpretSheet(
   options: InterpreterOptions,
   getCandidateOrderings: GetCandidateOrderingsFn,
-  sheet: SheetOf<ImageData>
+  sheet: SheetImages
 ): Promise<SheetOf<PageInterpretation>> {
   const timer = time(debug, 'interpretSheet');
 
@@ -837,6 +850,8 @@ export async function interpretSheet(
     ) {
       return hmpbInterpretation;
     }
+
+    const images = await decodeSheetImages(sheet);
 
     // Skip summary ballot interpretation if we're confident this is a bubble
     // ballot. Two sources of confidence:
@@ -855,7 +870,7 @@ export async function interpretSheet(
       // write the original images since we're skipping summary ballot
       // interpretation (which would normally handle this).
       await mapSheet(
-        sheet,
+        images,
         [
           options.frontNormalizedImageOutputPath,
           options.backNormalizedImageOutputPath,
@@ -867,7 +882,7 @@ export async function interpretSheet(
       return hmpbInterpretation;
     }
 
-    const bmdInterpretation = await interpretBmdBallot(sheet, options);
+    const bmdInterpretation = await interpretBmdBallot(images, options);
 
     return chooseInterpretationToUse(bmdInterpretation, hmpbInterpretation);
   } finally {
@@ -881,7 +896,7 @@ export async function interpretSheet(
 export async function interpretSheetAndSaveImages(
   interpreterOptions: InterpreterOptions,
   getCandidateOrderings: GetCandidateOrderingsFn,
-  sheet: SheetOf<ImageData>,
+  sheet: SheetImages,
   sheetId: Id,
   ballotImagesPath: string
 ): Promise<SheetOf<PageInterpretationWithFiles>> {
