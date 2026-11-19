@@ -101,13 +101,8 @@ export function pixelPointToGridPoint(
 }
 
 async function extractBallotPositions(
-  document: RenderDocument,
-  ballotStyleId: BallotStyleId,
-  isAllBubbleBallot = false
-): Promise<{
-  ballotStyleId: BallotStyleId;
-  ballotPositions: SheetPositions[];
-}> {
+  document: RenderDocument
+): Promise<SheetPositions[]> {
   const pages = await document.inspectElements(`.${PAGE_CLASS}`);
   const optionPositionsPerPage = await Promise.all(
     pages.map(async (_, i) => {
@@ -167,11 +162,6 @@ async function extractBallotPositions(
   // for every contest option we care about individually, since write-in and candidate
   // options are not the same size.
   const optionBoundsFromTargetMark: Outset<number> = await (async () => {
-    // All bubble ballots are a special case of a valid ballot with no contest options
-    if (isAllBubbleBallot) {
-      return { top: 0, left: 0, right: 0, bottom: 0 };
-    }
-
     let optionElement: DocumentElement | null = null;
     let bubbleElement: DocumentElement | null = null;
 
@@ -253,13 +243,10 @@ async function extractBallotPositions(
   // optionBoundsFromTargetMark outset, reproducing the bounds the interpreter
   // historically computed. Per-option/per-contest bounds now live on the ballot
   // style's ballotPositions instead of a flat election-level gridLayout.
-  return {
-    ballotStyleId,
-    ballotPositions: ballotPositionsFromGridPositions(
-      gridPositions,
-      optionBoundsFromTargetMark
-    ),
-  };
+  return ballotPositionsFromGridPositions(
+    gridPositions,
+    optionBoundsFromTargetMark
+  );
 }
 
 async function addQrCodesAndBallotHashes(
@@ -530,12 +517,12 @@ export async function layOutBallots<P extends BaseBallotProps>(
       ).unsafeUnwrap();
 
       if (isScannedBallotStyle(props)) {
-        const positions = await extractBallotPositions(
-          document,
-          props.ballotStyle.id,
-          template.isAllBubbleBallot
-        );
-        recordBallotPositions(positions);
+        recordBallotPositions({
+          ballotStyleId: props.ballotStyle.id,
+          ballotPositions: template.ballotPositions
+            ? template.ballotPositions(props)
+            : await extractBallotPositions(document),
+        });
       }
 
       const layoutPath = await writeScratchFile(scratchDir, {

@@ -1,34 +1,36 @@
-import React from 'react';
 import {
   ballotPaperDimensions,
   type BaseBallotProps,
   type Contest,
   type HmpbBallotPaperSize,
 } from '@votingworks/types';
-import { assert, ok, range, type Result } from '@votingworks/basics';
+import { assert, ok, type Result } from '@votingworks/basics';
 import type {
   BallotPageTemplate,
   ContentComponentResult,
   BallotLayoutError,
 } from '../render_common.js';
 import {
-  Bubble,
   Page,
   pageMarginsInches,
   TimingMarkGrid,
 } from '../ballot_components.js';
-import type { PixelDimensions } from '../types.js';
 import type { RenderScratchpad } from '../renderer.js';
 import { allBubbleBallotConfig } from './config.js';
-import { candidateId, contestId } from './election.js';
+import { allBubbleBallotPositions } from './election.js';
 import { Footer } from './footer.js';
 import { BaseStyles } from '../base_styles.js';
 
+/**
+ * NOTE: This template does not render a full ballot. Bubbles are stamped onto
+ * the empty grid PDF after initial render.
+ *
+ * See all_bubble_ballot_fixtures.ts.
+ */
 export function allBubbleBallotTemplate(
   paperSize: HmpbBallotPaperSize
 ): BallotPageTemplate<BaseBallotProps> {
-  const { footerRowHeight, gridColumns, gridRows, numPages } =
-    allBubbleBallotConfig(paperSize);
+  const config = allBubbleBallotConfig(paperSize);
 
   function BallotPageFrame({
     election,
@@ -76,44 +78,13 @@ export function allBubbleBallotTemplate(
 
   // eslint-disable-next-line @typescript-eslint/require-await
   async function BallotPageContent(
-    _props: BaseBallotProps & { dimensions: PixelDimensions },
+    _props: BaseBallotProps,
     contests: readonly Contest[],
     _scratchpad: RenderScratchpad
   ): Promise<ContentComponentResult> {
     assert(contests.length > 0);
-    const pageNumber = numPages - contests.length + 1;
-    const bubbles = (
-      <div
-        style={{
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-          paddingTop: '0.12in',
-          paddingBottom: '0.055in',
-        }}
-      >
-        {range(1, gridRows - footerRowHeight - 1).flatMap((row) => (
-          <div
-            key={`row-${row}`}
-            style={{ display: 'flex', justifyContent: 'space-between' }}
-          >
-            {range(1, gridColumns - 1).map((column) => (
-              <Bubble
-                key={`bubble-${row}-${column}`}
-                optionInfo={{
-                  type: 'option',
-                  contestId: contestId(pageNumber),
-                  optionId: candidateId(pageNumber, row, column),
-                }}
-              />
-            ))}
-          </div>
-        ))}
-      </div>
-    );
     return ok({
-      currentPageElement: bubbles,
+      currentPageElement: <div />,
       leftoverContests: contests.slice(1),
     });
   }
@@ -124,5 +95,6 @@ export function allBubbleBallotTemplate(
     contestsForBallot: (_, props) => props.election.contests,
     contentComponent: BallotPageContent,
     isAllBubbleBallot: true,
+    ballotPositions: () => allBubbleBallotPositions(config),
   };
 }

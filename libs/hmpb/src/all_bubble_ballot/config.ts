@@ -2,16 +2,14 @@ import {
   ballotPaperDimensions,
   type HmpbBallotPaperSize,
 } from '@votingworks/types';
+import { timingMarkCounts } from '../ballot_components.js';
 
 export interface AllBubbleBallotConfig {
   ballotPaperSize: HmpbBallotPaperSize;
   pageDimensions: { width: number; height: number };
-  columnsPerInch: number;
-  rowsPerInch: number;
   gridRows: number;
   gridColumns: number;
   footerRowHeight: number;
-  numPages: number;
 }
 
 /**
@@ -22,16 +20,14 @@ export interface AllBubbleBallotConfig {
 export function allBubbleBallotConfig(
   paperSize: HmpbBallotPaperSize
 ): AllBubbleBallotConfig {
-  const columnsPerInch = 4;
-  const rowsPerInch = 4;
+  const pageDimensions = ballotPaperDimensions(paperSize);
+  const gridMarkCounts = timingMarkCounts(pageDimensions);
+
   return {
     ballotPaperSize: paperSize,
-    pageDimensions: ballotPaperDimensions(paperSize),
-    columnsPerInch,
-    rowsPerInch,
-    gridRows: ballotPaperDimensions(paperSize).height * rowsPerInch - 3,
-    gridColumns: ballotPaperDimensions(paperSize).width * columnsPerInch,
+    pageDimensions,
+    gridRows: gridMarkCounts.y,
+    gridColumns: gridMarkCounts.x,
     footerRowHeight: 2,
-    numPages: 2,
   };
 }
