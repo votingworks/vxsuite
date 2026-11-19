@@ -16,10 +16,12 @@ import {
   BallotType,
   DEFAULT_SYSTEM_SETTINGS,
   type Election,
+  type ElectionRegisteredVoterCounts,
   ElectionPackageFileName,
   formatBallotHash,
   LATEST_SOFTWARE_VERSION,
   LanguageCode,
+  type SoftwareVersion,
 } from '@votingworks/types';
 import { getEntries, openZip, readEntry } from '@votingworks/utils';
 import {
@@ -229,4 +231,37 @@ test('renders a split election definition with ballot audit IDs and normalizes b
     expect.stringMatching(/^official-precinct-ballot-.*-1\.pdf$/),
     expect.stringMatching(/^official-precinct-ballot-.*-2\.pdf$/),
   ]);
+});
+
+test('exports registered voter counts as totals for v4.0 and as objects for v4.1', async () => {
+  const partyId = assertDefined(fullElection.parties[0]).id;
+  const registeredVoterCounts: ElectionRegisteredVoterCounts = {
+    [precinctId]: { total: 100, byParty: { [partyId]: 60 }, nonpartisan: 40 },
+  };
+
+  async function exportedRegisteredVoterCounts(
+    softwareVersion: SoftwareVersion
+  ): Promise<unknown> {
+    const output = await renderElectionPackageAndBallots(context, {
+      ...baseInput(),
+      softwareVersion,
+      registeredVoterCounts,
+    });
+    const zip = await openZip(
+      await readFile(join(storageRoot, output.electionPackagePath))
+    );
+    const entry = assertDefined(
+      getEntries(zip).find(
+        (e) => e.name === ElectionPackageFileName.REGISTERED_VOTER_COUNTS
+      )
+    );
+    return JSON.parse((await readEntry(entry)).toString('utf-8'));
+  }
+
+  expect(await exportedRegisteredVoterCounts('v4.0')).toEqual({
+    [precinctId]: 100,
+  });
+  expect(await exportedRegisteredVoterCounts('v4.1')).toEqual(
+    registeredVoterCounts
+  );
 });

@@ -13,6 +13,7 @@ import {
   getAllBallotLanguages,
   type Precinct,
   PrecinctRegisteredVoterCountEntrySchema,
+  ElectionRegisteredVoterCountsSchema,
   type ElectionRegisteredVoterCounts,
   type District,
   type Party,
@@ -863,7 +864,7 @@ export function buildApi(ctx: AppContext) {
       return store.getElectionPackage(electionId);
     },
 
-    exportElectionPackage(input: {
+    async exportElectionPackage(input: {
       electionId: ElectionId;
       electionSerializationFormat: ElectionSerializationFormat;
       shouldExportAudio?: boolean;
@@ -871,6 +872,14 @@ export function buildApi(ctx: AppContext) {
       shouldExportTestBallots?: boolean;
       numAuditIdBallots?: number;
     }): Promise<void> {
+      const registeredVoterCounts = await store.getRegisteredVoterCounts(
+        input.electionId
+      );
+      assert(
+        ElectionRegisteredVoterCountsSchema.safeParse(registeredVoterCounts)
+          .success,
+        'Party and nonpartisan registered voter counts must sum to the total'
+      );
       return store.createElectionPackageBackgroundTask(input);
     },
 
