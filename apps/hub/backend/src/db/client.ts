@@ -106,6 +106,21 @@ export class Client {
     });
   }
 
+  /**
+   * Runs the given function in a read-only transaction in which every query
+   * sees the same snapshot of the database.
+   */
+  async withReadOnlySnapshot<T>(fn: () => Promise<T>): Promise<T> {
+    await this.query(
+      'begin transaction isolation level repeatable read read only'
+    );
+    try {
+      return await fn();
+    } finally {
+      await this.query('commit');
+    }
+  }
+
   async withTransaction(fn: () => Promise<boolean>): Promise<boolean> {
     await this.query('begin');
 

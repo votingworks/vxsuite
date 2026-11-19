@@ -43,6 +43,7 @@ import {
   safeParseJson,
   type PrecinctWithoutSplits,
   type PrecinctWithSplits,
+  type RegisteredVoterCount,
   LATEST_SOFTWARE_VERSION,
   straightPartyNotYetImplemented,
   type GetCandidateOrderingsFn,
@@ -88,6 +89,7 @@ import type {
   ElectionStatus,
 } from './types.js';
 import type { DuplicatePartyError } from './store.js';
+import { type Bindable, Client } from './db/client.js';
 import { userFeatureConfigs } from './features.js';
 import { buildApi } from './app.js';
 import {
@@ -1770,6 +1772,77 @@ test('registered voter counts broken out by party are stored and retrieved', asy
   expect(await workspace.store.getRegisteredVoterCounts(electionId)).toEqual({
     'precinct-1': { total: 400, byParty: { [democraticParty.id]: 150 } },
   });
+});
+
+test('registered voter counts are read from a consistent snapshot', async () => {
+  const { apiClient, workspace, auth0 } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
+  auth0.setLoggedInUser(nonVxUser);
+  const electionId = (
+    await apiClient.createElection({
+      jurisdictionId: nonVxJurisdiction.id,
+      id: unsafeParse(ElectionIdSchema, 'election-rvc-snapshot'),
+    })
+  ).unsafeUnwrap();
+  const party: Party = {
+    id: 'party-snapshot',
+    name: 'Snapshot',
+    fullName: 'Snapshot Party',
+    abbrev: 'S',
+  };
+  (
+    await apiClient.updateParties({ electionId, newParties: [party] })
+  ).unsafeUnwrap();
+  const precinct: PrecinctWithoutSplits = {
+    id: 'precinct-snapshot',
+    name: 'Precinct Snapshot',
+    districtIds: [],
+  };
+  const originalCount: RegisteredVoterCount = {
+    total: 10,
+    byParty: { [party.id]: 10 },
+  };
+  (
+    await apiClient.createPrecinct({
+      electionId,
+      newPrecinct: precinct,
+      registeredVoterCounts: originalCount,
+    })
+  ).unsafeUnwrap();
+
+  // Save new counts right after the totals are read, before the party counts
+  // are read
+  const originalQuery = Client.prototype.query;
+  let hasUpdatedCounts = false;
+  const querySpy = vi
+    .spyOn(Client.prototype, 'query')
+    .mockImplementation(async function query(
+      this: Client,
+      sql: string,
+      ...values: Array<Bindable | Bindable[]>
+    ) {
+      const result = await originalQuery.call(this, sql, ...values);
+      if (
+        !hasUpdatedCounts &&
+        sql.includes('left join precinct_registered_voter_counts')
+      ) {
+        hasUpdatedCounts = true;
+        await workspace.store.setPrecinctRegisteredVoterCounts(precinct, {
+          total: 20,
+          byParty: { [party.id]: 20 },
+        });
+      }
+      return result;
+    });
+
+  expect(await workspace.store.getRegisteredVoterCounts(electionId)).toEqual({
+    [precinct.id]: originalCount,
+  });
+  expect(hasUpdatedCounts).toEqual(true);
+  querySpy.mockRestore();
 });
 
 test('empty registered voter count party breakdowns are preserved', async () => {
