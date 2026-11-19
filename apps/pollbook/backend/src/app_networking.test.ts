@@ -16,7 +16,7 @@ vi.mock(import('@votingworks/backend'));
 const mockExecFileFn = vi.mocked(execFile);
 
 beforeEach(() => {
-  vi.useFakeTimers();
+  vi.useFakeTimers({ shouldAdvanceTime: true });
   vi.clearAllMocks();
 });
 
