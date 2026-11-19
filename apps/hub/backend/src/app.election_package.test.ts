@@ -48,6 +48,8 @@ import {
   BallotCandidateOrderingsSchema,
   unsafeParseJson,
   type GetCandidateOrderingsFn,
+  type Party,
+  type RegisteredVoterCount,
 } from '@votingworks/types';
 import {
   getEntries,
@@ -1150,6 +1152,116 @@ test('export omits optional ballots if not enabled', async () => {
     ANY_SCRATCH_DIR,
     expect.any(Function) // emitProgress callback
   );
+});
+
+test('export - registered voter counts broken out by party', async () => {
+  const { apiClient, workspace, fileStorageClient, auth0 } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
+  auth0.setLoggedInUser(nonVxUser);
+
+  const electionId = (
+    await apiClient.loadElection({
+      newId: 'new-election-id',
+      jurisdictionId: nonVxJurisdiction.id,
+      upload: {
+        format: 'vxf',
+        electionFileContents: Buffer.from(
+          JSON.stringify(
+            electionFamousNames2021Fixtures.readElectionDefinition().election
+          )
+        ),
+      },
+    })
+  ).unsafeUnwrap();
+
+  const party: Party = {
+    id: 'party-export-test',
+    name: 'Export Test',
+    fullName: 'Export Test Party',
+    abbrev: 'E',
+  };
+  (
+    await apiClient.updateParties({ electionId, newParties: [party] })
+  ).unsafeUnwrap();
+  const precinct = find(
+    await apiClient.listPrecincts({ electionId }),
+    (p) => !hasSplits(p)
+  );
+  const breakdown: RegisteredVoterCount = {
+    total: 10,
+    byParty: { [party.id]: 4 },
+    nonpartisan: 6,
+  };
+  (
+    await apiClient.updatePrecinct({
+      electionId,
+      updatedPrecinct: precinct,
+      registeredVoterCounts: breakdown,
+    })
+  ).unsafeUnwrap();
+
+  async function setEnumerateRegisteredVoterCountByParty(
+    enumerateRegisteredVoterCountByParty: boolean
+  ) {
+    await apiClient.updateSystemSettings({
+      electionId,
+      systemSettings: {
+        ...DEFAULT_SYSTEM_SETTINGS,
+        enumerateRegisteredVoterCountByParty,
+      },
+    });
+  }
+
+  async function exportRegisteredVoterCounts() {
+    const exportMeta = await exportElectionPackage({
+      fileStorageClient,
+      apiClient,
+      electionId,
+      workspace,
+      electionSerializationFormat: 'vxf',
+      shouldExportAudio: false,
+      shouldExportSampleBallots: false,
+      shouldExportTestBallots: false,
+      numAuditIdBallots: undefined,
+    });
+    const { electionPackage } = (
+      await readElectionPackageFromBuffer(
+        getExportedFile({
+          storage: fileStorageClient,
+          jurisdictionId: nonVxJurisdiction.id,
+          url: exportMeta.electionPackageUrl,
+        })
+      )
+    ).unsafeUnwrap();
+    return electionPackage.registeredVoterCounts;
+  }
+
+  await setEnumerateRegisteredVoterCountByParty(false);
+  expect(await exportRegisteredVoterCounts()).toEqual({ [precinct.id]: 10 });
+
+  await setEnumerateRegisteredVoterCountByParty(true);
+  expect(await exportRegisteredVoterCounts()).toEqual({
+    [precinct.id]: breakdown,
+  });
+
+  // Deleting a party leaves a breakdown that no longer sums to the total
+  (
+    await apiClient.updateParties({ electionId, deletedPartyIds: [party.id] })
+  ).unsafeUnwrap();
+  await expect(
+    apiClient.exportElectionPackage({
+      electionId,
+      electionSerializationFormat: 'vxf',
+    })
+  ).rejects.toThrow(
+    'Party and nonpartisan registered voter counts must sum to the total'
+  );
+
+  await setEnumerateRegisteredVoterCountByParty(false);
+  expect(await exportRegisteredVoterCounts()).toEqual({ [precinct.id]: 10 });
 });
 
 test('Election package export with VxDefaultBallot drops signature field', async () => {

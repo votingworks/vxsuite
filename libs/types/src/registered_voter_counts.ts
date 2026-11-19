@@ -77,6 +77,29 @@ export function getPartyRegisteredVoterCounts(
   return typeof count === 'number' ? undefined : count.byParty;
 }
 
+/**
+ * Replaces each count with its total, dropping any breakdown by party.
+ */
+export function toTotalRegisteredVoterCounts(
+  counts: ElectionRegisteredVoterCounts
+): ElectionRegisteredVoterCounts {
+  return Object.fromEntries(
+    Object.entries(counts).map(([precinctId, entry]) => [
+      precinctId,
+      isSplitCounts(entry)
+        ? {
+            splits: Object.fromEntries(
+              Object.entries(entry.splits).map(([splitId, count]) => [
+                splitId,
+                getTotalRegisteredVoterCount(count),
+              ])
+            ),
+          }
+        : getTotalRegisteredVoterCount(entry),
+    ])
+  );
+}
+
 export interface PrecinctOrSplitRegisteredVoterCount {
   readonly precinctOrSplit: PrecinctOrSplit;
   readonly count?: RegisteredVoterCount;
