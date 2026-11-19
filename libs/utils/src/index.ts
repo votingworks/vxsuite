@@ -21,6 +21,7 @@ export * from './perf.js';
 export * from './polls.js';
 export * from './precinct_selection.js';
 export * from './random.js';
+export * from './registered_voter_counts.js';
 export * from './structural_sharing.js';
 export * from './sqlite.js';
 export * from './system_limits.js';

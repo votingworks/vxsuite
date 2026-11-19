@@ -71,6 +71,7 @@ import {
   getExportedCastVoteRecordIds,
   splitPerPrecinctTallyIntoSinglePrecinctTallies,
   decodeAndReadPerPrecinctCompressedTally,
+  hasValidRegisteredVoterCountParties,
 } from '@votingworks/utils';
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { dirSync, tmpNameSync } from 'tmp';
@@ -738,7 +739,9 @@ export function buildApi(ctx: AppContext) {
         input.electionId
       );
       const stateFeatures = getStateFeaturesConfig(jurisdiction);
-      const { election } = await store.getElection(input.electionId);
+      const { election, systemSettings } = await store.getElection(
+        input.electionId
+      );
 
       // @coverage-defer
       if (!stateFeatures.DISABLE_REGISTERED_VOTER_COUNTS) {
@@ -749,6 +752,20 @@ export function buildApi(ctx: AppContext) {
           !hasPartialRegisteredVoterCounts(precincts, registeredVoterCounts),
           'Registered voter counts must be provided for all precincts and splits or none'
         );
+        if (systemSettings.enumerateRegisteredVoterCountByParty) {
+          assert(
+            ElectionRegisteredVoterCountsSchema.safeParse(registeredVoterCounts)
+              .success,
+            'Party and nonpartisan registered voter counts must sum to the total'
+          );
+          assert(
+            hasValidRegisteredVoterCountParties(
+              election,
+              registeredVoterCounts
+            ),
+            'Registered voter counts by party must include every party with a ballot style in each precinct and split, and only parties with a ballot style in the election'
+          );
+        }
       }
 
       // When polling places are user-defined and this state does not allow
