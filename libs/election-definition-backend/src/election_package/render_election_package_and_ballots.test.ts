@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { readFile } from 'node:fs/promises';
+import { readdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import {
   readElectionPackageFromFile,
@@ -117,7 +117,13 @@ test('renders the election package and the official, sample and test ballot zips
   expect(speechSynthesizer.synthesizeSpeech).toHaveBeenCalled();
   expect(normalizeBallotColorModeForPrinting).not.toHaveBeenCalled();
 
-  const electionPackagePath = join(storageRoot, output.electionPackagePath);
+  const electionPackagePath = join(
+    storageRoot,
+    assertDefined(output.electionPackagePath)
+  );
+  expect(await readFile(electionPackagePath)).toEqual(
+    await readFile(output.electionPackageScratchPath)
+  );
   const { electionPackage } = (
     await readElectionPackageFromFile(electionPackagePath)
   ).unsafeUnwrap();
@@ -196,14 +202,19 @@ test('renders a split election definition with ballot audit IDs and normalizes b
       ...DEFAULT_SYSTEM_SETTINGS,
       splitElectionDefinition: true,
     },
+    shouldStoreElectionPackage: false,
     numAuditIdBallots: 2,
   });
 
+  expect(output.electionPackagePath).toBeUndefined();
   expect(output.sampleBallotsPath).toBeUndefined();
   expect(output.testBallotsPath).toBeUndefined();
   expect(normalizeBallotColorModeForPrinting).toHaveBeenCalledTimes(2);
+  expect(await readdir(join(storageRoot, 'output'))).toEqual([
+    `official-ballots-${formatBallotHash(output.electionDefinition.ballotHash)}.zip`,
+  ]);
 
-  const electionPackagePath = join(storageRoot, output.electionPackagePath);
+  const electionPackagePath = output.electionPackageScratchPath;
   expect(await readZipEntryNames(electionPackagePath)).toEqual(
     expect.arrayContaining([
       ElectionPackageFileName.BALLOT_POSITIONS,

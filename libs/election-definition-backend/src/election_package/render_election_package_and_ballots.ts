@@ -82,6 +82,7 @@ export interface ElectionPackageAndBallotsInput {
   };
   shouldExportSampleBallots?: boolean;
   shouldExportTestBallots?: boolean;
+  shouldStoreElectionPackage?: boolean;
   numAuditIdBallots?: number;
 }
 
@@ -96,11 +97,13 @@ export interface ElectionPackageAndBallotsContext {
 
 /**
  * Where the election package and ballot zips were written, as paths relative
- * to the file storage client's root.
+ * to the file storage client's root. The election package is also left in the
+ * scratch directory, which stays until the caller removes it.
  */
 export interface ElectionPackageAndBallotsOutput {
   electionDefinition: ElectionDefinitionWithData;
-  electionPackagePath: string;
+  electionPackageScratchPath: string;
+  electionPackagePath?: string;
   officialBallotsPath: string;
   sampleBallotsPath?: string;
   testBallotsPath?: string;
@@ -160,6 +163,7 @@ async function generate(
     audio,
     shouldExportSampleBallots,
     shouldExportTestBallots,
+    shouldStoreElectionPackage = true,
     numAuditIdBallots,
   } = input;
   let { systemSettings } = input;
@@ -377,12 +381,17 @@ async function generate(
 
   const ballotHash = formatBallotHash(electionDefinition.ballotHash);
   const [
-    electionPackagePath,
+    { electionPackageScratchPath, electionPackagePath },
     officialBallotsPath,
     sampleBallotsPath,
     testBallotsPath,
   ] = await Promise.all([
-    writeElectionZip(ctx, electionDefinition, electionPackageZip),
+    writeElectionZip(
+      ctx,
+      electionDefinition,
+      electionPackageZip,
+      shouldStoreElectionPackage
+    ),
 
     writeZipFile(
       ctx,
@@ -409,6 +418,7 @@ async function generate(
 
   return {
     electionDefinition,
+    electionPackageScratchPath,
     electionPackagePath,
     officialBallotsPath,
     sampleBallotsPath,
@@ -446,8 +456,12 @@ async function normalizeBallots(p: {
 async function writeElectionZip(
   ctx: ElectionPackageAndBallotsContext,
   electionDefinition: ElectionDefinition,
-  zip: Archiver
-) {
+  zip: Archiver,
+  shouldStore: boolean
+): Promise<{
+  electionPackageScratchPath: string;
+  electionPackagePath?: string;
+}> {
   const scratchPath = randomScratchFilePath(ctx.scratchDir, {
     extension: 'zip',
   });
@@ -462,11 +476,16 @@ async function writeElectionZip(
     electionPackageHash
   );
 
-  return writeZipFile(
-    ctx,
-    createReadStream(scratchPath),
-    `election-package-${combinedHash}.zip`
-  );
+  return {
+    electionPackageScratchPath: scratchPath,
+    electionPackagePath: shouldStore
+      ? await writeZipFile(
+          ctx,
+          createReadStream(scratchPath),
+          `election-package-${combinedHash}.zip`
+        )
+      : undefined,
+  };
 }
 
 async function writeZipFile(
