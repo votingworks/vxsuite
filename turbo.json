@@ -7,6 +7,7 @@
     ".nvmrc",
     "package.json",
     "rust-toolchain.toml",
+    "script/vx-cargo-build",
     "tsconfig.shared.json",
     "types/**",
     "vitest.config.shared.mts",
