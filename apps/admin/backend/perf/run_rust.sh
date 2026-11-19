@@ -32,13 +32,12 @@ for election in $ELECTIONS; do
   for threads in $THREADS; do
     for by in ballot style; do
       printf '%s threads=%s ' "$election" "$threads" | tee -a "$LOG"
-      if [[ -x /usr/bin/time ]]; then
-        /usr/bin/time -f 'peak_rss_mb=%M' "$BINARY" group "$jobs_dir" \
-          --by="$by" --threads="$threads" 2>"$RESULTS/time.txt" | tr -d '\n' | tee -a "$LOG"
-        echo " $(awk -F= '{printf "peak_rss_mb=%d", $2/1024}' "$RESULTS/time.txt")" | tee -a "$LOG"
-      else
-        "$BINARY" group "$jobs_dir" --by="$by" --threads="$threads" | tee -a "$LOG"
-      fi
+      python3 - "$BINARY" group "$jobs_dir" --by="$by" --threads="$threads" <<'PYTHON' | tee -a "$LOG"
+import resource, subprocess, sys
+output = subprocess.run(sys.argv[1:], check=True, capture_output=True, text=True).stdout.strip()
+peak_mb = resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss // 1024
+print(f"{output} peak_rss_mb={peak_mb}")
+PYTHON
     done
   done
   rm -rf "$jobs_dir"
