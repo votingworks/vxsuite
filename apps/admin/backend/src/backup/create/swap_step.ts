@@ -1,7 +1,10 @@
-import { existsSync } from 'node:fs';
-import { rename, rm } from 'node:fs/promises';
-import { err, ok, type Result } from '@votingworks/basics';
-import { exchangePaths, syncFilesystem } from '@votingworks/fs';
+import { rm } from 'node:fs/promises';
+import { err, extractErrorMessage, ok, type Result } from '@votingworks/basics';
+import {
+  exchangePaths,
+  renameNoReplace,
+  syncFilesystem,
+} from '@votingworks/fs';
 import type { SwapBackupOptions } from './types.js';
 
 /**
@@ -39,21 +42,28 @@ export async function swap(
 
   options.onProgressEvent?.({ type: '7_swapping_backup' });
 
-  if (existsSync(backup)) {
-    const exchangeResult = exchangePaths(backup, inProgressBackup);
-    if (exchangeResult.isErr()) {
-      return err({
-        type: 'backup-swap-failed',
-        message: `Failed to swap in the new backup: ${
-          exchangeResult.err().message
-        }`,
-      });
-    }
-  } else {
-    await rename(inProgressBackup, backup);
+  const renameResult = renameNoReplace(inProgressBackup, backup);
+  const swapResult =
+    renameResult.err()?.code === 'EEXIST'
+      ? exchangePaths(backup, inProgressBackup)
+      : renameResult;
+  if (swapResult.isErr()) {
+    return err({
+      type: 'backup-swap-failed',
+      message: `Failed to swap in the new backup: ${swapResult.err().message}`,
+    });
   }
 
-  await rm(inProgressBackup, { recursive: true, force: true });
+  try {
+    await rm(inProgressBackup, { recursive: true, force: true });
+  } catch (error) {
+    return err({
+      type: 'backup-swap-failed',
+      message: `Failed to remove the previous backup: ${extractErrorMessage(
+        error
+      )}`,
+    });
+  }
 
   options.onProgressEvent?.({ type: '8_flushing_swap' });
   const flushAfterSwapResult = await syncFilesystem(target);
