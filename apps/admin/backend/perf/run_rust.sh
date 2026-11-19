@@ -6,7 +6,7 @@ PROTOTYPE_DIR="${PROTOTYPE_DIR:-$HOME/rust-proto/libs/hmpb-rs}"
 BINARY="$PROTOTYPE_DIR/target/release/hmpb-rs"
 RESULTS="${RESULTS:-$PERF_DIR/results/rust-$(date +%Y%m%d-%H%M%S)-$(hostname)}"
 ELECTIONS="${ELECTIONS:-shawnee-general shawnee-primary system-limit}"
-THREADS="${THREADS:-1 2 4 8 $(nproc)}"
+THREADS="${THREADS:-$(printf '%s\n' 4 8 "$(nproc)" | sort -nu | xargs)}"
 
 if [[ ! -x $BINARY ]]; then
   echo "Build the prototype first; see the README (expected $BINARY)" >&2

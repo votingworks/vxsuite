@@ -172,11 +172,13 @@ Then, from this folder:
 ./run_rust.sh
 ```
 
-`ELECTIONS`, `THREADS`, `PROTOTYPE_DIR` and `RESULTS` override the defaults. For
-example, `ELECTIONS=santa-clara-primary ./run_rust.sh`. The Santa Clara
-elections run English-only (`rust_jobs.ts --english-only`), which drops their
-bilingual ballots, so they're lighter than the Chromium runs of the same
-election. Results go to `results/rust-<date>-<host>/rust.log`.
+It runs 4 and 8 threads and every thread the machine has (`nproc`).
+`THREADS="1 2 4"` and the like overrides that, as do `ELECTIONS`,
+`PROTOTYPE_DIR` and `RESULTS`. For example,
+`ELECTIONS=santa-clara-primary ./run_rust.sh`. The Santa Clara elections run
+English-only (`rust_jobs.ts --english-only`), which drops their bilingual
+ballots, so they're lighter than the Chromium runs of the same election. Results
+go to `results/rust-<date>-<host>/rust.log`.
 
 ### Inspect a generated election
 
