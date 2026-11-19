@@ -18,6 +18,7 @@ export interface RunConfig {
   readonly pool: number;
   readonly modes: readonly string[];
   readonly variant?: string;
+  readonly shards?: number;
   readonly stats: {
     readonly ballotStyles: number;
     readonly precincts: number;
@@ -77,6 +78,11 @@ function mean(values: number[]): number | undefined {
   return finite.length > 0
     ? finite.reduce((a, b) => a + b, 0) / finite.length
     : undefined;
+}
+
+function median(values: number[]): number | undefined {
+  const sorted = values.filter(Number.isFinite).toSorted((a, b) => a - b);
+  return sorted.length > 0 ? sorted[Math.floor(sorted.length / 2)] : undefined;
 }
 
 function slope(points: Array<[number, number]>): number | undefined {
@@ -244,6 +250,7 @@ export function summarizeRun(dir: string): RunSummary | undefined {
     label: config.label,
     election: config.election,
     pool: config.pool,
+    shards: config.shards ?? 1,
     variant: config.variant ?? 'baseline',
     modes: config.modes.join('+'),
     styles: config.stats.ballotStyles,
@@ -297,6 +304,7 @@ export function summarizeRun(dir: string): RunSummary | undefined {
     ),
     swap_used_at_start_mb: mb(swapAtStart),
     peak_swap_used_mb: mb(max(col(runSystem, 'swap_used_kb'))),
+    fastest_core_mhz: median(col(busyRows, 'freq_max_mhz'))?.toFixed(0),
     avg_freq_mhz: mean(col(busyRows, 'freq_avg_mhz'))?.toFixed(0),
     min_avg_freq_mhz: min(col(busyRows, 'freq_avg_mhz'))?.toFixed(0),
     max_temp_c: max(col(runSystem, 'temp_max_c')),
@@ -459,11 +467,98 @@ const TABLE_COLUMNS: Array<[string, string]> = [
   ['render_tree_pss_mb_per_1k', 'Render PSS MB/1k PDFs'],
 ];
 
+function numberOf(value?: string | number): number | undefined {
+  if (value === undefined || value === '') return undefined;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : undefined;
+}
+
+/** Formats seconds as e.g. `33 min 05 s` or `58 s`. */
+export function formatDuration(totalSeconds?: string | number): string {
+  const value = numberOf(totalSeconds);
+  if (value === undefined) return '?';
+  const rounded = Math.round(value);
+  if (rounded < 60) return `${rounded} s`;
+  const hours = Math.floor(rounded / 3600);
+  const minutes = Math.floor((rounded % 3600) / 60);
+  const remainder = String(rounded % 60).padStart(2, '0');
+  return hours > 0
+    ? `${hours} h ${String(minutes).padStart(2, '0')} min`
+    : `${minutes} min ${remainder} s`;
+}
+
+function gb(megabytes?: string | number): string {
+  const value = numberOf(megabytes);
+  return value === undefined ? '?' : `${(value / 1024).toFixed(1)} GB`;
+}
+
+function runSetup(summary: RunSummary): string {
+  const shards = numberOf(summary['shards']) ?? 1;
+  const { pool, variant } = summary;
+  const parallelism =
+    shards > 1 ? `${shards} processes × ${pool} pages` : `pool ${pool}`;
+  return [
+    summary['election'],
+    parallelism,
+    variant && variant !== 'baseline'
+      ? String(variant).replace(/^shards\d+-?/, '')
+      : undefined,
+    summary['modes'],
+  ]
+    .filter(Boolean)
+    .join(' · ');
+}
+
+/** The few numbers we care about most, as lines for the terminal. */
+export function formatHeadline(summary: RunSummary): string {
+  const swapGrowth =
+    (numberOf(summary['peak_swap_used_mb']) ?? 0) -
+    (numberOf(summary['swap_used_at_start_mb']) ?? 0);
+  const fastestCore = numberOf(summary['fastest_core_mhz']);
+  return [
+    `==== ${runSetup(summary)} ====`,
+    `Status:        ${summary['status']}${summary['error'] ? ` (${summary['error']})` : ''}, ${summary['pdfs']} PDFs${summary['pages_per_pdf'] ? ` (${summary['pages_per_pdf']} pages each)` : ''}`,
+    `Total time:    ${formatDuration(summary['wall_s'])}  (layout ${formatDuration(summary['layout_s'])}, render ${formatDuration(summary['render_s'])}, package ${formatDuration(summary['package_s'])}; ${summary['s_per_pdf'] ?? '?'} s/PDF)`,
+    `Peak memory:   ${gb(summary['peak_tree_pss_mb'])} for the export (Node ${gb(summary['peak_node_pss_mb'])}, Chromium ${gb(summary['peak_chromium_pss_mb'])})`,
+    `Machine:       peak ${gb(summary['peak_system_used_mb'])} of ${gb(summary['mem_total_mb'])} used, lowest free ${gb(summary['min_mem_available_mb'])}, swap ${swapGrowth >= 0 ? '+' : ''}${swapGrowth} MB`,
+    `Scratch disk:  ${gb(summary['peak_scratch_mb'])} peak`,
+    `CPU:           fastest core ~${fastestCore === undefined ? '?' : (fastestCore / 1000).toFixed(2)} GHz, max ${summary['max_temp_c'] ?? '?'} °C`,
+  ].join('\n');
+}
+
+function headlineTable(summaries: RunSummary[]): string {
+  const rows = summaries
+    .filter((s) => s['status'] !== 'baseline')
+    .map((s) => [
+      runSetup(s),
+      String(s['pdfs'] ?? ''),
+      String(s['status'] ?? ''),
+      formatDuration(s['wall_s']),
+      gb(s['peak_tree_pss_mb']),
+      `${gb(s['peak_system_used_mb'])} of ${gb(s['mem_total_mb'])}`,
+      gb(s['min_mem_available_mb']),
+    ]);
+  const header = [
+    'Run',
+    'PDFs',
+    'Status',
+    'Total time',
+    'Peak memory (export)',
+    'Peak machine used',
+    'Lowest free',
+  ];
+  return [
+    `| ${header.join(' | ')} |`,
+    `| ${header.map(() => '---').join(' | ')} |`,
+    ...rows.map((row) => `| ${row.join(' | ')} |`),
+  ].join('\n');
+}
+
 /**
- * Summarizes every run directory under `root` and writes summary.md and
- * summary.csv there.
+ * Summarizes every run directory under `root` and writes headline.md,
+ * summary.md and summary.csv there. Returns the headline table.
  */
-export function summarizeResults(root: string): RunSummary[] {
+export function summarizeResults(root: string): string {
   const summaries = readdirSync(root, { withFileTypes: true })
     .filter((entry) => entry.isDirectory())
     .map((entry) => join(root, entry.name))
@@ -491,5 +586,7 @@ export function summarizeResults(root: string): RunSummary[] {
     ),
   ].join('\n');
   writeFileSync(join(root, 'summary.csv'), `${csv}\n`);
-  return summaries;
+  const headline = headlineTable(summaries);
+  writeFileSync(join(root, 'headline.md'), `${headline}\n`);
+  return headline;
 }

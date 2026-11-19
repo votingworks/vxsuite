@@ -10,10 +10,11 @@ import {
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
+import { assertDefined } from '@votingworks/basics';
 import { Client } from '@votingworks/db';
 import { BaseLogger, LogSource } from '@votingworks/logging';
 import { ADMIN_WORKSPACE_DATABASE_NAME } from '../build/util/workspace.js';
-import { type RunConfig, summarizeRun } from './summary.ts';
+import { formatHeadline, type RunConfig, summarizeRun } from './summary.ts';
 
 const PERF_DIR = import.meta.dirname;
 
@@ -139,7 +140,9 @@ function main(): void {
     progressCsv.end(() => {
       sampler.kill('SIGTERM');
       void samplerExited.then(() => {
-        console.log(JSON.stringify(summarizeRun(runDir), null, 2));
+        console.log(
+          `\n${formatHeadline(assertDefined(summarizeRun(runDir)))}\nDetails: ${runDir}\n`
+        );
         process.exit(0);
       });
     });

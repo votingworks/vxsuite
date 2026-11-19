@@ -19,6 +19,7 @@ REPEAT="${REPEAT:-1}"
 INCLUDE_SYSTEM_LIMIT="${INCLUDE_SYSTEM_LIMIT:-1}"
 INCLUDE_SANTA_CLARA="${INCLUDE_SANTA_CLARA:-0}"
 PRECINCTS="${PRECINCTS:-}"
+SCC_PRIMARY_FULL="${SCC_PRIMARY_FULL:-0}"
 
 mkdir -p "$RESULTS"
 
@@ -42,7 +43,7 @@ log "results: $RESULTS"
 log "idle baseline for ${BASELINE_S}s; leave the machine alone"
 node "$PERF_DIR/sampler.ts" --out "$RESULTS/00-idle-baseline" --duration-s "$BASELINE_S"
 
-for _ in $(seq "$REPEAT"); do
+suite_basic() {
   run --election shawnee-general --pool 4
   run --election shawnee-general --pool 4 --fonts served
   run --election shawnee-general --pool 4 --seal none
@@ -59,6 +60,50 @@ for _ in $(seq "$REPEAT"); do
     run --election santa-clara --pool 4
     run --election santa-clara --pool 4 --fonts served
   fi
+}
+
+suite_shards() {
+  run --election system-limit --pool 4 --fonts served
+  run --election system-limit --pool 2 --shards 2 --fonts served
+  run --election system-limit --pool 2 --shards 3 --fonts served
+  run --election system-limit --pool 2 --shards 4 --fonts served
+}
+
+suite_pools() {
+  for pool in 2 3 4 5 6 8; do
+    run --election shawnee-primary --pool "$pool" --fonts served
+  done
+  run --election system-limit --pool 4 --fonts served
+  run --election system-limit --pool 6 --fonts served
+}
+
+suite_scc_primary() {
+  run --election santa-clara-primary --pool 4 --fonts served \
+    --precincts "${PRECINCTS:-100}"
+  run --election santa-clara-primary --pool 4 --fonts served \
+    --precincts "${PRECINCTS:-250}"
+  if [[ $SCC_PRIMARY_FULL == 1 ]]; then
+    NODE_OPTIONS="${NODE_OPTIONS:---max-old-space-size=4096}" \
+      run --election santa-clara-primary --pool 4 --fonts served
+  fi
+}
+
+SUITES=("$@")
+if [[ ${#SUITES[@]} -eq 0 ]]; then
+  SUITES=(basic)
+fi
+for suite in "${SUITES[@]}"; do
+  if ! declare -F "suite_${suite//-/_}" >/dev/null; then
+    echo "unknown suite: $suite (basic, shards, pools, scc-primary)" >&2
+    exit 1
+  fi
+done
+
+for _ in $(seq "$REPEAT"); do
+  for suite in "${SUITES[@]}"; do
+    log "suite: $suite"
+    "suite_${suite//-/_}"
+  done
 done
 
 node "$PERF_DIR/summarize.ts" "$RESULTS"

@@ -20,6 +20,7 @@ export interface ContestSpec {
   readonly kind: 'candidate' | 'yesno';
   readonly title: string;
   readonly partisan?: boolean;
+  readonly topTwo?: boolean;
   readonly seats?: number;
   readonly candidates?: number;
   readonly descriptionWords?: number;
@@ -43,6 +44,7 @@ export interface ElectionSpec {
   readonly pollingPlaces: number;
   readonly layers: readonly DistrictLayer[];
   readonly languageConfigs: ReadonlyArray<readonly LanguageCode[]>;
+  readonly parties?: readonly Party[];
 }
 
 export interface GeneratedElectionStats {
@@ -278,7 +280,8 @@ export function generateElection(spec: ElectionSpec): GeneratedElection {
   }
 
   const parties: readonly Party[] =
-    spec.type === 'primary' ? GENERAL_PARTIES.slice(0, 2) : GENERAL_PARTIES;
+    spec.parties ??
+    (spec.type === 'primary' ? GENERAL_PARTIES.slice(0, 2) : GENERAL_PARTIES);
 
   const districts: District[] = spec.layers.flatMap((layer) =>
     Array.from({ length: layer.districtCount }, (_, i) => ({
@@ -329,7 +332,7 @@ export function generateElection(spec: ElectionSpec): GeneratedElection {
             (_, i) => {
               const candidateParty =
                 party ??
-                (contestSpec.partisan
+                (contestSpec.partisan || contestSpec.topTwo
                   ? parties[i % parties.length]
                   : undefined);
               const candidateName = nextCandidateName();

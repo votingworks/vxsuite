@@ -34,6 +34,7 @@ import {
   RENDER_PHASE,
   type RunConfig,
   type RunResult,
+  formatHeadline,
   summarizeRun,
 } from './summary.ts';
 
@@ -493,7 +494,7 @@ async function main(): Promise<void> {
   }
 
   const summary = assertDefined(summarizeRun(runDir));
-  console.log(JSON.stringify(summary, null, 2));
+  console.log(`\n${formatHeadline(summary)}\nDetails: ${runDir}\n`);
   process.exit(result.status === 'succeeded' ? 0 : 1);
 }
 

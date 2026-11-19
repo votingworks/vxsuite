@@ -70,15 +70,15 @@ node run.ts --election shawnee-general --pool 4 --modes official,sample,test
 
 Options (`node run.ts --help`):
 
-| Option          | Default             | Meaning                                                                   |
-| --------------- | ------------------- | ------------------------------------------------------------------------- |
-| `--election`    |                     | `shawnee-general`, `shawnee-primary`, `system-limit`, `santa-clara`       |
-| `--pool`        | 4                   | Renderer pool size (Chromium pages). VxAdmin uses 4.                      |
-| `--modes`       | `official,test`     | What VxAdmin's DEMO state exports. Add `sample` for official+sample+test. |
-| `--precincts`   | preset              | Scale a preset down (or up), keeping its ratios                           |
-| `--out`         | `perf/results`      | Results root                                                              |
-| `--scratch`     | `$TMPDIR` or `/tmp` | Where scratch PDFs and output zips go                                     |
-| `--keep-output` | off                 | Keep the election package and ballot zips                                 |
+| Option          | Default             | Meaning                                                                                    |
+| --------------- | ------------------- | ------------------------------------------------------------------------------------------ |
+| `--election`    |                     | `shawnee-general`, `shawnee-primary`, `system-limit`, `santa-clara`, `santa-clara-primary` |
+| `--pool`        | 4                   | Renderer pool size (Chromium pages). VxAdmin uses 4.                                       |
+| `--modes`       | `official,test`     | What VxAdmin's DEMO state exports. Add `sample` for official+sample+test.                  |
+| `--precincts`   | preset              | Scale a preset down (or up), keeping its ratios                                            |
+| `--out`         | `perf/results`      | Results root                                                                               |
+| `--scratch`     | `$TMPDIR` or `/tmp` | Where scratch PDFs and output zips go                                                      |
+| `--keep-output` | off                 | Keep the election package and ballot zips                                                  |
 
 Each run is its own Node process, so memory starts fresh.
 
@@ -110,27 +110,28 @@ node summarize.ts results/matrix-<timestamp>-<host>
 ### Experiments
 
 ```bash
-./run_experiments.sh
+./run_experiments.sh [suite...]
 ```
 
-This tries possible speedups against the same baseline, one run at a time with
-the same idle baseline and cooldowns as the matrix:
+Each suite tries possible speedups, one run at a time, with the same idle
+baseline, cooldowns and sleep blocking as the matrix. With no suite named it
+runs `basic`.
 
-| Run                                    | What it tests                                                                                               |
-| -------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| Shawnee general, pool 4                | Baseline (today's code)                                                                                     |
-| `--fonts served`                       | Fonts loaded once per browser from a local server instead of inlined (about 810 KB of base64) in every page |
-| `--seal none`                          | The most the 37 KB seal can cost                                                                            |
-| `--pool 6`, `--pool 8`                 | Whether more Chromium pages still help                                                                      |
-| `--pool 6 --fonts served`              | Whether serving fonts changes the best pool size                                                            |
-| `--pool 2 --shards 2`, `--shards 3`    | Splitting ballot styles across 2 or 3 Node processes, each with 2 pages (Brian's sharding)                  |
-| `--pool 2 --shards 2 --fonts served`   | Both together                                                                                               |
-| System limit, pool 4, `--fonts served` | The font fix at scale; compare with the matrix's system-limit run                                           |
+| Suite         | Runs                                                                                                                                                                                                                         | About (AMD laptop)       |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------ |
+| `basic`       | Shawnee general: pool 4 today; font fix; no seal; pool 6 and 8; pool 6 + font fix; 2 and 3 processes × 2 pages; 2 × 2 + font fix. Then system limit with the font fix.                                                       | 30 min + 20 min          |
+| `shards`      | System limit with the font fix: 1 process × 4 pages, then 2, 3 and 4 processes × 2 pages                                                                                                                                     | 1–1.5 h                  |
+| `pools`       | Shawnee primary with the font fix at pool 2, 3, 4, 5, 6 and 8, then system limit with the font fix at pool 4 and 6                                                                                                           | 1–1.25 h                 |
+| `scc-primary` | Santa Clara presidential primary with the font fix at 100 and 250 precincts (3,600 and 9,000 styles). Add `SCC_PRIMARY_FULL=1` for the full 1,067 precincts (38,412 styles, 153,648 PDFs), which runs with a 4 GB Node heap. | 1–1.5 h; full adds 3–6 h |
 
-`INCLUDE_SANTA_CLARA=1` adds Santa Clara at pool 4, inline and served (about 1.5
-h more). `INCLUDE_SYSTEM_LIMIT=0`, `REPEAT`, `PRECINCTS`, `COOLDOWN_S` and
-`RESULTS` work as in the matrix. Expect about 30 min for the Shawnee runs plus
-25–40 min for system limit.
+`INCLUDE_SANTA_CLARA=1` adds Santa Clara (inline and served) to `basic`.
+`INCLUDE_SYSTEM_LIMIT=0`, `REPEAT`, `PRECINCTS`, `COOLDOWN_S` and `RESULTS` work
+as in the matrix.
+
+Each run ends with a short headline (total time, phase split, peak memory for
+the export and the whole machine, scratch disk, clock speed). At the end the
+suite prints a comparison table and writes it to `headline.md` next to
+`summary.md` (more columns) and `summary.csv` (every field).
 
 The switches also work on `run.ts` directly:
 
@@ -163,12 +164,13 @@ distinct set of districts is one ballot style, and each style gets one district
 from each layer, so ballots stay about one sheet. The seal is the
 `electionGeneral` fixture seal (37 KB SVG), which is inlined in every ballot.
 
-| Preset            | Precincts             | Districts | Contests | Candidates | Ballot styles              | Contests per style | Sheets per ballot | PDFs (official+test) |
-| ----------------- | --------------------- | --------- | -------- | ---------- | -------------------------- | ------------------ | ----------------- | -------------------- |
-| `shawnee-general` | 242                   | 34        | 45       | 128        | 204                        | 13–16              | 1–2               | 968                  |
-| `shawnee-primary` | 242                   | 34        | 49       | 104        | 408 (2 parties)            | 10 per party       | 1                 | 1,936                |
-| `system-limit`    | 2,500 (2 splits each) | 499       | 1,000    | 2,000      | 5,000                      | 14                 | 1                 | 20,000               |
-| `santa-clara`     | 1,067                 | 82        | 85       | 105        | 6,402 (6 language configs) | 7–10               | 1                 | 25,608               |
+| Preset                | Precincts             | Districts | Contests | Candidates | Ballot styles                           | Contests per style | Sheets per ballot | PDFs (official+test) |
+| --------------------- | --------------------- | --------- | -------- | ---------- | --------------------------------------- | ------------------ | ----------------- | -------------------- |
+| `shawnee-general`     | 242                   | 34        | 45       | 128        | 204                                     | 13–16              | 1–2               | 968                  |
+| `shawnee-primary`     | 242                   | 34        | 49       | 104        | 408 (2 parties)                         | 10 per party       | 1                 | 1,936                |
+| `system-limit`        | 2,500 (2 splits each) | 499       | 1,000    | 2,000      | 5,000                                   | 14                 | 1                 | 20,000               |
+| `santa-clara`         | 1,067                 | 82        | 85       | 105        | 6,402 (6 language configs)              | 7–10               | 1                 | 25,608               |
+| `santa-clara-primary` | 1,067                 | 66        | 107      | 399        | 38,412 (6 parties × 6 language configs) | 9–12               | 2                 | 153,648              |
 
 "Sheets per ballot" was checked by rendering each preset at small scale; the
 general's styles with an extra school or city question spill onto a second
@@ -195,6 +197,15 @@ Notes:
   (`[es-US] English text`), which keep the bilingual layout length but render
   only Latin glyphs. Real CJK, Arabic and Bengali text would need fonts the
   vxdev image lacks (fonts-noto-core) and may render slower.
+
+- **Santa Clara presidential primary:** California's 6 qualified parties (DEM,
+  REP, AI, GRN, LIB, PF), each with its own ballot, on the Santa Clara geography
+  and language configs. Each party ballot has President and a County Central
+  Committee (vote for up to 6) for that party, plus "top-two" contests that
+  appear on every party's ballot with candidates labeled by party (U.S.
+  Representative, State Senate, State Assembly), nonpartisan judges and
+  supervisors, and county, city and school measures. Bilingual ballots are two
+  sheets. Contests are illustrative, not from a real ballot.
 
 ## Results
 

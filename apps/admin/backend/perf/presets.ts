@@ -1,4 +1,4 @@
-import { LanguageCode } from '@votingworks/types';
+import { LanguageCode, type Party } from '@votingworks/types';
 import type {
   ContestSpec,
   DistrictLayer,
@@ -241,7 +241,160 @@ function santaClaraLayers(): DistrictLayer[] {
   ];
 }
 
+function santaClaraPrimaryLayers(): DistrictLayer[] {
+  return [
+    {
+      name: 'Santa Clara County',
+      districtCount: 1,
+      contests: [
+        {
+          kind: 'candidate',
+          title: 'President',
+          partisan: true,
+          candidates: 6,
+        },
+        {
+          kind: 'candidate',
+          title: 'Judge of the Superior Court, Office 1',
+          candidates: 3,
+        },
+        {
+          kind: 'candidate',
+          title: 'Judge of the Superior Court, Office 2',
+          candidates: 3,
+        },
+        { kind: 'yesno', title: 'Measure A', descriptionWords: 50 },
+        { kind: 'yesno', title: 'Measure B', descriptionWords: 50 },
+      ],
+    },
+    {
+      name: 'Congressional',
+      districtCount: 5,
+      contests: [
+        {
+          kind: 'candidate',
+          title: 'U.S. Representative',
+          topTwo: true,
+          candidates: 5,
+        },
+      ],
+    },
+    {
+      name: 'State Senate',
+      districtCount: 4,
+      contests: [
+        {
+          kind: 'candidate',
+          title: 'State Senator',
+          topTwo: true,
+          candidates: 4,
+          firstDistricts: 2,
+        },
+      ],
+    },
+    {
+      name: 'Assembly',
+      districtCount: 6,
+      contests: [
+        {
+          kind: 'candidate',
+          title: 'Member of the State Assembly',
+          topTwo: true,
+          candidates: 4,
+        },
+        {
+          kind: 'candidate',
+          title: 'County Central Committee',
+          partisan: true,
+          seats: 6,
+          candidates: 8,
+        },
+      ],
+    },
+    {
+      name: 'Supervisorial',
+      districtCount: 5,
+      contests: [
+        {
+          kind: 'candidate',
+          title: 'Member, Board of Supervisors',
+          candidates: 4,
+          firstDistricts: 3,
+        },
+      ],
+    },
+    {
+      name: 'City',
+      districtCount: 15,
+      coverage: 0.85,
+      contests: [
+        { kind: 'yesno', title: 'City Measure', descriptionWords: 50 },
+      ],
+    },
+    {
+      name: 'School',
+      districtCount: 30,
+      coverage: 0.9,
+      contests: [
+        {
+          kind: 'yesno',
+          title: 'School Parcel Tax Measure',
+          descriptionWords: 50,
+        },
+      ],
+    },
+  ];
+}
+
+const CALIFORNIA_PARTIES: readonly Party[] = [
+  {
+    id: 'dem',
+    name: 'Democratic',
+    fullName: 'Democratic Party',
+    abbrev: 'DEM',
+  },
+  {
+    id: 'rep',
+    name: 'Republican',
+    fullName: 'Republican Party',
+    abbrev: 'REP',
+  },
+  {
+    id: 'aip',
+    name: 'American Independent',
+    fullName: 'American Independent Party',
+    abbrev: 'AI',
+  },
+  {
+    id: 'grn',
+    name: 'Green',
+    fullName: 'Green Party',
+    abbrev: 'GRN',
+  },
+  {
+    id: 'lib',
+    name: 'Libertarian',
+    fullName: 'Libertarian Party',
+    abbrev: 'LIB',
+  },
+  {
+    id: 'pf',
+    name: 'Peace and Freedom',
+    fullName: 'Peace and Freedom Party',
+    abbrev: 'PF',
+  },
+];
+
 const ENGLISH_ONLY = [[LanguageCode.ENGLISH]] as const;
+
+const SANTA_CLARA_LANGUAGE_CONFIGS = [
+  [LanguageCode.ENGLISH],
+  [LanguageCode.ENGLISH, LanguageCode.SPANISH],
+  [LanguageCode.ENGLISH, LanguageCode.CHINESE_SIMPLIFIED],
+  [LanguageCode.ENGLISH, LanguageCode.CHINESE_TRADITIONAL],
+  [LanguageCode.ENGLISH, LanguageCode.ARABIC],
+  [LanguageCode.ENGLISH, LanguageCode.BENGALI],
+] as const;
 
 export const ELECTION_PRESETS = {
   'shawnee-general': {
@@ -283,14 +436,18 @@ export const ELECTION_PRESETS = {
     districtSets: 1067,
     pollingPlaces: 300,
     layers: santaClaraLayers(),
-    languageConfigs: [
-      [LanguageCode.ENGLISH],
-      [LanguageCode.ENGLISH, LanguageCode.SPANISH],
-      [LanguageCode.ENGLISH, LanguageCode.CHINESE_SIMPLIFIED],
-      [LanguageCode.ENGLISH, LanguageCode.CHINESE_TRADITIONAL],
-      [LanguageCode.ENGLISH, LanguageCode.ARABIC],
-      [LanguageCode.ENGLISH, LanguageCode.BENGALI],
-    ],
+    languageConfigs: SANTA_CLARA_LANGUAGE_CONFIGS,
+  },
+  'santa-clara-primary': {
+    name: 'santa-clara-primary',
+    title: 'Santa Clara-Scale Presidential Primary Election',
+    type: 'primary',
+    precincts: 1067,
+    districtSets: 1067,
+    pollingPlaces: 300,
+    layers: santaClaraPrimaryLayers(),
+    languageConfigs: SANTA_CLARA_LANGUAGE_CONFIGS,
+    parties: CALIFORNIA_PARTIES,
   },
 } as const satisfies Record<string, ElectionSpec>;
 

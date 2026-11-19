@@ -56,8 +56,14 @@ async function main(): Promise<void> {
     )
   );
   const systemSettings = stateDefaultSystemSettings('DEMO');
+  const shardBallotStyles = generated.election.ballotStyles.filter(
+    (_, index) => index % shards === shard
+  );
   const election = addPollingPlacesForExport(
-    withSeal(generated.election, values.seal),
+    {
+      ...withSeal(generated.election, values.seal),
+      ballotStyles: shardBallotStyles,
+    },
     { stateCode: 'DEMO' },
     systemSettings
   );
@@ -76,16 +82,11 @@ async function main(): Promise<void> {
     election,
     mergeUiStrings(electionStrings, hmpbStrings)
   );
-  const allProps = createBallotPropsForTemplate(
+  const props = createBallotPropsForTemplate(
     'VxDefaultBallot',
     formattedElection,
     false
   ).filter(({ ballotMode }) => modes.includes(ballotMode));
-  const styleIds = [...new Set(allProps.map((p) => p.ballotStyle.id))];
-  const shardStyleIds = new Set(
-    styleIds.filter((_, index) => index % shards === shard)
-  );
-  const props = allProps.filter((p) => shardStyleIds.has(p.ballotStyle.id));
 
   const rendererPool = await createPlaywrightRendererPool(Number(values.pool));
   const { ballotPaths } = await renderAllBallotPdfsAndCreateElectionDefinition(
