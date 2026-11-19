@@ -14,11 +14,7 @@ import {
   Font,
 } from '@votingworks/ui';
 
-import {
-  hasPartialRegisteredVoterCounts,
-  getPrecinctsWithoutAbsenteePollingPlace,
-} from '@votingworks/types';
-import { Row } from '@votingworks/election-definition-ui';
+import { getFinalizeBlocker, Row } from '@votingworks/election-definition-ui';
 import * as api from './api.js';
 import { type ElectionIdParams, routes } from './routes.js';
 
@@ -58,73 +54,28 @@ export function BallotsStatus(): React.ReactNode {
     return null;
   }
 
-  const ballotStyles = listBallotStylesQuery.data;
   const finalized = !!finalizedAtQuery.data;
   const approved = !!approvedAtQuery.data;
   const features = getStateFeaturesQuery.data;
 
-  if (ballotStyles.length === 0) {
-    return (
-      <Callout color="neutral" icon={<Icons.Info />} title="Ballots Incomplete">
-        VxHub will create ballot styles for your election once you have created
-        districts, precincts, and contests.
-      </Callout>
-    );
-  }
-
-  if (
-    features.STRAIGHT_PARTY_VOTING &&
-    getElectionInfoQuery.data.type === 'general' &&
-    !listContestsQuery.data.some((contest) => contest.type === 'straight-party')
-  ) {
+  const finalizeBlocker = getFinalizeBlocker({
+    appName: 'VxHub',
+    features,
+    electionType: getElectionInfoQuery.data.type,
+    ballotStyles: listBallotStylesQuery.data,
+    contests: listContestsQuery.data,
+    precincts: listPrecinctsQuery.data,
+    registeredVoterCounts: getRegisteredVoterCountsQuery.data,
+    pollingPlaces: listPollingPlacesQuery.data,
+  });
+  if (finalizeBlocker) {
     return (
       <Callout
         color="neutral"
         icon={<Icons.Info />}
-        title="Cannot generate straight party contest"
+        title={finalizeBlocker.title}
       >
-        To generate the straight party contest, the election must include a
-        district that covers every precinct.
-      </Callout>
-    );
-  }
-
-  if (
-    hasPartialRegisteredVoterCounts(
-      listPrecinctsQuery.data,
-      getRegisteredVoterCountsQuery.data
-    )
-  ) {
-    return (
-      <Callout
-        color="neutral"
-        icon={<Icons.Info />}
-        title="Registered voter counts must be provided for all precincts and splits, or none."
-      >
-        Registered voter counts are set for some precincts but not all. Set
-        counts for all precincts or remove them from all precincts before
-        finalizing.
-      </Callout>
-    );
-  }
-
-  if (
-    features.EDIT_POLLING_PLACES &&
-    !features.OMIT_ABSENTEE_POLLING_PLACES &&
-    getPrecinctsWithoutAbsenteePollingPlace(
-      listPrecinctsQuery.data,
-      listPollingPlacesQuery.data
-    ).length > 0
-  ) {
-    return (
-      <Callout
-        color="neutral"
-        icon={<Icons.Info />}
-        title="Absentee polling places must cover every precinct."
-      >
-        Every precinct must be covered by an absentee polling place, so that
-        centrally-scanned ballots have a location to be tabulated under. Add or
-        edit absentee polling places to cover all precincts before finalizing.
+        {finalizeBlocker.message}
       </Callout>
     );
   }

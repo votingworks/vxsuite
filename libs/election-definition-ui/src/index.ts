@@ -10,6 +10,7 @@ export * from './districts_editor.js';
 export * from './election_definition_context.js';
 export * from './election_info_editor.js';
 export * from './entity_list.js';
+export * from './finalize_blocker.js';
 export * from './form_fixed.js';
 export * from './image_input.js';
 export type * from './image_normalization.js';
