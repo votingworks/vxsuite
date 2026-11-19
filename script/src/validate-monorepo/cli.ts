@@ -143,6 +143,18 @@ export async function main({ stderr }: IO): Promise<number> {
         );
         break;
 
+      case 'MissingTurboDefaultInput':
+        stderr.write(
+          `${issue.packageDir}/turbo.json: build:self "inputs" must include "$TURBO_DEFAULT$", or turbo won't hash the package's own files\n`
+        );
+        break;
+
+      case 'MissingBuildOutput':
+        stderr.write(
+          `${issue.packageDir}/turbo.json: build:self "outputs" must include "build/**", where vx-cargo-build copies the binaries, or a turbo cache hit won't restore them\n`
+        );
+        break;
+
       case 'BrokenLink':
         stderr.write(
           `${relative(cwd, issue.markdownPath)}:${issue.line}: broken link to ${

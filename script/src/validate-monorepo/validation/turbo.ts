@@ -47,10 +47,33 @@ export interface UntrackedCargoWorkspaceFileIssue {
   readonly suggestedInput: string;
 }
 
+/**
+ * A package's turbo.json overrides `build:self` inputs without
+ * `$TURBO_DEFAULT$`, so turbo hashes only the listed files and not the
+ * package's own, and changing them would leave a (stale) cache hit.
+ */
+export interface MissingTurboDefaultInputIssue {
+  readonly kind: 'MissingTurboDefaultInput';
+  readonly packageName: string;
+  readonly packageDir: string;
+}
+
+/**
+ * A package that builds with `vx-cargo-build` overrides `build:self` outputs
+ * without `build/**`, so a turbo cache hit wouldn't restore its binaries.
+ */
+export interface MissingBuildOutputIssue {
+  readonly kind: 'MissingBuildOutput';
+  readonly packageName: string;
+  readonly packageDir: string;
+}
+
 export type ValidationIssue =
   | UntrackedCargoPathDependencyIssue
   | DirectCargoBuildIssue
-  | UntrackedCargoWorkspaceFileIssue;
+  | UntrackedCargoWorkspaceFileIssue
+  | MissingTurboDefaultInputIssue
+  | MissingBuildOutputIssue;
 
 export type ValidationIssueKind = ValidationIssue['kind'];
 
@@ -127,7 +150,7 @@ function collectPathDepDirs(
 }
 
 interface TurboJson {
-  tasks?: Record<string, { inputs?: string[] }>;
+  tasks?: Record<string, { inputs?: string[]; outputs?: string[] }>;
 }
 
 /** Reads a turbo.json, which may contain comments. */
@@ -312,6 +335,37 @@ function* checkCargoBuilds(
 }
 
 /**
+ * Check per-package `build:self` overrides for easy mistakes: inputs that
+ * leave out `$TURBO_DEFAULT$`, and, for packages that build Rust binaries into
+ * `build/`, outputs that leave out `build/**`.
+ */
+function* checkBuildSelfOverrides(
+  root: string,
+  workspacePackages: ReadonlyMap<string, PnpmPackageInfo>
+): Generator<ValidationIssue> {
+  for (const pkg of workspacePackages.values()) {
+    const turboJsonPath = join(pkg.path, 'turbo.json');
+    if (!existsSync(turboJsonPath)) continue;
+    const task = readTurboJson(turboJsonPath).tasks?.['build:self'];
+    const packageDir = relative(root, pkg.path);
+    if (task?.inputs && !task.inputs.includes('$TURBO_DEFAULT$')) {
+      yield {
+        kind: 'MissingTurboDefaultInput',
+        packageName: pkg.name,
+        packageDir,
+      };
+    }
+    if (
+      task?.outputs &&
+      /vx-cargo-build/.test(rustBuildCommand(pkg)) &&
+      !task.outputs.includes('build/**')
+    ) {
+      yield { kind: 'MissingBuildOutput', packageName: pkg.name, packageDir };
+    }
+  }
+}
+
+/**
  * Validate that per-package turbo.json configs keep turbo's cache correct for
  * Rust: Cargo path-dependency sources and Cargo workspace files are tracked as
  * inputs, and Cargo binaries are built with `vx-cargo-build`, which copies them
@@ -323,4 +377,5 @@ export function* checkConfig(
 ): Generator<ValidationIssue> {
   yield* checkCargoInputs(root, workspacePackages);
   yield* checkCargoBuilds(root, workspacePackages);
+  yield* checkBuildSelfOverrides(root, workspacePackages);
 }
