@@ -331,7 +331,7 @@ test('election manager and poll worker configuration', async () => {
   apiMock.authenticateAsPollWorker(electionDefinition);
   await userEvent.click(await screen.findByText('Open Polls'));
   await screen.findByText(
-    /Remove the poll worker card once you have printed all necessary reports/
+    /Remove the poll worker card after you have printed any additional copies you need/
   );
   apiMock.removeCard();
 
@@ -368,7 +368,7 @@ test('election manager and poll worker configuration', async () => {
   await userEvent.click(await screen.findByText('Open Polls'));
 
   await screen.findByText(
-    /Remove the poll worker card once you have printed all necessary reports/
+    /Remove the poll worker card after you have printed any additional copies you need/
   );
   apiMock.removeCard();
 
@@ -707,12 +707,12 @@ test('poll worker can open and close polls without scanning any ballots', async 
   await screen.findByText('Polls Opened');
   const printReport = apiMock.expectPrintReport();
   await userEvent.click(
-    screen.getByRole('button', { name: 'Reprint Polls Opened Report' })
+    screen.getByRole('button', { name: 'Print Another Copy' })
   );
   await screen.findByText('Printing Report…');
   printReport.resolve();
   await screen.findByText('Polls Opened');
-  screen.getByRole('button', { name: 'Reprint Polls Opened Report' });
+  screen.getByRole('button', { name: 'Print Another Copy' });
   screen.getByText('Remove the poll worker card', { exact: false });
   apiMock.removeCard();
   await screen.findByText(/Insert Your Ballot/i);
@@ -728,12 +728,12 @@ test('poll worker can open and close polls without scanning any ballots', async 
   await screen.findByText('Polls Closed');
   const printReport2 = apiMock.expectPrintReport();
   await userEvent.click(
-    screen.getByRole('button', { name: 'Reprint Polls Closed Report' })
+    screen.getByRole('button', { name: 'Print Another Copy' })
   );
   await screen.findByText('Printing Report…');
   printReport2.resolve();
   await screen.findByText('Polls Closed');
-  screen.getByRole('button', { name: 'Reprint Polls Closed Report' });
+  screen.getByRole('button', { name: 'Print Another Copy' });
   screen.getByText('Remove the poll worker card', { exact: false });
   apiMock.removeCard();
   await screen.findByText('Polls Closed');
@@ -760,7 +760,7 @@ test('open polls, scan ballot, close polls, save results', async () => {
   apiMock.expectGetPollsInfo('polls_open');
   await userEvent.click(await screen.findByText('Open Polls'));
   await screen.findByText(
-    /Remove the poll worker card once you have printed all necessary reports/
+    /Remove the poll worker card after you have printed any additional copies you need/
   );
   apiMock.removeCard();
   await screen.findByText(/Insert Your Ballot/i);
@@ -779,7 +779,7 @@ test('open polls, scan ballot, close polls, save results', async () => {
   printReport.resolve();
   await screen.findByText('Polls Closed');
   await screen.findByText(
-    /Remove the poll worker card once you have printed all necessary reports/
+    /Remove the poll worker card after you have printed any additional copies you need/
   );
 
   apiMock.removeCard();
@@ -804,7 +804,7 @@ test('poll worker can open, pause, unpause, and close poll without scanning any 
   apiMock.expectGetPollsInfo('polls_open');
   await userEvent.click(await screen.findByText('Open Polls'));
   await screen.findByText(
-    /Remove the poll worker card once you have printed all necessary reports/
+    /Remove the poll worker card after you have printed any additional copies you need/
   );
   apiMock.removeCard();
   await screen.findByText(/Insert Your Ballot/i);
@@ -821,7 +821,7 @@ test('poll worker can open, pause, unpause, and close poll without scanning any 
   await screen.findByText('Pausing Voting…');
   printReport.resolve();
   await screen.findByText(
-    /Remove the poll worker card once you have printed all necessary reports/
+    /Remove the poll worker card after you have printed any additional copies you need/
   );
   apiMock.removeCard();
   await screen.findByText('Voting Paused');
@@ -837,7 +837,7 @@ test('poll worker can open, pause, unpause, and close poll without scanning any 
   await screen.findByText('Resuming Voting…');
   printReport2.resolve();
   await screen.findByText(
-    /Remove the poll worker card once you have printed all necessary reports/
+    /Remove the poll worker card after you have printed any additional copies you need/
   );
   apiMock.removeCard();
   await screen.findByText(/Insert Your Ballot/i);
@@ -853,7 +853,7 @@ test('poll worker can open, pause, unpause, and close poll without scanning any 
   await screen.findByText('Closing Polls…');
   printReport3.resolve();
   await screen.findByText(
-    /Remove the poll worker card once you have printed all necessary reports/
+    /Remove the poll worker card after you have printed any additional copies you need/
   );
   apiMock.removeCard();
   await screen.findByText('Polls Closed');

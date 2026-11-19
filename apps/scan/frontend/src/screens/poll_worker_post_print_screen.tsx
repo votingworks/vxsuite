@@ -18,7 +18,7 @@ import { CenteredText } from '../components/layout.js';
  * continuous print, including every party section in a primary.
  *
  * The first copy is printed before this screen is shown then this screen
- * prints the remaining copies (if applicable) via "Print Next Report."
+ * prints the remaining copies (if applicable) via "Print Next Copy."
  */
 export function PostPrintScreen({
   pollsTransitionType,
@@ -67,7 +67,7 @@ export function PostPrintScreen({
           <H1>Printing Report…</H1>
           {totalNumCopies > 1 && (
             <P>
-              Printing report {currentCopyIndex + 1} of {totalNumCopies}…
+              Printing copy {currentCopyIndex + 1} of {totalNumCopies}…
             </P>
           )}
         </CenteredText>
@@ -106,12 +106,15 @@ export function PostPrintScreen({
         <CenteredText>
           {header}
           <P>
-            Report printed. Remove the poll worker card once you have printed
-            all necessary reports.
+            {totalNumCopies > 1
+              ? `Copy ${currentCopyIndex + 1} of ${totalNumCopies} printed.`
+              : 'Report printed.'}{' '}
+            Gently tear off the report. Remove the poll worker card after you
+            have printed any additional copies you need.
           </P>
           <P>
             <Button onPress={() => printCopy(0, 1)} disabled={disablePrinting}>
-              Reprint {reportTitle}
+              Print Another Copy
             </Button>{' '}
             {reportQuickResultsEnabled && (
               <Button variant="primary" onPress={onViewReportResults}>
@@ -129,23 +132,16 @@ export function PostPrintScreen({
       <CenteredText>
         {header}
         <P>
-          Finished printing report {currentCopyIndex + 1} of {totalNumCopies}.
-          Remove the report from the printer by gently tearing it against the
-          tear bar.
+          Copy {currentCopyIndex + 1} of {totalNumCopies} printed. Gently tear
+          off the report, then print the next copy.
         </P>
         <P>
-          <Button
-            onPress={() => printCopy(currentCopyIndex, totalNumCopies)}
-            disabled={disablePrinting}
-          >
-            Print Previous Report
-          </Button>{' '}
           <Button
             variant="primary"
             onPress={() => printCopy(currentCopyIndex + 1, totalNumCopies)}
             disabled={disablePrinting}
           >
-            Print Next Report
+            Print Next Copy
           </Button>
         </P>
       </CenteredText>

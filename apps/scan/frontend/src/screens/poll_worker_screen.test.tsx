@@ -91,7 +91,7 @@ describe('transitions from polls closed initial', () => {
     await screen.findByText('Opening Polls…');
     printReport.resolve();
     await screen.findByText('Polls Opened');
-    await screen.findByText('Reprint Polls Opened Report');
+    await screen.findByText('Print Another Copy');
     expect(screen.queryByText('Send Polls Opened Report')).toBeNull();
   });
 
@@ -104,7 +104,7 @@ describe('transitions from polls closed initial', () => {
     await screen.findByText('Opening Polls…');
     printReport.resolve();
     await screen.findByText('Polls Opened');
-    await screen.findByText('Reprint Polls Opened Report');
+    await screen.findByText('Print Another Copy');
     expect(screen.queryByText('Send Polls Opened Report')).toBeNull();
   });
 
@@ -117,7 +117,7 @@ describe('transitions from polls closed initial', () => {
     await screen.findByText('Opening Polls…');
     printReport.resolve();
     await screen.findByText('Polls Opened');
-    await screen.findByText('Reprint Polls Opened Report');
+    await screen.findByText('Print Another Copy');
     await userEvent.click(screen.getButton('Send Polls Opened Report'));
     const qrCode = screen.getByTestId('quick-results-code');
     expect(qrCode).toBeInTheDocument();
@@ -142,7 +142,7 @@ describe('transitions from polls open', () => {
     printReport.resolve();
     await screen.findByText('Polls Closed');
     expect(startNewVoterSessionMock).toHaveBeenCalledTimes(1);
-    await screen.findByText('Reprint Polls Closed Report');
+    await screen.findByText('Print Another Copy');
     expect(screen.queryByText('Send Polls Closed Report')).toBeNull();
   });
 
@@ -156,7 +156,7 @@ describe('transitions from polls open', () => {
     printReport.resolve();
     await screen.findByText('Polls Closed');
     expect(startNewVoterSessionMock).toHaveBeenCalledTimes(1);
-    await screen.findByText('Reprint Polls Closed Report');
+    await screen.findByText('Print Another Copy');
     expect(screen.queryByText('Send Polls Closed Report')).toBeNull();
   });
 
@@ -170,7 +170,7 @@ describe('transitions from polls open', () => {
     printReport.resolve();
     await screen.findByText('Polls Closed');
     expect(startNewVoterSessionMock).toHaveBeenCalledTimes(1);
-    await screen.findByText('Reprint Polls Closed Report');
+    await screen.findByText('Print Another Copy');
     await userEvent.click(screen.getButton('Send Polls Closed Report'));
     const qrCode = screen.getByTestId('quick-results-code');
     expect(qrCode).toBeInTheDocument();
@@ -190,7 +190,7 @@ describe('transitions from polls open', () => {
     printReport.resolve();
     await screen.findByText('Polls Closed');
     expect(startNewVoterSessionMock).toHaveBeenCalledTimes(1);
-    await screen.findByText('Reprint Polls Closed Report');
+    await screen.findByText('Print Another Copy');
     await userEvent.click(screen.getButton('Send Polls Closed Report'));
     const qrCode = screen.getByTestId('quick-results-code');
     expect(qrCode).toBeInTheDocument();
@@ -227,7 +227,7 @@ describe('transitions from polls open', () => {
     await screen.findByText('Pausing Voting…');
     printReport.resolve();
     await screen.findByText('Voting Paused');
-    await screen.findByText('Reprint Voting Paused Report');
+    await screen.findByText('Print Another Copy');
     await userEvent.click(screen.getButton('Send Voting Paused Report'));
     const qrCode = await screen.findByTestId('quick-results-code');
     expect(qrCode).toBeInTheDocument();
@@ -273,7 +273,7 @@ describe('transitions from polls paused', () => {
     await screen.findByText('Resuming Voting…');
     printReport.resolve();
     await screen.findByText('Voting Resumed');
-    await screen.findByText('Reprint Voting Resumed Report');
+    await screen.findByText('Print Another Copy');
     await userEvent.click(screen.getButton('Send Voting Resumed Report'));
     const qrCode = screen.getByTestId('quick-results-code');
     expect(qrCode).toBeInTheDocument();
@@ -405,10 +405,8 @@ describe('reprinting previous report', () => {
     apiMock.expectPrintReport().resolve();
     await userEvent.click(button);
     apiMock.expectPrintReport().resolve();
-    await userEvent.click(
-      await screen.findButton('Reprint Polls Opened Report')
-    );
-    await screen.findButton('Reprint Polls Opened Report');
+    await userEvent.click(await screen.findButton('Print Another Copy'));
+    await screen.findButton('Print Another Copy');
   });
 
   test('available after polls paused', async () => {
@@ -420,7 +418,7 @@ describe('reprinting previous report', () => {
     expect(button).toBeEnabled();
     apiMock.expectPrintReport().resolve();
     await userEvent.click(button);
-    await screen.findButton('Reprint Voting Paused Report');
+    await screen.findButton('Print Another Copy');
   });
 
   test('available after polls resumed', async () => {
@@ -432,7 +430,7 @@ describe('reprinting previous report', () => {
     expect(button).toBeEnabled();
     apiMock.expectPrintReport().resolve();
     await userEvent.click(button);
-    await screen.findButton('Reprint Voting Resumed Report');
+    await screen.findButton('Print Another Copy');
   });
 
   test('available after polls closed', async () => {
@@ -443,7 +441,7 @@ describe('reprinting previous report', () => {
     expect(button).toBeEnabled();
     apiMock.expectPrintReport().resolve();
     await userEvent.click(button);
-    await screen.findButton('Reprint Polls Closed Report');
+    await screen.findButton('Print Another Copy');
   });
 });
 
@@ -526,11 +524,11 @@ describe('must have printer attached to transition polls and print reports', () 
     resolve();
     apiMock.expectGetPollsInfo('polls_open');
     await userEvent.click(screen.getByText('Open Polls'));
-    await screen.findByText('Reprint Polls Opened Report');
+    await screen.findByText('Print Another Copy');
 
     apiMock.setPrinterStatus({ state: 'error', type: 'disconnected' });
     await waitFor(() => {
-      expect(screen.getButton('Reprint Polls Opened Report')).toBeDisabled();
+      expect(screen.getButton('Print Another Copy')).toBeDisabled();
     });
   });
 
@@ -557,11 +555,11 @@ describe('must have printer attached to transition polls and print reports', () 
     });
 
     await userEvent.click(screen.getByText('Open Polls'));
-    await screen.findByText('Reprint Polls Opened Report');
+    await screen.findByText('Print Another Copy');
 
     apiMock.setPrinterStatus({ state: 'error', type: 'disconnected' });
     await waitFor(() => {
-      expect(screen.getButton('Reprint Polls Opened Report')).toBeDisabled();
+      expect(screen.getButton('Print Another Copy')).toBeDisabled();
     });
   });
 
@@ -575,13 +573,11 @@ describe('must have printer attached to transition polls and print reports', () 
     resolve();
     apiMock.expectGetPollsInfo('polls_open');
     await userEvent.click(await screen.findByText('Open Polls'));
-    expect(
-      await screen.findByText('Reprint Polls Opened Report')
-    ).toBeEnabled();
+    expect(await screen.findByText('Print Another Copy')).toBeEnabled();
 
     apiMock.setPrinterStatus({ state: 'error', type: 'disconnected' });
     await waitFor(() => {
-      expect(screen.getButton('Reprint Polls Opened Report')).toBeDisabled();
+      expect(screen.getButton('Print Another Copy')).toBeDisabled();
     });
   });
 
@@ -600,7 +596,7 @@ describe('must have printer attached to transition polls and print reports', () 
     resolve();
     apiMock.expectGetPollsInfo('polls_closed_final');
     await userEvent.click(screen.getByText('Close Polls'));
-    await screen.findByText('Reprint Polls Closed Report');
+    await screen.findByText('Print Another Copy');
     expect(startNewVoterSessionMock).toHaveBeenCalledTimes(1);
   });
 
@@ -624,7 +620,7 @@ describe('must have printer attached to transition polls and print reports', () 
     resolve();
     apiMock.expectGetPollsInfo('polls_closed_final');
     await userEvent.click(screen.getByText('Close Polls'));
-    await screen.findByText('Reprint Polls Closed Report');
+    await screen.findByText('Print Another Copy');
     expect(startNewVoterSessionMock).toHaveBeenCalledTimes(1);
   });
 });
@@ -646,7 +642,7 @@ describe('must have usb drive attached to transition polls', () => {
     apiMock.expectPrintReport().resolve();
     apiMock.expectGetPollsInfo('polls_open');
     await userEvent.click(screen.getByText('Open Polls'));
-    await screen.findByText('Reprint Polls Opened Report');
+    await screen.findByText('Print Another Copy');
   });
 
   test('opening polls from fallback screen', async () => {
@@ -672,7 +668,7 @@ describe('must have usb drive attached to transition polls', () => {
     });
 
     await userEvent.click(screen.getByText('Open Polls'));
-    await screen.findByText('Reprint Polls Opened Report');
+    await screen.findByText('Print Another Copy');
   });
 
   test('resuming voting', async () => {
@@ -717,7 +713,7 @@ describe('must have usb drive attached to transition polls', () => {
     apiMock.expectPrintReport().resolve();
     apiMock.expectGetPollsInfo('polls_closed_final');
     await userEvent.click(screen.getByText('Close Polls'));
-    await screen.findByText('Reprint Polls Closed Report');
+    await screen.findByText('Print Another Copy');
   });
 
   test('closing polls', async () => {
@@ -737,7 +733,7 @@ describe('must have usb drive attached to transition polls', () => {
     apiMock.expectPrintReport().resolve();
     apiMock.expectGetPollsInfo('polls_closed_final');
     await userEvent.click(screen.getByText('Close Polls'));
-    await screen.findByText('Reprint Polls Closed Report');
+    await screen.findByText('Print Another Copy');
     expect(startNewVoterSessionMock).toHaveBeenCalledTimes(1);
   });
 
@@ -763,7 +759,7 @@ describe('must have usb drive attached to transition polls', () => {
     apiMock.expectPrintReport().resolve();
     apiMock.expectGetPollsInfo('polls_closed_final');
     await userEvent.click(screen.getByText('Close Polls'));
-    await screen.findByText('Reprint Polls Closed Report');
+    await screen.findByText('Print Another Copy');
     expect(startNewVoterSessionMock).toHaveBeenCalledTimes(1);
   });
 });
@@ -963,17 +959,17 @@ describe('report printing', () => {
     resolve();
     await screen.findByText('Polls Opened');
     screen.getByText(
-      'Report printed. Remove the poll worker card once you have printed all necessary reports.'
+      'Report printed. Gently tear off the report. Remove the poll worker card after you have printed any additional copies you need.'
     );
 
     // try reprinting that report
     const { resolve: resolveReprint } = apiMock.expectPrintReport();
-    await userEvent.click(screen.getButton('Reprint Polls Opened Report'));
+    await userEvent.click(screen.getButton('Print Another Copy'));
     await screen.findByText('Printing Report…');
     resolveReprint();
     await screen.findByText('Polls Opened');
     screen.getByText(
-      'Report printed. Remove the poll worker card once you have printed all necessary reports.'
+      'Report printed. Gently tear off the report. Remove the poll worker card after you have printed any additional copies you need.'
     );
 
     await userEvent.click(screen.getButton('Send Polls Opened Report'));
@@ -1000,14 +996,14 @@ describe('report printing', () => {
     resolve();
     await screen.findByText('Polls Opened');
     await screen.findByText(/Report printed/);
-    expect(screen.queryButton('Print Next Report')).not.toBeInTheDocument();
+    expect(screen.queryButton('Print Next Copy')).not.toBeInTheDocument();
 
     const { resolve: resolveReprint } = apiMock.expectPrintReport();
-    await userEvent.click(screen.getButton('Reprint Polls Opened Report'));
+    await userEvent.click(screen.getButton('Print Another Copy'));
     await screen.findByText('Printing Report…');
     resolveReprint();
     await screen.findByText(/Report printed/);
-    expect(screen.queryButton('Print Next Report')).not.toBeInTheDocument();
+    expect(screen.queryButton('Print Next Copy')).not.toBeInTheDocument();
 
     await userEvent.click(screen.getButton('Send Polls Opened Report'));
     const qrCode = screen.getByTestId('quick-results-code');
@@ -1033,17 +1029,17 @@ describe('report printing', () => {
     await screen.findByText('Pausing Voting…');
     resolveReport();
     await screen.findByText('Voting Paused');
-    screen.getByText(/Voting Paused Report/);
+    screen.getByText(/Report printed/);
 
     // reprinting flow
     expect(screen.getAllByRole('button')).toHaveLength(1); // only one reprint button
     const { resolve: resolveReprintReport } = apiMock.expectPrintReport();
-    await userEvent.click(screen.getButton('Reprint Voting Paused Report'));
+    await userEvent.click(screen.getButton('Print Another Copy'));
     resolveReprintReport();
     await screen.findByText('Voting Paused');
-    screen.getByText(/Voting Paused Report/);
+    screen.getByText(/Report printed/);
     expect(screen.getAllByRole('button')).toHaveLength(1); // still only one reprint button
-    screen.getButton('Reprint Voting Paused Report');
+    screen.getButton('Print Another Copy');
   });
 
   test('out of paper while printing, reload, reprint', async () => {
@@ -1148,7 +1144,7 @@ describe('report printing', () => {
     const { resolve } = apiMock.expectPrintReport();
     await userEvent.click(await screen.findButton('Print Polls Opened Report'));
     resolve();
-    await screen.findButton('Reprint Polls Opened Report');
+    await screen.findButton('Print Another Copy');
   });
 });
 
@@ -1182,14 +1178,14 @@ describe('multiple report copies', () => {
     await screen.findByText('Closing Polls…');
     resolvePage1();
     await screen.findByText('Polls Closed');
-    await screen.findByText(/Finished printing report 1 of 2/);
+    await screen.findByText(/Copy 1 of 2 printed/);
 
     // The next copy is printed via the page button so it can be torn off
-    await userEvent.click(screen.getButton('Print Next Report'));
-    await screen.findByText(/Printing report 2 of 2/);
+    await userEvent.click(screen.getButton('Print Next Copy'));
+    await screen.findByText(/Printing copy 2 of 2/);
     resolvePage2();
-    await screen.findByText(/Report printed/);
-    screen.getButton('Reprint Polls Closed Report');
+    await screen.findByText(/Copy 2 of 2 printed/);
+    screen.getButton('Print Another Copy');
   });
 
   test('prints each copy of a primary report as one print', async () => {
@@ -1207,23 +1203,18 @@ describe('multiple report copies', () => {
 
     await screen.findByText('Closing Polls…');
     resolveCopy1();
-    await screen.findByText(/Finished printing report 1 of 2/);
+    await screen.findByText(/Copy 1 of 2 printed/);
 
-    // A misprinted copy can be reprinted before advancing to the next copy
-    const { resolve: resolveReprintCopy1 } = apiMock.expectPrintReport();
-    await userEvent.click(screen.getButton('Print Previous Report'));
-    await screen.findByText(/Printing report 1 of 2/);
-    resolveReprintCopy1();
-    await screen.findByText(/Finished printing report 1 of 2/);
+    expect(screen.queryButton('Print Previous Report')).not.toBeInTheDocument();
 
     const { resolve: resolveCopy2 } = apiMock.expectPrintReport();
-    await userEvent.click(screen.getButton('Print Next Report'));
-    await screen.findByText(/Printing report 2 of 2/);
+    await userEvent.click(screen.getButton('Print Next Copy'));
+    await screen.findByText(/Printing copy 2 of 2/);
     resolveCopy2();
 
     await screen.findByText('Polls Closed');
-    await screen.findByText(/Report printed/);
-    screen.getButton('Reprint Polls Closed Report');
+    await screen.findByText(/Copy 2 of 2 printed/);
+    screen.getButton('Print Another Copy');
   });
 
   test('stops printing copies if a page fails', async () => {
@@ -1253,17 +1244,17 @@ describe('multiple report copies', () => {
     // off: reprint the failed page...
     const { resolve: resolveRetry } = apiMock.expectPrintReport();
     await userEvent.click(screen.getButton('Reprint Polls Closed Report'));
-    await screen.findByText(/Printing report 1 of 2/);
+    await screen.findByText(/Printing copy 1 of 2/);
     resolveRetry();
-    await screen.findByText(/Finished printing report 1 of 2/);
+    await screen.findByText(/Copy 1 of 2 printed/);
 
     // ...and continue with the remaining copy
     const { resolve: resolvePage2 } = apiMock.expectPrintReport();
-    await userEvent.click(screen.getButton('Print Next Report'));
-    await screen.findByText(/Printing report 2 of 2/);
+    await userEvent.click(screen.getButton('Print Next Copy'));
+    await screen.findByText(/Printing copy 2 of 2/);
     resolvePage2();
-    await screen.findByText(/Report printed/);
-    screen.getButton('Reprint Polls Closed Report');
+    await screen.findByText(/Copy 2 of 2 printed/);
+    screen.getButton('Print Another Copy');
   });
 
   test('pause and resume reports print the configured number of copies', async () => {
@@ -1282,14 +1273,14 @@ describe('multiple report copies', () => {
     await screen.findByText('Pausing Voting…');
     resolveCopy1();
     await screen.findByText('Voting Paused');
-    await screen.findByText(/Finished printing report 1 of 2/);
+    await screen.findByText(/Copy 1 of 2 printed/);
 
     const { resolve: resolveCopy2 } = apiMock.expectPrintReport();
-    await userEvent.click(screen.getButton('Print Next Report'));
-    await screen.findByText(/Printing report 2 of 2/);
+    await userEvent.click(screen.getButton('Print Next Copy'));
+    await screen.findByText(/Printing copy 2 of 2/);
     resolveCopy2();
-    await screen.findByText(/Report printed/);
-    screen.getButton('Reprint Voting Paused Report');
+    await screen.findByText(/Copy 2 of 2 printed/);
+    screen.getButton('Print Another Copy');
   });
 });
 
