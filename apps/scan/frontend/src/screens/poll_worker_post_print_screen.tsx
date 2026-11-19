@@ -67,7 +67,7 @@ export function PostPrintScreen({
           <H1>Printing Report…</H1>
           {totalNumCopies > 1 && (
             <P>
-              Printing copy {currentCopyIndex + 1} of {totalNumCopies}…
+              Copy {currentCopyIndex + 1} of {totalNumCopies}
             </P>
           )}
         </CenteredText>
@@ -105,12 +105,10 @@ export function PostPrintScreen({
       <Screen>
         <CenteredText>
           {header}
+          <P>Report printed. Gently tear off the report.</P>
           <P>
-            {totalNumCopies > 1
-              ? `Copy ${currentCopyIndex + 1} of ${totalNumCopies} printed.`
-              : 'Report printed.'}{' '}
-            Gently tear off the report. Remove the poll worker card after you
-            have printed any additional copies you need.
+            Remove the poll worker card after you have printed any additional
+            copies you need.
           </P>
           <P>
             <Button onPress={() => printCopy(0, 1)} disabled={disablePrinting}>

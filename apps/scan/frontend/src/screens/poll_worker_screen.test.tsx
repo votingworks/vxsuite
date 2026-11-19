@@ -959,7 +959,7 @@ describe('report printing', () => {
     resolve();
     await screen.findByText('Polls Opened');
     screen.getByText(
-      'Report printed. Gently tear off the report. Remove the poll worker card after you have printed any additional copies you need.'
+      'Remove the poll worker card after you have printed any additional copies you need.'
     );
 
     // try reprinting that report
@@ -969,7 +969,7 @@ describe('report printing', () => {
     resolveReprint();
     await screen.findByText('Polls Opened');
     screen.getByText(
-      'Report printed. Gently tear off the report. Remove the poll worker card after you have printed any additional copies you need.'
+      'Remove the poll worker card after you have printed any additional copies you need.'
     );
 
     await userEvent.click(screen.getButton('Send Polls Opened Report'));
@@ -1182,9 +1182,9 @@ describe('multiple report copies', () => {
 
     // The next copy is printed via the page button so it can be torn off
     await userEvent.click(screen.getButton('Print Next Copy'));
-    await screen.findByText(/Printing copy 2 of 2/);
+    await screen.findByText('Copy 2 of 2');
     resolvePage2();
-    await screen.findByText(/Copy 2 of 2 printed/);
+    await screen.findByText(/Report printed/);
     screen.getButton('Print Another Copy');
   });
 
@@ -1209,11 +1209,11 @@ describe('multiple report copies', () => {
 
     const { resolve: resolveCopy2 } = apiMock.expectPrintReport();
     await userEvent.click(screen.getButton('Print Next Copy'));
-    await screen.findByText(/Printing copy 2 of 2/);
+    await screen.findByText('Copy 2 of 2');
     resolveCopy2();
 
     await screen.findByText('Polls Closed');
-    await screen.findByText(/Copy 2 of 2 printed/);
+    await screen.findByText(/Report printed/);
     screen.getButton('Print Another Copy');
   });
 
@@ -1244,16 +1244,16 @@ describe('multiple report copies', () => {
     // off: reprint the failed page...
     const { resolve: resolveRetry } = apiMock.expectPrintReport();
     await userEvent.click(screen.getButton('Reprint Polls Closed Report'));
-    await screen.findByText(/Printing copy 1 of 2/);
+    await screen.findByText('Copy 1 of 2');
     resolveRetry();
     await screen.findByText(/Copy 1 of 2 printed/);
 
     // ...and continue with the remaining copy
     const { resolve: resolvePage2 } = apiMock.expectPrintReport();
     await userEvent.click(screen.getButton('Print Next Copy'));
-    await screen.findByText(/Printing copy 2 of 2/);
+    await screen.findByText('Copy 2 of 2');
     resolvePage2();
-    await screen.findByText(/Copy 2 of 2 printed/);
+    await screen.findByText(/Report printed/);
     screen.getButton('Print Another Copy');
   });
 
@@ -1277,9 +1277,9 @@ describe('multiple report copies', () => {
 
     const { resolve: resolveCopy2 } = apiMock.expectPrintReport();
     await userEvent.click(screen.getButton('Print Next Copy'));
-    await screen.findByText(/Printing copy 2 of 2/);
+    await screen.findByText('Copy 2 of 2');
     resolveCopy2();
-    await screen.findByText(/Copy 2 of 2 printed/);
+    await screen.findByText(/Report printed/);
     screen.getButton('Print Another Copy');
   });
 });
