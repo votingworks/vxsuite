@@ -1,5 +1,9 @@
 import { LogEventId, type Logger } from '@votingworks/logging';
-import { runBlankPaperDiagnostic } from '@votingworks/ballot-interpreter';
+import {
+  runBlankPaperDiagnostic,
+  runBlankPaperDiagnosticFromImage,
+} from '@votingworks/ballot-interpreter';
+import { mapSheet } from '@votingworks/types';
 import type { BatchScanner, ScannedSheetInfo } from './batch_scanner.js';
 import type { Store } from './store.js';
 
@@ -36,13 +40,14 @@ export async function performScanDiagnostic(
     return 'no-paper';
   }
 
-  const pathA = sheets.frontPath;
-  const pathB = sheets.backPath;
-
-  const [frontPassed, backPassed] = await Promise.all([
-    runBlankPaperDiagnostic(pathA),
-    runBlankPaperDiagnostic(pathB),
-  ]);
+  const [frontPassed, backPassed] =
+    'images' in sheets
+      ? await mapSheet(sheets.images, (image) =>
+          runBlankPaperDiagnosticFromImage(image)
+        )
+      : await mapSheet([sheets.frontPath, sheets.backPath], (path) =>
+          runBlankPaperDiagnostic(path)
+        );
   const didPass = frontPassed && backPassed;
   if (didPass) {
     store.addDiagnosticRecord({

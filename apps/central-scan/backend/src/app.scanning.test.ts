@@ -1,5 +1,5 @@
 import { getLifetimeSheetCountFilePath } from '@votingworks/backend';
-import { assertDefined, deferred, iter } from '@votingworks/basics';
+import { assert, assertDefined, deferred, iter } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
   makeTemporaryPath,
@@ -149,6 +149,41 @@ test('scanBatch with multiple sheets', async () => {
       endedAt: expect.any(String),
       pollingPlaceId: '23-polling-place',
     });
+  });
+});
+
+test('scanBatch with in-memory sheet images', async () => {
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
+  const bmdFixture = await generateBmdBallotFixture();
+  const [front, back] = await Promise.all(
+    bmdFixture.sheet.map((path) => readFile(path))
+  );
+  await withApp(async ({ auth, apiClient, scanner, workspace }) => {
+    mockElectionManagerAuth(auth, electionDefinition);
+    await configureStore(workspace.store, {
+      electionDefinition,
+      jurisdiction,
+      electionPackageHash: 'test-election-package-hash',
+      systemSettings: DEFAULT_SYSTEM_SETTINGS,
+    });
+    await apiClient.setTestMode({ testMode: true });
+    await apiClient.setPollingPlaceId({ id: '23-polling-place' });
+
+    scanner
+      .withNextScannerSession()
+      .sheet({ images: [{ encoded: front! }, { encoded: back! }] })
+      .end();
+
+    await apiClient.scanBatch();
+    const pausedStatus = await waitForStatus(apiClient, {
+      state: 'paused',
+      pauseReason: { type: 'tray-empty' },
+    });
+    expect(pausedStatus.batches[0]?.count).toEqual(1);
+    const [sheet] = workspace.store.forEachSheet();
+    assert(sheet?.type === 'accepted');
+    expect(sheet.interpretation[0].type).toEqual('InterpretedBmdPage');
   });
 });
 

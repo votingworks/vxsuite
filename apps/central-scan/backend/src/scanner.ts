@@ -5,6 +5,7 @@ import {
   type Id,
   mapSheet,
   type PageInterpretationWithFiles,
+  type RgbaImageData,
   pollingPlaceFromElection,
   pollingPlacePrecinctIds,
   type SheetInterpretation,
@@ -32,6 +33,7 @@ import { waitFor } from 'xstate/lib/waitFor.js';
 import type {
   BatchControl,
   BatchScanner,
+  ScannedSheetFiles,
   ScannedSheetInfo,
 } from './batch_scanner.js';
 import type { Workspace } from './util/workspace.js';
@@ -48,6 +50,17 @@ import type {
 const debug = makeDebug('scan:state-machine');
 
 const RAW_IMAGES_DIRECTORY_NAME = 'raw';
+
+async function loadSheetImageData({
+  frontPath,
+  backPath,
+}: ScannedSheetFiles): Promise<SheetOf<RgbaImageData>> {
+  const [front, back] = await Promise.all([
+    loadImageData(frontPath),
+    loadImageData(backPath),
+  ]);
+  return [front.unsafeUnwrap(), back.unsafeUnwrap()];
+}
 
 interface BatchContext {
   control: BatchControl;
@@ -187,7 +200,7 @@ function buildMachine({
   ): Promise<{ sheetId: Id; interpretation: SheetInterpretation }> {
     const start = Date.now();
     const sheetId = uuid();
-    debug('interpreting sheet %o for batch %s as %s', sheet, batchId, sheetId);
+    debug('interpreting sheet for batch %s as %s', batchId, sheetId);
 
     const { electionDefinition } = assertDefined(store.getElectionRecord());
     const { election } = electionDefinition;
@@ -202,10 +215,8 @@ function buildMachine({
     } = assertDefined(store.getSystemSettings());
     const pollingPlaceId = assertDefined(store.getPollingPlaceId());
 
-    const [frontImageData, backImageData] = await Promise.all([
-      loadImageData(sheet.frontPath),
-      loadImageData(sheet.backPath),
-    ]);
+    const images =
+      'images' in sheet ? sheet.images : await loadSheetImageData(sheet);
     let pages: SheetOf<PageInterpretationWithFiles> =
       await interpretSheetAndSaveImages(
         {
@@ -229,7 +240,7 @@ function buildMachine({
             : undefined,
         },
         (bs) => store.getCandidateOrderingsStore().getCandidateOrderings(bs),
-        [frontImageData.unsafeUnwrap(), backImageData.unsafeUnwrap()],
+        images,
         sheetId,
         workspace.batchImagesPath(batchId)
       );
@@ -286,8 +297,8 @@ function buildMachine({
     store.addSheet(sheetId, batchId, pages, sheet.ballotAuditId);
 
     debug(
-      'imported sheet %o for batch %s in %dms',
-      sheet,
+      'imported sheet %s for batch %s in %dms',
+      sheetId,
       batchId,
       Date.now() - start
     );
@@ -600,8 +611,8 @@ export function cleanLogData(key: string, value: unknown): unknown {
   if (key === 'reasons') {
     return (value as AdjudicationReasonInfo[]).map((reason) => reason.type);
   }
-  // Hide large values
-  if (key === 'control') {
+  // Hide large values, and ballot images for voter privacy
+  if (key === 'control' || key === 'images') {
     return '[hidden]';
   }
   return value;
