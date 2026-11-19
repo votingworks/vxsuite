@@ -1,6 +1,7 @@
 {
   "$schema": "https://v2-11-2.turborepo.dev/schema.json",
   "globalDependencies": [
+    ".cargo/config.toml",
     ".env",
     ".env.production",
     ".node-version",

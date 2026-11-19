@@ -28,4 +28,9 @@ if [[ ${#executables[@]} -eq 0 ]]; then
 fi
 
 mkdir -p build
-cp "${executables[@]}" build/
+for executable in "${executables[@]}"; do
+  # Replace rather than overwrite: writing over a binary that's running fails
+  # with "Text file busy".
+  rm -f "build/${executable##*/}"
+  cp "${executable}" build/
+done
