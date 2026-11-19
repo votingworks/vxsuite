@@ -1238,6 +1238,15 @@ importers:
       '@votingworks/logging':
         specifier: workspace:*
         version: link:../../../libs/logging
+      '@votingworks/mark-scan-accessible-controller':
+        specifier: workspace:*
+        version: link:../accessible-controller
+      '@votingworks/mark-scan-fai-100-controller':
+        specifier: workspace:*
+        version: link:../fai-100-controller
+      '@votingworks/mark-scan-pat-device-input':
+        specifier: workspace:*
+        version: link:../pat-device-input
       '@votingworks/printing':
         specifier: workspace:*
         version: link:../../../libs/printing
@@ -1890,6 +1899,9 @@ importers:
       '@votingworks/networking':
         specifier: workspace:*
         version: link:../../../libs/networking
+      '@votingworks/pollbook-barcode-scanner-daemon':
+        specifier: workspace:*
+        version: link:../barcode-scanner-daemon
       '@votingworks/printing':
         specifier: workspace:*
         version: link:../../../libs/printing

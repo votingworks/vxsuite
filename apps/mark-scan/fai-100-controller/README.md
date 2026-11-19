@@ -36,5 +36,5 @@ make build
 
 ```
 // From apps/mark-scan/fai-100-controller
-MARK_SCAN_WORKSPACE=/path/to/dev-workspace ./target/release/fai-100-controllerd
+MARK_SCAN_WORKSPACE=/path/to/dev-workspace ./build/fai100-controllerd
 ```

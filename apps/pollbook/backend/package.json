@@ -46,6 +46,7 @@
     "@votingworks/image-utils": "workspace:*",
     "@votingworks/logging": "workspace:*",
     "@votingworks/networking": "workspace:*",
+    "@votingworks/pollbook-barcode-scanner-daemon": "workspace:*",
     "@votingworks/printing": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/ui": "workspace:*",
