@@ -146,6 +146,10 @@ import {
   type ConvertMsResultsError,
 } from './convert_ms_results.js';
 import { defaultSystemSettings } from './system_settings.js';
+import {
+  findRegisteredVoterCountBreakdownError,
+  getRegisteredVoterCountBreakdownConfig,
+} from './registered_voter_counts.js';
 import { logActivity } from './activity_logs.js';
 
 const debug = rootDebug.extend('app');
@@ -745,6 +749,12 @@ export function buildApi(ctx: AppContext) {
           hasValidRegisteredVoterCountParties(election, registeredVoterCounts),
           'Registered voter counts by party must include exactly the parties with ballot styles in each precinct and split'
         );
+        const breakdownError = findRegisteredVoterCountBreakdownError(
+          precincts,
+          registeredVoterCounts,
+          getRegisteredVoterCountBreakdownConfig(jurisdiction, election)
+        );
+        assert(breakdownError === undefined, breakdownError);
       }
 
       // When polling places are user-defined and this state does not allow

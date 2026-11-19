@@ -78,6 +78,7 @@ import {
   stateFeatureConfigs,
 } from '@votingworks/election-definition-backend';
 import {
+  enableStateFeaturesForTest,
   type ApiClient,
   exportElectionPackage,
   testSetupHelpers,
@@ -3304,6 +3305,10 @@ test('Finalize ballots - rejects partial registered voter counts', async () => {
 });
 
 test('Finalize ballots - validates registered voter counts by party', async () => {
+  enableStateFeaturesForTest(nonVxJurisdiction.stateCode, {
+    REGISTERED_VOTER_COUNTS_BY_PARTY: true,
+    NONPARTISAN_REGISTERED_VOTER_COUNT: true,
+  });
   const { apiClient, auth0 } = await setupApp({
     organizations,
     jurisdictions,
@@ -3410,6 +3415,19 @@ test('Finalize ballots - validates registered voter counts by party', async () =
   ).unsafeUnwrap();
   await expectFinalizeError(
     'Party and nonpartisan registered voter counts must sum to the total'
+  );
+
+  await setAllCounts({ total: 30 });
+  await expectFinalizeError(
+    'Registered voter counts must be broken out by party'
+  );
+
+  await setAllCounts({
+    total: 30,
+    byParty: { [party0!.id]: 10, [party1!.id]: 20 },
+  });
+  await expectFinalizeError(
+    'Registered voter counts by party must include a nonpartisan count'
   );
 
   await setAllCounts({
