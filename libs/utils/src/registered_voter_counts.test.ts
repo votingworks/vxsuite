@@ -67,7 +67,7 @@ test('rejects breakdowns missing a ballot-style party', () => {
   ).toEqual(false);
 });
 
-test('rejects breakdowns with a party that has no ballot style there', () => {
+test('rejects breakdowns with a party that has no ballot style in the election', () => {
   expect(
     hasValidRegisteredVoterCountParties(election, {
       'precinct-c1-w1-1': {
@@ -76,11 +76,14 @@ test('rejects breakdowns with a party that has no ballot style there', () => {
       },
     })
   ).toEqual(false);
+});
+
+test('accepts breakdowns with an election party that has no ballot style there', () => {
   expect(
     hasValidRegisteredVoterCountParties(electionWithoutParty1InPrecinctC1W2, {
       'precinct-c1-w2': { total: 30, byParty: { 0: 10, 1: 20 } },
     })
-  ).toEqual(false);
+  ).toEqual(true);
 });
 
 test('checks each precinct against its own ballot-style parties', () => {

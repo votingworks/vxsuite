@@ -747,7 +747,7 @@ export function buildApi(ctx: AppContext) {
         );
         assert(
           hasValidRegisteredVoterCountParties(election, registeredVoterCounts),
-          'Registered voter counts by party must include exactly the parties with ballot styles in each precinct and split'
+          'Registered voter counts by party must include every party with a ballot style in each precinct and split, and only parties with a ballot style in the election'
         );
         const breakdownError = findRegisteredVoterCountBreakdownError(
           precincts,
