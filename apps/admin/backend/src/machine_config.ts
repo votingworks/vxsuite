@@ -4,17 +4,6 @@ import { isIntegrationTest, isNodeEnvProduction } from '@votingworks/utils';
 import type { MachineConfig } from './types.js';
 
 /**
- * Returns the jurisdiction this machine belongs to, which cards and backups
- * are checked against.
- */
-export function getMachineJurisdiction(): string {
-  // @coverage-exclude: covered by integration testing
-  return isIntegrationTest()
-    ? TEST_JURISDICTION
-    : (process.env.VX_MACHINE_JURISDICTION ?? DEV_JURISDICTION);
-}
-
-/**
  * Returns the ID and jurisdiction of the current machine and the version of
  * the currently running software.
  */
@@ -22,7 +11,10 @@ export function getMachineConfig(): MachineConfig {
   return {
     machineId: process.env.VX_MACHINE_ID || DEV_MACHINE_ID,
     codeVersion: process.env.VX_CODE_VERSION || 'dev',
-    jurisdiction: getMachineJurisdiction(),
+    // @coverage-exclude: covered by integration testing
+    jurisdiction: isIntegrationTest()
+      ? TEST_JURISDICTION
+      : (process.env.VX_MACHINE_JURISDICTION ?? DEV_JURISDICTION),
   };
 }
 

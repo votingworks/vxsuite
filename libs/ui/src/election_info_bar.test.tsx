@@ -79,7 +79,7 @@ describe('ElectionInfoBar', () => {
     ).toEqual(['Version', 'Machine Jurisdiction', 'Machine ID']);
   });
 
-  test('Hides machine jurisdiction in voter mode', () => {
+  test('Hides machine jurisdiction in voter mode even when passed', () => {
     render(<ElectionInfoBar machineJurisdiction="nh.backup" mode="voter" />);
     expect(screen.queryByText('nh.backup')).not.toBeInTheDocument();
   });
