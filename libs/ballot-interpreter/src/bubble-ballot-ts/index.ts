@@ -1,4 +1,9 @@
-import type { ImageData } from '@votingworks/types';
+import { createGrayImageData } from '@votingworks/image-utils';
+import type {
+  EncodedImage,
+  GrayImageData,
+  ImageData,
+} from '@votingworks/types';
 import { napi } from './napi.js';
 import type { TimingMarks } from './types.js';
 
@@ -29,4 +34,12 @@ export async function writeImageDataToPng(
   image: ImageData
 ): Promise<void> {
   await napi.writeImageToPng(path, image.width, image.height, image.data);
+}
+
+/** Decodes an encoded image (e.g. JPEG or PNG) to one byte per pixel. */
+export async function decodeGrayImage(
+  image: EncodedImage
+): Promise<GrayImageData> {
+  const { width, height, data } = await napi.decodeGrayImage(image.encoded);
+  return createGrayImageData(data, width, height);
 }

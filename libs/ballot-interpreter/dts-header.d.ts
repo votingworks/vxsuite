@@ -9,7 +9,11 @@ import type {
   BridgeInterpretResult,
   TimingMarks,
 } from './src/bubble-ballot-ts/types.js';
-import type { BallotImageBitDepth, Election } from '@votingworks/types';
+import type {
+  BallotImageBitDepth,
+  Election,
+  ImageData,
+} from '@votingworks/types';
 
 export interface BridgeInterpretOptions {
   frontNormalizedImageOutputPath?: string;

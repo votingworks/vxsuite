@@ -18,3 +18,8 @@ export interface RgbaImageData extends z.infer<typeof RgbaImageData> {}
 export const GrayImageData = ImageDataSchema.brand('GrayImageData');
 
 export interface GrayImageData extends z.infer<typeof GrayImageData> {}
+
+/** An image still in its file encoding (e.g. JPEG or PNG). */
+export interface EncodedImage {
+  readonly encoded: Uint8Array;
+}

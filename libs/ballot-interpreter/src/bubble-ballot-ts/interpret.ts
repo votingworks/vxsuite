@@ -1,6 +1,7 @@
 import { assert, err, ok } from '@votingworks/basics';
 import {
   type BallotImageBitDepth,
+  type EncodedImage,
   type ImageData,
   type SheetOf,
   DEFAULT_BALLOT_IMAGE_BIT_DEPTH,
@@ -16,7 +17,7 @@ import type { BridgeInterpretResult, HmpbInterpretResult } from './types.js';
  * Some fields are computed from higher-level options.
  */
 export interface InterpretOptions {
-  ballotImages: SheetOf<string> | SheetOf<ImageData>;
+  ballotImages: SheetOf<string> | SheetOf<ImageData> | SheetOf<EncodedImage>;
   scoreWriteIns?: boolean;
   disableVerticalStreakDetection?: boolean;
   minimumDetectedScale?: number;
@@ -29,24 +30,28 @@ export interface InterpretOptions {
   dbPath: string;
 }
 
-function assertImageData(imageData: unknown): asserts imageData is ImageData {
-  assert(
-    typeof imageData === 'object' &&
-      imageData !== null &&
-      typeof (imageData as ImageData).width === 'number' &&
-      typeof (imageData as ImageData).height === 'number' &&
-      typeof (imageData as ImageData).data === 'object',
-    'imageData is not an ImageData'
-  );
+function isEncodedImage(
+  image: ImageData | EncodedImage
+): image is EncodedImage {
+  return 'encoded' in image;
 }
 
-function checkImageSource(imageSource: string | ImageData): void {
+function checkImageSource(
+  imageSource: string | ImageData | EncodedImage
+): void {
   switch (typeof imageSource) {
     case 'string':
       break;
 
     case 'object':
-      assertImageData(imageSource);
+      assert(
+        isEncodedImage(imageSource)
+          ? imageSource.encoded instanceof Uint8Array
+          : typeof imageSource.width === 'number' &&
+              typeof imageSource.height === 'number' &&
+              typeof imageSource.data === 'object',
+        'imageSource is neither an ImageData nor an EncodedImage'
+      );
       break;
 
     default:
@@ -101,6 +106,12 @@ export async function interpret(
 
   if (typeof sideA === 'string' && typeof sideB === 'string') {
     result = await napi.interpretPaths(sideA, sideB, bridgeOptions);
+  } else if (typeof sideA === 'object' && isEncodedImage(sideA)) {
+    result = await napi.interpretEncoded(
+      sideA.encoded,
+      (sideB as EncodedImage).encoded,
+      bridgeOptions
+    );
   } else {
     const imageSideA = sideA as ImageData;
     const imageSideB = sideB as ImageData;

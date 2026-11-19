@@ -4,7 +4,7 @@ import {
   makeTemporaryFileAsync,
 } from '@votingworks/fixtures';
 import { vxFamousNamesFixtures } from '@votingworks/hmpb';
-import { writeImageData } from '@votingworks/image-utils';
+import { toImageBuffer, writeImageData } from '@votingworks/image-utils';
 import {
   asSheet,
   gridPositionsFromBallotPositions,
@@ -683,4 +683,35 @@ test('score write in areas', async () => {
 
   expect(front.writeIns).toMatchSnapshot();
   expect(back.writeIns).toMatchSnapshot();
+});
+
+test('interpret encoded images', async () => {
+  const { electionDefinition } = vxFamousNamesFixtures;
+  const ballotImages = asSheet(
+    await pdfToPageImages(vxFamousNamesFixtures.markedBallotPath).toArray()
+  );
+  const dbPath = await makeInterpreterDb(electionDefinition);
+
+  const fromEncoded = await interpret({
+    ballotImages: mapSheet(ballotImages, (imageData) => ({
+      encoded: toImageBuffer(imageData),
+    })),
+    dbPath,
+  });
+  expect(fromEncoded).toEqual(ok(expect.anything()));
+  expect(fromEncoded).toEqual(await interpret({ ballotImages, dbPath }));
+});
+
+test('interpret rejects undecodable encoded images', async () => {
+  const { electionDefinition } = vxFamousNamesFixtures;
+
+  await expect(
+    interpret({
+      ballotImages: [
+        { encoded: new Uint8Array([1, 2, 3]) },
+        { encoded: new Uint8Array([1, 2, 3]) },
+      ],
+      dbPath: await makeInterpreterDb(electionDefinition),
+    })
+  ).rejects.toThrow(/format could not be determined/);
 });

@@ -579,15 +579,18 @@ if (!nativeBinding) {
   throw new Error(`Failed to load native binding`)
 }
 
-const { decodeBmdBallotData, decodeBubbleBallotMetadata, encodeBmdBallotData, encodeBubbleBallotMetadata, findTimingMarkGridFromImage, findTimingMarkGridFromPath, interpretImages, interpretPaths, runBlankPaperDiagnosticFromImage, runBlankPaperDiagnosticFromPath, writeImageToPng } = nativeBinding
+const { decodeBmdBallotData, decodeBubbleBallotMetadata, decodeGrayImage, encodeBmdBallotData, encodeBubbleBallotMetadata, findTimingMarkGridFromImage, findTimingMarkGridFromPath, interpretEncoded, interpretImages, interpretPaths, runBlankPaperDiagnosticFromEncoded, runBlankPaperDiagnosticFromImage, runBlankPaperDiagnosticFromPath, writeImageToPng } = nativeBinding
 export { decodeBmdBallotData }
 export { decodeBubbleBallotMetadata }
+export { decodeGrayImage }
 export { encodeBmdBallotData }
 export { encodeBubbleBallotMetadata }
 export { findTimingMarkGridFromImage }
 export { findTimingMarkGridFromPath }
+export { interpretEncoded }
 export { interpretImages }
 export { interpretPaths }
+export { runBlankPaperDiagnosticFromEncoded }
 export { runBlankPaperDiagnosticFromImage }
 export { runBlankPaperDiagnosticFromPath }
 export { writeImageToPng }

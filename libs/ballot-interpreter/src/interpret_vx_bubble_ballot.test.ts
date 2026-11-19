@@ -35,10 +35,12 @@ import {
   getBallotStyle,
   gridPositionsFromBallotPositions,
   LATEST_SOFTWARE_VERSION,
+  mapSheet,
   DEFAULT_SYSTEM_SETTINGS,
   type CandidateOrderings,
 } from '@votingworks/types';
 import { createCanvas } from 'canvas';
+import { toImageBuffer } from '@votingworks/image-utils';
 import {
   electionFamousNames2021Fixtures,
   electionSimpleSinglePrecinctFixtures,
@@ -152,6 +154,32 @@ describe('HMPB - VX Famous Names', () => {
       },
       (bs) => bs.orderedCandidatesByContest,
       images
+    );
+
+    assert(frontResult.type === 'InterpretedHmpbPage');
+    assert(backResult.type === 'InterpretedHmpbPage');
+    expect(
+      sortVotesDict({
+        ...frontResult.votes,
+        ...backResult.votes,
+      })
+    ).toEqual(sortVotesDict(votes));
+  });
+
+  test('Marked ballot interpretation from encoded images', async () => {
+    const images = asSheet(await pdfToPageImages(markedBallotPath).toArray());
+
+    const [frontResult, backResult] = await interpretSheet(
+      {
+        electionDefinition,
+        validPrecinctIds: new Set([precinctId]),
+        testMode: true,
+        markThresholds: DEFAULT_MARK_THRESHOLDS,
+        adjudicationReasons: [],
+        dbPath: await makeInterpreterDb(electionDefinition),
+      },
+      (bs) => bs.orderedCandidatesByContest,
+      mapSheet(images, (image) => ({ encoded: toImageBuffer(image) }))
     );
 
     assert(frontResult.type === 'InterpretedHmpbPage');

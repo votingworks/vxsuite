@@ -378,6 +378,29 @@ describe('VX BMD interpretation', () => {
     expect(interpretation).toMatchSnapshot();
   });
 
+  test('extracts votes from encoded images', async () => {
+    const options: InterpreterOptions = {
+      electionDefinition,
+      validPrecinctIds: allPrecinctIds(electionDefinition),
+      testMode: true,
+      markThresholds: DEFAULT_MARK_THRESHOLDS,
+      adjudicationReasons: [],
+    };
+    expect(
+      await interpretSheet(
+        options,
+        (bs) => bs.orderedCandidatesByContest,
+        mapSheet(validBmdSheet, (image) => ({ encoded: toImageBuffer(image) }))
+      )
+    ).toEqual(
+      await interpretSheet(
+        options,
+        (bs) => bs.orderedCandidatesByContest,
+        validBmdSheet
+      )
+    );
+  });
+
   test('properly detects test ballot in live mode', async () => {
     const interpretationResult = await interpretSheet(
       {

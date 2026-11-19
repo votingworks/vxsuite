@@ -1,4 +1,5 @@
 import { expect, test } from 'vitest';
+import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import type { GrayImageData, RgbaImageData } from '@votingworks/types';
 import {
@@ -70,4 +71,17 @@ test('runBlankPaperDiagnosticFromImage rejects malformed image data', async () =
       data: new Uint8ClampedArray(3),
     })
   ).rejects.toThrow('Unexpected buffer length');
+});
+
+test('runBlankPaperDiagnosticFromImage accepts encoded images', async () => {
+  expect(
+    await runBlankPaperDiagnosticFromImage({
+      encoded: await readFile(blankImagePath),
+    })
+  ).toEqual(true);
+  expect(
+    await runBlankPaperDiagnosticFromImage({
+      encoded: await readFile(streakedImagePath),
+    })
+  ).toEqual(false);
 });
