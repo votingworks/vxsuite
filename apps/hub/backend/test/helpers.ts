@@ -35,12 +35,12 @@ import { join } from 'node:path';
 import { readFileSync } from 'node:fs';
 import { stringify } from 'csv-stringify/sync';
 import { buffer } from 'node:stream/consumers';
-import { type Api, type UnauthenticatedApi, buildApp } from '../src/app.js';
-import type { Auth0ClientInterface } from '../src/auth0_client.js';
 import type {
   FileStorageClient,
   FileStorageClientError,
-} from '../src/file_storage_client.js';
+} from '@votingworks/election-definition-backend';
+import { type Api, type UnauthenticatedApi, buildApp } from '../src/app.js';
+import type { Auth0ClientInterface } from '../src/auth0_client.js';
 import { GoogleCloudSpeechSynthesizerWithDbCache } from '../src/speech_synthesizer.js';
 import { GoogleCloudTranslatorWithDbCache } from '../src/translator.js';
 import type { Jurisdiction, Organization, User } from '../src/types.js';

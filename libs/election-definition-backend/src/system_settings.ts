@@ -1,0 +1,161 @@
+import { throwIllegalValue } from '@votingworks/basics';
+import {
+  AdjudicationReason,
+  DEFAULT_MARK_THRESHOLDS,
+  DEFAULT_MARK_THRESHOLDS_MARGINAL_MARK_ADJUDICATION_ENABLED,
+  DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH,
+  DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD,
+  DEFAULT_SYSTEM_SETTINGS,
+  type SystemSettings,
+} from '@votingworks/types';
+
+import type { StateCode } from './state_features.js';
+
+/**
+ * Default settings applied across customers and SLI
+ */
+const commonSettings = {
+  auth: DEFAULT_SYSTEM_SETTINGS.auth,
+  maxCumulativeStreakWidth: DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH,
+  retryStreakWidthThreshold: DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD,
+} as const;
+
+/**
+ * Default settings applied across customers but not SLI
+ */
+const commonCustomerSettings = {
+  disableSystemLimitChecks: true,
+  disableVoterHelpButtons: true,
+  precinctScanDisableAlarms: true,
+  precinctScanDisableScreenReaderAudio: true,
+} as const;
+
+export function stateDefaultSystemSettings(
+  stateCode: StateCode,
+  { quickResultsReportingUrl }: { quickResultsReportingUrl?: string } = {}
+): SystemSettings {
+  const quickResultsReportingSettings = quickResultsReportingUrl
+    ? { quickResultsReportingUrl }
+    : {};
+  switch (stateCode) {
+    case 'DEMO':
+      return {
+        ...commonSettings,
+        ...commonCustomerSettings,
+
+        markThresholds:
+          DEFAULT_MARK_THRESHOLDS_MARGINAL_MARK_ADJUDICATION_ENABLED,
+
+        precinctScanAdjudicationReasons: [
+          AdjudicationReason.Overvote,
+          AdjudicationReason.BlankBallot,
+          AdjudicationReason.UnmarkedWriteIn,
+        ],
+        disallowCastingOvervotes: false,
+        centralScanAdjudicationReasons: [AdjudicationReason.UnmarkedWriteIn],
+        adminAdjudicationReasons: [
+          AdjudicationReason.Overvote,
+          AdjudicationReason.BlankBallot,
+          AdjudicationReason.MarginalMark,
+        ],
+
+        bmdPrintMode: 'bubble_ballot',
+        enableEarlyVoting: true,
+        enableTestDeckPrinting: true,
+        ...quickResultsReportingSettings,
+      };
+
+    case 'MI':
+      return {
+        ...commonSettings,
+        ...commonCustomerSettings,
+
+        markThresholds:
+          DEFAULT_MARK_THRESHOLDS_MARGINAL_MARK_ADJUDICATION_ENABLED,
+
+        precinctScanAdjudicationReasons: [
+          AdjudicationReason.Overvote,
+          AdjudicationReason.BlankBallot,
+        ],
+        disallowCastingOvervotes: false,
+        centralScanAdjudicationReasons: [],
+        adminAdjudicationReasons: [
+          AdjudicationReason.Overvote,
+          AdjudicationReason.BlankBallot,
+          AdjudicationReason.MarginalMark,
+        ],
+
+        areWriteInCandidatesQualified: true,
+        bmdPrintMode: 'bubble_ballot',
+        enableEarlyVoting: true,
+        precinctScanEnableWriteInImageReport: true,
+        ...quickResultsReportingSettings,
+      };
+
+    case 'MS':
+      return {
+        ...commonSettings,
+        ...commonCustomerSettings,
+
+        markThresholds: DEFAULT_MARK_THRESHOLDS,
+
+        precinctScanAdjudicationReasons: [
+          AdjudicationReason.Overvote,
+          AdjudicationReason.Undervote,
+          AdjudicationReason.BlankBallot,
+        ],
+        disallowCastingOvervotes: false,
+        centralScanAdjudicationReasons: [
+          AdjudicationReason.Overvote,
+          AdjudicationReason.BlankBallot,
+        ],
+        adminAdjudicationReasons: [],
+
+        bmdPrintMode: 'summary',
+        disallowClosingPollsBeforeElectionDayPollsCloseTime: true,
+        electionDayPollsCloseTime: '19:00:00',
+        enableEarlyVoting: true,
+        enableTestDeckPrinting: true,
+        precinctScanNumberOfReportCopies: 2,
+        ...quickResultsReportingSettings,
+      };
+
+    case 'NH':
+      return {
+        ...commonSettings,
+        ...commonCustomerSettings,
+
+        markThresholds: DEFAULT_MARK_THRESHOLDS,
+
+        precinctScanAdjudicationReasons: [
+          AdjudicationReason.Overvote,
+          AdjudicationReason.UnmarkedWriteIn,
+        ],
+        disallowCastingOvervotes: true,
+        centralScanAdjudicationReasons: [
+          AdjudicationReason.Overvote,
+          AdjudicationReason.UnmarkedWriteIn,
+        ],
+        adminAdjudicationReasons: [],
+
+        allowOfficialBallotsInTestMode: true,
+        bmdPrintMode: 'bubble_ballot',
+      };
+    default:
+      throwIllegalValue(stateCode);
+  }
+}
+
+export const SLI_DEFAULT_SYSTEM_SETTINGS: SystemSettings = {
+  ...commonSettings,
+
+  markThresholds: DEFAULT_MARK_THRESHOLDS,
+
+  precinctScanAdjudicationReasons: [],
+  disallowCastingOvervotes: false,
+  centralScanAdjudicationReasons: [],
+  adminAdjudicationReasons: [],
+
+  bmdPrintMode: 'bubble_ballot',
+  enableEarlyVoting: true,
+};

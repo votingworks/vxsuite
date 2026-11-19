@@ -17,12 +17,7 @@ import { assertDefined } from '@votingworks/basics';
 import {
   addPollingPlacesForExport,
   formatElectionForExport,
-} from './ballots.js';
-import {
-  miJurisdiction,
-  msJurisdiction,
-  nhJurisdiction,
-} from '../test/mocks.js';
+} from './election_export.js';
 
 const election = readElectionGeneral();
 
@@ -46,6 +41,11 @@ test('formatElectionForExport', () => {
           electionSealOverride: '<svg class="somesvg"></svg>',
           clerkSignatureImage: '<svg class="someothersvg"></svg>',
         },
+        {
+          districtIds: ['district_b'],
+          id: 'split-2',
+          name: 'Split Without Overrides',
+        },
       ],
     },
   ];
@@ -61,6 +61,12 @@ test('formatElectionForExport', () => {
   expect(hashInput['precinctSplitSignatureImages']).toMatchObject({
     'precinct-1-split-1': expect.any(String),
   });
+  expect(hashInput['precinctSplitSeals']).not.toHaveProperty(
+    'precinct-1-split-2'
+  );
+  expect(hashInput['precinctSplitSignatureImages']).not.toHaveProperty(
+    'precinct-1-split-2'
+  );
 });
 
 test('addPollingPlacesForExport - non-editing state generates election_day places plus a central scanning absentee place', () => {
@@ -71,7 +77,7 @@ test('addPollingPlacesForExport - non-editing state generates election_day place
 
   const result = addPollingPlacesForExport(
     electionInput,
-    msJurisdiction,
+    { stateCode: 'MS' },
     DEFAULT_SYSTEM_SETTINGS
   );
   const { pollingPlaces } = result;
@@ -111,10 +117,14 @@ test('addPollingPlacesForExport - generates an early voting polling place when e
     pollingPlaces: [],
   };
 
-  const result = addPollingPlacesForExport(electionInput, msJurisdiction, {
-    ...DEFAULT_SYSTEM_SETTINGS,
-    enableEarlyVoting: true,
-  });
+  const result = addPollingPlacesForExport(
+    electionInput,
+    { stateCode: 'MS' },
+    {
+      ...DEFAULT_SYSTEM_SETTINGS,
+      enableEarlyVoting: true,
+    }
+  );
   const { pollingPlaces } = result;
 
   const earlyVotingPlaces = pollingPlaces.filter(
@@ -143,7 +153,7 @@ test('addPollingPlacesForExport - state that allows empty absentee polling place
 
   const result = addPollingPlacesForExport(
     electionInput,
-    nhJurisdiction,
+    { stateCode: 'NH' },
     DEFAULT_SYSTEM_SETTINGS
   );
   const pollingPlaces = result.pollingPlaces ?? [];
@@ -167,7 +177,7 @@ test('addPollingPlacesForExport - editing state keeps user-created absentee plac
 
   const result = addPollingPlacesForExport(
     electionInput,
-    miJurisdiction,
+    { stateCode: 'MI' },
     DEFAULT_SYSTEM_SETTINGS
   );
 
@@ -189,7 +199,7 @@ test('addPollingPlacesForExport - editing state does not generate a Central Scan
 
   const result = addPollingPlacesForExport(
     electionInput,
-    miJurisdiction,
+    { stateCode: 'MI' },
     DEFAULT_SYSTEM_SETTINGS
   );
 

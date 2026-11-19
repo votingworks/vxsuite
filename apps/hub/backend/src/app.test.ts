@@ -72,6 +72,8 @@ import { createSummaryBallotTestDeck } from '@votingworks/test-decks';
 import {
   type DuplicateDistrictError,
   type DuplicatePartyError,
+  SLI_DEFAULT_SYSTEM_SETTINGS,
+  stateDefaultSystemSettings,
   stateFeatureConfigs,
 } from '@votingworks/election-definition-backend';
 import {
@@ -83,11 +85,12 @@ import {
   createPrecinctTestDeck,
   createTestDeckTallyReports,
 } from './test_decks.js';
-import type {
-  ElectionInfo,
-  ElectionInfoUpdate,
-  ElectionListing,
-  ElectionStatus,
+import {
+  type ElectionInfo,
+  type ElectionInfoUpdate,
+  type ElectionListing,
+  type ElectionStatus,
+  resultsReportingUrl,
 } from './types.js';
 import { userFeatureConfigs } from './features.js';
 import { buildApi } from './app.js';
@@ -109,10 +112,6 @@ import {
   supportUser,
   miJurisdiction,
 } from '../test/mocks.js';
-import {
-  SLI_DEFAULT_SYSTEM_SETTINGS,
-  stateDefaultSystemSettings,
-} from './system_settings.js';
 import {
   type GenerateElectionPackageAndBallotsPayload,
   GenerateElectionPackageAndBallotsPayloadSchema,
@@ -2635,7 +2634,9 @@ test('get/update system settings', async () => {
 
   // Default system settings
   expect(await apiClient.getSystemSettings({ electionId })).toEqual(
-    stateDefaultSystemSettings.DEMO
+    stateDefaultSystemSettings('DEMO', {
+      quickResultsReportingUrl: resultsReportingUrl(),
+    })
   );
 
   // Update system settings
@@ -3193,7 +3194,11 @@ test('cloneElection', async () => {
   // Should have default system settings for destination jurisdiction
   expect(
     await apiClient.getSystemSettings({ electionId: newElectionId })
-  ).toEqual(stateDefaultSystemSettings.DEMO);
+  ).toEqual(
+    stateDefaultSystemSettings('DEMO', {
+      quickResultsReportingUrl: resultsReportingUrl(),
+    })
+  );
   expect(
     await apiClient.getBallotTemplate({ electionId: newElectionId })
   ).toEqual(await apiClient.getBallotTemplate({ electionId: srcElectionId }));
@@ -3609,7 +3614,11 @@ test('feature configs and default system settings', async () => {
   ).toEqual(stateFeatureConfigs.DEMO);
   expect(
     await apiClient.getSystemSettings({ electionId: vxElectionId })
-  ).toEqual(stateDefaultSystemSettings.DEMO);
+  ).toEqual(
+    stateDefaultSystemSettings('DEMO', {
+      quickResultsReportingUrl: resultsReportingUrl(),
+    })
+  );
   expect(
     await apiClient.getBallotTemplate({ electionId: vxElectionId })
   ).toEqual('VxDefaultBallot');
@@ -3641,7 +3650,11 @@ test('feature configs and default system settings', async () => {
   ).toEqual(stateFeatureConfigs.NH);
   expect(
     await apiClient.getSystemSettings({ electionId: nhElectionId })
-  ).toEqual(stateDefaultSystemSettings.NH);
+  ).toEqual(
+    stateDefaultSystemSettings('NH', {
+      quickResultsReportingUrl: resultsReportingUrl(),
+    })
+  );
   expect(
     await apiClient.getBallotTemplate({ electionId: nhElectionId })
   ).toEqual('NhBallot');
@@ -3657,7 +3670,11 @@ test('feature configs and default system settings', async () => {
   ).toEqual(stateFeatureConfigs.MS);
   expect(
     await apiClient.getSystemSettings({ electionId: msElectionId })
-  ).toEqual(stateDefaultSystemSettings.MS);
+  ).toEqual(
+    stateDefaultSystemSettings('MS', {
+      quickResultsReportingUrl: resultsReportingUrl(),
+    })
+  );
   expect(
     await apiClient.getBallotTemplate({ electionId: msElectionId })
   ).toEqual('MsBallot');
@@ -3673,7 +3690,11 @@ test('feature configs and default system settings', async () => {
   ).toEqual(stateFeatureConfigs.MI);
   expect(
     await apiClient.getSystemSettings({ electionId: miElectionId })
-  ).toEqual(stateDefaultSystemSettings.MI);
+  ).toEqual(
+    stateDefaultSystemSettings('MI', {
+      quickResultsReportingUrl: resultsReportingUrl(),
+    })
+  );
   expect(
     await apiClient.getBallotTemplate({ electionId: miElectionId })
   ).toEqual('MiBallot');
