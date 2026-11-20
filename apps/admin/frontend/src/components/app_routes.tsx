@@ -49,6 +49,8 @@ import { AdjudicationStartScreen } from '../screens/adjudication_start_screen.js
 import { BallotAdjudicationScreenWrapper as BallotAdjudicationScreen } from '../screens/ballot_adjudication_screen.js';
 import { WriteInCandidatesScreen } from '../screens/write_in_candidates_screen.js';
 import { ElectionDefinitionScreen } from '../election_definition/election_definition_screen.js';
+import { ElectionPackageRenderingRefresher } from '../election_definition/election_package_rendering_refresher.js';
+import { FinalizeScreen } from '../election_definition/finalize_screen.js';
 import { ProofBallotsScreen } from '../election_definition/proof_ballots_screen.js';
 import { reportUnexpectedError } from '../logger.js';
 import { CvrDataRefresher } from './cvr_data_refresher.js';
@@ -134,40 +136,52 @@ export function AppRoutes(): JSX.Element | null {
 
   if (isSystemAdministratorAuth(auth)) {
     return (
-      <Switch>
-        <Route exact path={routerPaths.election}>
-          {election ? <ElectionScreen /> : <UnconfiguredScreen />}
-        </Route>
-        {isElectionDefinitionEnabled && (
-          <Route
-            path={[routerPaths.electionDefinition, routerPaths.proofBallots]}
-          >
-            <ElectionDefinitionContextProvider
-              api={electionDefinitionApi}
-              reportUnexpectedError={reportUnexpectedError}
-            >
-              <Switch>
-                <Route path={routerPaths.electionDefinition}>
-                  <ElectionDefinitionScreen />
-                </Route>
-                <Route path={routerPaths.proofBallots}>
-                  <ProofBallotsScreen />
-                </Route>
-              </Switch>
-            </ElectionDefinitionContextProvider>
-          </Route>
+      <React.Fragment>
+        {isElectionDefinitionEnabled && !election && (
+          <ElectionPackageRenderingRefresher />
         )}
-        <Route exact path={routerPaths.smartcards}>
-          <SmartCardsScreen />
-        </Route>
-        <Route exact path={routerPaths.settings}>
-          <SettingsScreen />
-        </Route>
-        <Route exact path={routerPaths.hardwareDiagnostics}>
-          <DiagnosticsScreen />
-        </Route>
-        <Redirect to={routerPaths.election} />
-      </Switch>
+        <Switch>
+          <Route exact path={routerPaths.election}>
+            {election ? <ElectionScreen /> : <UnconfiguredScreen />}
+          </Route>
+          {isElectionDefinitionEnabled && (
+            <Route
+              path={[
+                routerPaths.electionDefinition,
+                routerPaths.proofBallots,
+                routerPaths.finalize,
+              ]}
+            >
+              <ElectionDefinitionContextProvider
+                api={electionDefinitionApi}
+                reportUnexpectedError={reportUnexpectedError}
+              >
+                <Switch>
+                  <Route path={routerPaths.electionDefinition}>
+                    <ElectionDefinitionScreen />
+                  </Route>
+                  <Route path={routerPaths.proofBallots}>
+                    <ProofBallotsScreen />
+                  </Route>
+                  <Route path={routerPaths.finalize}>
+                    <FinalizeScreen />
+                  </Route>
+                </Switch>
+              </ElectionDefinitionContextProvider>
+            </Route>
+          )}
+          <Route exact path={routerPaths.smartcards}>
+            <SmartCardsScreen />
+          </Route>
+          <Route exact path={routerPaths.settings}>
+            <SettingsScreen />
+          </Route>
+          <Route exact path={routerPaths.hardwareDiagnostics}>
+            <DiagnosticsScreen />
+          </Route>
+          <Redirect to={routerPaths.election} />
+        </Switch>
+      </React.Fragment>
     );
   }
 
