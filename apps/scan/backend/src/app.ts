@@ -62,7 +62,7 @@ import {
   resetPollsToPaused,
 } from './polls.js';
 import { printTestPage } from './printing/test_print.js';
-import { printReportSection } from './printing/print_report_section.js';
+import { printReport } from './printing/print_report.js';
 import { printWriteInImageReport } from './printing/print_write_in_image_report.js';
 import {
   TEST_AUDIO_USER_FAIL_REASON,
@@ -426,19 +426,8 @@ export function buildApi({
       return printer.getStatus();
     },
 
-    /**
-     * Prints a specific section (page) of the report, e.g. for a particular
-     * party. Returns the print result along with the total number of sections
-     * in the report.
-     */
-    async printReportSection(input: {
-      index: number;
-    }): Promise<{ printResult: PrintResult; numberOfSections: number }> {
-      return printReportSection({
-        store,
-        printer,
-        index: input.index,
-      });
+    async printReport(): Promise<PrintResult> {
+      return printReport({ store, printer });
     },
 
     async printWriteInImageReport(): Promise<PrintResult> {

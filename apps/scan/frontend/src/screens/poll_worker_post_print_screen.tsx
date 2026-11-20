@@ -8,23 +8,22 @@ import {
   Screen,
   getPostPollsTransitionHeaderText,
 } from './poll_worker_shared.js';
-import { getPrinterStatus, printReportSection } from '../api.js';
+import { getPrinterStatus, printReport } from '../api.js';
 import { PollWorkerLoadAndReprintButton } from '../components/printer_management/poll_worker_load_and_reprint_button.js';
 import { CenteredText } from '../components/layout.js';
 
 /**
- * Drives printing of a report one report section at a time so the poll worker can tear
- * each report off the thermal roll before printing the next.
+ * Drives printing of report copies one at a time so the poll worker can tear
+ * each copy off the thermal roll before printing the next.
  *
- * The first report is printed before this screen is shown then this
- * screen prints the remaining sections (if applicable) via "Print Next Report."
+ * The first copy is printed before this screen is shown then this screen
+ * prints the remaining copies (if applicable) via "Print Next Copy."
  */
 export function PostPrintScreen({
   pollsTransitionType,
   isPostPollsTransition,
   initialPrintResult,
   numberOfCopies,
-  numberOfSections,
   reportQuickResultsEnabled,
   onViewReportResults,
 }: {
@@ -32,34 +31,25 @@ export function PostPrintScreen({
   isPostPollsTransition: boolean;
   initialPrintResult: PrintResult;
   numberOfCopies: number;
-  numberOfSections: number;
   reportQuickResultsEnabled: boolean;
   onViewReportResults: () => void;
 }): JSX.Element {
-  // The 0-based index of the most recently printed report section
-  const [currentPageIndex, setCurrentPageIndex] = useState(0);
-  const [totalNumPages, setTotalNumPages] = useState(
-    /* report sections per copy * number of copies */
-    numberOfSections * numberOfCopies
-  );
+  const [currentCopyIndex, setCurrentCopyIndex] = useState(0);
+  const [totalNumCopies, setTotalNumCopies] = useState(numberOfCopies);
   const [printResult, setPrintResult] =
     useState<Optional<PrintResult>>(initialPrintResult);
-  const printReportSectionMutation = printReportSection.useMutation();
-  const printReportSectionMutateAsync = printReportSectionMutation.mutateAsync;
+  const printReportMutation = printReport.useMutation();
+  const printReportMutateAsync = printReportMutation.mutateAsync;
   const printerStatusQuery = getPrinterStatus.useQuery();
 
-  const printPage = useCallback(
-    async (pageIndex: number, runTotal: number) => {
-      setCurrentPageIndex(pageIndex);
-      setTotalNumPages(runTotal);
+  const printCopy = useCallback(
+    async (copyIndex: number, runTotal: number) => {
+      setCurrentCopyIndex(copyIndex);
+      setTotalNumCopies(runTotal);
       setPrintResult(undefined);
-      const { printResult: newPrintResult } =
-        await printReportSectionMutateAsync({
-          index: pageIndex % numberOfSections,
-        });
-      setPrintResult(newPrintResult);
+      setPrintResult(await printReportMutateAsync());
     },
-    [printReportSectionMutateAsync, numberOfSections]
+    [printReportMutateAsync]
   );
 
   assert(printerStatusQuery.isSuccess);
@@ -74,9 +64,9 @@ export function PostPrintScreen({
         <LoadingAnimation />
         <CenteredText>
           <H1>Printing Report…</H1>
-          {totalNumPages > 1 && (
+          {totalNumCopies > 1 && (
             <P>
-              Printing report {currentPageIndex + 1} of {totalNumPages}…
+              Copy {currentCopyIndex + 1} of {totalNumCopies}
             </P>
           )}
         </CenteredText>
@@ -99,31 +89,29 @@ export function PostPrintScreen({
             : 'The report did not finish printing because the printer encountered an unexpected error.'}
         </P>
         <PollWorkerLoadAndReprintButton
-          reprint={() => printPage(currentPageIndex, totalNumPages)}
+          reprint={() => printCopy(currentCopyIndex, totalNumCopies)}
           reprintText={`Reprint ${reportTitle}`}
         />
       </Screen>
     );
   }
 
-  const isLastPage = currentPageIndex + 1 >= totalNumPages;
+  const isLastCopy = currentCopyIndex + 1 >= totalNumCopies;
 
   // Finished the run: offer to reprint a single additional complete copy.
-  if (isLastPage) {
+  if (isLastCopy) {
     return (
       <Screen>
         <CenteredText>
           {header}
+          <P>Report printed. Gently tear off the report.</P>
           <P>
-            Report printed. Remove the poll worker card once you have printed
-            all necessary reports.
+            Remove the poll worker card after you have printed any additional
+            copies you need.
           </P>
           <P>
-            <Button
-              onPress={() => printPage(0, numberOfSections)}
-              disabled={disablePrinting}
-            >
-              Reprint {reportTitle}
+            <Button onPress={() => printCopy(0, 1)} disabled={disablePrinting}>
+              Print Another Copy
             </Button>{' '}
             {reportQuickResultsEnabled && (
               <Button variant="primary" onPress={onViewReportResults}>
@@ -141,23 +129,16 @@ export function PostPrintScreen({
       <CenteredText>
         {header}
         <P>
-          Finished printing report {currentPageIndex + 1} of {totalNumPages}.
-          Remove the report from the printer by gently tearing it against the
-          tear bar.
+          Copy {currentCopyIndex + 1} of {totalNumCopies} printed. Gently tear
+          off the report, then print the next copy.
         </P>
         <P>
           <Button
-            onPress={() => printPage(currentPageIndex, totalNumPages)}
-            disabled={disablePrinting}
-          >
-            Print Previous Report
-          </Button>{' '}
-          <Button
             variant="primary"
-            onPress={() => printPage(currentPageIndex + 1, totalNumPages)}
+            onPress={() => printCopy(currentCopyIndex + 1, totalNumCopies)}
             disabled={disablePrinting}
           >
-            Print Next Report
+            Print Next Copy
           </Button>
         </P>
       </CenteredText>

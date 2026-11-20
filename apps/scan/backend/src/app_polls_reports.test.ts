@@ -10,6 +10,9 @@ import {
   readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import { randomUUID as uuid } from 'node:crypto';
+import { readFile } from 'node:fs/promises';
+import { getPdfPageCount } from '@votingworks/image-utils/pdf';
+import type { MemoryFujitsuPrinterHandler } from '@votingworks/fujitsu-thermal-printer';
 import {
   type BallotMetadata,
   BallotType,
@@ -92,7 +95,17 @@ beforeEach(() => {
   );
 });
 
-test('printReportSection can print each part of a primary report separately', async () => {
+async function expectLastPrintPageCount(
+  mockFujitsuPrinterHandler: MemoryFujitsuPrinterHandler,
+  expectedPageCount: number
+): Promise<void> {
+  const pdf = await readFile(
+    assertDefined(mockFujitsuPrinterHandler.getLastPrintPath())
+  );
+  expect(await getPdfPageCount(pdf)).toEqual(expectedPageCount);
+}
+
+test('printReport prints every section of a primary report as one print', async () => {
   await withApp(
     async ({
       apiClient,
@@ -108,68 +121,28 @@ test('printReportSection can print each part of a primary report separately', as
       });
       (await apiClient.openPolls()).unsafeUnwrap();
 
-      // print first section
-      expect(await apiClient.printReportSection({ index: 0 })).toEqual({
-        printResult: ok(),
-        numberOfSections: 3,
-      });
+      expect(await apiClient.printReport()).toEqual(ok());
+      expect(mockFujitsuPrinterHandler.getPrintPathHistory()).toHaveLength(1);
+      await expectLastPrintPageCount(mockFujitsuPrinterHandler, 3);
       await expect(
         mockFujitsuPrinterHandler.getLastPrintPath()
       ).toMatchPdfSnapshot({
-        customSnapshotIdentifier: 'polls-opened-report-section-mammal',
+        customSnapshotIdentifier: 'polls-opened-report-twoparty',
         failureThreshold: 0.0001,
       });
 
-      // print second section
-      expect(await apiClient.printReportSection({ index: 1 })).toEqual({
-        printResult: ok(),
-        numberOfSections: 3,
-      });
-      await expect(
-        mockFujitsuPrinterHandler.getLastPrintPath()
-      ).toMatchPdfSnapshot({
-        customSnapshotIdentifier: 'polls-opened-report-section-fish',
-        failureThreshold: 0.0001,
-      });
-
-      // can reprint a section
-      expect(await apiClient.printReportSection({ index: 1 })).toEqual({
-        printResult: ok(),
-        numberOfSections: 3,
-      });
-      await expect(
-        mockFujitsuPrinterHandler.getLastPrintPath()
-      ).toMatchPdfSnapshot({
-        customSnapshotIdentifier: 'polls-opened-report-section-fish',
-        failureThreshold: 0.0001,
-      });
-
-      // print third section
-      expect(await apiClient.printReportSection({ index: 2 })).toEqual({
-        printResult: ok(),
-        numberOfSections: 3,
-      });
-      await expect(
-        mockFujitsuPrinterHandler.getLastPrintPath()
-      ).toMatchPdfSnapshot({
-        customSnapshotIdentifier: 'polls-opened-report-section-nonpartisan',
-        failureThreshold: 0.0001,
-      });
-
-      expect(mockFujitsuPrinterHandler.getPrintPathHistory()).toHaveLength(4);
+      expect(await apiClient.printReport()).toEqual(ok());
+      expect(mockFujitsuPrinterHandler.getPrintPathHistory()).toHaveLength(2);
+      await expectLastPrintPageCount(mockFujitsuPrinterHandler, 3);
 
       // Polls paused/resumed reports are a single ballot count report, not
       // split by party even in a primary
       await apiClient.pauseVoting();
-      expect(await apiClient.printReportSection({ index: 0 })).toEqual({
-        printResult: ok(),
-        numberOfSections: 1,
-      });
+      expect(await apiClient.printReport()).toEqual(ok());
+      await expectLastPrintPageCount(mockFujitsuPrinterHandler, 1);
       await apiClient.resumeVoting();
-      expect(await apiClient.printReportSection({ index: 0 })).toEqual({
-        printResult: ok(),
-        numberOfSections: 1,
-      });
+      expect(await apiClient.printReport()).toEqual(ok());
+      await expectLastPrintPageCount(mockFujitsuPrinterHandler, 1);
 
       mockFujitsuPrinterHandler.cleanup();
     }
@@ -185,9 +158,7 @@ test('printing report before polls opened should fail', async () => {
 
     // printing report before polls opened should fail
     await suppressingConsoleOutput(async () => {
-      await expect(
-        apiClient.printReportSection({ index: 0 })
-      ).rejects.toThrow();
+      await expect(apiClient.printReport()).rejects.toThrow();
     });
   });
 });
@@ -210,9 +181,7 @@ test('re-printing report after scanning a ballot should fail', async () => {
 
       await scanBallot(mockScanner, clock, apiClient, workspace.store, 0);
       await suppressingConsoleOutput(async () => {
-        await expect(
-          apiClient.printReportSection({ index: 0 })
-        ).rejects.toThrow();
+        await expect(apiClient.printReport()).rejects.toThrow();
       });
     }
   );
@@ -237,10 +206,7 @@ test('can print voting paused and voting resumed reports', async () => {
 
       // pause voting
       await apiClient.pauseVoting();
-      expect(await apiClient.printReportSection({ index: 0 })).toEqual({
-        printResult: ok(),
-        numberOfSections: 1,
-      });
+      expect(await apiClient.printReport()).toEqual(ok());
       await expect(
         mockFujitsuPrinterHandler.getLastPrintPath()
       ).toMatchPdfSnapshot({
@@ -250,10 +216,7 @@ test('can print voting paused and voting resumed reports', async () => {
 
       // resume voting
       await apiClient.resumeVoting();
-      expect(await apiClient.printReportSection({ index: 0 })).toEqual({
-        printResult: ok(),
-        numberOfSections: 1,
-      });
+      expect(await apiClient.printReport()).toEqual(ok());
       await expect(
         mockFujitsuPrinterHandler.getLastPrintPath()
       ).toMatchPdfSnapshot({
@@ -287,10 +250,7 @@ test('can tabulate results and print polls closed report', async () => {
 
       // close polls
       await apiClient.closePolls();
-      expect(await apiClient.printReportSection({ index: 0 })).toEqual({
-        printResult: ok(),
-        numberOfSections: 1,
-      });
+      expect(await apiClient.printReport()).toEqual(ok());
       await expect(
         mockFujitsuPrinterHandler.getLastPrintPath()
       ).toMatchPdfSnapshot({
@@ -389,10 +349,7 @@ test('polls closed report shows correct sheet counts for multi-page BMD ballots'
 
       // Close polls and print the report
       await apiClient.closePolls();
-      expect(await apiClient.printReportSection({ index: 0 })).toEqual({
-        printResult: ok(),
-        numberOfSections: 1,
-      });
+      expect(await apiClient.printReport()).toEqual(ok());
       await expect(
         mockFujitsuPrinterHandler.getLastPrintPath()
       ).toMatchPdfSnapshot({
@@ -514,39 +471,12 @@ test('can tabulate results and print polls closed report for closed primary', as
 
       await apiClient.closePolls();
 
-      // Mammal section
-      expect(await apiClient.printReportSection({ index: 0 })).toEqual({
-        printResult: ok(),
-        numberOfSections: 3,
-      });
+      expect(await apiClient.printReport()).toEqual(ok());
+      await expectLastPrintPageCount(mockFujitsuPrinterHandler, 3);
       await expect(
         mockFujitsuPrinterHandler.getLastPrintPath()
       ).toMatchPdfSnapshot({
-        customSnapshotIdentifier: 'polls-closed-twoparty-section-mammal',
-        failureThreshold: 0.0001,
-      });
-
-      // Fish section
-      expect(await apiClient.printReportSection({ index: 1 })).toEqual({
-        printResult: ok(),
-        numberOfSections: 3,
-      });
-      await expect(
-        mockFujitsuPrinterHandler.getLastPrintPath()
-      ).toMatchPdfSnapshot({
-        customSnapshotIdentifier: 'polls-closed-twoparty-section-fish',
-        failureThreshold: 0.0001,
-      });
-
-      // Nonpartisan section
-      expect(await apiClient.printReportSection({ index: 2 })).toEqual({
-        printResult: ok(),
-        numberOfSections: 3,
-      });
-      await expect(
-        mockFujitsuPrinterHandler.getLastPrintPath()
-      ).toMatchPdfSnapshot({
-        customSnapshotIdentifier: 'polls-closed-twoparty-section-nonpartisan',
+        customSnapshotIdentifier: 'polls-closed-twoparty',
         failureThreshold: 0.0001,
       });
 
@@ -614,55 +544,12 @@ test('can tabulate results and print polls closed report for combined ballot pri
 
       await apiClient.closePolls();
 
-      // Democratic section
-      expect(await apiClient.printReportSection({ index: 0 })).toEqual({
-        printResult: ok(),
-        numberOfSections: 4,
-      });
+      expect(await apiClient.printReport()).toEqual(ok());
+      await expectLastPrintPageCount(mockFujitsuPrinterHandler, 4);
       await expect(
         mockFujitsuPrinterHandler.getLastPrintPath()
       ).toMatchPdfSnapshot({
-        customSnapshotIdentifier:
-          'polls-closed-combined-ballot-primary-section-democratic',
-        failureThreshold: 0.0001,
-      });
-
-      // Republican section
-      expect(await apiClient.printReportSection({ index: 1 })).toEqual({
-        printResult: ok(),
-        numberOfSections: 4,
-      });
-      await expect(
-        mockFujitsuPrinterHandler.getLastPrintPath()
-      ).toMatchPdfSnapshot({
-        customSnapshotIdentifier:
-          'polls-closed-combined-ballot-primary-section-republican',
-        failureThreshold: 0.0001,
-      });
-
-      // Libertarian section
-      expect(await apiClient.printReportSection({ index: 2 })).toEqual({
-        printResult: ok(),
-        numberOfSections: 4,
-      });
-      await expect(
-        mockFujitsuPrinterHandler.getLastPrintPath()
-      ).toMatchPdfSnapshot({
-        customSnapshotIdentifier:
-          'polls-closed-combined-ballot-primary-section-libertarian',
-        failureThreshold: 0.0001,
-      });
-
-      // Nonpartisan section
-      expect(await apiClient.printReportSection({ index: 3 })).toEqual({
-        printResult: ok(),
-        numberOfSections: 4,
-      });
-      await expect(
-        mockFujitsuPrinterHandler.getLastPrintPath()
-      ).toMatchPdfSnapshot({
-        customSnapshotIdentifier:
-          'polls-closed-combined-ballot-primary-section-nonpartisan',
+        customSnapshotIdentifier: 'polls-closed-combined-ballot-primary',
         failureThreshold: 0.0001,
       });
 
@@ -747,10 +634,7 @@ test('can tabulate results and print polls closed report for straight party', as
       }
 
       await apiClient.closePolls();
-      expect(await apiClient.printReportSection({ index: 0 })).toEqual({
-        printResult: ok(),
-        numberOfSections: 1,
-      });
+      expect(await apiClient.printReport()).toEqual(ok());
       await expect(
         mockFujitsuPrinterHandler.getLastPrintPath()
       ).toMatchPdfSnapshot({

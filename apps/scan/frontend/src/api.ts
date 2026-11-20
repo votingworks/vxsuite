@@ -520,10 +520,10 @@ export const endScannerDiagnostic = {
   },
 } as const;
 
-export const printReportSection = {
+export const printReport = {
   useMutation() {
     const apiClient = useApiClient();
-    return useMutation(apiClient.printReportSection);
+    return useMutation(apiClient.printReport);
   },
 } as const;
 
