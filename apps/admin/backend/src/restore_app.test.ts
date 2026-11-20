@@ -183,6 +183,7 @@ test('describes itself as restore mode', async () => {
   expect(await apiClient.getMachineConfig()).toEqual({
     machineId: DEV_MACHINE_ID,
     codeVersion: 'dev',
+    jurisdiction: DEV_JURISDICTION,
   });
   expect(await apiClient.getRestoreStatus()).toBeNull();
 });

@@ -5,7 +5,7 @@ import type {
 import { throwIllegalValue } from '@votingworks/basics';
 import { DEFAULT_SYSTEM_SETTINGS, type UserRole } from '@votingworks/types';
 import type { LoggingUserRole } from '@votingworks/logging';
-import { getMachineJurisdiction } from '../machine_config.js';
+import { getMachineConfig } from '../machine_config.js';
 import type { AppMode, BaseStore } from '../types.js';
 
 function getAllowedUserRoles(appMode: AppMode): readonly UserRole[] {
@@ -42,7 +42,7 @@ export function constructAuthMachineState(
 ): DippedSmartCardAuthMachineState {
   const electionId = store.getCurrentElectionId();
 
-  const jurisdiction = getMachineJurisdiction();
+  const { jurisdiction } = getMachineConfig();
   const allowedUserRoles = getAllowedUserRoles(store.getAppMode());
 
   if (!electionId) {

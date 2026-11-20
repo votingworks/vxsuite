@@ -1,10 +1,7 @@
 import { err, ok, type Result, throwIllegalValue } from '@votingworks/basics';
 import { type Logger, LogEventId } from '@votingworks/logging';
 import { LATEST_SOFTWARE_VERSION } from '@votingworks/types';
-import {
-  getMachineConfig,
-  getMachineJurisdiction,
-} from '../../machine_config.js';
+import { getMachineConfig } from '../../machine_config.js';
 import type { AuthenticatedBackup } from '../authenticated_backup.js';
 import { Backup } from '../backup.js';
 import {
@@ -92,7 +89,7 @@ export async function vetManifest(
   // the one account of where a backup came from that its author did not write:
   // a manifest holds whatever the signer chose to type, while the jurisdiction
   // is what the CA issued them.
-  const jurisdiction = getMachineJurisdiction();
+  const { jurisdiction } = getMachineConfig();
   if (backup.signer.jurisdiction !== jurisdiction) {
     return err({
       type: 'backup-authentication-failed',

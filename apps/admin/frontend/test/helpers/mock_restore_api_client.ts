@@ -7,7 +7,11 @@ import type {
   RestoreApi,
   RestoreStatus,
 } from '@votingworks/admin-backend';
-import { DEV_MACHINE_ID, type DippedSmartCardAuth } from '@votingworks/types';
+import {
+  DEV_MACHINE_ID,
+  type DippedSmartCardAuth,
+  TEST_JURISDICTION,
+} from '@votingworks/types';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { type Mock, vi } from 'vitest';
@@ -71,7 +75,11 @@ export function createRestoreApiMock(
     },
 
     expectGetMachineConfig(
-      machineConfig = { machineId: DEV_MACHINE_ID, codeVersion: 'dev' }
+      machineConfig = {
+        machineId: DEV_MACHINE_ID,
+        codeVersion: 'dev',
+        jurisdiction: TEST_JURISDICTION,
+      }
     ) {
       apiClient.getMachineConfig.expectCallWith().resolves(machineConfig);
     },

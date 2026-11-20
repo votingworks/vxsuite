@@ -97,6 +97,7 @@ export interface MachineRecord {
 export interface MachineConfig {
   machineId: string;
   codeVersion: string;
+  jurisdiction: string;
 }
 
 /**

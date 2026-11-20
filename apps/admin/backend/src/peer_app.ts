@@ -25,13 +25,13 @@ import type {
   ScannerRegistration,
   StartCvrTransferError,
   VxAdminHostApi,
+  VxAdminHostMachineConfig,
 } from '@votingworks/networking';
 import { getMachineConfig } from './machine_config.js';
 import type { Workspace } from './util/workspace.js';
 import type {
   AdjudicationError,
   ElectionRecord,
-  MachineConfig,
   RegisterAdjudicationStationError,
   RegistrationErrorType,
   AdjudicatedCvr,
@@ -198,7 +198,8 @@ function buildPeerApi({ workspace, logger, machineId }: PeerAppContext) {
       debug('Scanner %s registered with host', input.machineId);
       recordScanner(null);
       return ok({
-        ...machineConfig,
+        machineId: machineConfig.machineId,
+        codeVersion: machineConfig.codeVersion,
         importedBatchIds: store.getNetworkCvrImportBatchIds(
           currentElectionId,
           input.machineId
@@ -212,7 +213,7 @@ function buildPeerApi({ workspace, logger, machineId }: PeerAppContext) {
       status: Admin.ClientMachineStatus;
       authType: UserRole | null;
     }): Result<
-      MachineConfig & { isClientAdjudicationEnabled: boolean },
+      VxAdminHostMachineConfig & { isClientAdjudicationEnabled: boolean },
       RegisterAdjudicationStationError
     > {
       const machineConfig = getMachineConfig();
@@ -290,7 +291,8 @@ function buildPeerApi({ workspace, logger, machineId }: PeerAppContext) {
         input.authType
       );
       return ok({
-        ...machineConfig,
+        machineId: machineConfig.machineId,
+        codeVersion: machineConfig.codeVersion,
         isClientAdjudicationEnabled: store.getIsClientAdjudicationEnabled(),
       });
     },

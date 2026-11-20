@@ -3,6 +3,7 @@ import {
   DEV_MACHINE_ID,
   DippedSmartCardAuth,
   type ElectionDefinition,
+  TEST_JURISDICTION,
 } from '@votingworks/types';
 import type { MachineConfig, MachineMode } from '@votingworks/admin-backend';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
@@ -31,6 +32,7 @@ const appContext: AppContextInterface = {
   machineConfig: {
     machineId: DEV_MACHINE_ID,
     codeVersion: 'dev',
+    jurisdiction: TEST_JURISDICTION,
   },
   machineMode: 'host',
   isElectionDefinitionEnabled: false,
