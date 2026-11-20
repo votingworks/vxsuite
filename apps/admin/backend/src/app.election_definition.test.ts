@@ -1683,6 +1683,16 @@ test('finalize locks the election definition, builds its election package and co
       disposition: 'success',
     }
   );
+  await expect(
+    api.updateBallotLayoutSettings({
+      electionId,
+      paperSize: HmpbBallotPaperSize.Legal,
+      compact: false,
+    })
+  ).rejects.toThrow('Election definition is finalized');
+  await expect(api.finalizeElection({ electionId })).rejects.toThrow(
+    'Election definition is finalized'
+  );
 
   const electionPackage = await waitForElectionPackage(api, electionId);
   assert(electionPackage?.status === 'succeeded');
@@ -1760,6 +1770,9 @@ test('finalize locks the election definition, builds its election package and co
   expect(await api.getElectionInfo({ electionId })).toMatchObject({
     title: 'General Election',
   });
+  await expect(api.finalizeElection({ electionId })).rejects.toThrow(
+    'Election definition is finalized'
+  );
   await expect(api.deleteElection({ electionId })).rejects.toThrow(
     'Cannot discard an election definition while VxAdmin is configured'
   );

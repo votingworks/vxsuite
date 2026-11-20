@@ -234,6 +234,15 @@ function createElectionDefinitionApiMethods({
     return electionInfo;
   }
 
+  function loadEditableElectionInfo(input: ElectionInput): ElectionInfo {
+    const electionInfo = loadInProgressElectionInfo(input);
+    assert(
+      store.electionDefinition.isElectionEditable(input.electionId),
+      'Election definition is finalized'
+    );
+    return electionInfo;
+  }
+
   function isElectionPackageRunning(electionId: ElectionId): boolean {
     return (
       store.electionDefinition.getElectionPackage(electionId)?.status ===
@@ -298,7 +307,7 @@ function createElectionDefinitionApiMethods({
         !electionInfoUpdate.isMiCombinedBallotPrimary,
         'Combined ballot primaries are not supported.'
       );
-      loadInProgressElectionInfo(electionInfoUpdate);
+      loadEditableElectionInfo(electionInfoUpdate);
       store.electionDefinition.updateInProgressElectionInfo(electionInfoUpdate);
       await logger.logAsCurrentRole(LogEventId.ElectionDefinitionInfoUpdated, {
         message: `Updated election info for election definition ${input.electionId}.`,
@@ -320,7 +329,7 @@ function createElectionDefinitionApiMethods({
     async updateDistricts(
       input: DistrictsUpdate
     ): Promise<Result<void, DuplicateDistrictError>> {
-      loadInProgressElectionInfo(input);
+      loadEditableElectionInfo(input);
       const result = store.electionDefinition.updateDistricts(input);
       if (result.isErr()) {
         await logger.logAsCurrentRole(
@@ -350,7 +359,7 @@ function createElectionDefinitionApiMethods({
     async updateParties(
       input: PartiesUpdate
     ): Promise<Result<void, DuplicatePartyError>> {
-      loadInProgressElectionInfo(input);
+      loadEditableElectionInfo(input);
       const result = store.electionDefinition.updateParties(input);
       if (result.isErr()) {
         await logger.logAsCurrentRole(
@@ -380,7 +389,7 @@ function createElectionDefinitionApiMethods({
     async createContest(
       input: ContestCreate
     ): Promise<Result<void, DuplicateContestError>> {
-      loadInProgressElectionInfo(input);
+      loadEditableElectionInfo(input);
       const result = store.electionDefinition.createContest(input);
       if (result.isErr()) {
         await logger.logAsCurrentRole(
@@ -405,7 +414,7 @@ function createElectionDefinitionApiMethods({
     async updateContest(
       input: ContestUpdate
     ): Promise<Result<void, DuplicateContestError>> {
-      loadInProgressElectionInfo(input);
+      loadEditableElectionInfo(input);
       const result = store.electionDefinition.updateContest(input);
       if (result.isErr()) {
         await logger.logAsCurrentRole(
@@ -428,7 +437,7 @@ function createElectionDefinitionApiMethods({
     },
 
     async reorderContests(input: ContestsReorder): Promise<void> {
-      loadInProgressElectionInfo(input);
+      loadEditableElectionInfo(input);
       store.electionDefinition.reorderContests(input);
       await logger.logAsCurrentRole(
         LogEventId.ElectionDefinitionContestsReordered,
@@ -440,7 +449,7 @@ function createElectionDefinitionApiMethods({
     },
 
     async deleteContest(input: ContestDelete): Promise<void> {
-      loadInProgressElectionInfo(input);
+      loadEditableElectionInfo(input);
       store.electionDefinition.deleteContest(input);
       await logger.logAsCurrentRole(
         LogEventId.ElectionDefinitionContestDeleted,
@@ -459,7 +468,7 @@ function createElectionDefinitionApiMethods({
     async createPrecinct(
       input: PrecinctCreate
     ): Promise<Result<void, DuplicatePrecinctError>> {
-      loadInProgressElectionInfo(input);
+      loadEditableElectionInfo(input);
       const { features } = assertDefined(getMachineState());
       const result = store.electionDefinition.createPrecinct(
         input,
@@ -494,7 +503,7 @@ function createElectionDefinitionApiMethods({
     async updatePrecinct(
       input: PrecinctUpdate
     ): Promise<Result<void, DuplicatePrecinctError>> {
-      loadInProgressElectionInfo(input);
+      loadEditableElectionInfo(input);
       const result = store.electionDefinition.updatePrecinct(input);
       if (result.isErr()) {
         await logger.logAsCurrentRole(
@@ -517,7 +526,7 @@ function createElectionDefinitionApiMethods({
     },
 
     async deletePrecinct(input: PrecinctDelete): Promise<void> {
-      loadInProgressElectionInfo(input);
+      loadEditableElectionInfo(input);
       store.electionDefinition.deletePrecinct(input);
       await logger.logAsCurrentRole(
         LogEventId.ElectionDefinitionPrecinctDeleted,
@@ -545,7 +554,7 @@ function createElectionDefinitionApiMethods({
     async setPollingPlace(
       input: PollingPlaceSet
     ): Promise<Result<void, SetPollingPlaceError>> {
-      loadInProgressElectionInfo(input);
+      loadEditableElectionInfo(input);
       const result = store.electionDefinition.setPollingPlace(input);
       if (result.isErr()) {
         await logger.logAsCurrentRole(
@@ -568,7 +577,7 @@ function createElectionDefinitionApiMethods({
     },
 
     async deletePollingPlace(input: PollingPlaceDelete): Promise<void> {
-      loadInProgressElectionInfo(input);
+      loadEditableElectionInfo(input);
       store.electionDefinition.deletePollingPlace(input);
       await logger.logAsCurrentRole(
         LogEventId.ElectionDefinitionPollingPlaceDeleted,
@@ -592,7 +601,7 @@ function createElectionDefinitionApiMethods({
     async updateBallotLayoutSettings(
       input: BallotLayoutSettingsUpdate
     ): Promise<void> {
-      loadInProgressElectionInfo(input);
+      loadEditableElectionInfo(input);
       const paperSize = unsafeParse(HmpbBallotPaperSizeSchema, input.paperSize);
       const compact = unsafeParse(z.boolean(), input.compact);
       store.electionDefinition.updateBallotLayoutSettings({
@@ -689,7 +698,7 @@ function createElectionDefinitionApiMethods({
     },
 
     async finalizeElection(input: ElectionInput): Promise<void> {
-      const electionInfo = loadInProgressElectionInfo(input);
+      const electionInfo = loadEditableElectionInfo(input);
       assert(
         electionInfo.title !== '' && electionInfo.jurisdictionName !== '',
         'Election info is incomplete'
@@ -768,7 +777,7 @@ function createElectionDefinitionApiMethods({
         filePath: string;
       }
     ): Promise<Result<void, TranslationsImportError>> {
-      loadInProgressElectionInfo(input);
+      loadEditableElectionInfo(input);
       const result = await importTranslations(
         store.electionDefinition,
         input.electionId,
