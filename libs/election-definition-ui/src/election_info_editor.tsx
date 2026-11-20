@@ -38,6 +38,7 @@ import { SignatureImageInput } from './signature_image_input.js';
 export interface ElectionInfoEditorProps {
   electionId: ElectionId;
   isLocked?: boolean;
+  isDeleteDisabled?: boolean;
   showSignatureInput?: boolean;
   AudioPanel?: React.ComponentType;
   onElectionDeleted: () => void;
@@ -67,6 +68,7 @@ function ElectionInfoForm({
   savedElectionInfo,
   features,
   isLocked,
+  isDeleteDisabled,
   showSignatureInput,
   audioRoutes,
   onElectionDeleted,
@@ -348,6 +350,7 @@ function ElectionInfoForm({
         )}
         <DeleteElectionButton
           electionId={savedElectionInfo.electionId}
+          disabled={isDeleteDisabled}
           onDeleted={onElectionDeleted}
         />
       </FormFooter>

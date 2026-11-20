@@ -5,11 +5,13 @@ import { useElectionDefinitionApi } from './election_definition_context.js';
 
 export interface DeleteElectionButtonProps {
   electionId: ElectionId;
+  disabled?: boolean;
   onDeleted: () => void;
 }
 
 export function DeleteElectionButton({
   electionId,
+  disabled,
   onDeleted,
 }: DeleteElectionButtonProps): JSX.Element {
   const api = useElectionDefinitionApi();
@@ -27,7 +29,7 @@ export function DeleteElectionButton({
   return (
     <React.Fragment>
       <Button
-        disabled={deleteElectionMutation.isLoading}
+        disabled={disabled || deleteElectionMutation.isLoading}
         icon="Delete"
         fill="outlined"
         onPress={() => setIsConfirmingDelete(true)}
