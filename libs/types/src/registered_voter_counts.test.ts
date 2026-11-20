@@ -7,6 +7,7 @@ import {
   isPrecinctCount,
   isSplitCounts,
   listRegisteredVoterCounts,
+  toTotalRegisteredVoterCounts,
   type ElectionRegisteredVoterCounts,
   type PrecinctRegisteredVoterCountEntry,
 } from './registered_voter_counts.js';
@@ -67,6 +68,16 @@ test('getPartyRegisteredVoterCounts', () => {
       byParty: { DEM: 100, REP: 200 },
     })
   ).toEqual({ DEM: 100, REP: 200 });
+});
+
+test('toTotalRegisteredVoterCounts', () => {
+  expect(
+    toTotalRegisteredVoterCounts({
+      p1: number,
+      p2: byParty,
+      ps: { splits: { s1: totalOnly, s2: byParty } },
+    })
+  ).toEqual({ p1: 500, p2: 350, ps: { splits: { s1: 500, s2: 350 } } });
 });
 
 test('listRegisteredVoterCounts', () => {

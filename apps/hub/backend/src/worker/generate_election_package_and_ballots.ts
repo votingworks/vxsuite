@@ -17,6 +17,7 @@ import {
   type BaseBallotProps,
   type SoftwareVersion,
   type ElectionDefinition,
+  toTotalRegisteredVoterCounts,
 } from '@votingworks/types';
 import {
   hmpbStringsCatalog,
@@ -400,8 +401,12 @@ async function generate(
     name: ElectionPackageFileName.SYSTEM_SETTINGS,
   });
 
-  const registeredVoterCounts =
+  const storedRegisteredVoterCounts =
     await store.getRegisteredVoterCounts(electionId);
+  const registeredVoterCounts =
+    systemSettings.enumerateRegisteredVoterCountByParty
+      ? storedRegisteredVoterCounts
+      : toTotalRegisteredVoterCounts(storedRegisteredVoterCounts);
   electionPackageZip.addEntry(JSON.stringify(registeredVoterCounts, null, 2), {
     name: ElectionPackageFileName.REGISTERED_VOTER_COUNTS,
   });

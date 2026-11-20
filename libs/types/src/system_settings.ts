@@ -161,6 +161,12 @@ export const SystemSettingsSchema = z
      */
     countCentralScanBallotsOnlyAfterAdjudication: z.boolean().optional(),
 
+    /**
+     * When enabled, registered voter counts are exported broken out by voter
+     * party affiliation. Otherwise, only totals are exported.
+     */
+    enumerateRegisteredVoterCountByParty: z.boolean().optional(),
+
     centralScanAdjudicationReasons: z.array(
       z.lazy(() => AdjudicationReasonSchema)
     ),
