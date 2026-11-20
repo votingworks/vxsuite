@@ -833,7 +833,8 @@ export function SystemSettingsForm({
             <Column style={{ gap: '1.5rem' }}>
               <P style={{ marginBottom: 0, maxWidth: '30rem' }}>
                 Some of these are new and will eventually be documented. Others
-                are never meant to be toggled by test labs.
+                are meant for internal use and should not be toggled by test
+                labs.
               </P>
               <SystemSettingsCheckbox
                 {...checkboxProps}
@@ -851,6 +852,7 @@ export function SystemSettingsForm({
                 {...checkboxProps}
                 label="Transliterate Candidate Names"
                 setting="shouldTransliterateCandidateNames"
+                omitWhenUnchecked
               />
               <CheckboxButton
                 label="Enable Live Reporting"
