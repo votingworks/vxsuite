@@ -833,7 +833,7 @@ export function SystemSettingsForm({
             <Column style={{ gap: '1.5rem' }}>
               <P style={{ marginBottom: 0, maxWidth: '30rem' }}>
                 Some of these are new and will eventually be documented. Others
-                are unintended for toggling by test labs.
+                are never meant to be toggled by test labs.
               </P>
               <SystemSettingsCheckbox
                 {...checkboxProps}
