@@ -20,8 +20,8 @@ import {
 } from '@votingworks/message-coder';
 import {
   createGrayImageData,
-  createImageData,
   crop,
+  fromGrayScale,
   writeImageData,
 } from '@votingworks/image-utils';
 import type { GrayImageData, Rect } from '@votingworks/types';
@@ -29,7 +29,6 @@ import { Mutex } from '@votingworks/utils';
 import {
   assertNumberIsInRangeInclusive,
   assertUint16,
-  BytesPerUint32,
   type Uint16,
   Uint16toUint8,
   type Uint8,
@@ -625,26 +624,6 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
     debug(
       `Received imageData with specs:\nHeight=${grayscaleResult.height}, Width=${grayscaleResult.width}, data byte length=${grayscaleResult.data.byteLength}`
     );
-    const grayscaleData = grayscaleResult.data;
-    const colorResult = createImageData(
-      grayscaleResult.width,
-      grayscaleResult.height
-    );
-
-    const colorData = new Uint32Array(
-      colorResult.data.buffer,
-      colorResult.data.byteOffset,
-      // `length` is the length in elements of the Uint32Array, not number of bytes
-      // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray/length
-      colorResult.data.byteLength / BytesPerUint32
-    );
-    for (let i = 0; i < grayscaleData.byteLength; i += 1) {
-      const luminance = grayscaleData[i];
-      assert(luminance !== undefined);
-      colorData[i] =
-        (luminance << 24) | (luminance << 16) | (luminance << 8) | 255;
-    }
-
     // Scanner ignores `scannerConfig.sizeX` so we crop in post
     const croppedBounds: Rect = {
       x:
@@ -652,15 +631,18 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
         this.scannerConfig.scanDirection === 'forward'
           ? 0
           : // 'backward' scan direction results in upside-down image -> crop out left side
-            colorResult.width - this.maxPrintWidthDots,
+            grayscaleResult.width - this.maxPrintWidthDots,
       y: 0,
       width: this.maxPrintWidthDots,
-      height: colorResult.height,
+      height: grayscaleResult.height,
     };
 
-    const croppedResult = crop(colorResult, croppedBounds);
+    const cropped = crop(grayscaleResult, croppedBounds);
 
-    await writeImageData(pathOut, croppedResult);
+    await writeImageData(
+      pathOut,
+      fromGrayScale(cropped.data, cropped.width, cropped.height)
+    );
   }
 
   /**
