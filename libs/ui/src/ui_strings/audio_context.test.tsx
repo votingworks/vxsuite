@@ -58,7 +58,10 @@ const mockWebAudioContext = {
   },
 } as const;
 
-const mockGainNode = { gain: { value: 9000 } } as unknown as GainNode;
+const mockGainNode = {
+  gain: { value: 9000 },
+  connect: vi.fn(),
+} as unknown as GainNode;
 
 beforeEach(() => {
   const mockAudioContextConstructor = vi.fn(
