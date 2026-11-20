@@ -120,7 +120,7 @@ export function hasPartialRegisteredVoterCounts(
 const CountSchema = z.number().int().nonnegative();
 
 const RegisteredVoterCountObjectSchema: z.ZodType<RegisteredVoterCount> = z
-  .object({
+  .strictObject({
     total: CountSchema,
     byParty: z.record(z.string(), CountSchema).optional(),
     nonpartisan: CountSchema.optional(),
@@ -148,7 +148,7 @@ export const RegisteredVoterCountSchema: z.ZodType<RegisteredVoterCount> =
   ]);
 
 export const PrecinctWithSplitsRegisteredVoterCountsSchema: z.ZodType<PrecinctWithSplitsRegisteredVoterCounts> =
-  z.object({
+  z.strictObject({
     splits: z.record(z.string(), RegisteredVoterCountSchema),
   });
 

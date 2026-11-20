@@ -119,6 +119,9 @@ test('ElectionRegisteredVoterCountsSchema rejects invalid counts', () => {
     { p1: { total: 30, byParty: { DEM: 10, REP: 10 } } },
     { p1: { total: 30, byParty: { DEM: 10, REP: 20 }, nonpartisan: 5 } },
     { ps: { splits: { s1: { total: 1, byParty: { DEM: 2 } } } } },
+    { ps: { total: 10, splits: { s1: { total: 10 } } } },
+    { ps: { total: 10, splits: { s1: 10 } } },
+    { p1: { total: 10, extra: 1 } },
   ]) {
     expect(
       ElectionRegisteredVoterCountsSchema.safeParse(invalid).success
