@@ -115,6 +115,48 @@ function safeParseStartingCardLockoutDurationSeconds(
   );
 }
 
+type BooleanSystemSetting = {
+  [K in keyof SystemSettings]-?: NonNullable<SystemSettings[K]> extends boolean
+    ? K
+    : never;
+}[keyof SystemSettings];
+
+interface SystemSettingsCheckboxProps {
+  label: string;
+  setting: BooleanSystemSetting;
+  /**
+   * Remove the setting from the saved settings when unchecked, instead of
+   * saving `false`.
+   */
+  omitWhenUnchecked?: boolean;
+  systemSettings: SystemSettings;
+  setSystemSettings: (systemSettings: SystemSettings) => void;
+  disabled: boolean;
+}
+
+function SystemSettingsCheckbox({
+  label,
+  setting,
+  omitWhenUnchecked = false,
+  systemSettings,
+  setSystemSettings,
+  disabled,
+}: SystemSettingsCheckboxProps): JSX.Element {
+  return (
+    <CheckboxButton
+      label={label}
+      isChecked={Boolean(systemSettings[setting])}
+      onChange={(isChecked) =>
+        setSystemSettings({
+          ...systemSettings,
+          [setting]: !isChecked && omitWhenUnchecked ? undefined : isChecked,
+        })
+      }
+      disabled={disabled}
+    />
+  );
+}
+
 export function SystemSettingsForm({
   electionId,
   savedSystemSettings,
@@ -229,6 +271,12 @@ export function SystemSettingsForm({
       AdjudicationReason.UnmarkedWriteIn
     );
 
+  const checkboxProps = {
+    systemSettings,
+    setSystemSettings,
+    disabled: !isEditing,
+  } as const;
+
   return (
     <Form
       onSubmit={(e) => {
@@ -261,17 +309,10 @@ export function SystemSettingsForm({
               }
               disabled={!isEditing}
             />
-            <CheckboxButton
+            <SystemSettingsCheckbox
+              {...checkboxProps}
               label="Disallow Casting Overvotes"
-              // @coverage-defer
-              isChecked={systemSettings.disallowCastingOvervotes ?? false}
-              onChange={(isChecked) =>
-                setSystemSettings({
-                  ...systemSettings,
-                  disallowCastingOvervotes: isChecked,
-                })
-              }
-              disabled={!isEditing}
+              setting="disallowCastingOvervotes"
             />
             <CheckboxGroup
               label="VxCentralScan"
@@ -305,38 +346,17 @@ export function SystemSettingsForm({
               }
               disabled={!isEditing}
             />
-            <CheckboxButton
+            <SystemSettingsCheckbox
+              {...checkboxProps}
               label="Limit Adjudication to Flagged Contests"
-              isChecked={
-                systemSettings.limitAdminAdjudicationToFlaggedContests ?? false
-              }
-              onChange={(isChecked) =>
-                setSystemSettings({
-                  ...systemSettings,
-                  // @coverage-defer
-                  limitAdminAdjudicationToFlaggedContests: isChecked
-                    ? true
-                    : undefined, // Completely omit when unchecked
-                })
-              }
-              disabled={!isEditing}
+              setting="limitAdminAdjudicationToFlaggedContests"
+              omitWhenUnchecked
             />
-            <CheckboxButton
+            <SystemSettingsCheckbox
+              {...checkboxProps}
               label="Count VxCentralScan Ballots Only After Adjudication"
-              isChecked={
-                systemSettings.countCentralScanBallotsOnlyAfterAdjudication ??
-                false
-              }
-              onChange={(isChecked) =>
-                setSystemSettings({
-                  ...systemSettings,
-                  // @coverage-defer
-                  countCentralScanBallotsOnlyAfterAdjudication: isChecked
-                    ? true
-                    : undefined, // Completely omit when unchecked
-                })
-              }
-              disabled={!isEditing}
+              setting="countCentralScanBallotsOnlyAfterAdjudication"
+              omitWhenUnchecked
             />
           </Column>
         </Card>
@@ -685,35 +705,18 @@ export function SystemSettingsForm({
                 disabled={!isEditing}
               />
             </InputGroup>
-            <CheckboxButton
+            <SystemSettingsCheckbox
+              {...checkboxProps}
               label="Disallow Closing Polls Before Election Day Polls Close Time"
-              isChecked={Boolean(
-                systemSettings.disallowClosingPollsBeforeElectionDayPollsCloseTime
-              )}
-              onChange={(isChecked) =>
-                setSystemSettings({
-                  ...systemSettings,
-                  // @coverage-defer
-                  disallowClosingPollsBeforeElectionDayPollsCloseTime: isChecked
-                    ? true
-                    : undefined,
-                })
-              }
+              setting="disallowClosingPollsBeforeElectionDayPollsCloseTime"
+              omitWhenUnchecked
               disabled={!isEditing || !systemSettings.electionDayPollsCloseTime}
             />
-            <CheckboxButton
+            <SystemSettingsCheckbox
+              {...checkboxProps}
               label="Disallow VxAdmin Tabulation Before Election Day Polls Close Time"
-              isChecked={Boolean(
-                systemSettings.disallowVxAdminTabulationBeforeElectionDayPollsCloseTime
-              )}
-              onChange={(isChecked) =>
-                setSystemSettings({
-                  ...systemSettings,
-                  disallowVxAdminTabulationBeforeElectionDayPollsCloseTime:
-                    // @coverage-defer
-                    isChecked ? true : undefined,
-                })
-              }
+              setting="disallowVxAdminTabulationBeforeElectionDayPollsCloseTime"
+              omitWhenUnchecked
               disabled={!isEditing || !systemSettings.electionDayPollsCloseTime}
             />
           </Column>
@@ -721,86 +724,43 @@ export function SystemSettingsForm({
         <Card>
           <H2>Other</H2>
           <Column style={{ gap: '1.5rem' }}>
-            <CheckboxButton
+            <SystemSettingsCheckbox
+              {...checkboxProps}
               label="Allow Official Ballots in Test Mode"
-              isChecked={Boolean(systemSettings.allowOfficialBallotsInTestMode)}
-              onChange={(isChecked) =>
-                setSystemSettings({
-                  ...systemSettings,
-                  allowOfficialBallotsInTestMode: isChecked,
-                })
-              }
-              disabled={!isEditing}
+              setting="allowOfficialBallotsInTestMode"
             />
-            <CheckboxButton
+            <SystemSettingsCheckbox
+              {...checkboxProps}
               label="Disable Vertical Streak Detection"
-              isChecked={Boolean(systemSettings.disableVerticalStreakDetection)}
-              onChange={(isChecked) =>
-                setSystemSettings({
-                  ...systemSettings,
-                  disableVerticalStreakDetection: isChecked,
-                })
-              }
-              disabled={!isEditing}
+              setting="disableVerticalStreakDetection"
             />
-            <CheckboxButton
+            <SystemSettingsCheckbox
+              {...checkboxProps}
               label="Enable Shoeshine Mode on VxScan"
-              isChecked={Boolean(
-                systemSettings.precinctScanEnableShoeshineMode
-              )}
-              onChange={(isChecked) =>
-                setSystemSettings({
-                  ...systemSettings,
-                  precinctScanEnableShoeshineMode: isChecked,
-                })
-              }
-              disabled={!isEditing}
+              setting="precinctScanEnableShoeshineMode"
             />
             {features.VXSCAN_ALARMS_SYSTEM_SETTING && (
-              <CheckboxButton
+              <SystemSettingsCheckbox
+                {...checkboxProps}
                 label="Disable Alarms on VxScan"
-                isChecked={Boolean(systemSettings.precinctScanDisableAlarms)}
-                onChange={(isChecked) =>
-                  setSystemSettings({
-                    ...systemSettings,
-                    precinctScanDisableAlarms: isChecked ? true : undefined, // Completely omit when unchecked
-                  })
-                }
-                disabled={!isEditing}
+                setting="precinctScanDisableAlarms"
+                omitWhenUnchecked
               />
             )}
             {features.VXSCAN_WRITE_IN_IMAGE_REPORT_SYSTEM_SETTING && (
-              <CheckboxButton
+              <SystemSettingsCheckbox
+                {...checkboxProps}
                 label="Enable Write-In Image Report on VxScan"
-                isChecked={Boolean(
-                  systemSettings.precinctScanEnableWriteInImageReport
-                )}
-                onChange={(isChecked) =>
-                  setSystemSettings({
-                    ...systemSettings,
-                    precinctScanEnableWriteInImageReport: isChecked
-                      ? true
-                      : undefined, // Completely omit when unchecked,
-                  })
-                }
-                disabled={!isEditing}
+                setting="precinctScanEnableWriteInImageReport"
+                omitWhenUnchecked
               />
             )}
             {features.VXSCAN_SCREEN_READER_AUDIO_SYSTEM_SETTING && (
-              <CheckboxButton
+              <SystemSettingsCheckbox
+                {...checkboxProps}
                 label="Disable Screen Reader Audio on VxScan"
-                isChecked={Boolean(
-                  systemSettings.precinctScanDisableScreenReaderAudio
-                )}
-                onChange={(isChecked) =>
-                  setSystemSettings({
-                    ...systemSettings,
-                    precinctScanDisableScreenReaderAudio: isChecked
-                      ? true
-                      : undefined, // Completely omit when unchecked
-                  })
-                }
-                disabled={!isEditing}
+                setting="precinctScanDisableScreenReaderAudio"
+                omitWhenUnchecked
               />
             )}
             {features.VXSCAN_NUMBER_OF_REPORT_COPIES_SYSTEM_SETTING && (
@@ -854,61 +814,31 @@ export function SystemSettingsForm({
               </InputGroup>
             )}
             {features.VXMARK_PRINT_BLANK_BALLOTS_SYSTEM_SETTING && (
-              <CheckboxButton
+              <SystemSettingsCheckbox
+                {...checkboxProps}
                 label="Enable Printing Blank Ballots from VxMark"
-                isChecked={Boolean(
-                  systemSettings.allowPrintingBlankBallotsFromVxMark
-                )}
-                onChange={(isChecked) =>
-                  setSystemSettings({
-                    ...systemSettings,
-                    allowPrintingBlankBallotsFromVxMark: isChecked
-                      ? true
-                      : undefined,
-                  })
-                }
-                disabled={!isEditing}
+                setting="allowPrintingBlankBallotsFromVxMark"
+                omitWhenUnchecked
               />
             )}
             {features.VXMARK_QR_BALLOT_ACTIVATION_SYSTEM_SETTING && (
-              <CheckboxButton
+              <SystemSettingsCheckbox
+                {...checkboxProps}
                 label="Enable QR Ballot Activation on VxMark"
-                isChecked={Boolean(systemSettings.bmdEnableQrBallotActivation)}
-                onChange={(isChecked) =>
-                  setSystemSettings({
-                    ...systemSettings,
-                    bmdEnableQrBallotActivation: isChecked ? true : undefined,
-                  })
-                }
-                disabled={!isEditing}
+                setting="bmdEnableQrBallotActivation"
+                omitWhenUnchecked
               />
             )}
-            <CheckboxButton
+            <SystemSettingsCheckbox
+              {...checkboxProps}
               label="Include Redundant Metadata in CVRs"
-              isChecked={Boolean(
-                systemSettings.castVoteRecordsIncludeRedundantMetadata
-              )}
-              onChange={(isChecked) =>
-                setSystemSettings({
-                  ...systemSettings,
-                  castVoteRecordsIncludeRedundantMetadata: isChecked,
-                })
-              }
-              disabled={!isEditing}
+              setting="castVoteRecordsIncludeRedundantMetadata"
             />
             {features.TRANSLITERATE_CANDIDATE_NAMES_SYSTEM_SETTING && (
-              <CheckboxButton
+              <SystemSettingsCheckbox
+                {...checkboxProps}
                 label="Transliterate Candidate Names"
-                isChecked={Boolean(
-                  systemSettings.shouldTransliterateCandidateNames
-                )}
-                onChange={(isChecked) =>
-                  setSystemSettings({
-                    ...systemSettings,
-                    shouldTransliterateCandidateNames: isChecked,
-                  })
-                }
-                disabled={!isEditing}
+                setting="shouldTransliterateCandidateNames"
               />
             )}
             {features.QUICK_RESULTS_REPORTING_SYSTEM_SETTING && (
@@ -927,98 +857,55 @@ export function SystemSettingsForm({
               />
             )}
             {features.SYSTEM_LIMIT_CHECKS_SYSTEM_SETTING && (
-              <CheckboxButton
+              <SystemSettingsCheckbox
+                {...checkboxProps}
                 label="Disable System Limit Checks on Election Package Import"
-                isChecked={Boolean(systemSettings.disableSystemLimitChecks)}
-                onChange={(isChecked) =>
-                  setSystemSettings({
-                    ...systemSettings,
-                    disableSystemLimitChecks: isChecked ? true : undefined, // Completely omit when unchecked
-                  })
-                }
-                disabled={!isEditing}
+                setting="disableSystemLimitChecks"
+                omitWhenUnchecked
               />
             )}
             {features.VOTER_HELP_BUTTONS_SYSTEM_SETTING && (
-              <CheckboxButton
+              <SystemSettingsCheckbox
+                {...checkboxProps}
                 label="Disable Voter Help Buttons"
-                isChecked={Boolean(systemSettings.disableVoterHelpButtons)}
-                onChange={(isChecked) =>
-                  setSystemSettings({
-                    ...systemSettings,
-                    disableVoterHelpButtons: isChecked ? true : undefined, // Completely omit when unchecked
-                  })
-                }
-                disabled={!isEditing}
+                setting="disableVoterHelpButtons"
+                omitWhenUnchecked
               />
             )}
             {features.TEST_DECK_PRINTING_SYSTEM_SETTING && (
-              <CheckboxButton
+              <SystemSettingsCheckbox
+                {...checkboxProps}
                 label="Enable Test Deck Printing"
-                isChecked={Boolean(systemSettings.enableTestDeckPrinting)}
-                onChange={(isChecked) =>
-                  setSystemSettings({
-                    ...systemSettings,
-                    enableTestDeckPrinting: isChecked ? true : undefined, // Completely omit when unchecked
-                  })
-                }
-                disabled={!isEditing}
+                setting="enableTestDeckPrinting"
+                omitWhenUnchecked
               />
             )}
-            <CheckboxButton
+            <SystemSettingsCheckbox
+              {...checkboxProps}
               label="Qualified Write-In Candidate Mode"
-              isChecked={Boolean(systemSettings.areWriteInCandidatesQualified)}
-              onChange={(isChecked) =>
-                // @coverage-defer
-                setSystemSettings({
-                  ...systemSettings,
-                  // @coverage-defer
-                  areWriteInCandidatesQualified: isChecked ? true : undefined,
-                })
-              }
-              disabled={!isEditing}
+              setting="areWriteInCandidatesQualified"
+              omitWhenUnchecked
             />
-            <CheckboxButton
+            <SystemSettingsCheckbox
+              {...checkboxProps}
               label="Enable Early Voting"
-              isChecked={Boolean(systemSettings.enableEarlyVoting)}
-              onChange={(isChecked) =>
-                // @coverage-defer
-                setSystemSettings({
-                  ...systemSettings,
-                  // @coverage-defer
-                  enableEarlyVoting: isChecked ? true : undefined, // Completely omit when unchecked
-                })
-              }
-              disabled={!isEditing}
+              setting="enableEarlyVoting"
+              omitWhenUnchecked
             />
             {features.SPLIT_ELECTION_DEFINITION_SYSTEM_SETTING && (
-              <CheckboxButton
+              <SystemSettingsCheckbox
+                {...checkboxProps}
                 label="Split Election Definition"
-                isChecked={Boolean(systemSettings.splitElectionDefinition)}
-                onChange={(isChecked) =>
-                  setSystemSettings({
-                    ...systemSettings,
-                    splitElectionDefinition: isChecked ? true : undefined, // WIP feature
-                  })
-                }
-                disabled={!isEditing}
+                setting="splitElectionDefinition"
+                omitWhenUnchecked
               />
             )}
             {features.VXCENTRALSCAN_POLL_WORKER_ROLE_SYSTEM_SETTING && (
-              <CheckboxButton
+              <SystemSettingsCheckbox
+                {...checkboxProps}
                 label="Enable Poll Worker Role on VxCentralScan"
-                isChecked={Boolean(
-                  systemSettings.centralScanEnablePollWorkerRole
-                )}
-                onChange={(isChecked) =>
-                  setSystemSettings({
-                    ...systemSettings,
-                    centralScanEnablePollWorkerRole: isChecked
-                      ? true
-                      : undefined,
-                  })
-                }
-                disabled={!isEditing}
+                setting="centralScanEnablePollWorkerRole"
+                omitWhenUnchecked
               />
             )}
           </Column>
