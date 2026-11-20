@@ -1,8 +1,5 @@
 import React from 'react';
-import {
-  ROBOTO_REGULAR_FONT_DECLARATIONS,
-  ROBOTO_ITALIC_FONT_DECLARATIONS,
-} from '@votingworks/ui';
+import { BALLOT_FONT_DECLARATIONS } from './ballot_fonts.js';
 
 export interface BaseStylesProps {
   compact?: boolean;
@@ -73,10 +70,7 @@ export function BaseStyles(props: BaseStylesProps): JSX.Element {
       <style
         type="text/css"
         dangerouslySetInnerHTML={{
-          __html: [
-            ROBOTO_REGULAR_FONT_DECLARATIONS,
-            ROBOTO_ITALIC_FONT_DECLARATIONS,
-          ].join('\n'),
+          __html: BALLOT_FONT_DECLARATIONS,
         }}
       />
       <style

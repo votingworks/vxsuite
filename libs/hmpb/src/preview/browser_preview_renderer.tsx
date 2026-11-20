@@ -9,6 +9,7 @@ import {
   createScratchpad,
 } from '../renderer.js';
 import { PAGE_CLASS } from '../ballot_components.js';
+import { inlineBallotFonts } from '../ballot_fonts.js';
 
 function browserPage(): Page {
   return {
@@ -39,11 +40,12 @@ function browserPage(): Page {
 }
 
 function createBrowserPreviewDocument(styles?: JSX.Element): RenderDocument {
-  document.head.innerHTML += ReactDomServer.renderToString(
-    <>
-      {styles}
-      <style type="text/css">
-        {`
+  document.head.innerHTML += inlineBallotFonts(
+    ReactDomServer.renderToString(
+      <>
+        {styles}
+        <style type="text/css">
+          {`
         body {
           background-color: #ccc;
           padding: 0.25in;
@@ -55,8 +57,9 @@ function createBrowserPreviewDocument(styles?: JSX.Element): RenderDocument {
           margin-bottom: 0.25in;
         }
       `}
-      </style>
-    </>
+        </style>
+      </>
+    )
   );
 
   return createDocument({ page: browserPage, void: () => {} });
@@ -71,7 +74,7 @@ export function createBrowserPreviewRenderer(): Renderer {
     },
     documentFromContent(htmlContent) {
       renderDocument = createBrowserPreviewDocument();
-      document.documentElement.innerHTML = htmlContent;
+      document.documentElement.innerHTML = inlineBallotFonts(htmlContent);
       return Promise.resolve(renderDocument);
     },
     documentFromPath() {
