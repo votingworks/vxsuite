@@ -1,7 +1,7 @@
 import React from 'react';
 import * as fs from 'node:fs/promises';
 import ReactDomServer from 'react-dom/server';
-import { chromium } from 'playwright';
+import { type Browser, type BrowserContext, chromium } from 'playwright';
 import { assert } from '@votingworks/basics';
 import { cpus } from 'node:os';
 import {
@@ -16,6 +16,7 @@ import {
   createDocument,
   createScratchpad,
 } from './renderer.js';
+import { serveBallotFonts } from './ballot_fonts.js';
 
 function launchChromium() {
   return chromium.launch({
@@ -24,6 +25,12 @@ function launchChromium() {
     // resolutions, so we disable it.
     args: ['--font-render-hinting=none'],
   });
+}
+
+async function newBrowserContext(browser: Browser): Promise<BrowserContext> {
+  const context = await browser.newContext();
+  await serveBallotFonts(context);
+  return context;
 }
 
 function createRendererFromPage(
@@ -82,7 +89,7 @@ function makePageHandle(page: Page): PageHandle {
  */
 export async function createPlaywrightRenderer(): Promise<SingletonRenderer> {
   const browser = await launchChromium();
-  const context = await browser.newContext();
+  const context = await newBrowserContext(browser);
 
   return {
     async createScratchpad(styles): Promise<RenderScratchpad> {
@@ -169,7 +176,7 @@ export async function createPlaywrightRendererPool(
   size = cpus().length || 2
 ): Promise<RendererPool> {
   const browser = await launchChromium();
-  const context = await browser.newContext();
+  const context = await newBrowserContext(browser);
 
   const pages: Page[] = [];
   let isRunningTasks = false;

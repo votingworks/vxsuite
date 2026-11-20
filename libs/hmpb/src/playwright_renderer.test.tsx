@@ -1,9 +1,15 @@
 import { test, expect, vi, onTestFinished } from 'vitest';
-import { deferred, range } from '@votingworks/basics';
+import { assertDefined, deferred, range, unique } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import { chromium } from 'playwright';
-import { createPlaywrightRendererPool } from './playwright_renderer.js';
-import { createDocument } from './renderer.js';
+import {
+  createPlaywrightRenderer,
+  createPlaywrightRendererPool,
+} from './playwright_renderer.js';
+import { type Renderer, createDocument } from './renderer.js';
+import { PAGE_CLASS } from './ballot_components.js';
+import { BALLOT_FONTS_ORIGIN } from './ballot_fonts.js';
+import { BaseStyles } from './base_styles.js';
 
 test('RendererPool errors if a task closes its page', async () => {
   const rendererPool = await createPlaywrightRendererPool();
@@ -125,4 +131,92 @@ test('setContent rejects when an image fails to load', async () => {
       await document.setContent('body', <img src={src} />);
     })
   ).rejects.toThrow('Image failed to load');
+});
+
+test('RendererPool loads each ballot font once per page', async () => {
+  const browser = await chromium.launch();
+  const context = await browser.newContext();
+  const fontResponses: string[] = [];
+  context.on('response', (response) => {
+    if (response.url().startsWith(BALLOT_FONTS_ORIGIN)) {
+      expect(response.status()).toEqual(200);
+      fontResponses.push(response.url());
+    }
+  });
+  vi.spyOn(chromium, 'launch').mockImplementation(() =>
+    Promise.resolve({
+      ...browser,
+      newContext: async () => Promise.resolve(context),
+    })
+  );
+  onTestFinished(async () => {
+    vi.restoreAllMocks();
+    await browser.close();
+  });
+
+  const poolSize = 2;
+  const numTasks = 10;
+  const rendererPool = await createPlaywrightRendererPool(poolSize);
+  await rendererPool.runTasks(
+    range(0, numTasks).map(() => async (renderer) => {
+      const scratchpad = await renderer.createScratchpad(<BaseStyles />);
+      await scratchpad.measureElements(
+        <p style={{ fontWeight: 700 }}>Ballot</p>,
+        'p'
+      );
+      const document = await renderer.documentFromContent(
+        await scratchpad.convertToDocument().getContent()
+      );
+      await document.setContent('body', <i>Ballot</i>);
+    })
+  );
+
+  expect(fontResponses.length).toBeGreaterThan(0);
+  expect(fontResponses.length).toBeLessThanOrEqual(poolSize * 3);
+});
+
+function embeddedFontNames(pdf: Uint8Array): string[] {
+  const matches = Buffer.from(pdf)
+    .toString('latin1')
+    .matchAll(/\/BaseFont\s*\/[A-Z]{6}\+(?<name>[A-Za-z-]+)/g);
+  return unique(
+    [...matches].map((match) => assertDefined(match.groups?.['name']))
+  ).sort();
+}
+
+function RobotoPage(): JSX.Element {
+  return (
+    <div className={PAGE_CLASS} style={{ width: '8.5in', height: '11in' }}>
+      <p>Regular</p>
+      <p style={{ fontWeight: 700 }}>Bold</p>
+      <p style={{ fontStyle: 'italic' }}>Italic</p>
+    </div>
+  );
+}
+
+async function renderRobotoPagePdf(renderer: Renderer): Promise<Uint8Array> {
+  const scratchpad = await renderer.createScratchpad(<BaseStyles />);
+  await scratchpad.measureElements(<RobotoPage />, `.${PAGE_CLASS}`);
+  return await scratchpad.convertToDocument().renderToPdf();
+}
+
+const ROBOTO_FONT_NAMES = ['Roboto-Bold', 'Roboto-Italic', 'Roboto-Regular'];
+
+test('Renderer PDFs embed the Roboto ballot fonts', async () => {
+  const renderer = await createPlaywrightRenderer();
+  onTestFinished(() => renderer.close());
+  expect(embeddedFontNames(await renderRobotoPagePdf(renderer))).toEqual(
+    ROBOTO_FONT_NAMES
+  );
+});
+
+test('RendererPool PDFs embed the Roboto ballot fonts', async () => {
+  const rendererPool = await createPlaywrightRendererPool(1);
+  onTestFinished(() => rendererPool.close());
+  const pdfs = await rendererPool.runTasks(
+    range(0, 3).map(() => renderRobotoPagePdf)
+  );
+  for (const pdf of pdfs) {
+    expect(embeddedFontNames(pdf)).toEqual(ROBOTO_FONT_NAMES);
+  }
 });
