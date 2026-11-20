@@ -7,18 +7,21 @@ import type { Store } from './store.js';
 
 /**
  * Configures VxAdmin with the election package at the given path and logs the
- * result.
+ * result. `onConfigured` runs in the same transaction that sets the current
+ * election.
  */
 export async function configureFromElectionPackageFile({
   store,
   logger,
   packagePath,
   successMessage,
+  onConfigured,
 }: {
   store: Store;
   logger: Logger;
   packagePath: string;
   successMessage?: string;
+  onConfigured?: (electionId: Id) => void;
 }): Promise<Result<{ electionId: Id }, ElectionPackageError>> {
   const res = await store.importElectionPackage({ packagePath });
   if (res.isErr()) {
@@ -36,7 +39,10 @@ export async function configureFromElectionPackageFile({
   }
 
   const { electionId, electionPackage } = res.ok();
-  store.setCurrentElectionId(electionId);
+  store.withTransaction(() => {
+    store.setCurrentElectionId(electionId);
+    onConfigured?.(electionId);
+  });
 
   await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {
     disposition: 'success',

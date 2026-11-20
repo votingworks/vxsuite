@@ -57,6 +57,8 @@ import {
   type Party,
   type PollingPlace,
   pollingPlaceGenerateFromPrecinct,
+  getPrecinctsWithoutAbsenteePollingPlace,
+  hasPartialRegisteredVoterCounts,
   type Precinct,
   unsafeParse,
 } from '@votingworks/types';
@@ -68,8 +70,13 @@ import { constructAuthMachineState } from '../util/auth.js';
 import { buildExporter } from '../util/exporter.js';
 import { sanitizeFilenameForUsbDrive } from '../util/filenames.js';
 import type { Workspace } from '../util/workspace.js';
+import {
+  buildElectionPackage,
+  clearElectionPackageFiles,
+} from './election_package.js';
 import { createEnglishOnlyTranslator } from './english_only_translator.js';
 import { getMachineState, isElectionDefinitionEnabled } from './state.js';
+import type { ElectionDefinitionPackage } from './store.js';
 import {
   exportTranslations,
   importTranslations,
@@ -227,6 +234,13 @@ function createElectionDefinitionApiMethods({
     return electionInfo;
   }
 
+  function isElectionPackageRunning(electionId: ElectionId): boolean {
+    return (
+      store.electionDefinition.getElectionPackage(electionId)?.status ===
+      'running'
+    );
+  }
+
   const methods = {
     getCurrentInProgressElection(): ElectionInfo | null {
       return store.electionDefinition.getElectionInfo() ?? null;
@@ -256,7 +270,16 @@ function createElectionDefinitionApiMethods({
 
     async deleteElection(input: ElectionInput): Promise<void> {
       loadInProgressElectionInfo(input);
+      assert(
+        !isElectionPackageRunning(input.electionId),
+        'Cannot discard an election definition while its election package is being built'
+      );
+      assert(
+        store.getCurrentElectionId() === undefined,
+        'Cannot discard an election definition while VxAdmin is configured'
+      );
       store.electionDefinition.deleteInProgressElection();
+      await clearElectionPackageFiles(store);
       await logger.logAsCurrentRole(LogEventId.ElectionDefinitionDiscarded, {
         message: `Discarded election definition ${input.electionId}.`,
         disposition: 'success',
@@ -654,6 +677,64 @@ function createElectionDefinitionApiMethods({
         path: filename,
       });
       return exportResult;
+    },
+
+    getElectionPackageRenderingStatus(
+      input: ElectionInput
+    ): ElectionDefinitionPackage | null {
+      loadInProgressElectionInfo(input);
+      return (
+        store.electionDefinition.getElectionPackage(input.electionId) ?? null
+      );
+    },
+
+    async finalizeElection(input: ElectionInput): Promise<void> {
+      const electionInfo = loadInProgressElectionInfo(input);
+      assert(
+        electionInfo.title !== '' && electionInfo.jurisdictionName !== '',
+        'Election info is incomplete'
+      );
+      const { features } = assertDefined(getMachineState());
+      const precincts = store.electionDefinition.listPrecincts(
+        input.electionId
+      );
+      assert(
+        store.electionDefinition.listBallotStyles(input.electionId).length > 0,
+        'Election definition has no ballot styles'
+      );
+      assert(
+        !hasPartialRegisteredVoterCounts(
+          precincts,
+          store.electionDefinition.getRegisteredVoterCounts(input.electionId)
+        ),
+        'Registered voter counts must be provided for all precincts and splits or none'
+      );
+      if (
+        features.EDIT_POLLING_PLACES &&
+        !features.OMIT_ABSENTEE_POLLING_PLACES
+      ) {
+        assert(
+          getPrecinctsWithoutAbsenteePollingPlace(
+            precincts,
+            store.electionDefinition.listPollingPlaces(input.electionId)
+          ).length === 0,
+          'Absentee polling places must cover every precinct for central scanning'
+        );
+      }
+      assert(
+        store.getCurrentElectionId() === undefined,
+        'Cannot finalize an election definition while VxAdmin is configured'
+      );
+      store.electionDefinition.finalizeElection(input.electionId);
+      await logger.logAsCurrentRole(LogEventId.ElectionDefinitionFinalized, {
+        message: `Finalized election definition ${input.electionId}; rendering its ballots, building its election package and configuring VxAdmin with it.`,
+        disposition: 'success',
+      });
+      void buildElectionPackage({
+        store,
+        logger,
+        electionId: input.electionId,
+      });
     },
 
     async saveTranslationsFile(

@@ -40,6 +40,7 @@ import {
   resolveWorkspacePath,
 } from './util/workspace.js';
 import { buildApp } from './app.js';
+import { failInterruptedElectionPackageBuilds } from './election_definition/election_package.js';
 import { buildClientApp } from './client_app.js';
 import { buildPeerApp } from './peer_app.js';
 import { buildRestoreApp, RESTORE_MODE_STORE } from './restore_app.js';
@@ -163,6 +164,11 @@ export async function start(options: StartOptions = {}): Promise<Server> {
           machineId: getMachineConfig().machineId,
         });
       }
+
+      failInterruptedElectionPackageBuilds({
+        store: workspace.store,
+        logger: baseLogger,
+      });
 
       const isMultiStationEnabled = isMultiStationAdjudicationEnabled();
 
