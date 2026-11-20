@@ -13,6 +13,7 @@ import {
 import { electionStrings } from '@votingworks/ui';
 import { styled } from '../styled.js';
 import { hmpbStrings } from '../hmpb_strings.js';
+import { servedFontDeclarations } from '../ballot_fonts.js';
 import {
   BallotHashSlot,
   BubbleShape,
@@ -39,7 +40,7 @@ export type NhStateBallotProps = Omit<BaseBallotProps, 'compact'> & {
       }
   );
 
-const FONT_DECLARATIONS = css`
+const INLINE_FONT_DECLARATIONS = css`
   @font-face {
     font-family: 'Century Schoolbook';
     src:
@@ -84,6 +85,10 @@ const FONT_DECLARATIONS = css`
     font-style: normal;
   }
 `;
+
+const FONT_DECLARATIONS = servedFontDeclarations(
+  INLINE_FONT_DECLARATIONS.join('\n')
+);
 
 const BASE_STYLES = `
   *,
@@ -138,7 +143,7 @@ export function BaseStyles(): JSX.Element {
       <style
         type="text/css"
         dangerouslySetInnerHTML={{
-          __html: [FONT_DECLARATIONS].join('\n'),
+          __html: FONT_DECLARATIONS,
         }}
       />
       <style
