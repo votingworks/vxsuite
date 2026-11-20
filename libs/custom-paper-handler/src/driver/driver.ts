@@ -18,12 +18,7 @@ import {
   message,
   oneOf,
 } from '@votingworks/message-coder';
-import {
-  createGrayImageData,
-  crop,
-  fromGrayScale,
-  writeImageData,
-} from '@votingworks/image-utils';
+import { createGrayImageData, crop } from '@votingworks/image-utils';
 import type { GrayImageData, Rect } from '@votingworks/types';
 import { Mutex } from '@votingworks/utils';
 import {
@@ -619,7 +614,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
   }
 
   // @coverage-defer
-  async scanAndSave(pathOut: string): Promise<void> {
+  async scanAndCrop(): Promise<GrayImageData> {
     const grayscaleResult = await this.scan();
     debug(
       `Received imageData with specs:\nHeight=${grayscaleResult.height}, Width=${grayscaleResult.width}, data byte length=${grayscaleResult.data.byteLength}`
@@ -637,12 +632,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
       height: grayscaleResult.height,
     };
 
-    const cropped = crop(grayscaleResult, croppedBounds);
-
-    await writeImageData(
-      pathOut,
-      fromGrayScale(cropped.data, cropped.width, cropped.height)
-    );
+    return crop(grayscaleResult, croppedBounds);
   }
 
   /**

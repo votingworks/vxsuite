@@ -38,6 +38,7 @@ import {
   type Election,
   type ElectionDefinition,
   DEFAULT_MARK_THRESHOLDS,
+  type GrayImageData,
   type PageInterpretation,
   type PageInterpretationType,
   pollingPlaceFromElection,
@@ -54,7 +55,6 @@ import {
   isSystemAdministratorAuth,
 } from '@votingworks/utils';
 import { readElection } from '@votingworks/fs';
-import { loadImageData } from '@votingworks/image-utils';
 import type { Clock } from 'xstate/lib/interpreter.js';
 import {
   AudioPort,
@@ -65,7 +65,7 @@ import type { Workspace } from '../util/workspace.js';
 import type { SimpleServerStatus } from './types.js';
 import { MAX_BALLOT_BOX_CAPACITY } from './constants.js';
 import {
-  scanAndSave,
+  scanSheet,
   setDefaults,
   resetAndReconnect,
   loadAndParkPaper,
@@ -96,7 +96,7 @@ interface Context {
   workspace: Workspace;
   driver: PaperHandlerDriverInterface;
   patConnectionStatusReader: PatConnectionStatusReaderInterface;
-  scannedBallotImagePath?: string;
+  scannedBallotImage?: GrayImageData;
   isPatDeviceConnected: boolean;
   interpretation?: SheetOf<PageInterpretation>;
   logger: Logger;
@@ -373,16 +373,10 @@ function findUsbPatDevice(): HID.HID | undefined {
   return new HID.HID(patUsbAdapterInfo.path);
 }
 
-async function loadMetadataAndInterpretBallot(context: {
-  scannedBallotImagePath?: string;
-  workspace: Workspace;
-}): Promise<SheetOf<PageInterpretation>> {
-  const { scannedBallotImagePath, workspace } = context;
-  assert(
-    typeof scannedBallotImagePath === 'string',
-    'Expected scannedBallotImagePath in context'
-  );
-
+async function loadMetadataAndInterpretBallot(
+  scannedBallotImage: GrayImageData,
+  workspace: Workspace
+): Promise<SheetOf<PageInterpretation>> {
   const { store } = workspace;
   const { electionDefinition } = assertDefined(store.getElectionRecord());
 
@@ -390,16 +384,13 @@ async function loadMetadataAndInterpretBallot(context: {
     store.getSystemSettings()
   );
 
-  return interpretSimplexBmdBallot(
-    (await loadImageData(scannedBallotImagePath)).unsafeUnwrap(),
-    {
-      electionDefinition,
-      validPrecinctIds: getValidPrecinctIds(store, electionDefinition.election),
-      testMode: store.getTestMode(),
-      markThresholds,
-      adjudicationReasons: precinctScanAdjudicationReasons,
-    }
-  );
+  return interpretSimplexBmdBallot(scannedBallotImage, {
+    electionDefinition,
+    validPrecinctIds: getValidPrecinctIds(store, electionDefinition.election),
+    testMode: store.getTestMode(),
+    markThresholds,
+    adjudicationReasons: precinctScanAdjudicationReasons,
+  });
 }
 
 function getValidPrecinctIds(store: Store, election: Election) {
@@ -415,14 +406,8 @@ function getValidPrecinctIds(store: Store, election: Election) {
 async function scanAndInterpretInsertedSheet(
   context: Context
 ): Promise<SheetOf<PageInterpretation>> {
-  const scannedBallotImagePath = await scanAndSave(context.driver, 'forward');
-
-  const result = await loadMetadataAndInterpretBallot({
-    scannedBallotImagePath,
-    workspace: context.workspace,
-  });
-
-  return result;
+  const scannedBallotImage = await scanSheet(context.driver, 'forward');
+  return loadMetadataAndInterpretBallot(scannedBallotImage, context.workspace);
 }
 
 function getInterpretationType(context: Context) {
@@ -791,12 +776,12 @@ export function buildMachine(
             scanning: {
               invoke: [
                 {
-                  id: 'scanAndSave',
-                  src: (context) => scanAndSave(context.driver, 'backward'),
+                  id: 'scanSheet',
+                  src: (context) => scanSheet(context.driver, 'backward'),
                   onDone: {
                     target: 'interpreting',
                     actions: assign({
-                      scannedBallotImagePath: (_, event) => event.data,
+                      scannedBallotImage: (_, event) => event.data,
                     }),
                   },
                   onError: {
@@ -812,7 +797,14 @@ export function buildMachine(
               // motors are never moved, so we don't need to poll paper status or handle jams.
               invoke: {
                 id: 'interpretScannedBallot',
-                src: loadMetadataAndInterpretBallot,
+                src: (context) =>
+                  loadMetadataAndInterpretBallot(
+                    assertDefined(
+                      context.scannedBallotImage,
+                      'Expected scannedBallotImage in context'
+                    ),
+                    context.workspace
+                  ),
                 onDone: {
                   target: 'transition_interpretation',
                   actions: assign({
@@ -888,7 +880,7 @@ export function buildMachine(
                       actions: () => {
                         assign({
                           interpretation: undefined,
-                          scannedBallotImagePath: undefined,
+                          scannedBallotImage: undefined,
                         });
                       },
                     },
@@ -1213,12 +1205,12 @@ export function buildMachine(
             },
             scan_ballot: {
               invoke: {
-                id: 'diagnostic.scanAndSave',
-                src: (context) => scanAndSave(context.driver, 'backward'),
+                id: 'diagnostic.scanSheet',
+                src: (context) => scanSheet(context.driver, 'backward'),
                 onDone: {
                   target: 'interpret_ballot',
                   actions: assign({
-                    scannedBallotImagePath: (_, event) => event.data,
+                    scannedBallotImage: (_, event) => event.data,
                   }),
                 },
                 onError: createOnDiagnosticErrorHandler(),
@@ -1227,8 +1219,8 @@ export function buildMachine(
             interpret_ballot: {
               invoke: {
                 id: 'diagnostic.interpretScannedBallot',
-                src: async (context) => {
-                  const { scannedBallotImagePath } = context;
+                src: (context) => {
+                  const { scannedBallotImage } = context;
                   const electionDefinition = assertDefined(
                     context.paperHandlerDiagnosticElection
                   );
@@ -1240,14 +1232,10 @@ export function buildMachine(
                   const markThresholds = DEFAULT_MARK_THRESHOLDS;
 
                   return interpretSimplexBmdBallot(
-                    (
-                      await loadImageData(
-                        assertDefined(
-                          scannedBallotImagePath,
-                          'Expected scannedImagePaths in context'
-                        )
-                      )
-                    ).unsafeUnwrap(),
+                    assertDefined(
+                      scannedBallotImage,
+                      'Expected scannedBallotImage in context'
+                    ),
                     {
                       electionDefinition,
                       validPrecinctIds,
@@ -1394,14 +1382,14 @@ export function buildMachine(
         },
         resetContext: assign({
           interpretation: undefined,
-          scannedBallotImagePath: undefined,
+          scannedBallotImage: undefined,
           isPatDeviceConnected: false,
           acceptedPaperTypes: undefined,
         }),
         clearInterpretation: () => {
           assign({
             interpretation: undefined,
-            scannedBallotImagePath: undefined,
+            scannedBallotImage: undefined,
           });
         },
         endCardlessVoterAuth: (context) => {
