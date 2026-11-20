@@ -37,8 +37,8 @@ export interface UserFeaturesConfig {
   SYSTEM_SETTINGS_SCREEN?: boolean;
   /**
    * Show system settings that are not documented in the current TDP. Some of
-   * these are new and will eventually be documented. Others are never meant to
-   * be toggled by test labs.
+   * these are new and will eventually be documented. Others are meant for
+   * internal use and should not be toggled by test labs.
    * Requires the system settings screen to be enabled.
    */
   UNDOCUMENTED_SYSTEM_SETTINGS?: boolean;
