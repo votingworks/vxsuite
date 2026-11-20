@@ -1,5 +1,5 @@
 import React from 'react';
-import { deepEqual, fail } from '@votingworks/basics';
+import { assertDefined, deepEqual, fail } from '@votingworks/basics';
 import type { Api, ElectionDefinitionApi } from '@votingworks/admin-backend';
 import {
   AUTH_STATUS_POLLING_INTERVAL_MS,
@@ -1381,20 +1381,24 @@ export const saveBallotPreviewPdf = {
 } as const;
 
 export const getElectionPackageRenderingStatus = {
-  queryKey(electionId: ElectionId): QueryKey {
+  queryKey(electionId?: ElectionId): QueryKey {
     return ['getElectionPackageRenderingStatus', electionId];
   },
-  usePollingQuery(electionId: ElectionId) {
+  usePollingQuery(electionId?: ElectionId) {
     const apiClient = useElectionDefinitionApiClient();
     const queryClient = useQueryClient();
     return usePollingQuery(
       this.queryKey(electionId),
-      () => apiClient.getElectionPackageRenderingStatus({ electionId }),
+      () =>
+        apiClient.getElectionPackageRenderingStatus({
+          electionId: assertDefined(electionId),
+        }),
       (electionPackage) =>
         electionPackage?.status === 'running'
           ? DEFAULT_QUERY_REFETCH_INTERVAL
           : false,
       {
+        enabled: electionId !== undefined,
         async onSuccess(electionPackage) {
           if (electionPackage?.status === 'succeeded') {
             await invalidateConfiguredElectionPackageQueries(queryClient);
@@ -1402,5 +1406,26 @@ export const getElectionPackageRenderingStatus = {
         },
       }
     );
+  },
+} as const;
+
+export const finalizeElection = {
+  useMutation() {
+    const apiClient = useElectionDefinitionApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.finalizeElection, {
+      async onSuccess(_, { electionId }) {
+        await queryClient.invalidateQueries(
+          getElectionPackageRenderingStatus.queryKey(electionId)
+        );
+      },
+    });
+  },
+} as const;
+
+export const saveElectionPackageBallots = {
+  useMutation() {
+    const apiClient = useElectionDefinitionApiClient();
+    return useMutation(apiClient.saveElectionPackageBallots);
   },
 } as const;
