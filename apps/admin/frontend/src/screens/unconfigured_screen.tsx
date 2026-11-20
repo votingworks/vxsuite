@@ -30,7 +30,8 @@ import {
 import { AppContext } from '../contexts/app_context.js';
 import { TIME_FORMAT } from '../config/globals.js';
 import { CreateNewElectionButton } from '../election_definition/create_new_election_button.js';
-import { InProgressElectionCard } from '../election_definition/in_progress_election_card.js';
+import { ElectionCardLink } from '../components/election_card.js';
+import { routerPaths } from '../router_paths.js';
 
 const Heading = styled(H2)`
   margin-bottom: 1rem;
@@ -277,7 +278,17 @@ export function UnconfiguredScreen(): JSX.Element {
   if (currentElectionDefinition) {
     return (
       <NavigationScreen title="Election">
-        <InProgressElectionCard electionInfo={currentElectionDefinition} />
+        <ElectionCardLink
+          to={routerPaths.electionDefinitionInfo(
+            currentElectionDefinition.electionId
+          )}
+          action="edit"
+          seal={currentElectionDefinition.seal}
+          title={currentElectionDefinition.title || 'Untitled Election'}
+          jurisdictionName={currentElectionDefinition.jurisdictionName}
+          state={currentElectionDefinition.state}
+          date={currentElectionDefinition.date}
+        />
       </NavigationScreen>
     );
   }
