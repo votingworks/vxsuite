@@ -637,6 +637,43 @@ test('number of report copies can be cleared to remove the setting', async () =>
   expect(input).toHaveValue(null);
 });
 
+test('unchecking a required boolean setting saves false', async () => {
+  const systemSettings: SystemSettings = {
+    ...electionRecord.systemSettings,
+    disallowCastingOvervotes: true,
+  };
+  apiMock.getSystemSettings
+    .expectCallWith({ electionId })
+    .resolves(systemSettings);
+  renderScreen();
+  await screen.findByRole('heading', { name: 'System Settings' });
+  await userEvent.click(await screen.findByRole('button', { name: 'Edit' }));
+
+  await userEvent.click(
+    screen.getByRole('checkbox', {
+      name: 'Disallow Casting Overvotes',
+      checked: true,
+    })
+  );
+
+  const updatedSystemSettings: SystemSettings = {
+    ...systemSettings,
+    disallowCastingOvervotes: false,
+  };
+  apiMock.updateSystemSettings
+    .expectCallWith({ electionId, systemSettings: updatedSystemSettings })
+    .resolves();
+  apiMock.getSystemSettings
+    .expectCallWith({ electionId })
+    .resolves(updatedSystemSettings);
+  await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+  await screen.findByRole('button', { name: 'Edit' });
+  expect(
+    screen.getByRole('checkbox', { name: 'Disallow Casting Overvotes' })
+  ).not.toBeChecked();
+});
+
 test('cancelling', async () => {
   const { systemSettings } = electionRecord;
   apiMock.getSystemSettings
