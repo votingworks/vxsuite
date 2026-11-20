@@ -5,7 +5,7 @@ import type {
   Uint8,
 } from '@votingworks/message-coder';
 import type { Result } from '@votingworks/basics';
-import type { ImageData } from '@votingworks/types';
+import type { GrayImageData, ImageData } from '@votingworks/types';
 import type {
   PrintingDensity,
   PrintingSpeed,
@@ -76,7 +76,7 @@ export interface PaperHandlerDriverInterface {
   ): Promise<boolean>;
   setScanDirection(scanDirection: ScanDirection): Promise<boolean>;
   scan(): Promise<ImageData>;
-  scanAndSave(pathOut: string): Promise<void>;
+  scanAndCrop(): Promise<GrayImageData>;
   loadPaper(): Promise<boolean>;
   ejectPaperToFront(): Promise<boolean>;
   parkPaper(): Promise<boolean>;

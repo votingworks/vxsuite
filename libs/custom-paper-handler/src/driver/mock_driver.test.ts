@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-import { createImageData, writeImageData } from '@votingworks/image-utils';
+import { createImageData, toGrayScale } from '@votingworks/image-utils';
 
 import type { PaperHandlerStatus } from './coders.js';
 import {
@@ -10,11 +10,6 @@ import {
 import * as statusHelpers from './scanner_status.js';
 import type { MinimalWebUsbDevice } from './minimal_web_usb_device.js';
 import { PaperHandlerDriver } from './driver.js';
-
-vi.mock(import('@votingworks/image-utils'), async (importActual) => ({
-  ...(await importActual()),
-  writeImageData: vi.fn(),
-}));
 
 function expectMockStatus(params: {
   mockDriver: MockPaperHandlerDriver;
@@ -155,15 +150,15 @@ describe('print and scan', () => {
     expect(await mockDriver.scan()).toEqual(mockPageContents);
   });
 
-  test('scan and save', async () => {
+  test('scan and crop', async () => {
     mockDriver.setMockPaperContents(mockPageContents);
 
-    const scannedImageFilename = '/tmp/mockPaperHandlerScan.png';
-    await mockDriver.scanAndSave(scannedImageFilename);
-
-    expect(vi.mocked(writeImageData)).toHaveBeenCalledWith(
-      scannedImageFilename,
-      mockPageContents
+    expect(await mockDriver.scanAndCrop()).toEqual(
+      toGrayScale(
+        mockPageContents.data,
+        mockPageContents.width,
+        mockPageContents.height
+      )
     );
   });
 });

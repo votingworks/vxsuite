@@ -11,7 +11,7 @@ import {
   type ScanDirection,
 } from '@votingworks/custom-paper-handler';
 import { pdfToImages } from '@votingworks/image-utils/pdf';
-import { tmpNameSync } from 'tmp';
+import type { GrayImageData } from '@votingworks/types';
 import {
   PRINT_DPI,
   PAPER_HANDLER_RESET_DELAY_MS,
@@ -89,12 +89,10 @@ export async function printBallotChunks(
   );
 }
 
-export async function scanAndSave(
+export async function scanSheet(
   driver: PaperHandlerDriverInterface,
-  direction: ScanDirection,
-  outputPath?: string
-): Promise<string> {
-  const pathOutFront = outputPath ?? tmpNameSync({ postfix: '.jpeg' });
+  direction: ScanDirection
+): Promise<GrayImageData> {
   const status = await driver.getPaperHandlerStatus();
   // Scan can happen from loaded or parked state. If the paper is not loaded or parked
   // it means the voter may have taken the paper out of the infeed
@@ -104,11 +102,7 @@ export async function scanAndSave(
 
   debug(`scanning sheet [direction: ${direction}]`);
   await driver.setScanDirection(direction);
-  await driver.scanAndSave(pathOutFront);
-
-  // We can only print to one side from the thermal printer, but the interpret flow expects
-  // a SheetOf 2 pages. Use an image of a blank sheet for the 2nd page.
-  return pathOutFront;
+  return driver.scanAndCrop();
 }
 
 export async function loadAndParkPaper(

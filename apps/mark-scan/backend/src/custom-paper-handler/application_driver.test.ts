@@ -12,13 +12,14 @@ import {
   MaxPrintWidthDots,
 } from '@votingworks/custom-paper-handler';
 import { Buffer } from 'node:buffer';
+import { createGrayImageData } from '@votingworks/image-utils';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { renderBmdBallotFixture } from '@votingworks/bmd-ballot-fixtures';
 import {
   loadAndParkPaper,
   printBallotChunks,
   resetAndReconnect,
-  scanAndSave,
+  scanSheet,
 } from './application_driver.js';
 import { getDefaultPaperHandlerStatus } from './test_utils/index.js';
 
@@ -93,7 +94,7 @@ test('printBallotChunks errors when too many pages of data', async () => {
   );
 });
 
-test('scanAndSave success', async () => {
+test('scanSheet success', async () => {
   const status: PaperHandlerStatus = {
     ...getDefaultPaperHandlerStatus(),
     parkSensor: true,
@@ -101,20 +102,20 @@ test('scanAndSave success', async () => {
   vi.mocked(driver.getPaperHandlerStatus).mockResolvedValue(status);
   vi.mocked(isPaperAnywhere).mockReturnValue(true);
 
-  await scanAndSave(driver, 'backward');
+  const image = createGrayImageData(1, 1);
+  vi.mocked(driver.scanAndCrop).mockResolvedValue(image);
+
+  expect(await scanSheet(driver, 'backward')).toEqual(image);
 
   expect(driver.getPaperHandlerStatus).toHaveBeenCalledTimes(1);
   expect(driver.setScanDirection).toHaveBeenCalledWith('backward');
-  expect(driver.scanAndSave).toHaveBeenCalledTimes(1);
-  expect(driver.scanAndSave).toHaveBeenCalledWith(
-    expect.stringContaining('.jpeg')
-  );
+  expect(driver.scanAndCrop).toHaveBeenCalledTimes(1);
 });
 
-test('scanAndSave errors when no paper', async () => {
+test('scanSheet errors when no paper', async () => {
   vi.mocked(isPaperAnywhere).mockReturnValue(false);
 
-  await expect(scanAndSave(driver, 'backward')).rejects.toThrow(
+  await expect(scanSheet(driver, 'backward')).rejects.toThrow(
     'Paper has been removed'
   );
 });

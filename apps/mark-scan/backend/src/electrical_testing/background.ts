@@ -17,6 +17,7 @@ import {
   isPaperReadyToLoad,
   isPaperAnywhere,
 } from '@votingworks/custom-paper-handler';
+import { fromGrayScale, writeImageData } from '@votingworks/image-utils';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { DateTime } from 'luxon';
 import {
@@ -27,7 +28,7 @@ import {
 import {
   printBallotChunks,
   resetAndReconnect,
-  scanAndSave,
+  scanSheet,
 } from '../custom-paper-handler/application_driver.js';
 import type { ServerContext } from './context.js';
 
@@ -315,7 +316,8 @@ export async function runPrintAndScanTask({
     await logger.logAsCurrentRole(LogEventId.BackgroundTaskStatus, {
       message: 'Scanning and saving',
     });
-    await scanAndSave(driver, 'backward', outputPath);
+    const { data, width, height } = await scanSheet(driver, 'backward');
+    await writeImageData(outputPath, fromGrayScale(data, width, height));
     if ((await errorIfPaperJam()).isErr()) {
       return;
     }

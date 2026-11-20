@@ -1,15 +1,15 @@
 import { readElection } from '@votingworks/fs';
 import {
   type ElectionDefinition,
+  type GrayImageData,
   ElectionPackageFileName,
   NO_CANDIDATE_ORDERINGS,
 } from '@votingworks/types';
 import { join } from 'node:path';
 import { generateMockVotes } from '@votingworks/utils';
-import { writeImageData } from '@votingworks/image-utils';
+import { toGrayScale } from '@votingworks/image-utils';
 import { pdfToImages } from '@votingworks/image-utils/pdf';
 import { iter, assert, assertDefined } from '@votingworks/basics';
-import tmp from 'tmp';
 
 import { renderTestModeBallotWithoutLanguageContext } from '../../util/render_ballot.js';
 
@@ -34,12 +34,10 @@ export function renderDiagnosticMockBallot(
 }
 
 /**
- * This function is for testing only, such as mocking the driver scanAndSave response
- * during the scanning state of the paper handler diagnostic.
- * It renders a mock ballot for the paper handler diagnostic election as an image,
- * saves it to a tmp dir, and returns the filepath.
+ * Renders a mock ballot for the paper handler diagnostic election as an image,
+ * for use in tests.
  */
-export async function getDiagnosticMockBallotImagePath(): Promise<string> {
+export async function getDiagnosticMockBallotImage(): Promise<GrayImageData> {
   const electionDefinitionResult = await readElection(DIAGNOSTIC_ELECTION_PATH);
   const electionDefinition = electionDefinitionResult.unsafeUnwrap();
 
@@ -49,7 +47,6 @@ export async function getDiagnosticMockBallotImagePath(): Promise<string> {
     await iter(pdfToImages(pdfData, { scale: 200 / 72 })).first()
   );
   assert(first.pageCount === 1);
-  const file = tmp.fileSync({ postfix: '.jpg' });
-  await writeImageData(file.name, first.page);
-  return file.name;
+  const { data, width, height } = first.page;
+  return toGrayScale(data, width, height);
 }
