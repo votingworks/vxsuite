@@ -10,6 +10,7 @@ import {
   type DippedSmartCardAuth,
 } from '@votingworks/types';
 import { userEvent } from '@testing-library/user-event';
+import { createMemoryHistory } from 'history';
 import { BooleanEnvironmentVariableName } from '@votingworks/utils';
 import {
   type ApiMock,
@@ -56,6 +57,59 @@ describe('as System Admin', () => {
     sessionExpiresAt: mockSessionExpiresAt(),
     programmableCard: { status: 'no_card' },
   };
+
+  test('the election card opens the loaded election definition', async () => {
+    apiMock.electionDefinitionApiClient.getCurrentInProgressElection
+      .expectCallWith()
+      .resolves({
+        electionId: 'design-election',
+        type: 'general',
+        date: election.date,
+        title: election.title,
+        state: election.state,
+        jurisdictionName: election.jurisdiction.name,
+        seal: election.seal,
+        languageCodes: [],
+      });
+    const history = createMemoryHistory({ initialEntries: ['/election'] });
+    renderInAppContext(<ElectionScreen />, {
+      apiMock,
+      auth,
+      electionDefinition,
+      history,
+      isElectionDefinitionEnabled: true,
+    });
+
+    screen.getButton('Save Election Package');
+    screen.getButton('Unconfigure Machine');
+    const card = await screen.findByRole('link', {
+      name: new RegExp(election.title),
+    });
+    within(card).getByText('View');
+    await userEvent.click(card);
+    expect(history.location.pathname).toEqual(
+      '/election-definition/design-election/info'
+    );
+  });
+
+  test('the election card is not a link when VxAdmin was configured from a USB drive', async () => {
+    apiMock.electionDefinitionApiClient.getCurrentInProgressElection
+      .expectCallWith()
+      .resolves(null);
+    renderInAppContext(<ElectionScreen />, {
+      apiMock,
+      auth,
+      electionDefinition,
+      isElectionDefinitionEnabled: true,
+    });
+
+    await screen.findButton('Unconfigure Machine');
+    await waitFor(() => apiMock.assertComplete());
+    screen.getByRole('heading', { name: election.title });
+    expect(
+      screen.queryByRole('link', { name: new RegExp(election.title) })
+    ).not.toBeInTheDocument();
+  });
 
   test('renders election details', () => {
     renderInAppContext(<ElectionScreen />, {
