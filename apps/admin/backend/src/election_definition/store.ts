@@ -54,7 +54,6 @@ import {
   type ElectionType,
   hasSplits,
   isPrecinctCount,
-  getTotalRegisteredVoterCount,
   isSplitCounts,
   type HmpbBallotPaperSize,
   type LanguageCode,
@@ -1217,7 +1216,7 @@ export class ElectionDefinitionStore {
               this.client.run(
                 'insert into design_precinct_split_registered_voter_counts (split_id, count) values (?, ?)',
                 id,
-                getTotalRegisteredVoterCount(splitCount)
+                splitCount.total
               );
             }
           }
@@ -1236,7 +1235,7 @@ export class ElectionDefinitionStore {
             this.client.run(
               'insert into design_precinct_registered_voter_counts (precinct_id, count) values (?, ?)',
               precinct.id,
-              getTotalRegisteredVoterCount(registeredVoterCounts)
+              registeredVoterCounts.total
             );
           }
         }
@@ -1300,7 +1299,7 @@ export class ElectionDefinitionStore {
 
     const counts: ElectionRegisteredVoterCounts = {};
     for (const { precinctId, count } of precinctCountRows) {
-      counts[precinctId] = count;
+      counts[precinctId] = { total: count };
     }
     for (const { precinctId, splitId, count } of splitCountRows) {
       const existing = counts[precinctId];
@@ -1309,7 +1308,7 @@ export class ElectionDefinitionStore {
           ...(existing !== undefined && isSplitCounts(existing)
             ? existing.splits
             : {}),
-          [splitId]: count,
+          [splitId]: { total: count },
         },
       };
     }

@@ -1204,7 +1204,7 @@ test('edit precincts', async () => {
     await api.createPrecinct({
       electionId,
       newPrecinct: precinct,
-      registeredVoterCounts: 100,
+      registeredVoterCounts: { total: 100 },
     })
   ).toEqual(ok());
   expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
@@ -1216,7 +1216,7 @@ test('edit precincts', async () => {
   );
   expect(await api.listPrecincts({ electionId })).toEqual([precinct]);
   expect(await api.getRegisteredVoterCounts({ electionId })).toEqual({
-    'precinct-1': 100,
+    'precinct-1': { total: 100 },
   });
 
   const updatedPrecinct: Precinct = {
@@ -1231,7 +1231,7 @@ test('edit precincts', async () => {
     await api.updatePrecinct({
       electionId,
       updatedPrecinct,
-      registeredVoterCounts: { splits: { 'split-1': 60 } },
+      registeredVoterCounts: { splits: { 'split-1': { total: 60 } } },
     })
   ).toEqual(ok());
   expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
@@ -1243,7 +1243,7 @@ test('edit precincts', async () => {
   );
   expect(await api.listPrecincts({ electionId })).toEqual([updatedPrecinct]);
   expect(await api.getRegisteredVoterCounts({ electionId })).toEqual({
-    'precinct-1': { splits: { 'split-1': 60 } },
+    'precinct-1': { splits: { 'split-1': { total: 60 } } },
   });
 
   await api.deletePrecinct({ electionId, precinctId: 'precinct-1' });

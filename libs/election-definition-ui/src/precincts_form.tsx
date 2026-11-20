@@ -15,7 +15,6 @@ import {
   ElectionStringKey,
   safeParseInt,
   hasSplits,
-  getTotalRegisteredVoterCount,
   isPrecinctCount,
   isSplitCounts,
   type Precinct,
@@ -66,7 +65,7 @@ export interface PrecinctFormProps {
 function registeredVoterCountInputValue(
   count?: RegisteredVoterCount
 ): number | '' {
-  return count === undefined ? '' : getTotalRegisteredVoterCount(count);
+  return count === undefined ? '' : count.total;
 }
 
 export function PrecinctForm(props: PrecinctFormProps): JSX.Element | null {
@@ -424,7 +423,9 @@ function PrecinctFormContents(
                                 if (parseResult.isErr()) {
                                   return;
                                 }
-                                newSplits[split.id] = parseResult.ok();
+                                newSplits[split.id] = {
+                                  total: parseResult.ok(),
+                                };
                               } else {
                                 delete newSplits[split.id];
                               }
@@ -560,7 +561,7 @@ function PrecinctFormContents(
                         if (parseResult.isErr()) {
                           return;
                         }
-                        setRegisteredVoterCounts(parseResult.ok());
+                        setRegisteredVoterCounts({ total: parseResult.ok() });
                       }}
                       style={{ width: '8rem' }}
                     />

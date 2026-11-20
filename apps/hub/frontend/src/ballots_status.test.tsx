@@ -294,7 +294,7 @@ describe('registered voter counts', () => {
       { id: 'p2', name: 'Precinct 2', districtIds: [] },
     ]);
     // Only p1 has a count, p2 does not - partial RVC
-    mockRegisteredVoterCounts(api, { p1: 100 });
+    mockRegisteredVoterCounts(api, { p1: { total: 100 } });
     mockPollingPlaces(api, []);
 
     renderUi(api);
@@ -327,7 +327,7 @@ describe('registered voter counts', () => {
       },
     ]);
     // Only split s1 has a count, s2 does not - partial RVC
-    mockRegisteredVoterCounts(api, { p1: { splits: { s1: 100 } } });
+    mockRegisteredVoterCounts(api, { p1: { splits: { s1: { total: 100 } } } });
     mockPollingPlaces(api, []);
 
     renderUi(api);

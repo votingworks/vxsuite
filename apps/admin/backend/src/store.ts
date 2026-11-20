@@ -56,7 +56,6 @@ import {
   type ElectionId,
   type ElectionRegisteredVoterCounts,
   ElectionRegisteredVoterCountsSchema,
-  getTotalRegisteredVoterCount,
   isSplitCounts,
   type UserRole,
   isCombinedBallotPrimary,
@@ -709,7 +708,7 @@ export class Store implements BaseStore {
             electionId,
             precinctId,
             splitId,
-            getTotalRegisteredVoterCount(count)
+            count.total
           );
         }
       } else {
@@ -720,7 +719,7 @@ export class Store implements BaseStore {
             `,
           electionId,
           precinctId,
-          getTotalRegisteredVoterCount(entry)
+          entry.total
         );
       }
     }
@@ -753,7 +752,7 @@ export class Store implements BaseStore {
 
     const counts: ElectionRegisteredVoterCounts = {};
     for (const { precinctId, count } of precinctRows) {
-      counts[precinctId] = count;
+      counts[precinctId] = { total: count };
     }
     for (const { precinctId, splitId, count } of splitRows) {
       const existing = counts[precinctId];
@@ -762,9 +761,9 @@ export class Store implements BaseStore {
         `Precinct ${precinctId} has both a flat count and split counts`
       );
       if (existing === undefined) {
-        counts[precinctId] = { splits: { [splitId]: count } };
+        counts[precinctId] = { splits: { [splitId]: { total: count } } };
       } else {
-        existing.splits[splitId] = count;
+        existing.splits[splitId] = { total: count };
       }
     }
     return ElectionRegisteredVoterCountsSchema.parse(counts);

@@ -1472,12 +1472,12 @@ test('registered voter counts are stored and retrieved for precincts and splits'
     await apiClient.createPrecinct({
       electionId,
       newPrecinct: precinct1,
-      registeredVoterCounts: 500,
+      registeredVoterCounts: { total: 500 },
     })
   ).unsafeUnwrap();
   // Verify the initial count is written
   expect(await apiClient.getRegisteredVoterCounts({ electionId })).toEqual({
-    'precinct-1': 500,
+    'precinct-1': { total: 500 },
   });
 
   // Update the registered voter count
@@ -1485,12 +1485,12 @@ test('registered voter counts are stored and retrieved for precincts and splits'
     await apiClient.updatePrecinct({
       electionId,
       updatedPrecinct: precinct1,
-      registeredVoterCounts: 750,
+      registeredVoterCounts: { total: 750 },
     })
   ).unsafeUnwrap();
   // Verify getRegisteredVoterCounts reflects the count
   expect(await apiClient.getRegisteredVoterCounts({ electionId })).toEqual({
-    'precinct-1': 750,
+    'precinct-1': { total: 750 },
   });
 
   // Create a precinct with splits, each split having a registered voter count
@@ -1514,31 +1514,33 @@ test('registered voter counts are stored and retrieved for precincts and splits'
     await apiClient.createPrecinct({
       electionId,
       newPrecinct: precinct2,
-      registeredVoterCounts: { splits: { 'split-1': 200, 'split-2': 300 } },
+      registeredVoterCounts: {
+        splits: { 'split-1': { total: 200 }, 'split-2': { total: 300 } },
+      },
     })
   ).unsafeUnwrap();
 
   // Verify getRegisteredVoterCounts for split precincts
   expect(await workspace.store.getRegisteredVoterCounts(electionId)).toEqual({
-    'precinct-1': 750,
+    'precinct-1': { total: 750 },
     'precinct-2': {
       splits: {
-        'split-1': 200,
-        'split-2': 300,
+        'split-1': { total: 200 },
+        'split-2': { total: 300 },
       },
     },
   });
 
   // Update registered voter counts and assert update was written
   await workspace.store.setPrecinctRegisteredVoterCounts(precinct2, {
-    splits: { 'split-1': 250, 'split-2': 350 },
+    splits: { 'split-1': { total: 250 }, 'split-2': { total: 350 } },
   });
   expect(await workspace.store.getRegisteredVoterCounts(electionId)).toEqual({
-    'precinct-1': 750,
+    'precinct-1': { total: 750 },
     'precinct-2': {
       splits: {
-        'split-1': 250,
-        'split-2': 350,
+        'split-1': { total: 250 },
+        'split-2': { total: 350 },
       },
     },
   });
@@ -1565,20 +1567,20 @@ test('registered voter counts are stored and retrieved for precincts and splits'
     await apiClient.createPrecinct({
       electionId,
       newPrecinct: precinct3,
-      registeredVoterCounts: { splits: { 'split-3a': 400 } },
+      registeredVoterCounts: { splits: { 'split-3a': { total: 400 } } },
     })
   ).unsafeUnwrap();
   expect(await workspace.store.getRegisteredVoterCounts(electionId)).toEqual({
-    'precinct-1': 750,
+    'precinct-1': { total: 750 },
     'precinct-2': {
       splits: {
-        'split-1': 250,
-        'split-2': 350,
+        'split-1': { total: 250 },
+        'split-2': { total: 350 },
       },
     },
     'precinct-3': {
       splits: {
-        'split-3a': 400,
+        'split-3a': { total: 400 },
       },
     },
   });
@@ -1608,16 +1610,16 @@ test('registered voter counts are stored and retrieved for precincts and splits'
 
   // Precincts with no counts should not appear in getRegisteredVoterCounts
   expect(await workspace.store.getRegisteredVoterCounts(electionId)).toEqual({
-    'precinct-1': 750,
+    'precinct-1': { total: 750 },
     'precinct-2': {
       splits: {
-        'split-1': 250,
-        'split-2': 350,
+        'split-1': { total: 250 },
+        'split-2': { total: 350 },
       },
     },
     'precinct-3': {
       splits: {
-        'split-3a': 400,
+        'split-3a': { total: 400 },
       },
     },
   });
@@ -2924,7 +2926,7 @@ test('Finalize ballots - rejects partial registered voter counts', async () => {
     await apiClient.updatePrecinct({
       electionId,
       updatedPrecinct: firstPrecinct,
-      registeredVoterCounts: 500,
+      registeredVoterCounts: { total: 500 },
     })
   ).unsafeUnwrap();
 
@@ -2941,7 +2943,7 @@ test('Finalize ballots - rejects partial registered voter counts', async () => {
         await apiClient.updatePrecinct({
           electionId,
           updatedPrecinct: precinct,
-          registeredVoterCounts: 500,
+          registeredVoterCounts: { total: 500 },
         })
       ).unsafeUnwrap();
     }

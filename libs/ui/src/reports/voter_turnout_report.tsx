@@ -1,7 +1,6 @@
 import {
   type ElectionDefinition,
   type ElectionRegisteredVoterCounts,
-  getTotalRegisteredVoterCount,
   isSplitCounts,
   type PrecinctRegisteredVoterCountEntry,
   type Tabulation,
@@ -77,9 +76,9 @@ const TurnoutGrid = styled.div`
 `;
 
 function sumRegisteredVoters(entry: PrecinctRegisteredVoterCountEntry): number {
-  if (!isSplitCounts(entry)) return getTotalRegisteredVoterCount(entry);
+  if (!isSplitCounts(entry)) return entry.total;
   return iter(Object.values(entry.splits))
-    .map(getTotalRegisteredVoterCount)
+    .map((count) => count.total)
     .sum();
 }
 

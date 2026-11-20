@@ -1,12 +1,11 @@
 import { expect, test } from 'vitest';
 import {
   ElectionRegisteredVoterCountsSchema,
-  getPartyRegisteredVoterCounts,
-  getTotalRegisteredVoterCount,
   hasPartialRegisteredVoterCounts,
   isPrecinctCount,
   isSplitCounts,
   listRegisteredVoterCounts,
+  toTotalRegisteredVoterCounts,
   type ElectionRegisteredVoterCounts,
   type PrecinctRegisteredVoterCountEntry,
 } from './registered_voter_counts.js';
@@ -23,17 +22,17 @@ const pSplit: PrecinctWithSplits = {
   ],
 };
 
-const number: PrecinctRegisteredVoterCountEntry = 500;
 const totalOnly: PrecinctRegisteredVoterCountEntry = { total: 500 };
 const byParty: PrecinctRegisteredVoterCountEntry = {
   total: 350,
   byParty: { DEM: 100, REP: 200 },
   nonpartisan: 50,
 };
-const splits: PrecinctRegisteredVoterCountEntry = { splits: { s1: 100 } };
+const splits: PrecinctRegisteredVoterCountEntry = {
+  splits: { s1: { total: 100 } },
+};
 
 test('isPrecinctCount', () => {
-  expect(isPrecinctCount(number)).toEqual(true);
   expect(isPrecinctCount(totalOnly)).toEqual(true);
   expect(isPrecinctCount(byParty)).toEqual(true);
   expect(isPrecinctCount(splits)).toEqual(false);
@@ -41,42 +40,18 @@ test('isPrecinctCount', () => {
 
 test('isSplitCounts', () => {
   expect(isSplitCounts(splits)).toEqual(true);
-  expect(isSplitCounts(number)).toEqual(false);
   expect(isSplitCounts(totalOnly)).toEqual(false);
   expect(isSplitCounts(byParty)).toEqual(false);
-});
-
-test('getTotalRegisteredVoterCount', () => {
-  expect(getTotalRegisteredVoterCount(500)).toEqual(500);
-  expect(getTotalRegisteredVoterCount({ total: 500 })).toEqual(500);
-  expect(
-    getTotalRegisteredVoterCount({
-      total: 350,
-      byParty: { DEM: 100, REP: 200 },
-      nonpartisan: 50,
-    })
-  ).toEqual(350);
-});
-
-test('getPartyRegisteredVoterCounts', () => {
-  expect(getPartyRegisteredVoterCounts(500)).toBeUndefined();
-  expect(getPartyRegisteredVoterCounts({ total: 500 })).toBeUndefined();
-  expect(
-    getPartyRegisteredVoterCounts({
-      total: 300,
-      byParty: { DEM: 100, REP: 200 },
-    })
-  ).toEqual({ DEM: 100, REP: 200 });
 });
 
 test('listRegisteredVoterCounts', () => {
   expect(
     listRegisteredVoterCounts([p1, p2, pSplit], {
-      p1: 100,
+      p1: { total: 100 },
       ps: { splits: { s2: { total: 200 } } },
     })
   ).toEqual([
-    { precinctOrSplit: { precinct: p1 }, count: 100 },
+    { precinctOrSplit: { precinct: p1 }, count: { total: 100 } },
     { precinctOrSplit: { precinct: p2 }, count: undefined },
     {
       precinctOrSplit: { precinct: pSplit, split: pSplit.splits[0] },
@@ -91,20 +66,45 @@ test('listRegisteredVoterCounts', () => {
 
 test('ElectionRegisteredVoterCountsSchema accepts valid counts', () => {
   const counts: ElectionRegisteredVoterCounts = {
-    p1: 100,
-    p2: { total: 35, byParty: { DEM: 10, REP: 20 }, nonpartisan: 5 },
-    p3: { total: 10, byParty: { DEM: 10 } },
-    p4: { total: 40 },
-    p5: { total: 0, byParty: {} },
+    p1: { total: 35, byParty: { DEM: 10, REP: 20 }, nonpartisan: 5 },
+    p2: { total: 10, byParty: { DEM: 10 } },
+    p3: { total: 40 },
+    p4: { total: 0, byParty: {} },
     ps: {
       splits: {
-        s1: 100,
-        s2: { total: 35, byParty: { DEM: 10, REP: 20 }, nonpartisan: 5 },
-        s3: { total: 50 },
+        s1: { total: 35, byParty: { DEM: 10, REP: 20 }, nonpartisan: 5 },
+        s2: { total: 50 },
       },
     },
   };
   expect(ElectionRegisteredVoterCountsSchema.parse(counts)).toEqual(counts);
+});
+
+test('ElectionRegisteredVoterCountsSchema reads plain numbers as totals', () => {
+  expect(
+    ElectionRegisteredVoterCountsSchema.parse({
+      p1: 100,
+      ps: { splits: { s1: 200, s2: { total: 300 } } },
+    })
+  ).toEqual({
+    p1: { total: 100 },
+    ps: { splits: { s1: { total: 200 }, s2: { total: 300 } } },
+  });
+});
+
+test('toTotalRegisteredVoterCounts', () => {
+  expect(
+    toTotalRegisteredVoterCounts({
+      p1: { total: 500, byParty: { DEM: 300 }, nonpartisan: 200 },
+      p2: { total: 100 },
+      ps: {
+        splits: {
+          s1: { total: 500, byParty: { DEM: 500 } },
+          s2: { total: 350 },
+        },
+      },
+    })
+  ).toEqual({ p1: 500, p2: 100, ps: { splits: { s1: 500, s2: 350 } } });
 });
 
 test('ElectionRegisteredVoterCountsSchema rejects invalid counts', () => {
@@ -131,7 +131,10 @@ test('hasPartialRegisteredVoterCounts - no precincts', () => {
 });
 
 test('hasPartialRegisteredVoterCounts - all non-split precincts have counts', () => {
-  const counts: ElectionRegisteredVoterCounts = { p1: 100, p2: 200 };
+  const counts: ElectionRegisteredVoterCounts = {
+    p1: { total: 100 },
+    p2: { total: 200 },
+  };
   expect(hasPartialRegisteredVoterCounts([p1, p2], counts)).toEqual(false);
 });
 
@@ -140,13 +143,13 @@ test('hasPartialRegisteredVoterCounts - no non-split precincts have counts', () 
 });
 
 test('hasPartialRegisteredVoterCounts - some non-split precincts have counts', () => {
-  const counts: ElectionRegisteredVoterCounts = { p1: 100 };
+  const counts: ElectionRegisteredVoterCounts = { p1: { total: 100 } };
   expect(hasPartialRegisteredVoterCounts([p1, p2], counts)).toEqual(true);
 });
 
 test('hasPartialRegisteredVoterCounts - all splits have counts', () => {
   const counts: ElectionRegisteredVoterCounts = {
-    ps: { splits: { s1: 100, s2: 200 } },
+    ps: { splits: { s1: { total: 100 }, s2: { total: 200 } } },
   };
   expect(hasPartialRegisteredVoterCounts([pSplit], counts)).toEqual(false);
 });
@@ -157,7 +160,7 @@ test('hasPartialRegisteredVoterCounts - no splits have counts', () => {
 
 test('hasPartialRegisteredVoterCounts - some splits have counts', () => {
   const counts: ElectionRegisteredVoterCounts = {
-    ps: { splits: { s1: 100 } },
+    ps: { splits: { s1: { total: 100 } } },
   };
   expect(hasPartialRegisteredVoterCounts([pSplit], counts)).toEqual(true);
 });
@@ -165,22 +168,22 @@ test('hasPartialRegisteredVoterCounts - some splits have counts', () => {
 test('hasPartialRegisteredVoterCounts - split precinct entry present but no split counts', () => {
   // precinctEntry is defined but isSplitCounts branch has no matching splits
   const counts: ElectionRegisteredVoterCounts = {
-    ps: 500,
+    ps: { total: 500 },
   };
   expect(hasPartialRegisteredVoterCounts([pSplit], counts)).toEqual(false);
 });
 
 test('hasPartialRegisteredVoterCounts - mixed non-split and split precincts, all have counts', () => {
   const counts: ElectionRegisteredVoterCounts = {
-    p1: 100,
-    ps: { splits: { s1: 100, s2: 200 } },
+    p1: { total: 100 },
+    ps: { splits: { s1: { total: 100 }, s2: { total: 200 } } },
   };
   expect(hasPartialRegisteredVoterCounts([p1, pSplit], counts)).toEqual(false);
 });
 
 test('hasPartialRegisteredVoterCounts - mixed non-split and split precincts, partial counts', () => {
   // p1 has a count but pSplit splits do not
-  const counts: ElectionRegisteredVoterCounts = { p1: 100 };
+  const counts: ElectionRegisteredVoterCounts = { p1: { total: 100 } };
   expect(hasPartialRegisteredVoterCounts([p1, pSplit], counts)).toEqual(true);
 });
 
@@ -197,10 +200,10 @@ test('hasPartialRegisteredVoterCounts - all precincts and splits have party brea
   expect(hasPartialRegisteredVoterCounts([p1, pSplit], counts)).toEqual(false);
 });
 
-test('hasPartialRegisteredVoterCounts - all counts are totals in mixed forms', () => {
+test('hasPartialRegisteredVoterCounts - all counts are totals', () => {
   const counts: ElectionRegisteredVoterCounts = {
-    p1: 100,
-    ps: { splits: { s1: { total: 30 }, s2: 40 } },
+    p1: { total: 100 },
+    ps: { splits: { s1: { total: 30 }, s2: { total: 40 } } },
   };
   expect(hasPartialRegisteredVoterCounts([p1, pSplit], counts)).toEqual(false);
 });
@@ -223,7 +226,10 @@ test('hasPartialRegisteredVoterCounts - totals mixed with party breakdowns acros
 test('hasPartialRegisteredVoterCounts - totals mixed with party breakdowns across splits', () => {
   const counts: ElectionRegisteredVoterCounts = {
     ps: {
-      splits: { s1: 100, s2: { total: 30, byParty: { DEM: 10, REP: 20 } } },
+      splits: {
+        s1: { total: 100 },
+        s2: { total: 30, byParty: { DEM: 10, REP: 20 } },
+      },
     },
   };
   expect(hasPartialRegisteredVoterCounts([pSplit], counts)).toEqual(true);
@@ -231,8 +237,8 @@ test('hasPartialRegisteredVoterCounts - totals mixed with party breakdowns acros
 
 test('hasPartialRegisteredVoterCounts - non-split precinct with split counts', () => {
   const counts: ElectionRegisteredVoterCounts = {
-    p1: { splits: { s1: 100 } },
-    p2: 100,
+    p1: { splits: { s1: { total: 100 } } },
+    p2: { total: 100 },
   };
   expect(hasPartialRegisteredVoterCounts([p1, p2], counts)).toEqual(true);
 });

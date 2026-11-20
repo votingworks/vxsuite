@@ -925,14 +925,14 @@ export function describeElectionDefinitionMethods(
       await methods.createPrecinct({
         electionId,
         newPrecinct: precinct10,
-        registeredVoterCounts: 100,
+        registeredVoterCounts: { total: 100 },
       })
     ).toEqual(ok());
     expect(
       await methods.createPrecinct({
         electionId,
         newPrecinct: precinct2,
-        registeredVoterCounts: { splits: { 'split-a': 20 } },
+        registeredVoterCounts: { splits: { 'split-a': { total: 20 } } },
       })
     ).toEqual(ok());
     expect(await methods.listPrecincts({ electionId })).toEqual([
@@ -953,8 +953,8 @@ export function describeElectionDefinitionMethods(
       { ...precinct10, districtIds: ['district-1', 'district-2'] },
     ]);
     expect(await methods.getRegisteredVoterCounts({ electionId })).toEqual({
-      'precinct-10': 100,
-      'precinct-2': { splits: { 'split-a': 20 } },
+      'precinct-10': { total: 100 },
+      'precinct-2': { splits: { 'split-a': { total: 20 } } },
     });
 
     const updatedPrecinct2: Precinct = {
@@ -966,7 +966,7 @@ export function describeElectionDefinitionMethods(
       await methods.updatePrecinct({
         electionId,
         updatedPrecinct: updatedPrecinct2,
-        registeredVoterCounts: 50,
+        registeredVoterCounts: { total: 50 },
       })
     ).toEqual(ok());
     expect(
@@ -980,7 +980,7 @@ export function describeElectionDefinitionMethods(
       { ...precinct10, districtIds: ['district-1', 'district-2'] },
     ]);
     expect(await methods.getRegisteredVoterCounts({ electionId })).toEqual({
-      'precinct-2': 50,
+      'precinct-2': { total: 50 },
     });
 
     await methods.deletePrecinct({ electionId, precinctId: 'precinct-2' });
@@ -1020,7 +1020,7 @@ export function describeElectionDefinitionMethods(
       await methods.updatePrecinct({
         electionId,
         updatedPrecinct: { ...precinct2, name: 'Precinct 1' },
-        registeredVoterCounts: 10,
+        registeredVoterCounts: { total: 10 },
       })
     ).toEqual(err('duplicate-precinct-name'));
     expect(
