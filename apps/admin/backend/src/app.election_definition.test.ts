@@ -3,6 +3,7 @@ import {
   mkdirSync,
   readdirSync,
   readFileSync,
+  rmSync,
   writeFileSync,
 } from 'node:fs';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
@@ -2023,4 +2024,156 @@ test('getElectionPackageRenderingStatus rejects an unknown election definition',
   await expect(
     api.getElectionPackageRenderingStatus({ electionId: 'missing' })
   ).rejects.toThrow('Election definition not found');
+});
+
+test('saveElectionPackageBallots saves the built official and test ballot zips to the USB drive', async () => {
+  const {
+    apiClient,
+    electionDefinitionApiClient: api,
+    auth,
+    logger,
+    usbPlatform,
+    workspace,
+  } = buildTestEnvironment();
+  mockSystemAdministratorAuth(auth);
+  const electionId = await createFinalizableElection(api);
+  await expect(
+    api.saveElectionPackageBallots({
+      electionId,
+      ballotMode: 'official',
+      filename: 'official-ballots.zip',
+    })
+  ).rejects.toThrow('Election package has not been built');
+
+  await api.finalizeElection({ electionId });
+  const electionPackage = await waitForElectionPackage(api, electionId);
+  assert(electionPackage?.status === 'succeeded');
+  const filesPath = getElectionPackageFilesPath(workspace.store);
+  expect(electionPackage.ballotFilesAvailable).toEqual(true);
+
+  expect(
+    await api.saveElectionPackageBallots({
+      electionId,
+      ballotMode: 'official',
+      filename: 'official-ballots.zip',
+    })
+  ).toEqual(err({ type: 'missing-usb-drive', message: 'No USB drive found' }));
+  expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
+    LogEventId.FileSaved,
+    {
+      message: `Failed to save official ballots for election definition ${electionId} to official-ballots.zip on the USB drive.`,
+      disposition: 'failure',
+      path: 'official-ballots.zip',
+    }
+  );
+
+  await attachUsbDrive(apiClient, usbPlatform);
+  for (const [ballotMode, storedPath] of [
+    ['official', electionPackage.officialBallotsPath],
+    ['test', assertDefined(electionPackage.testBallotsPath)],
+  ] as const) {
+    const filename = `${ballotMode}/ballots?.zip`;
+    const [savedPath] = (
+      await api.saveElectionPackageBallots({
+        electionId,
+        ballotMode,
+        filename,
+      })
+    ).unsafeUnwrap();
+    expect(savedPath).toMatch(new RegExp(`/${ballotMode}_ballots_\\.zip$`));
+    expect(readFileSync(assertDefined(savedPath))).toEqual(
+      readFileSync(join(filesPath, storedPath))
+    );
+    expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
+      LogEventId.FileSaved,
+      {
+        message: `Saved ${ballotMode} ballots for election definition ${electionId} to ${ballotMode}_ballots_.zip on the USB drive.`,
+        disposition: 'success',
+        path: `${ballotMode}_ballots_.zip`,
+      }
+    );
+  }
+
+  rmSync(join(filesPath, electionPackage.officialBallotsPath));
+  expect(
+    await api.saveElectionPackageBallots({
+      electionId,
+      ballotMode: 'official',
+      filename: 'official-ballots.zip',
+    })
+  ).toEqual(err(expect.objectContaining({ type: 'file-system-error' })));
+  expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
+    LogEventId.FileSaved,
+    expect.objectContaining({ disposition: 'failure' })
+  );
+}, 60_000);
+
+test('saveElectionPackageBallots rejects ballots the election package does not have', async () => {
+  const {
+    electionDefinitionApiClient: api,
+    auth,
+    workspace,
+  } = buildTestEnvironment();
+  mockSystemAdministratorAuth(auth);
+  const electionId = await createFinalizableElection(api);
+  const packagePath = join(
+    getElectionPackageFilesPath(workspace.store),
+    'election-package.zip'
+  );
+  mkdirSync(dirname(packagePath), { recursive: true });
+  writeFileSync(
+    packagePath,
+    await createElectionPackageZipArchive({ electionDefinition })
+  );
+  vi.mocked(renderElectionPackageAndBallots).mockResolvedValueOnce({
+    electionDefinition,
+    electionPackageScratchPath: packagePath,
+    officialBallotsPath: 'official-ballots.zip',
+  });
+  await api.finalizeElection({ electionId });
+  await waitForElectionPackage(api, electionId);
+
+  await expect(
+    api.saveElectionPackageBallots({
+      electionId,
+      ballotMode: 'test',
+      filename: 'test-ballots.zip',
+    })
+  ).rejects.toThrow('Election package has no test ballots');
+});
+
+test('getElectionPackageRenderingStatus reports whether the built ballot files are on this machine', async () => {
+  const {
+    electionDefinitionApiClient: api,
+    auth,
+    workspace,
+  } = buildTestEnvironment();
+  mockSystemAdministratorAuth(auth);
+  const electionId = await createFinalizableElection(api);
+  const filesPath = getElectionPackageFilesPath(workspace.store);
+  mkdirSync(filesPath, { recursive: true });
+  const packagePath = join(filesPath, 'election-package.zip');
+  writeFileSync(
+    packagePath,
+    await createElectionPackageZipArchive({ electionDefinition })
+  );
+  vi.mocked(renderElectionPackageAndBallots).mockResolvedValueOnce({
+    electionDefinition,
+    electionPackageScratchPath: packagePath,
+    officialBallotsPath: 'official-ballots.zip',
+  });
+  await api.finalizeElection({ electionId });
+  await waitForElectionPackage(api, electionId);
+
+  expect(await api.getElectionPackageRenderingStatus({ electionId })).toEqual({
+    status: 'succeeded',
+    ballotHash: electionDefinition.ballotHash,
+    officialBallotsPath: 'official-ballots.zip',
+    ballotFilesAvailable: false,
+  });
+
+  writeFileSync(join(filesPath, 'official-ballots.zip'), '');
+  expect(await api.getElectionPackageRenderingStatus({ electionId })).toEqual(
+    expect.objectContaining({ ballotFilesAvailable: true })
+  );
 });

@@ -1,3 +1,5 @@
+import { createReadStream, existsSync } from 'node:fs';
+import { join } from 'node:path';
 import type { DippedSmartCardAuthApi } from '@votingworks/auth';
 import type { ExportDataResult } from '@votingworks/backend';
 import {
@@ -73,6 +75,7 @@ import type { Workspace } from '../util/workspace.js';
 import {
   buildElectionPackage,
   clearElectionPackageFiles,
+  getElectionPackageFilesPath,
 } from './election_package.js';
 import { createEnglishOnlyTranslator } from './english_only_translator.js';
 import { getMachineState, isElectionDefinitionEnabled } from './state.js';
@@ -82,6 +85,16 @@ import {
   importTranslations,
   type TranslationsImportError,
 } from './translations.js';
+
+/**
+ * The election package of a finalized election definition, noting whether its
+ * built ballot files are on this machine.
+ */
+export type ElectionPackageRenderingStatus =
+  | Exclude<ElectionDefinitionPackage, { status: 'succeeded' }>
+  | (Extract<ElectionDefinitionPackage, { status: 'succeeded' }> & {
+      ballotFilesAvailable: boolean;
+    });
 
 function blankElectionInfo(
   electionId: ElectionId,
@@ -690,11 +703,26 @@ function createElectionDefinitionApiMethods({
 
     getElectionPackageRenderingStatus(
       input: ElectionInput
-    ): ElectionDefinitionPackage | null {
+    ): ElectionPackageRenderingStatus | null {
       loadInProgressElectionInfo(input);
-      return (
-        store.electionDefinition.getElectionPackage(input.electionId) ?? null
+      const electionPackage = store.electionDefinition.getElectionPackage(
+        input.electionId
       );
+      if (electionPackage?.status !== 'succeeded') {
+        return electionPackage ?? null;
+      }
+      const filesPath = getElectionPackageFilesPath(store);
+      return {
+        ...electionPackage,
+        ballotFilesAvailable: [
+          electionPackage.officialBallotsPath,
+          electionPackage.testBallotsPath,
+        ].every(
+          (ballotsPath) =>
+            ballotsPath === undefined ||
+            existsSync(join(filesPath, ballotsPath))
+        ),
+      };
     },
 
     async finalizeElection(input: ElectionInput): Promise<void> {
@@ -744,6 +772,48 @@ function createElectionDefinitionApiMethods({
         logger,
         electionId: input.electionId,
       });
+    },
+
+    async saveElectionPackageBallots(
+      input: ElectionInput & {
+        ballotMode: 'official' | 'test';
+        filename: string;
+      }
+    ): Promise<ExportDataResult> {
+      loadInProgressElectionInfo(input);
+      const electionPackage = store.electionDefinition.getElectionPackage(
+        input.electionId
+      );
+      assert(
+        electionPackage?.status === 'succeeded',
+        'Election package has not been built'
+      );
+      const ballotsPath = assertDefined(
+        input.ballotMode === 'official'
+          ? electionPackage.officialBallotsPath
+          : electionPackage.testBallotsPath,
+        `Election package has no ${input.ballotMode} ballots`
+      );
+      const filename = sanitizeFilenameForUsbDrive(input.filename);
+      const ballotsFilePath = join(
+        getElectionPackageFilesPath(store),
+        ballotsPath
+      );
+      const exportResult = await buildExporter(usbDrive).exportDataToUsbDrive(
+        '',
+        filename,
+        (async function* readBallotsFile() {
+          yield* createReadStream(ballotsFilePath);
+        })()
+      );
+      await logger.logAsCurrentRole(LogEventId.FileSaved, {
+        disposition: exportResult.isOk() ? 'success' : 'failure',
+        message: `${
+          exportResult.isOk() ? 'Saved' : 'Failed to save'
+        } ${input.ballotMode} ballots for election definition ${input.electionId} to ${filename} on the USB drive.`,
+        path: filename,
+      });
+      return exportResult;
     },
 
     async saveTranslationsFile(
