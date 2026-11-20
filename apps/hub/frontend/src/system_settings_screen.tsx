@@ -739,27 +739,11 @@ export function SystemSettingsForm({
               label="Enable Shoeshine Mode on VxScan"
               setting="precinctScanEnableShoeshineMode"
             />
-            {features.VXSCAN_ALARMS_SYSTEM_SETTING && (
-              <SystemSettingsCheckbox
-                {...checkboxProps}
-                label="Disable Alarms on VxScan"
-                setting="precinctScanDisableAlarms"
-                omitWhenUnchecked
-              />
-            )}
             {features.VXSCAN_WRITE_IN_IMAGE_REPORT_SYSTEM_SETTING && (
               <SystemSettingsCheckbox
                 {...checkboxProps}
                 label="Enable Write-In Image Report on VxScan"
                 setting="precinctScanEnableWriteInImageReport"
-                omitWhenUnchecked
-              />
-            )}
-            {features.VXSCAN_SCREEN_READER_AUDIO_SYSTEM_SETTING && (
-              <SystemSettingsCheckbox
-                {...checkboxProps}
-                label="Disable Screen Reader Audio on VxScan"
-                setting="precinctScanDisableScreenReaderAudio"
                 omitWhenUnchecked
               />
             )}
@@ -834,6 +818,47 @@ export function SystemSettingsForm({
               label="Include Redundant Metadata in CVRs"
               setting="castVoteRecordsIncludeRedundantMetadata"
             />
+            <SystemSettingsCheckbox
+              {...checkboxProps}
+              label="Qualified Write-In Candidate Mode"
+              setting="areWriteInCandidatesQualified"
+              omitWhenUnchecked
+            />
+            <SystemSettingsCheckbox
+              {...checkboxProps}
+              label="Enable Early Voting"
+              setting="enableEarlyVoting"
+              omitWhenUnchecked
+            />
+            {features.VXCENTRALSCAN_POLL_WORKER_ROLE_SYSTEM_SETTING && (
+              <SystemSettingsCheckbox
+                {...checkboxProps}
+                label="Enable Poll Worker Role on VxCentralScan"
+                setting="centralScanEnablePollWorkerRole"
+                omitWhenUnchecked
+              />
+            )}
+          </Column>
+        </Card>
+        <Card>
+          <H2>Other Undocumented</H2>
+          <Column style={{ gap: '1.5rem' }}>
+            {features.VXSCAN_ALARMS_SYSTEM_SETTING && (
+              <SystemSettingsCheckbox
+                {...checkboxProps}
+                label="Disable Alarms on VxScan"
+                setting="precinctScanDisableAlarms"
+                omitWhenUnchecked
+              />
+            )}
+            {features.VXSCAN_SCREEN_READER_AUDIO_SYSTEM_SETTING && (
+              <SystemSettingsCheckbox
+                {...checkboxProps}
+                label="Disable Screen Reader Audio on VxScan"
+                setting="precinctScanDisableScreenReaderAudio"
+                omitWhenUnchecked
+              />
+            )}
             {features.TRANSLITERATE_CANDIDATE_NAMES_SYSTEM_SETTING && (
               <SystemSettingsCheckbox
                 {...checkboxProps}
@@ -880,31 +905,11 @@ export function SystemSettingsForm({
                 omitWhenUnchecked
               />
             )}
-            <SystemSettingsCheckbox
-              {...checkboxProps}
-              label="Qualified Write-In Candidate Mode"
-              setting="areWriteInCandidatesQualified"
-              omitWhenUnchecked
-            />
-            <SystemSettingsCheckbox
-              {...checkboxProps}
-              label="Enable Early Voting"
-              setting="enableEarlyVoting"
-              omitWhenUnchecked
-            />
             {features.SPLIT_ELECTION_DEFINITION_SYSTEM_SETTING && (
               <SystemSettingsCheckbox
                 {...checkboxProps}
                 label="Split Election Definition"
                 setting="splitElectionDefinition"
-                omitWhenUnchecked
-              />
-            )}
-            {features.VXCENTRALSCAN_POLL_WORKER_ROLE_SYSTEM_SETTING && (
-              <SystemSettingsCheckbox
-                {...checkboxProps}
-                label="Enable Poll Worker Role on VxCentralScan"
-                setting="centralScanEnablePollWorkerRole"
                 omitWhenUnchecked
               />
             )}
