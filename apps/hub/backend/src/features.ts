@@ -37,9 +37,8 @@ export interface UserFeaturesConfig {
   SYSTEM_SETTINGS_SCREEN?: boolean;
   /**
    * Show system settings that are not documented in the current TDP. Some of
-   * these are new and will eventually be documented. Others are meant to be
-   * managed by VotingWorks internally, unintended for toggling by test labs or
-   * customers.
+   * these are new and will eventually be documented. Others are unintended for
+   * toggling by test labs.
    * Requires the system settings screen to be enabled.
    */
   UNDOCUMENTED_SYSTEM_SETTINGS?: boolean;

@@ -831,6 +831,10 @@ export function SystemSettingsForm({
           <Card>
             <H2>Other Undocumented</H2>
             <Column style={{ gap: '1.5rem' }}>
+              <P style={{ marginBottom: 0, maxWidth: '30rem' }}>
+                Some of these are new and will eventually be documented. Others
+                are unintended for toggling by test labs.
+              </P>
               <SystemSettingsCheckbox
                 {...checkboxProps}
                 label="Disable Alarms on VxScan"
