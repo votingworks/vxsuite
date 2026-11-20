@@ -32,7 +32,10 @@ function initMockPlayer() {
   return { mockPlayer, mockOfNewAudioPlayer };
 }
 
-const mockGainNode = { gain: { value: 3.14 } } as unknown as GainNode;
+const mockGainNode = {
+  gain: { value: 3.14 },
+  connect: vi.fn(),
+} as unknown as GainNode;
 
 const originalWebAudioContext = window.AudioContext;
 const mockWebAudioContext = {
