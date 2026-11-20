@@ -124,7 +124,7 @@ export function SystemInfo({
   const machineJurisdictionInfo =
     mode !== 'voter' && machineJurisdiction ? (
       <Caption noWrap>
-        <LabelledText label="Machine Jurisdiction">
+        <LabelledText label="Jurisdiction">
           <Font weight="bold">{machineJurisdiction}</Font>
         </LabelledText>
       </Caption>

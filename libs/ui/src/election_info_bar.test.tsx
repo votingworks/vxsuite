@@ -55,7 +55,7 @@ describe('ElectionInfoBar', () => {
     const machineIdLabel = screen.getByText('Machine ID');
     expect(machineIdLabel.parentElement?.lastChild).toHaveTextContent('0000');
 
-    expect(screen.queryByText('Machine Jurisdiction')).not.toBeInTheDocument();
+    expect(screen.queryByText('Jurisdiction')).not.toBeInTheDocument();
   });
 
   test('Renders machine jurisdiction between version and machine ID', () => {
@@ -67,16 +67,16 @@ describe('ElectionInfoBar', () => {
         mode="admin"
       />
     );
-    const jurisdictionLabel = screen.getByText('Machine Jurisdiction');
+    const jurisdictionLabel = screen.getByText('Jurisdiction');
     expect(jurisdictionLabel.parentElement?.lastChild).toHaveTextContent(
       'nh.backup'
     );
 
     expect(
       screen
-        .getAllByText(/^(Version|Machine Jurisdiction|Machine ID)$/)
+        .getAllByText(/^(Version|Jurisdiction|Machine ID)$/)
         .map((label) => label.textContent)
-    ).toEqual(['Version', 'Machine Jurisdiction', 'Machine ID']);
+    ).toEqual(['Version', 'Jurisdiction', 'Machine ID']);
   });
 
   test('Hides machine jurisdiction in voter mode even when passed', () => {

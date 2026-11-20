@@ -119,7 +119,7 @@ test('warns when connected to an unconfigured host', async () => {
   await screen.findByText('The host is not configured with an election');
   expect(screen.queryByTestId('electionInfoBar')).toBeNull();
   screen.getByText(DEV_MACHINE_ID);
-  const jurisdictionLabel = screen.getByText('Machine Jurisdiction');
+  const jurisdictionLabel = screen.getByText('Jurisdiction');
   expect(jurisdictionLabel.parentElement?.lastChild).toHaveTextContent(
     TEST_JURISDICTION
   );
@@ -137,9 +137,7 @@ test('shows election info when connected to a configured host', async () => {
   const electionInfo = await screen.findByTestId('electionInfoBar');
   within(electionInfo).getByText(electionDefinition.election.title);
   within(electionInfo).getByText(DEV_MACHINE_ID);
-  const jurisdictionLabel = within(electionInfo).getByText(
-    'Machine Jurisdiction'
-  );
+  const jurisdictionLabel = within(electionInfo).getByText('Jurisdiction');
   expect(jurisdictionLabel.parentElement?.lastChild).toHaveTextContent(
     TEST_JURISDICTION
   );

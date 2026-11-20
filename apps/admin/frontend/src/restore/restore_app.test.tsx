@@ -84,7 +84,7 @@ test('asks for a system administrator card while locked', async () => {
   screen.getByText('Insert system administrator card to unlock.');
   screen.getByText('Restore Mode');
   screen.getByText(DEV_MACHINE_ID);
-  const jurisdictionLabel = screen.getByText('Machine Jurisdiction');
+  const jurisdictionLabel = screen.getByText('Jurisdiction');
   expect(jurisdictionLabel.parentElement?.lastChild).toHaveTextContent(
     TEST_JURISDICTION
   );
