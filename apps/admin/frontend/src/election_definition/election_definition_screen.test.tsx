@@ -2,6 +2,7 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { userEvent } from '@testing-library/user-event';
 import { createMemoryHistory } from 'history';
 import { DateWithoutTime, deferred, ok } from '@votingworks/basics';
+import type { ElectionPackageRenderingStatus } from '@votingworks/admin-backend';
 import type {
   ElectionInfo,
   StateFeaturesConfig,
@@ -139,14 +140,24 @@ function expectCurrentInProgressElection(electionInfo: ElectionInfo | null) {
 
 function expectElectionInfoQueries(
   electionInfo: ElectionInfo,
-  stateFeatures: StateFeaturesConfig = {}
+  stateFeatures: StateFeaturesConfig = {},
+  electionPackage: ElectionPackageRenderingStatus | null = null
 ) {
+  apiMock.electionDefinitionApiClient.getElectionPackageRenderingStatus
+    .expectOptionalRepeatedCallsWith({ electionId })
+    .resolves(electionPackage);
   apiMock.electionDefinitionApiClient.getElectionInfo
     .expectCallWith({ electionId })
     .resolves(electionInfo);
   apiMock.electionDefinitionApiClient.getStateFeatures
     .expectCallWith({ electionId })
     .resolves(stateFeatures);
+}
+
+function expectNoElectionPackage() {
+  apiMock.electionDefinitionApiClient.getElectionPackageRenderingStatus
+    .expectOptionalRepeatedCallsWith({ electionId })
+    .resolves(null);
 }
 
 test('Create New Election creates an election and opens Election Info', async () => {
@@ -555,6 +566,7 @@ test('Proof Ballots lists ballot styles and edits the ballot layout in tabs', as
   apiMock.electionDefinitionApiClient.listParties
     .expectCallWith({ electionId })
     .resolves([]);
+  expectNoElectionPackage();
   const history = renderScreen(routerPaths.proofBallotsForElection(electionId));
   await screen.findByRole('heading', { name: 'Proof Ballots' });
   const table = await screen.findByRole('table');
@@ -629,6 +641,7 @@ test('View Ballot opens a ballot proof to save, print and close back to Ballot S
   apiMock.electionDefinitionApiClient.listParties
     .expectCallWith({ electionId })
     .resolves([]);
+  expectNoElectionPackage();
   const history = renderScreen(
     routerPaths.proofBallotsBallotStyles(electionId),
     true,
@@ -705,6 +718,7 @@ test('View Ballot opens a ballot proof to save, print and close back to Ballot S
   await vi.runOnlyPendingTimersAsync();
   expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 
+  expectNoElectionPackage();
   await userEvent.click(screen.getButton('Close'));
   await screen.findByRole('tab', { name: 'Ballot Styles', selected: true });
   expect(history.location.pathname).toEqual(
@@ -718,6 +732,9 @@ test('an election definition in progress is shown on the Election screen', async
   apiMock.electionDefinitionApiClient.getCurrentInProgressElection
     .expectCallWith()
     .resolves(generalElectionInfo);
+  apiMock.electionDefinitionApiClient.getElectionPackageRenderingStatus
+    .expectOptionalRepeatedCallsWith({ electionId })
+    .resolves(null);
   const history = renderScreen();
 
   const card = await screen.findByRole('link', { name: /General Election/ });
@@ -738,6 +755,9 @@ test('an untitled election definition is shown as Untitled Election', async () =
   apiMock.electionDefinitionApiClient.getCurrentInProgressElection
     .expectCallWith()
     .resolves(blankElectionInfo);
+  apiMock.electionDefinitionApiClient.getElectionPackageRenderingStatus
+    .expectOptionalRepeatedCallsWith({ electionId })
+    .resolves(null);
   renderScreen();
 
   const card = await screen.findByRole('link', { name: /Untitled Election/ });
@@ -788,13 +808,14 @@ test('the Definition nav item opens Election Info from Proof Ballots', async () 
   apiMock.electionDefinitionApiClient.listParties
     .expectCallWith({ electionId })
     .resolves([]);
+  expectNoElectionPackage();
+  apiMock.electionDefinitionApiClient.getStateFeatures
+    .expectCallWith({ electionId })
+    .resolves({});
   const history = renderScreen(routerPaths.proofBallotsForElection(electionId));
   await screen.findByRole('tab', { name: 'Ballot Styles', selected: true });
   expect(getActiveNavItems()).toEqual(['Proof Ballots']);
 
-  apiMock.electionDefinitionApiClient.getStateFeatures
-    .expectCallWith({ electionId })
-    .resolves({});
   await userEvent.click(
     within(screen.getByRole('navigation')).getButton('Definition')
   );
@@ -846,6 +867,9 @@ test('back returns to the Election screen', async () => {
 test('a definition URL for an old election opens the Election screen', async () => {
   expectCurrentInProgressElection(generalElectionInfo);
   apiMock.expectListPotentialElectionPackagesOnUsbDrive([]);
+  apiMock.electionDefinitionApiClient.getElectionPackageRenderingStatus
+    .expectOptionalRepeatedCallsWith({ electionId })
+    .resolves(null);
   const history = renderScreen(
     routerPaths.electionDefinitionInfo('old-election')
   );
@@ -869,6 +893,7 @@ test('the Proof Ballots nav item opens ballot proofing for the current election'
   apiMock.electionDefinitionApiClient.listParties
     .expectCallWith({ electionId })
     .resolves([]);
+  expectNoElectionPackage();
   await userEvent.click(
     within(screen.getByRole('navigation')).getButton('Proof Ballots')
   );
@@ -896,6 +921,9 @@ test.each([routerPaths.electionDefinition, routerPaths.proofBallots])(
 test('a Proof Ballots URL for an old election opens the Election screen', async () => {
   expectCurrentInProgressElection(generalElectionInfo);
   apiMock.expectListPotentialElectionPackagesOnUsbDrive([]);
+  apiMock.electionDefinitionApiClient.getElectionPackageRenderingStatus
+    .expectOptionalRepeatedCallsWith({ electionId })
+    .resolves(null);
   const history = renderScreen(
     routerPaths.proofBallotsForElection('old-election')
   );
@@ -930,4 +958,61 @@ test('election manager has no Definition area when the flag is on', async () => 
   await waitFor(() =>
     expect(history.location.pathname).toEqual(routerPaths.election)
   );
+});
+
+const builtElectionPackage: ElectionPackageRenderingStatus = {
+  status: 'succeeded',
+  ballotHash: 'ballot-hash',
+  officialBallotsPath: 'election-1/official-ballots.zip',
+  testBallotsPath: 'election-1/test-ballots.zip',
+  ballotFilesAvailable: true,
+};
+
+function expectElectionPackage(
+  electionPackage: ElectionPackageRenderingStatus | null
+) {
+  apiMock.electionDefinitionApiClient.getElectionPackageRenderingStatus
+    .expectCallWith({ electionId })
+    .resolves(electionPackage);
+}
+
+test('a finalized election definition cannot be edited', async () => {
+  expectCurrentInProgressElection(generalElectionInfo);
+  expectElectionInfoQueries(generalElectionInfo, {}, builtElectionPackage);
+  renderScreen(routerPaths.electionDefinitionInfo(electionId));
+  expect(await screen.findButton('Edit')).toBeDisabled();
+  expect(screen.getButton('Delete Election')).toBeDisabled();
+});
+
+test('a failed build leaves the election definition editable', async () => {
+  expectCurrentInProgressElection(generalElectionInfo);
+  expectElectionInfoQueries(
+    generalElectionInfo,
+    {},
+    { status: 'failed', error: 'Contest is too long' }
+  );
+  renderScreen(routerPaths.electionDefinitionInfo(electionId));
+  expect(await screen.findButton('Edit')).toBeEnabled();
+  expect(screen.getButton('Delete Election')).toBeEnabled();
+});
+
+test('an election definition cannot be edited or deleted while its election package is rendering', async () => {
+  expectCurrentInProgressElection(generalElectionInfo);
+  expectElectionInfoQueries(generalElectionInfo, {}, { status: 'running' });
+  renderScreen(routerPaths.electionDefinitionInfo(electionId));
+  expect(await screen.findButton('Edit')).toBeDisabled();
+  expect(screen.getButton('Delete Election')).toBeDisabled();
+});
+
+test('the ballot layout is locked once the election is finalized', async () => {
+  expectCurrentInProgressElection(generalElectionInfo);
+  expectElectionPackage(builtElectionPackage);
+  apiMock.electionDefinitionApiClient.getStateFeatures
+    .expectCallWith({ electionId })
+    .resolves({});
+  apiMock.electionDefinitionApiClient.getBallotLayoutSettings
+    .expectCallWith({ electionId })
+    .resolves({ paperSize: HmpbBallotPaperSize.Letter, compact: false });
+  renderScreen(routerPaths.proofBallotsBallotLayout(electionId));
+  expect(await screen.findButton('Edit')).toBeDisabled();
 });
