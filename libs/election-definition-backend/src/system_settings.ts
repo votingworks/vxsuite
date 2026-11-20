@@ -146,6 +146,9 @@ export function stateDefaultSystemSettings(
   }
 }
 
+/**
+ * Test lab defaults. Keep them minimal and let the test lab turn on what they need.
+ */
 export const SLI_DEFAULT_SYSTEM_SETTINGS: SystemSettings = {
   ...commonSettings,
 
@@ -157,5 +160,4 @@ export const SLI_DEFAULT_SYSTEM_SETTINGS: SystemSettings = {
   adminAdjudicationReasons: [],
 
   bmdPrintMode: 'bubble_ballot',
-  enableEarlyVoting: true,
 };

@@ -3,9 +3,9 @@ import type { User } from './types.js';
 import { userBelongsToOrganization } from './utils.js';
 
 /**
- * Features that should be enabled based on the user's organization - i.e.
- * differentiating between what VX support users can do and what election
- * officials can do.
+ * Features that should be enabled based on the user's organization,
+ * differentiating what VotingWorks support users, test labs, and customers can
+ * do.
  */
 export interface UserFeaturesConfig {
   //
@@ -36,116 +36,30 @@ export interface UserFeaturesConfig {
    */
   SYSTEM_SETTINGS_SCREEN?: boolean;
   /**
-   * Allow the user to toggle VxScan's alarms.
+   * Show system settings that are not documented in the current TDP. Some of
+   * these are new and will eventually be documented. Others are unintended for
+   * toggling by test labs.
    * Requires the system settings screen to be enabled.
    */
-  VXSCAN_ALARMS_SYSTEM_SETTING?: boolean;
-  /**
-   * Allow the user to toggle the ability to print a write-in image report on VxScan.
-   * Requires the system settings screen to be enabled.
-   */
-  VXSCAN_WRITE_IN_IMAGE_REPORT_SYSTEM_SETTING?: boolean;
-  /**
-   * Allow the user to toggle screen reader audio on VxScan.
-   * Requires the system settings screen to be enabled.
-   */
-  VXSCAN_SCREEN_READER_AUDIO_SYSTEM_SETTING?: boolean;
-  /**
-   * Allow the user to configure the number of copies of each polls report that
-   * VxScan prints.
-   * Requires the system settings screen to be enabled.
-   */
-  VXSCAN_NUMBER_OF_REPORT_COPIES_SYSTEM_SETTING?: boolean;
-  /**
-   * Allow the user to toggle the ability to mark overvotes on VxMark.
-   * Requires the system settings screen to be enabled.
-   */
-  BMD_OVERVOTE_SYSTEM_SETTING?: boolean;
-  /**
-   * Allow the user to select BMD print modes beyond summary ballots.
-   * Requires the system settings screen to be enabled.
-   */
-  BMD_EXTRA_PRINT_MODES_SYSTEM_SETTING?: boolean;
-  /**
-   * Allow the user to toggle exporting transliterated candidate names for
-   * non-Latin-script ballot languages.
-   * Requires the system settings screen to be enabled.
-   */
-  TRANSLITERATE_CANDIDATE_NAMES_SYSTEM_SETTING?: boolean;
-  /**
-   * Allow the user to configure quick results reporting.
-   * Requires the system settings screen to be enabled.
-   */
-  QUICK_RESULTS_REPORTING_SYSTEM_SETTING?: boolean;
-  /**
-   * Allow the user to toggle system limit checks on election package import.
-   * Requires the system settings screen to be enabled.
-   */
-  SYSTEM_LIMIT_CHECKS_SYSTEM_SETTING?: boolean;
-  /**
-   * Allow the user to toggle voter help buttons.
-   * Requires the system settings screen to be enabled.
-   */
-  VOTER_HELP_BUTTONS_SYSTEM_SETTING?: boolean;
-  /**
-   * Allow the user to toggle the test deck printing functionality on VxPrint
-   * and VxMark.
-   * Requires the system settings screen to be enabled.
-   */
-  TEST_DECK_PRINTING_SYSTEM_SETTING?: boolean;
-  /**
-   * Allow the user to toggle printing blank ballots from VxMark.
-   * Requires the system settings screen to be enabled.
-   */
-  VXMARK_PRINT_BLANK_BALLOTS_SYSTEM_SETTING?: boolean;
-  /**
-   * Allow the user to toggle QR ballot activation on VxMark.
-   * Requires the system settings screen to be enabled.
-   */
-  VXMARK_QR_BALLOT_ACTIVATION_SYSTEM_SETTING?: boolean;
-  /**
-   * Allow the user to enable the poll worker role for VxCentralScan.
-   * Requires the system settings screen to be enabled.
-   */
-  VXCENTRALSCAN_POLL_WORKER_ROLE_SYSTEM_SETTING?: boolean;
-  /**
-   * [WIP] Allow toggling the split election definition system setting.
-   */
-  SPLIT_ELECTION_DEFINITION_SYSTEM_SETTING?: boolean;
+  UNDOCUMENTED_SYSTEM_SETTINGS?: boolean;
 }
 
 export type UserFeature = keyof UserFeaturesConfig;
 
-const vxUserFeaturesConfig: UserFeaturesConfig = {
-  EXPORT_SCREEN: true,
-  CHOOSE_BALLOT_TEMPLATE: true,
-  EXPORT_TEST_DECKS: true,
-
-  SYSTEM_SETTINGS_SCREEN: true,
-  BMD_EXTRA_PRINT_MODES_SYSTEM_SETTING: true,
-  BMD_OVERVOTE_SYSTEM_SETTING: true,
-  QUICK_RESULTS_REPORTING_SYSTEM_SETTING: true,
-  SPLIT_ELECTION_DEFINITION_SYSTEM_SETTING: true,
-  SYSTEM_LIMIT_CHECKS_SYSTEM_SETTING: true,
-  TEST_DECK_PRINTING_SYSTEM_SETTING: true,
-  TRANSLITERATE_CANDIDATE_NAMES_SYSTEM_SETTING: true,
-  VOTER_HELP_BUTTONS_SYSTEM_SETTING: true,
-  VXCENTRALSCAN_POLL_WORKER_ROLE_SYSTEM_SETTING: true,
-  VXMARK_PRINT_BLANK_BALLOTS_SYSTEM_SETTING: true,
-  VXMARK_QR_BALLOT_ACTIVATION_SYSTEM_SETTING: true,
-  VXSCAN_ALARMS_SYSTEM_SETTING: true,
-  VXSCAN_NUMBER_OF_REPORT_COPIES_SYSTEM_SETTING: true,
-  VXSCAN_SCREEN_READER_AUDIO_SYSTEM_SETTING: true,
-  VXSCAN_WRITE_IN_IMAGE_REPORT_SYSTEM_SETTING: true,
-};
-
 export const userFeatureConfigs = {
-  vx: vxUserFeaturesConfig,
+  vx: {
+    EXPORT_SCREEN: true,
+    CHOOSE_BALLOT_TEMPLATE: true,
+    EXPORT_TEST_DECKS: true,
 
+    SYSTEM_SETTINGS_SCREEN: true,
+    UNDOCUMENTED_SYSTEM_SETTINGS: true,
+  },
   sli: {
     EXPORT_SCREEN: true,
     SYSTEM_SETTINGS_SCREEN: true,
   },
+  customers: {},
 } satisfies Record<string, UserFeaturesConfig>;
 
 export function getUserFeaturesConfig(user: User): UserFeaturesConfig {
@@ -155,5 +69,5 @@ export function getUserFeaturesConfig(user: User): UserFeaturesConfig {
   if (userBelongsToOrganization(user, sliOrganizationId())) {
     return userFeatureConfigs.sli;
   }
-  return {};
+  return userFeatureConfigs.customers;
 }

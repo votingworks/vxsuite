@@ -523,11 +523,20 @@ test('setting "other" system settings', async () => {
     'Disable Vertical Streak Detection',
     'Enable Shoeshine Mode on VxScan',
     'Include Redundant Metadata in CVRs',
-    'Transliterate Candidate Names',
   ];
 
   for (const label of checkboxLabels) {
     await expectUncheckedThenCheck(otherContainer, label);
+  }
+
+  const otherUndocumentedContainer = assertDefined(
+    screen.getByRole('heading', { name: 'Other Undocumented' }).parentElement
+  );
+  for (const label of [
+    'Transliterate Candidate Names',
+    'Disable System Limit Checks on Election Package Import',
+  ]) {
+    await expectUncheckedThenCheck(otherUndocumentedContainer, label);
   }
 
   const updatedSystemSettings: SystemSettings = {
@@ -537,6 +546,7 @@ test('setting "other" system settings', async () => {
     castVoteRecordsIncludeRedundantMetadata: true,
     disableVerticalStreakDetection: true,
     shouldTransliterateCandidateNames: true,
+    disableSystemLimitChecks: true,
   };
   apiMock.updateSystemSettings
     .expectCallWith({ electionId, systemSettings: updatedSystemSettings })
@@ -627,20 +637,41 @@ test('number of report copies can be cleared to remove the setting', async () =>
   expect(input).toHaveValue(null);
 });
 
-test('number of report copies setting is hidden without the feature flag', async () => {
+test('unchecking a required boolean setting saves false', async () => {
+  const systemSettings: SystemSettings = {
+    ...electionRecord.systemSettings,
+    disallowCastingOvervotes: true,
+  };
   apiMock.getSystemSettings
     .expectCallWith({ electionId })
-    .resolves(electionRecord.systemSettings);
-  mockUserFeatures(apiMock, {
-    VXSCAN_NUMBER_OF_REPORT_COPIES_SYSTEM_SETTING: false,
-  });
+    .resolves(systemSettings);
   renderScreen();
   await screen.findByRole('heading', { name: 'System Settings' });
-  await screen.findByRole('button', { name: 'Edit' });
+  await userEvent.click(await screen.findByRole('button', { name: 'Edit' }));
 
+  await userEvent.click(
+    screen.getByRole('checkbox', {
+      name: 'Disallow Casting Overvotes',
+      checked: true,
+    })
+  );
+
+  const updatedSystemSettings: SystemSettings = {
+    ...systemSettings,
+    disallowCastingOvervotes: false,
+  };
+  apiMock.updateSystemSettings
+    .expectCallWith({ electionId, systemSettings: updatedSystemSettings })
+    .resolves();
+  apiMock.getSystemSettings
+    .expectCallWith({ electionId })
+    .resolves(updatedSystemSettings);
+  await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+  await screen.findByRole('button', { name: 'Edit' });
   expect(
-    screen.queryByText('Number of Report Copies on VxScan')
-  ).not.toBeInTheDocument();
+    screen.getByRole('checkbox', { name: 'Disallow Casting Overvotes' })
+  ).not.toBeChecked();
 });
 
 test('cancelling', async () => {
@@ -711,11 +742,9 @@ test('all controls are disabled until clicking "Edit"', async () => {
   }
 });
 
-describe('Transliterate candidate names', () => {
+describe('other undocumented settings panel', () => {
   test('omitted when feature flag is off', async () => {
-    mockUserFeatures(apiMock, {
-      TRANSLITERATE_CANDIDATE_NAMES_SYSTEM_SETTING: false,
-    });
+    mockUserFeatures(apiMock, { UNDOCUMENTED_SYSTEM_SETTINGS: false });
 
     apiMock.getSystemSettings
       .expectCallWith({ electionId })
@@ -726,29 +755,18 @@ describe('Transliterate candidate names', () => {
     await screen.findByRole('heading', { name: 'System Settings' });
     await screen.findByRole('button', { name: 'Edit' });
     expect(
-      screen.queryByText('Transliterate Candidate Names')
+      screen.queryByRole('heading', { name: 'Other Undocumented' })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(
+        'Disable System Limit Checks on Election Package Import'
+      )
     ).not.toBeInTheDocument();
   });
 });
 
 describe('BMD print mode', () => {
-  test('omitted when feature flag is off', async () => {
-    mockUserFeatures(apiMock, { BMD_EXTRA_PRINT_MODES_SYSTEM_SETTING: false });
-
-    apiMock.getSystemSettings
-      .expectCallWith({ electionId })
-      .resolves(electionRecord.systemSettings);
-
-    renderScreen();
-
-    await screen.findByRole('heading', { name: 'System Settings' });
-    await screen.findByRole('button', { name: 'Edit' });
-    expect(screen.queryByText('VxMark Print Mode')).not.toBeInTheDocument();
-  });
-
-  test('included when feature flag is on', async () => {
-    mockUserFeatures(apiMock, { BMD_EXTRA_PRINT_MODES_SYSTEM_SETTING: true });
-
+  test('editing', async () => {
     const mockSettingsInitial: SystemSettings = {
       ...electionRecord.systemSettings,
       bmdPrintMode: 'marks_on_preprinted_ballot',
@@ -788,8 +806,6 @@ describe('BMD print mode', () => {
   });
 
   test('omits default value from saved settings', async () => {
-    mockUserFeatures(apiMock, { BMD_EXTRA_PRINT_MODES_SYSTEM_SETTING: true });
-
     const mockSettingsInitial: SystemSettings = {
       ...electionRecord.systemSettings,
       bmdPrintMode: 'bubble_ballot',
@@ -842,17 +858,12 @@ test.each<{
   expectedSavedSystemSettings?: Partial<SystemSettings>;
 }>([
   {
-    userFeatures: { BMD_OVERVOTE_SYSTEM_SETTING: false },
-    checkboxLabel: 'Allow Overvote Marking on VxMark',
-    isCheckboxExpected: false,
-  },
-  {
-    userFeatures: { QUICK_RESULTS_REPORTING_SYSTEM_SETTING: false },
+    userFeatures: { UNDOCUMENTED_SYSTEM_SETTINGS: false },
     checkboxLabel: 'Enable Live Reporting',
     isCheckboxExpected: false,
   },
   {
-    userFeatures: { QUICK_RESULTS_REPORTING_SYSTEM_SETTING: true },
+    userFeatures: { UNDOCUMENTED_SYSTEM_SETTINGS: true },
     checkboxLabel: 'Enable Live Reporting',
     isCheckboxExpected: true,
     expectedSavedSystemSettings: {
@@ -860,23 +871,18 @@ test.each<{
     },
   },
   {
-    userFeatures: { VXSCAN_ALARMS_SYSTEM_SETTING: false },
+    userFeatures: { UNDOCUMENTED_SYSTEM_SETTINGS: false },
     checkboxLabel: 'Disable Alarms on VxScan',
     isCheckboxExpected: false,
   },
   {
-    userFeatures: { VXSCAN_ALARMS_SYSTEM_SETTING: true },
+    userFeatures: { UNDOCUMENTED_SYSTEM_SETTINGS: true },
     checkboxLabel: 'Disable Alarms on VxScan',
     isCheckboxExpected: true,
     expectedSavedSystemSettings: { precinctScanDisableAlarms: true },
   },
   {
-    userFeatures: { VXSCAN_WRITE_IN_IMAGE_REPORT_SYSTEM_SETTING: false },
-    checkboxLabel: 'Enable Write-In Image Report on VxScan',
-    isCheckboxExpected: false,
-  },
-  {
-    userFeatures: { VXSCAN_WRITE_IN_IMAGE_REPORT_SYSTEM_SETTING: true },
+    userFeatures: {},
     checkboxLabel: 'Enable Write-In Image Report on VxScan',
     isCheckboxExpected: true,
     expectedSavedSystemSettings: {
@@ -884,12 +890,12 @@ test.each<{
     },
   },
   {
-    userFeatures: { VXSCAN_SCREEN_READER_AUDIO_SYSTEM_SETTING: false },
+    userFeatures: { UNDOCUMENTED_SYSTEM_SETTINGS: false },
     checkboxLabel: 'Disable Screen Reader Audio on VxScan',
     isCheckboxExpected: false,
   },
   {
-    userFeatures: { VXSCAN_SCREEN_READER_AUDIO_SYSTEM_SETTING: true },
+    userFeatures: { UNDOCUMENTED_SYSTEM_SETTINGS: true },
     checkboxLabel: 'Disable Screen Reader Audio on VxScan',
     isCheckboxExpected: true,
     expectedSavedSystemSettings: {
@@ -897,86 +903,63 @@ test.each<{
     },
   },
   {
-    userFeatures: { SYSTEM_LIMIT_CHECKS_SYSTEM_SETTING: false },
+    userFeatures: { UNDOCUMENTED_SYSTEM_SETTINGS: false },
     checkboxLabel: 'Disable System Limit Checks on Election Package Import',
     isCheckboxExpected: false,
   },
   {
-    userFeatures: { SYSTEM_LIMIT_CHECKS_SYSTEM_SETTING: true },
+    userFeatures: { UNDOCUMENTED_SYSTEM_SETTINGS: true },
     checkboxLabel: 'Disable System Limit Checks on Election Package Import',
     isCheckboxExpected: true,
     expectedSavedSystemSettings: { disableSystemLimitChecks: true },
   },
   {
-    userFeatures: { VOTER_HELP_BUTTONS_SYSTEM_SETTING: false },
+    userFeatures: { UNDOCUMENTED_SYSTEM_SETTINGS: false },
     checkboxLabel: 'Disable Voter Help Buttons',
     isCheckboxExpected: false,
   },
   {
-    userFeatures: { VOTER_HELP_BUTTONS_SYSTEM_SETTING: true },
+    userFeatures: { UNDOCUMENTED_SYSTEM_SETTINGS: true },
     checkboxLabel: 'Disable Voter Help Buttons',
     isCheckboxExpected: true,
     expectedSavedSystemSettings: { disableVoterHelpButtons: true },
   },
   {
-    userFeatures: { TEST_DECK_PRINTING_SYSTEM_SETTING: false },
+    userFeatures: { UNDOCUMENTED_SYSTEM_SETTINGS: false },
     checkboxLabel: 'Enable Test Deck Printing',
     isCheckboxExpected: false,
   },
   {
-    userFeatures: { TEST_DECK_PRINTING_SYSTEM_SETTING: true },
+    userFeatures: { UNDOCUMENTED_SYSTEM_SETTINGS: true },
     checkboxLabel: 'Enable Test Deck Printing',
     isCheckboxExpected: true,
     expectedSavedSystemSettings: { enableTestDeckPrinting: true },
   },
   {
-    userFeatures: { SPLIT_ELECTION_DEFINITION_SYSTEM_SETTING: false },
+    userFeatures: { UNDOCUMENTED_SYSTEM_SETTINGS: false },
     checkboxLabel: 'Split Election Definition',
     isCheckboxExpected: false,
   },
   {
-    userFeatures: { SPLIT_ELECTION_DEFINITION_SYSTEM_SETTING: true },
+    userFeatures: { UNDOCUMENTED_SYSTEM_SETTINGS: true },
     checkboxLabel: 'Split Election Definition',
     isCheckboxExpected: true,
     expectedSavedSystemSettings: { splitElectionDefinition: true },
   },
   {
-    userFeatures: { VXCENTRALSCAN_POLL_WORKER_ROLE_SYSTEM_SETTING: false },
-    checkboxLabel: 'Enable Poll Worker Role on VxCentralScan',
-    isCheckboxExpected: false,
-  },
-  {
-    userFeatures: { VXCENTRALSCAN_POLL_WORKER_ROLE_SYSTEM_SETTING: true },
+    userFeatures: {},
     checkboxLabel: 'Enable Poll Worker Role on VxCentralScan',
     isCheckboxExpected: true,
     expectedSavedSystemSettings: { centralScanEnablePollWorkerRole: true },
   },
   {
-    userFeatures: {
-      VXMARK_PRINT_BLANK_BALLOTS_SYSTEM_SETTING: false,
-    },
-    checkboxLabel: 'Enable Printing Blank Ballots from VxMark',
-    isCheckboxExpected: false,
-  },
-  {
-    userFeatures: {
-      VXMARK_PRINT_BLANK_BALLOTS_SYSTEM_SETTING: true,
-    },
+    userFeatures: {},
     checkboxLabel: 'Enable Printing Blank Ballots from VxMark',
     isCheckboxExpected: true,
     expectedSavedSystemSettings: { allowPrintingBlankBallotsFromVxMark: true },
   },
   {
-    userFeatures: {
-      VXMARK_QR_BALLOT_ACTIVATION_SYSTEM_SETTING: false,
-    },
-    checkboxLabel: 'Enable QR Ballot Activation on VxMark',
-    isCheckboxExpected: false,
-  },
-  {
-    userFeatures: {
-      VXMARK_QR_BALLOT_ACTIVATION_SYSTEM_SETTING: true,
-    },
+    userFeatures: {},
     checkboxLabel: 'Enable QR Ballot Activation on VxMark',
     isCheckboxExpected: true,
     expectedSavedSystemSettings: { bmdEnableQrBallotActivation: true },

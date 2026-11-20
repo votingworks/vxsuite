@@ -169,7 +169,6 @@ exports[`Default system settings for SLI - If a change is intentional, update sn
   "bmdPrintMode": "bubble_ballot",
   "centralScanAdjudicationReasons": [],
   "disallowCastingOvervotes": false,
-  "enableEarlyVoting": true,
   "markThresholds": {
     "definite": 0.07,
     "marginal": 0.05,
