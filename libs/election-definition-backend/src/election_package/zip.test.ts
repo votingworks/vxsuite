@@ -1,7 +1,9 @@
 import { makeTemporaryFile } from '@votingworks/fixtures';
+import { assertDefined, range } from '@votingworks/basics';
 import { expect, test } from 'vitest';
 import { Buffer } from 'node:buffer';
 import { buffer } from 'node:stream/consumers';
+import { getEntries, openZip, readTextEntry } from '@votingworks/utils';
 import { Archiver } from './zip.js';
 
 // Success cases tested via app/worker test paths.
@@ -15,6 +17,28 @@ test('reports file read warnings as errors', async () => {
   zip.addEntryFromPath(missingFilePath, { name: 'missing.txt' });
 
   await expect(() => buffer(zip.finalize())).rejects.toThrow('ENOENT');
+});
+
+test('entry order follows call order for in-memory and path entries', async () => {
+  const names = range(0, 20).map((i) => `entry-${i}.txt`);
+
+  const zip = new Archiver();
+  for (const [i, name] of names.entries()) {
+    if (i % 2 === 0) {
+      zip.addEntryFromPath(makeTemporaryFile({ content: name }), { name });
+    } else {
+      zip.addEntry(name, { name });
+    }
+  }
+
+  const entries = getEntries(await openZip(await buffer(zip.finalize())));
+  expect(entries.map((entry) => entry.name)).toEqual(names);
+  const inMemoryEntry = assertDefined(entries[1]);
+  for (const entry of entries) {
+    expect(await readTextEntry(entry)).toEqual(entry.name);
+    expect(entry.date).toEqual(inMemoryEntry.date);
+    expect(entry.unixPermissions).toEqual(inMemoryEntry.unixPermissions);
+  }
 });
 
 test('reports errors on double finalize', async () => {

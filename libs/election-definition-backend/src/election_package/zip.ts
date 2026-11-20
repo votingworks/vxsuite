@@ -2,6 +2,7 @@
 
 import * as zlib from 'node:zlib';
 import { Buffer } from 'node:buffer';
+import { statSync } from 'node:fs';
 import { PassThrough, type Readable, pipeline } from 'node:stream';
 import { ZipArchive, type ZipEntryData } from 'archiver';
 
@@ -74,7 +75,10 @@ export class Archiver {
   }
 
   addEntryFromPath(filePath: string, meta: ZipEntryMeta): void {
-    this.archiver.file(filePath, this.makeEntryData(meta));
+    this.archiver.file(filePath, {
+      ...this.makeEntryData(meta),
+      stats: statSync(filePath, { throwIfNoEntry: false }),
+    });
   }
 
   finalize(): Readable {

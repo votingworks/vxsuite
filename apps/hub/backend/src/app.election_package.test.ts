@@ -1361,6 +1361,70 @@ test('Election package generation is deterministic', async () => {
   expect(contents1.equals(contents2)).toEqual(true);
 });
 
+test('Election package and ballot zip generation is deterministic with split election definition', async () => {
+  const baseElectionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
+  const { apiClient, workspace, fileStorageClient, auth0 } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
+
+  auth0.setLoggedInUser(nonVxUser);
+  const electionId = (
+    await apiClient.loadElection({
+      newId: 'new-election-id',
+      jurisdictionId: nonVxJurisdiction.id,
+      upload: {
+        format: 'vxf',
+        electionFileContents: baseElectionDefinition.electionData,
+      },
+    })
+  ).unsafeUnwrap();
+
+  await apiClient.updateSystemSettings({
+    electionId,
+    systemSettings: {
+      ...DEFAULT_SYSTEM_SETTINGS,
+      splitElectionDefinition: true,
+    },
+  });
+
+  async function exportAllFiles() {
+    const exportMeta = await exportElectionPackage({
+      fileStorageClient,
+      apiClient,
+      electionId,
+      workspace,
+      electionSerializationFormat: 'vxf',
+      shouldExportAudio: false,
+      shouldExportSampleBallots: true,
+      shouldExportTestBallots: true,
+      numAuditIdBallots: undefined,
+    });
+    return [
+      exportMeta.electionPackageUrl,
+      exportMeta.officialBallotsUrl,
+      exportMeta.sampleBallotsUrl,
+      exportMeta.testBallotsUrl,
+    ].map((url) =>
+      getExportedFile({
+        storage: fileStorageClient,
+        jurisdictionId: nonVxJurisdiction.id,
+        url,
+      })
+    );
+  }
+
+  const files1 = await exportAllFiles();
+  const files2 = await exportAllFiles();
+
+  expect(files1).toHaveLength(4);
+  for (const [file1, file2] of iter(files1).zip(files2)) {
+    expect(file1.equals(file2)).toEqual(true);
+  }
+});
+
 test('v4.0 elections', async () => {
   const v4p0Jurisdiction: Jurisdiction = {
     ...nonVxJurisdiction,
