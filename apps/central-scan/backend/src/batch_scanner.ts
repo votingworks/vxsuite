@@ -1,5 +1,9 @@
 import type { Result } from '@votingworks/basics';
-import type { HmpbBallotPaperSize } from '@votingworks/types';
+import type {
+  EncodedImage,
+  HmpbBallotPaperSize,
+  SheetOf,
+} from '@votingworks/types';
 
 export interface BatchScanner {
   isAttached(): boolean;
@@ -30,8 +34,17 @@ export interface BatchScannerError {
   readonly message: string;
 }
 
-export interface ScannedSheetInfo {
+/** A sheet the scanner wrote to files. */
+export interface ScannedSheetFiles {
   frontPath: string;
   backPath: string;
   ballotAuditId?: string;
 }
+
+/** A sheet the scanner delivered in memory, front then back. */
+export interface ScannedSheetImages {
+  images: SheetOf<EncodedImage>;
+  ballotAuditId?: string;
+}
+
+export type ScannedSheetInfo = ScannedSheetFiles | ScannedSheetImages;

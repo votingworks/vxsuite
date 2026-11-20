@@ -6,8 +6,13 @@ import {
 } from '@votingworks/backend';
 import type { DiskSpaceSummary } from '@votingworks/utils';
 import { LogEventId } from '@votingworks/logging';
+import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { type DiagnosticRecord, TEST_JURISDICTION } from '@votingworks/types';
+import {
+  type DiagnosticRecord,
+  mapSheet,
+  TEST_JURISDICTION,
+} from '@votingworks/types';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { mockSystemAdministratorAuth } from '../test/helpers/auth.js';
 import { configureStore, withApp } from '../test/helpers/setup_app.js';
@@ -191,6 +196,30 @@ describe('scan diagnostic', () => {
           message: 'Diagnostic scan succeeded.',
         }
       );
+    });
+  });
+
+  test('pass with in-memory images', async () => {
+    await withApp(async ({ apiClient, scanner, auth }) => {
+      mockSystemAdministratorAuth(auth);
+      const [front, back] = await mapSheet(
+        ['blank-sheet-front.jpg', 'blank-sheet-back.jpg'],
+        (name) => readFile(join(import.meta.dirname, '../test/fixtures', name))
+      );
+
+      scanner
+        .withNextScannerSession()
+        .sheet({ images: [{ encoded: front }, { encoded: back }] })
+        .end();
+      await apiClient.performScanDiagnostic();
+
+      expect(
+        await apiClient.getMostRecentScannerDiagnostic()
+      ).toEqual<DiagnosticRecord>({
+        type: 'blank-sheet-scan',
+        outcome: 'pass',
+        timestamp: 0,
+      });
     });
   });
 

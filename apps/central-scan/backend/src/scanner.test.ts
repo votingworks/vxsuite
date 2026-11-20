@@ -1,3 +1,4 @@
+import { Buffer } from 'node:buffer';
 import { expect, type Mock, onTestFinished, test, vi } from 'vitest';
 import { assertDefined, deferred } from '@votingworks/basics';
 import {
@@ -14,6 +15,7 @@ import {
   AdjudicationReason,
   type AdjudicationReasonInfo,
   anyPollingPlace,
+  type EncodedImage,
 } from '@votingworks/types';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
@@ -446,6 +448,26 @@ test('error in interpreting', async () => {
   expect(machine.status()).toEqual({ state: 'idle' });
 });
 
+test('error decoding in-memory images', async () => {
+  const scanner = makeMockScanner();
+  const { machine, workspace } = await setup(scanner);
+  await configureElection(workspace);
+
+  const garbage: EncodedImage = { encoded: Buffer.from('not an image') };
+  scanner
+    .withNextScannerSession()
+    .sheet({ images: [garbage, garbage] })
+    .end();
+  await machine.startBatch();
+  await waitForStatus(machine, { state: 'error' });
+
+  const [batch] = workspace.store.getBatches();
+  expect(batch).toEqual(
+    expect.objectContaining({ count: 0, endedAt: undefined })
+  );
+  await machine.discardBatch();
+});
+
 test('error in saving', async () => {
   const scanner = makeMockScanner();
   const { machine, workspace, logger } = await setup(scanner);
@@ -478,7 +500,7 @@ test('error in saving', async () => {
   expect(workspace.store.getBatches()).toEqual([]);
 });
 
-test('cleanLogData keeps only adjudication reason types and hides large values', () => {
+test('cleanLogData keeps only adjudication reason types and hides large values and images', () => {
   const overvote: AdjudicationReasonInfo = {
     type: AdjudicationReason.Overvote,
     contestId: 'contest-1',
@@ -495,6 +517,7 @@ test('cleanLogData keeps only adjudication reason types and hides large values',
         },
         error: new Error('paper jam'),
         scannedSheet: undefined,
+        sheet: { images: [{ encoded: Buffer.from('ballot') }] },
       },
       cleanLogData
     )
@@ -504,6 +527,7 @@ test('cleanLogData keeps only adjudication reason types and hides large values',
     batchContext: { control: '[hidden]', rawImageDirectory: '/tmp' },
     error: { message: 'paper jam', stack: expect.any(String) },
     scannedSheet: 'undefined',
+    sheet: { images: '[hidden]' },
   });
 });
 
