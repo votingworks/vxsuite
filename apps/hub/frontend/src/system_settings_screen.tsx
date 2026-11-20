@@ -739,80 +739,69 @@ export function SystemSettingsForm({
               label="Enable Shoeshine Mode on VxScan"
               setting="precinctScanEnableShoeshineMode"
             />
-            {features.VXSCAN_WRITE_IN_IMAGE_REPORT_SYSTEM_SETTING && (
-              <SystemSettingsCheckbox
-                {...checkboxProps}
-                label="Enable Write-In Image Report on VxScan"
-                setting="precinctScanEnableWriteInImageReport"
-                omitWhenUnchecked
+            <SystemSettingsCheckbox
+              {...checkboxProps}
+              label="Enable Write-In Image Report on VxScan"
+              setting="precinctScanEnableWriteInImageReport"
+              omitWhenUnchecked
+            />
+            <InputGroup label="Number of Report Copies on VxScan">
+              <input
+                type="number"
+                // Empty when unset so the field can be cleared and retyped
+                value={systemSettings.precinctScanNumberOfReportCopies ?? ''}
+                onChange={(e) => {
+                  const value = e.target.valueAsNumber;
+                  setSystemSettings({
+                    ...systemSettings,
+                    precinctScanNumberOfReportCopies: Number.isNaN(value)
+                      ? undefined
+                      : value,
+                  });
+                }}
+                min={1}
+                step={1}
+                disabled={!isEditing}
               />
-            )}
-            {features.VXSCAN_NUMBER_OF_REPORT_COPIES_SYSTEM_SETTING && (
-              <InputGroup label="Number of Report Copies on VxScan">
-                <input
-                  type="number"
-                  // Empty when unset so the field can be cleared and retyped
-                  value={systemSettings.precinctScanNumberOfReportCopies ?? ''}
-                  onChange={(e) => {
-                    const value = e.target.valueAsNumber;
-                    setSystemSettings({
-                      ...systemSettings,
-                      precinctScanNumberOfReportCopies: Number.isNaN(value)
-                        ? undefined
-                        : value,
-                    });
-                  }}
-                  min={1}
-                  step={1}
-                  disabled={!isEditing}
-                />
-              </InputGroup>
-            )}
-            {features.BMD_EXTRA_PRINT_MODES_SYSTEM_SETTING && (
-              <InputGroup label="VxMark Print Mode">
-                <SearchSelect<BmdPrintMode>
-                  aria-label="VxMark Print Mode"
-                  disabled={!isEditing}
-                  isMulti={false}
-                  isSearchable={false}
-                  onChange={(newValue) => {
-                    setSystemSettings({
-                      ...systemSettings,
-                      // Feature still in development - omit when set to the
-                      // default:
-                      bmdPrintMode:
-                        newValue === 'summary' ? undefined : newValue,
-                    });
-                  }}
-                  options={[
-                    { label: 'Full Ballot Prints', value: 'bubble_ballot' },
-                    {
-                      label: 'Marks on Preprinted Ballots',
-                      value: 'marks_on_preprinted_ballot',
-                    },
-                    { label: 'QR Code Summary Ballots', value: 'summary' },
-                  ]}
-                  style={{ width: '100%' }}
-                  value={systemSettings.bmdPrintMode || 'summary'}
-                />
-              </InputGroup>
-            )}
-            {features.VXMARK_PRINT_BLANK_BALLOTS_SYSTEM_SETTING && (
-              <SystemSettingsCheckbox
-                {...checkboxProps}
-                label="Enable Printing Blank Ballots from VxMark"
-                setting="allowPrintingBlankBallotsFromVxMark"
-                omitWhenUnchecked
+            </InputGroup>
+            <InputGroup label="VxMark Print Mode">
+              <SearchSelect<BmdPrintMode>
+                aria-label="VxMark Print Mode"
+                disabled={!isEditing}
+                isMulti={false}
+                isSearchable={false}
+                onChange={(newValue) => {
+                  setSystemSettings({
+                    ...systemSettings,
+                    // Feature still in development - omit when set to the
+                    // default:
+                    bmdPrintMode: newValue === 'summary' ? undefined : newValue,
+                  });
+                }}
+                options={[
+                  { label: 'Full Ballot Prints', value: 'bubble_ballot' },
+                  {
+                    label: 'Marks on Preprinted Ballots',
+                    value: 'marks_on_preprinted_ballot',
+                  },
+                  { label: 'QR Code Summary Ballots', value: 'summary' },
+                ]}
+                style={{ width: '100%' }}
+                value={systemSettings.bmdPrintMode || 'summary'}
               />
-            )}
-            {features.VXMARK_QR_BALLOT_ACTIVATION_SYSTEM_SETTING && (
-              <SystemSettingsCheckbox
-                {...checkboxProps}
-                label="Enable QR Ballot Activation on VxMark"
-                setting="bmdEnableQrBallotActivation"
-                omitWhenUnchecked
-              />
-            )}
+            </InputGroup>
+            <SystemSettingsCheckbox
+              {...checkboxProps}
+              label="Enable Printing Blank Ballots from VxMark"
+              setting="allowPrintingBlankBallotsFromVxMark"
+              omitWhenUnchecked
+            />
+            <SystemSettingsCheckbox
+              {...checkboxProps}
+              label="Enable QR Ballot Activation on VxMark"
+              setting="bmdEnableQrBallotActivation"
+              omitWhenUnchecked
+            />
             <SystemSettingsCheckbox
               {...checkboxProps}
               label="Include Redundant Metadata in CVRs"
@@ -830,43 +819,35 @@ export function SystemSettingsForm({
               setting="enableEarlyVoting"
               omitWhenUnchecked
             />
-            {features.VXCENTRALSCAN_POLL_WORKER_ROLE_SYSTEM_SETTING && (
-              <SystemSettingsCheckbox
-                {...checkboxProps}
-                label="Enable Poll Worker Role on VxCentralScan"
-                setting="centralScanEnablePollWorkerRole"
-                omitWhenUnchecked
-              />
-            )}
+            <SystemSettingsCheckbox
+              {...checkboxProps}
+              label="Enable Poll Worker Role on VxCentralScan"
+              setting="centralScanEnablePollWorkerRole"
+              omitWhenUnchecked
+            />
           </Column>
         </Card>
-        <Card>
-          <H2>Other Undocumented</H2>
-          <Column style={{ gap: '1.5rem' }}>
-            {features.VXSCAN_ALARMS_SYSTEM_SETTING && (
+        {features.UNDOCUMENTED_SYSTEM_SETTINGS && (
+          <Card>
+            <H2>Other Undocumented</H2>
+            <Column style={{ gap: '1.5rem' }}>
               <SystemSettingsCheckbox
                 {...checkboxProps}
                 label="Disable Alarms on VxScan"
                 setting="precinctScanDisableAlarms"
                 omitWhenUnchecked
               />
-            )}
-            {features.VXSCAN_SCREEN_READER_AUDIO_SYSTEM_SETTING && (
               <SystemSettingsCheckbox
                 {...checkboxProps}
                 label="Disable Screen Reader Audio on VxScan"
                 setting="precinctScanDisableScreenReaderAudio"
                 omitWhenUnchecked
               />
-            )}
-            {features.TRANSLITERATE_CANDIDATE_NAMES_SYSTEM_SETTING && (
               <SystemSettingsCheckbox
                 {...checkboxProps}
                 label="Transliterate Candidate Names"
                 setting="shouldTransliterateCandidateNames"
               />
-            )}
-            {features.QUICK_RESULTS_REPORTING_SYSTEM_SETTING && (
               <CheckboxButton
                 label="Enable Live Reporting"
                 isChecked={Boolean(systemSettings.quickResultsReportingUrl)}
@@ -880,41 +861,33 @@ export function SystemSettingsForm({
                 }
                 disabled={!isEditing}
               />
-            )}
-            {features.SYSTEM_LIMIT_CHECKS_SYSTEM_SETTING && (
               <SystemSettingsCheckbox
                 {...checkboxProps}
                 label="Disable System Limit Checks on Election Package Import"
                 setting="disableSystemLimitChecks"
                 omitWhenUnchecked
               />
-            )}
-            {features.VOTER_HELP_BUTTONS_SYSTEM_SETTING && (
               <SystemSettingsCheckbox
                 {...checkboxProps}
                 label="Disable Voter Help Buttons"
                 setting="disableVoterHelpButtons"
                 omitWhenUnchecked
               />
-            )}
-            {features.TEST_DECK_PRINTING_SYSTEM_SETTING && (
               <SystemSettingsCheckbox
                 {...checkboxProps}
                 label="Enable Test Deck Printing"
                 setting="enableTestDeckPrinting"
                 omitWhenUnchecked
               />
-            )}
-            {features.SPLIT_ELECTION_DEFINITION_SYSTEM_SETTING && (
               <SystemSettingsCheckbox
                 {...checkboxProps}
                 label="Split Election Definition"
                 setting="splitElectionDefinition"
                 omitWhenUnchecked
               />
-            )}
-          </Column>
-        </Card>
+            </Column>
+          </Card>
+        )}
       </Row>
       {isEditing ? (
         <FormActionsRow>
