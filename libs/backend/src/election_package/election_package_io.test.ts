@@ -7,6 +7,7 @@ import {
   type ElectionDefinitionWithData,
   ElectionPackageFileName,
   type ElectionPackageMetadata,
+  type ElectionRegisteredVoterCounts,
   type ElectionRegisteredVoterCountTotals,
   type EncodedBallotEntry,
   type InsertedSmartCardAuth,
@@ -478,6 +479,69 @@ test('readElectionPackageFromBuffer parses registered voter counts', async () =>
     },
     electionPackageHash: createHash('sha256').update(pkg).digest('hex'),
   });
+});
+
+test('readElectionPackageFromBuffer parses registered voter counts broken out by party', async () => {
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const [precinct1, precinct2] = electionDefinition.election.precincts;
+  const [party1, party2] = electionDefinition.election.parties;
+  const registeredVoterCounts: ElectionRegisteredVoterCounts = {
+    [precinct1!.id]: {
+      total: 35,
+      byParty: { [party1!.id]: 10, [party2!.id]: 20 },
+      nonpartisan: 5,
+    },
+    [precinct2!.id]: {
+      splits: {
+        'split-1': {
+          total: 30,
+          byParty: { [party1!.id]: 10, [party2!.id]: 20 },
+        },
+        'split-2': { total: 40 },
+        'split-3': { total: 50 },
+      },
+    },
+  };
+
+  const pkg = await electionPackageZip({
+    [ElectionPackageFileName.ELECTION]: electionDefinition.electionData,
+    [ElectionPackageFileName.REGISTERED_VOTER_COUNTS]: JSON.stringify(
+      registeredVoterCounts
+    ),
+  });
+
+  expect(
+    (await readElectionPackageFromBuffer(pkg)).unsafeUnwrap().electionPackage
+      .registeredVoterCounts
+  ).toEqual(registeredVoterCounts);
+});
+
+test('readElectionPackageFromBuffer rejects party counts that do not sum to the total', async () => {
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const [precinct1] = electionDefinition.election.precincts;
+  const [party1, party2] = electionDefinition.election.parties;
+
+  const pkg = await electionPackageZip({
+    [ElectionPackageFileName.ELECTION]: electionDefinition.electionData,
+    [ElectionPackageFileName.REGISTERED_VOTER_COUNTS]: JSON.stringify({
+      [precinct1!.id]: {
+        total: 40,
+        byParty: { [party1!.id]: 10, [party2!.id]: 20 },
+        nonpartisan: 5,
+      },
+    }),
+  });
+
+  expect(await readElectionPackageFromBuffer(pkg)).toEqual(
+    err({
+      type: 'invalid-zip',
+      message: expect.stringContaining(
+        'Party and nonpartisan counts must sum to the total'
+      ),
+    })
+  );
 });
 
 test('readElectionPackageFromBuffer errors when given an invalid zip', async () => {
