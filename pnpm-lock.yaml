@@ -1192,6 +1192,8 @@ importers:
         specifier: 5.0.2
         version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.19.2)(@vitest/coverage-istanbul@5.0.2)(jsdom@30.1.3(@noble/hashes@1.8.0)(canvas@3.2.3))(vite@8.1.6(@types/node@24.19.2)(esbuild@0.28.1)(yaml@2.8.2))
 
+  apps/mark-scan/accessible-controller: {}
+
   apps/mark-scan/backend:
     dependencies:
       '@votingworks/auth':
@@ -1233,6 +1235,15 @@ importers:
       '@votingworks/logging':
         specifier: workspace:*
         version: link:../../../libs/logging
+      '@votingworks/mark-scan-accessible-controller':
+        specifier: workspace:*
+        version: link:../accessible-controller
+      '@votingworks/mark-scan-fai-100-controller':
+        specifier: workspace:*
+        version: link:../fai-100-controller
+      '@votingworks/mark-scan-pat-device-input':
+        specifier: workspace:*
+        version: link:../pat-device-input
       '@votingworks/printing':
         specifier: workspace:*
         version: link:../../../libs/printing
@@ -1327,6 +1338,8 @@ importers:
       vitest:
         specifier: 5.0.2
         version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.19.2)(@vitest/coverage-istanbul@5.0.2)(jsdom@30.1.3(@noble/hashes@1.8.0)(canvas@3.2.3))(vite@8.1.6(@types/node@24.19.2)(esbuild@0.28.1)(yaml@2.8.2))
+
+  apps/mark-scan/fai-100-controller: {}
 
   apps/mark-scan/frontend:
     dependencies:
@@ -1509,6 +1522,8 @@ importers:
       sort-package-json:
         specifier: ^1.50.0
         version: 1.53.1
+
+  apps/mark-scan/pat-device-input: {}
 
   apps/mark/backend:
     dependencies:
@@ -1881,6 +1896,9 @@ importers:
       '@votingworks/networking':
         specifier: workspace:*
         version: link:../../../libs/networking
+      '@votingworks/pollbook-barcode-scanner-daemon':
+        specifier: workspace:*
+        version: link:../barcode-scanner-daemon
       '@votingworks/printing':
         specifier: workspace:*
         version: link:../../../libs/printing
@@ -1987,6 +2005,8 @@ importers:
       yargs:
         specifier: 17.7.1
         version: 17.7.1
+
+  apps/pollbook/barcode-scanner-daemon: {}
 
   apps/pollbook/frontend:
     dependencies:

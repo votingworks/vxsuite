@@ -26,7 +26,7 @@ To run:
 
 ```
 // From apps/mark-scan/accessible-controller
-sudo ./target/release/controllerd --mark-scan-workspace <path>
+sudo ./build/controllerd --mark-scan-workspace <path>
 ```
 
 To test:

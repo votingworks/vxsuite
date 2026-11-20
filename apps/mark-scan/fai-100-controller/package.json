@@ -1,0 +1,18 @@
+{
+  "name": "@votingworks/mark-scan-fai-100-controller",
+  "version": "0.1.0",
+  "private": true,
+  "license": "GPL-3.0-only",
+  "files": [
+    "build",
+    "Makefile"
+  ],
+  "scripts": {
+    "build": "pnpm -w vx-task build $npm_package_name",
+    "build:self": "rm -rf build && pnpm -w vx-cargo-build --target-dir target",
+    "clean": "pnpm -w vx-task clean $npm_package_name",
+    "clean:self": "rm -rf build target",
+    "install:rust-addon": "cargo fetch --locked"
+  },
+  "packageManager": "pnpm@12.16.1"
+}

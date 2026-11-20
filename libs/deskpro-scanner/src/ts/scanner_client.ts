@@ -36,11 +36,8 @@ import { PACKAGE_ROOT } from './package_root.js';
 
 const debug = makeDebug('deskpro-scanner');
 
-/** Where `build:self` puts `deskproctl`; turbo hides `CARGO_TARGET_DIR`, so this never follows it. */
-export const DEFAULT_DAEMON_PATH = join(
-  PACKAGE_ROOT,
-  'target/release/deskproctl'
-);
+/** Where `build:rust-addon` copies `deskproctl`. */
+export const DEFAULT_DAEMON_PATH = join(PACKAGE_ROOT, 'build/deskproctl');
 
 /** A byte pipe to a `deskproctl` process or to {@link createMockDaemon}. */
 export interface Transport {

@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+
+# Builds a package's Rust binaries in release mode and copies them into the
+# package's build/ directory, where they run from and where turbo caches them.
+# cargo's target/ only holds build intermediates.
+#
+# Usage, from a package's build:self script:
+#   pnpm -w vx-cargo-build [cargo build args, e.g. --manifest-path rust/Cargo.toml]
+#
+# The trusted build sets CARGO_NET_OFFLINE=true, so there cargo uses only the
+# crates fetched beforehand by install:rust-addon.
+
+set -euo pipefail
+
+# `pnpm -w` runs this from the workspace root; INIT_CWD is the package.
+cd "${INIT_CWD:?vx-cargo-build: run via pnpm -w from a package}"
+
+# With --message-format=json, cargo lists each executable it built, so this
+# copies exactly the package's binaries without naming them again here.
+messages="$(cargo build --release --message-format=json-render-diagnostics "$@")"
+mapfile -t executables < <(
+  sed -n 's/.*"executable":"\([^"]*\)".*/\1/p' <<<"${messages}"
+)
+
+if [[ ${#executables[@]} -eq 0 ]]; then
+  echo "vx-cargo-build: cargo built no executables in ${PWD}" >&2
+  exit 1
+fi
+
+mkdir -p build
+for executable in "${executables[@]}"; do
+  # Replace rather than overwrite: writing over a binary that's running fails
+  # with "Text file busy".
+  rm -f "build/${executable##*/}"
+  cp "${executable}" build/
+done

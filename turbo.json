@@ -1,12 +1,14 @@
 {
   "$schema": "https://v2-11-2.turborepo.dev/schema.json",
   "globalDependencies": [
+    ".cargo/config.toml",
     ".env",
     ".env.production",
     ".node-version",
     ".nvmrc",
     "package.json",
     "rust-toolchain.toml",
+    "script/vx-cargo-build",
     "tsconfig.shared.json",
     "types/**",
     "vitest.config.shared.mts",
@@ -18,6 +20,9 @@
   // visible in the file inputs, so a cache shared across toolchains would
   // otherwise replay artifacts built by a different compiler.
   "globalEnv": ["VX_TOOLCHAIN_ID"],
+  // turbo hides other environment variables from tasks. The trusted build sets
+  // this so every cargo build uses only crates fetched beforehand.
+  "globalPassThroughEnv": ["CARGO_NET_OFFLINE"],
   "tasks": {
     "build:self": {
       "dependsOn": ["^build:self"],
