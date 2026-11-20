@@ -10,7 +10,6 @@ export interface Package {
   readonly name: string;
   readonly path: string;
   readonly type: PackageType;
-  readonly isBundled: boolean;
   readonly deps: readonly Package[];
   readonly devDeps: readonly Package[];
 }
@@ -27,12 +26,10 @@ export function getDependencyGraph(path: string, type: PackageType): Package {
     const name = pkg?.name ?? relativePath(path, { from: WORKSPACE_ROOT });
     const deps: Package[] = [];
     const devDeps: Package[] = [];
-    const isBundled = pkg?.vx?.isBundled ?? false;
     const graph: Package = {
       name,
       path,
       type,
-      isBundled,
       deps,
       devDeps,
     };
@@ -83,29 +80,6 @@ export function getPackages(root: Package): Set<Package> {
 
     for (const dep of node.devDeps) {
       visit(dep);
-    }
-  }
-
-  visit(root);
-
-  return packages;
-}
-
-export function getProductionPackages(root: Package): Set<Package> {
-  const visited = new Set<Package>();
-  const packages = new Set<Package>();
-
-  function visit(node: Package) {
-    if (visited.has(node)) {
-      return;
-    }
-    visited.add(node);
-    packages.add(node);
-
-    for (const dep of node.deps) {
-      if (!node.isBundled || dep.type === 'service') {
-        visit(dep);
-      }
     }
   }
 

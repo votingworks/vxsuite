@@ -1,11 +1,7 @@
 import * as fs from 'node:fs';
 import { basename, join } from 'node:path';
-import { doCopy, inBuildDir } from './build.ts';
-import {
-  getDependencyGraph,
-  getPackages,
-  getProductionPackages,
-} from './deps.ts';
+import { doCopy } from './build.ts';
+import { getDependencyGraph, getPackages } from './deps.ts';
 import { BUILD_ROOT, WORKSPACE_ROOT } from './globals.ts';
 import { assertExpectedPnpmVersion, deleteScript } from './pnpm.ts';
 import type { IO } from '../types.ts';
@@ -27,7 +23,6 @@ export function main({ stdout }: IO): void {
 
   const allPackages = getPackages(root);
   const appPackages = [...allPackages].filter(({ type }) => type !== 'lib');
-  const prodPackages = getProductionPackages(root);
 
   // Build the app packages via turbo, which orders and caches the whole
   // dependency graph. `pnpm exec` resolves turbo from the workspace without
@@ -71,31 +66,4 @@ export function main({ stdout }: IO): void {
   deleteScript(outRoot, 'prepare');
   stdout.write(`📦 Installing dependencies in workspace\n`);
   execSync('pnpm', ['install', '--frozen-lockfile'], { cwd: outRoot });
-  // removeDependencies(outRoot, { dev: false });
-  // removeDependencies(outRoot, { dev: true });
-
-  for (const { path, isBundled } of allPackages) {
-    stdout.write(`🪚 prune ${path}\n`);
-    const depBuildRoot = inBuildDir(path, outRoot);
-    if (existsSync(join(depBuildRoot, 'package.json'))) {
-      stdout.write(`→ removing devDependencies\n`);
-      // removeDependencies(depBuildRoot, { dev: true });
-
-      if (isBundled) {
-        stdout.write(`→ removing dependencies\n`);
-        // removeDependencies(depBuildRoot, { dev: false });
-      }
-    }
-  }
-
-  for (const pkg of allPackages) {
-    if (!prodPackages.has(pkg)) {
-      stdout.write(`🪚 prune dev ${pkg.path}\n`);
-      const depBuildRoot = inBuildDir(pkg.path, outRoot);
-      // rmrf(depBuildRoot);
-    }
-  }
-
-  stdout.write(`🪚 prune dev package dependencies\n`);
-  // execSync('pnpm', ['install', '--offline'], { cwd: outRoot });
 }

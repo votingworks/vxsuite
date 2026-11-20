@@ -2,8 +2,7 @@ import { createRequire } from 'node:module';
 import { execFileSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { PNPM_LOGLEVEL, WORKSPACE_ROOT } from './globals.ts';
-import { execSync } from './utils/exec_sync.ts';
+import { WORKSPACE_ROOT } from './globals.ts';
 
 const require = createRequire(import.meta.url);
 
@@ -39,27 +38,6 @@ export function assertExpectedPnpmVersion(): void {
       }. Check that the right pnpm comes first on PATH.`
     );
   }
-}
-
-export function removeDependencies(
-  pkgRoot: string,
-  { dev }: { dev: boolean }
-): void {
-  const pkg = require(`${pkgRoot}/package`);
-  const deps = Object.keys(
-    (dev ? pkg.devDependencies : pkg.dependencies) || {}
-  );
-
-  if (deps.length === 0) {
-    return;
-  }
-
-  execSync('pnpm', ['remove', ...deps, '--loglevel', PNPM_LOGLEVEL], {
-    cwd: pkgRoot,
-  });
-  execSync('pnpm', ['install', '--offline', '--loglevel', PNPM_LOGLEVEL], {
-    cwd: pkgRoot,
-  });
 }
 
 export function deleteScript(pkgRoot: string, script: string): void {
