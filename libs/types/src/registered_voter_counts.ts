@@ -7,21 +7,28 @@ import {
 } from './election.js';
 
 /**
+ * Registered voter count for a precinct or split.
+ */
+export interface RegisteredVoterCount {
+  readonly total: number;
+}
+
+/**
  * Registered voter counts for a precinct with splits, keyed by split ID.
  * Only splits with a count set are included.
  */
 export interface PrecinctWithSplitsRegisteredVoterCounts {
-  splits: Record<PrecinctSplitId, number>;
+  splits: Record<PrecinctSplitId, RegisteredVoterCount>;
 }
 
 /**
  * Registered voter counts for a single precinct
  *
- * For precincts without splits, the value is the total count as a number.
+ * For precincts without splits, the value is the precinct's count.
  * For precincts with splits, the value is a record mapping split IDs to counts.
  */
 export type PrecinctRegisteredVoterCountEntry =
-  | number
+  | RegisteredVoterCount
   | PrecinctWithSplitsRegisteredVoterCounts;
 
 /**
@@ -35,14 +42,14 @@ export type ElectionRegisteredVoterCounts = Record<
 
 export function isPrecinctCount(
   entry: PrecinctRegisteredVoterCountEntry
-): entry is number {
-  return typeof entry === 'number';
+): entry is RegisteredVoterCount {
+  return !('splits' in entry);
 }
 
 export function isSplitCounts(
   entry: PrecinctRegisteredVoterCountEntry
 ): entry is PrecinctWithSplitsRegisteredVoterCounts {
-  return typeof entry === 'object';
+  return 'splits' in entry;
 }
 
 export function hasPartialRegisteredVoterCounts(
@@ -80,16 +87,59 @@ export function hasPartialRegisteredVoterCounts(
   return someHaveCount && someMissingCount;
 }
 
+const CountSchema = z.number().int().nonnegative();
+
+const RegisteredVoterCountObjectSchema: z.ZodType<RegisteredVoterCount> =
+  z.strictObject({ total: CountSchema });
+
+/**
+ * Accepts a plain number as a total, for packages exported before counts
+ * could be broken out by party.
+ */
+export const RegisteredVoterCountSchema: z.ZodType<RegisteredVoterCount> =
+  z.union([
+    CountSchema.transform((total) => ({ total })),
+    RegisteredVoterCountObjectSchema,
+  ]);
+
 export const PrecinctWithSplitsRegisteredVoterCountsSchema: z.ZodType<PrecinctWithSplitsRegisteredVoterCounts> =
-  z.object({
-    splits: z.record(z.string(), z.number().int().nonnegative()),
+  z.strictObject({
+    splits: z.record(z.string(), RegisteredVoterCountSchema),
   });
 
 export const PrecinctRegisteredVoterCountEntrySchema: z.ZodType<PrecinctRegisteredVoterCountEntry> =
   z.union([
-    z.number().int().nonnegative(),
+    RegisteredVoterCountSchema,
     PrecinctWithSplitsRegisteredVoterCountsSchema,
   ]);
 
 export const ElectionRegisteredVoterCountsSchema: z.ZodType<ElectionRegisteredVoterCounts> =
   z.record(z.string(), PrecinctRegisteredVoterCountEntrySchema);
+
+/**
+ * Registered voter count totals in the format read by VxAdmin before counts
+ * could be broken out by party.
+ */
+export type ElectionRegisteredVoterCountTotals = Record<
+  PrecinctId,
+  number | { splits: Record<PrecinctSplitId, number> }
+>;
+
+// Convert from object format to plain-number format.
+export function toTotalRegisteredVoterCounts(
+  counts: ElectionRegisteredVoterCounts
+): ElectionRegisteredVoterCountTotals {
+  const totals: ElectionRegisteredVoterCountTotals = {};
+  for (const [precinctId, entry] of Object.entries(counts)) {
+    if (isSplitCounts(entry)) {
+      const splitTotals: Record<PrecinctSplitId, number> = {};
+      for (const [splitId, count] of Object.entries(entry.splits)) {
+        splitTotals[splitId] = count.total;
+      }
+      totals[precinctId] = { splits: splitTotals };
+    } else {
+      totals[precinctId] = entry.total;
+    }
+  }
+  return totals;
+}

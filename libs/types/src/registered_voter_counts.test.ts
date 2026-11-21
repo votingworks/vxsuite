@@ -1,8 +1,10 @@
 import { expect, test } from 'vitest';
 import {
+  ElectionRegisteredVoterCountsSchema,
   hasPartialRegisteredVoterCounts,
   isPrecinctCount,
   isSplitCounts,
+  toTotalRegisteredVoterCounts,
   type ElectionRegisteredVoterCounts,
   type PrecinctRegisteredVoterCountEntry,
 } from './registered_voter_counts.js';
@@ -31,6 +33,54 @@ test('isSplitCounts', () => {
   const splits: PrecinctRegisteredVoterCountEntry = { splits: { s1: 100 } };
   expect(isSplitCounts(splits)).toEqual(true);
   expect(isSplitCounts(number)).toEqual(false);
+});
+
+test('ElectionRegisteredVoterCountsSchema accepts valid counts', () => {
+  const counts: ElectionRegisteredVoterCounts = {
+    p1: { total: 40 },
+    p2: { total: 0 },
+    ps: { splits: { s1: { total: 35 }, s2: { total: 50 } } },
+  };
+  expect(ElectionRegisteredVoterCountsSchema.parse(counts)).toEqual(counts);
+});
+
+test('ElectionRegisteredVoterCountsSchema reads plain numbers as totals', () => {
+  expect(
+    ElectionRegisteredVoterCountsSchema.parse({
+      p1: 100,
+      ps: { splits: { s1: 200, s2: { total: 300 } } },
+    })
+  ).toEqual({
+    p1: { total: 100 },
+    ps: { splits: { s1: { total: 200 }, s2: { total: 300 } } },
+  });
+});
+
+test('toTotalRegisteredVoterCounts', () => {
+  expect(
+    toTotalRegisteredVoterCounts({
+      p1: { total: 500 },
+      p2: { total: 100 },
+      ps: { splits: { s1: { total: 500 }, s2: { total: 350 } } },
+    })
+  ).toEqual({ p1: 500, p2: 100, ps: { splits: { s1: 500, s2: 350 } } });
+});
+
+test('ElectionRegisteredVoterCountsSchema rejects invalid counts', () => {
+  for (const invalid of [
+    { p1: -1 },
+    { p1: 1.5 },
+    { p1: { total: -1 } },
+    { p1: {} },
+    { ps: { splits: { s1: { total: -1 } } } },
+    { ps: { total: 10, splits: { s1: { total: 10 } } } },
+    { ps: { total: 10, splits: { s1: 10 } } },
+    { p1: { total: 10, extra: 1 } },
+  ]) {
+    expect(
+      ElectionRegisteredVoterCountsSchema.safeParse(invalid).success
+    ).toEqual(false);
+  }
 });
 
 test('hasPartialRegisteredVoterCounts - no precincts', () => {
@@ -89,4 +139,12 @@ test('hasPartialRegisteredVoterCounts - mixed non-split and split precincts, par
   // p1 has a count but pSplit splits do not
   const counts: ElectionRegisteredVoterCounts = { p1: 100 };
   expect(hasPartialRegisteredVoterCounts([p1, pSplit], counts)).toEqual(true);
+});
+
+test('hasPartialRegisteredVoterCounts - non-split precinct with split counts', () => {
+  const counts: ElectionRegisteredVoterCounts = {
+    p1: { splits: { s1: { total: 100 } } },
+    p2: { total: 100 },
+  };
+  expect(hasPartialRegisteredVoterCounts([p1, p2], counts)).toEqual(true);
 });

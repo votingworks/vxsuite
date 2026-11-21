@@ -610,6 +610,20 @@ test('Election package and ballots export', async () => {
   assert(systemSettings !== undefined);
 
   expect(registeredVoterCounts).toEqual(expectedRegisteredVoterCounts);
+  const registeredVoterCountsJson = await readTextEntry(
+    getFileByName(
+      getEntries(await openZip(electionPackageContents)),
+      ElectionPackageFileName.REGISTERED_VOTER_COUNTS
+    )
+  );
+  expect(JSON.parse(registeredVoterCountsJson)).toEqual({
+    ...Object.fromEntries(
+      precincts.filter((p) => !hasSplits(p)).map((p) => [p.id, 1000])
+    ),
+    [splitPrecinctId]: {
+      splits: { [splitFirstId]: 500, [splitSecondId]: 300 },
+    },
+  });
   assert(uiStringAudioIds !== undefined);
   assert(uiStrings !== undefined);
 

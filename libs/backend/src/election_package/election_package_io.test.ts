@@ -7,7 +7,7 @@ import {
   type ElectionDefinitionWithData,
   ElectionPackageFileName,
   type ElectionPackageMetadata,
-  type ElectionRegisteredVoterCounts,
+  type ElectionRegisteredVoterCountTotals,
   type EncodedBallotEntry,
   type InsertedSmartCardAuth,
   LATEST_METADATA,
@@ -448,7 +448,7 @@ test('readElectionPackageFromBuffer parses registered voter counts', async () =>
       encodedBallot: 'ABC==',
     },
   ];
-  const registeredVoterCounts: ElectionRegisteredVoterCounts = {
+  const registeredVoterCounts: ElectionRegisteredVoterCountTotals = {
     precinct_1: 100,
   };
 
@@ -474,7 +474,7 @@ test('readElectionPackageFromBuffer parses registered voter counts', async () =>
       uiStringAudioIds: {},
       systemSettings: DEFAULT_SYSTEM_SETTINGS,
       uiStrings: electionDefinition.election.ballotStrings,
-      registeredVoterCounts,
+      registeredVoterCounts: { precinct_1: { total: 100 } },
     },
     electionPackageHash: createHash('sha256').update(pkg).digest('hex'),
   });

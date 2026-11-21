@@ -14,6 +14,7 @@ import {
   ElectionPackageFileName,
   type ElectionPackageMetadata,
   type ElectionRegisteredVoterCounts,
+  toTotalRegisteredVoterCounts,
   type ElectionSerializationFormat,
   type EncodedBallotEntry,
   formatBallotHash,
@@ -300,7 +301,11 @@ async function generate(
   });
 
   electionPackageZip.addEntry(
-    JSON.stringify(input.registeredVoterCounts, null, 2),
+    JSON.stringify(
+      toTotalRegisteredVoterCounts(input.registeredVoterCounts),
+      null,
+      2
+    ),
     {
       name: ElectionPackageFileName.REGISTERED_VOTER_COUNTS,
     }
