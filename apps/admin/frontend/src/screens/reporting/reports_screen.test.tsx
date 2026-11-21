@@ -52,15 +52,15 @@ describe('isVoterTurnoutReportEnabled', () => {
 
   test('returns false when a precinct is missing counts', () => {
     expect(
-      isVoterTurnoutReportEnabled(election, { 'precinct-1': 100 })
+      isVoterTurnoutReportEnabled(election, { 'precinct-1': { total: 100 } })
     ).toEqual(false);
   });
 
   test('returns true when all non-split precincts have counts', () => {
     expect(
       isVoterTurnoutReportEnabled(election, {
-        'precinct-1': 100,
-        'precinct-2': 200,
+        'precinct-1': { total: 100 },
+        'precinct-2': { total: 200 },
       })
     ).toEqual(true);
   });
@@ -68,10 +68,10 @@ describe('isVoterTurnoutReportEnabled', () => {
   test('returns false when a split precinct has a number instead of splits object', () => {
     expect(
       isVoterTurnoutReportEnabled(splitElection, {
-        'precinct-c1-w1-1': 100,
-        'precinct-c1-w1-2': 200,
-        'precinct-c1-w2': 300,
-        'precinct-c2': 400,
+        'precinct-c1-w1-1': { total: 100 },
+        'precinct-c1-w1-2': { total: 200 },
+        'precinct-c1-w2': { total: 300 },
+        'precinct-c2': { total: 400 },
       })
     ).toEqual(false);
   });
@@ -79,10 +79,10 @@ describe('isVoterTurnoutReportEnabled', () => {
   test('returns false when a split precinct is missing some splits', () => {
     expect(
       isVoterTurnoutReportEnabled(splitElection, {
-        'precinct-c1-w1-1': 100,
-        'precinct-c1-w1-2': 200,
-        'precinct-c1-w2': 300,
-        'precinct-c2': { splits: { 'precinct-c2-split-1': 150 } },
+        'precinct-c1-w1-1': { total: 100 },
+        'precinct-c1-w1-2': { total: 200 },
+        'precinct-c1-w2': { total: 300 },
+        'precinct-c2': { splits: { 'precinct-c2-split-1': { total: 150 } } },
       })
     ).toEqual(false);
   });
@@ -90,13 +90,13 @@ describe('isVoterTurnoutReportEnabled', () => {
   test('returns true when all precincts and splits have counts', () => {
     expect(
       isVoterTurnoutReportEnabled(splitElection, {
-        'precinct-c1-w1-1': 100,
-        'precinct-c1-w1-2': 200,
-        'precinct-c1-w2': 300,
+        'precinct-c1-w1-1': { total: 100 },
+        'precinct-c1-w1-2': { total: 200 },
+        'precinct-c1-w2': { total: 300 },
         'precinct-c2': {
           splits: {
-            'precinct-c2-split-1': 150,
-            'precinct-c2-split-2': 250,
+            'precinct-c2-split-1': { total: 150 },
+            'precinct-c2-split-2': { total: 250 },
           },
         },
       })
@@ -157,8 +157,8 @@ describe('voter turnout report link', () => {
     apiMock.expectGetManualResultsMetadata([]);
     apiMock.expectGetTotalBallotCount(3000);
     apiMock.expectGetRegisteredVoterCounts({
-      'precinct-1': 100,
-      'precinct-2': 200,
+      'precinct-1': { total: 100 },
+      'precinct-2': { total: 200 },
     });
     apiMock.expectGetSystemSettings();
 
@@ -175,8 +175,8 @@ describe('voter turnout report link', () => {
     apiMock.expectGetManualResultsMetadata([]);
     apiMock.expectGetTotalBallotCount(3000);
     apiMock.expectGetRegisteredVoterCounts({
-      'precinct-1': 100,
-      'precinct-2': 200,
+      'precinct-1': { total: 100 },
+      'precinct-2': { total: 200 },
     });
     apiMock.expectGetSystemSettings();
 

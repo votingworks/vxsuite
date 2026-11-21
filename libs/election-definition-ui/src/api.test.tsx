@@ -285,7 +285,7 @@ const precinctCreate: PrecinctCreate = {
 const precinctUpdate: PrecinctUpdate = {
   electionId: 'election-1',
   updatedPrecinct: { id: 'precinct-1', name: 'Precinct 1', districtIds: [] },
-  registeredVoterCounts: 10,
+  registeredVoterCounts: { total: 10 },
 };
 const precinctDelete: PrecinctDelete = {
   electionId: 'election-1',

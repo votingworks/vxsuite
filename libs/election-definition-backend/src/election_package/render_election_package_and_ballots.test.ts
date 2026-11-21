@@ -64,7 +64,7 @@ function baseInput(): ElectionPackageAndBallotsInput {
     getCandidateOrderings: (bs) => bs.orderedCandidatesByContest,
     compact: false,
     systemSettings: DEFAULT_SYSTEM_SETTINGS,
-    registeredVoterCounts: { [precinctId]: 100 },
+    registeredVoterCounts: { [precinctId]: { total: 100 } },
     softwareVersion: LATEST_SOFTWARE_VERSION,
     electionSerializationFormat: 'vxf',
   };
@@ -125,7 +125,9 @@ test('renders the election package and the official, sample and test ballot zips
     output.electionDefinition.ballotHash
   );
   expect(electionPackage.systemSettings).toEqual(DEFAULT_SYSTEM_SETTINGS);
-  expect(electionPackage.registeredVoterCounts).toEqual({ [precinctId]: 100 });
+  expect(electionPackage.registeredVoterCounts).toEqual({
+    [precinctId]: { total: 100 },
+  });
   expect(Object.keys(electionPackage.uiStringAudioIds)).not.toHaveLength(0);
 
   const electionPackageEntryNames =
