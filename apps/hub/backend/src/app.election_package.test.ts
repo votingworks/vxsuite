@@ -548,7 +548,7 @@ test('Election package and ballots export', async () => {
         await apiClient.updatePrecinct({
           electionId,
           updatedPrecinct: precinct,
-          registeredVoterCounts: 1000,
+          registeredVoterCounts: { total: 1000 },
         })
       ).unsafeUnwrap();
     }
@@ -558,17 +558,23 @@ test('Election package and ballots export', async () => {
       electionId,
       updatedPrecinct: splitPrecinct,
       registeredVoterCounts: {
-        splits: { [splitFirstId]: 500, [splitSecondId]: 300 },
+        splits: {
+          [splitFirstId]: { total: 500 },
+          [splitSecondId]: { total: 300 },
+        },
       },
     })
   ).unsafeUnwrap();
 
   const expectedRegisteredVoterCounts: ElectionRegisteredVoterCounts = {
     ...Object.fromEntries(
-      precincts.filter((p) => !hasSplits(p)).map((p) => [p.id, 1000])
+      precincts.filter((p) => !hasSplits(p)).map((p) => [p.id, { total: 1000 }])
     ),
     [splitPrecinctId]: {
-      splits: { [splitFirstId]: 500, [splitSecondId]: 300 },
+      splits: {
+        [splitFirstId]: { total: 500 },
+        [splitSecondId]: { total: 300 },
+      },
     },
   };
 

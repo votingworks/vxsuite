@@ -490,8 +490,8 @@ test('getRegisteredVoterCounts', async () => {
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const registeredVoterCounts: ElectionRegisteredVoterCounts = {
-    'precinct-1': 500,
-    'precinct-2': 400,
+    'precinct-1': { total: 500 },
+    'precinct-2': { total: 400 },
   };
 
   const { apiClient, auth } = buildTestEnvironment();
