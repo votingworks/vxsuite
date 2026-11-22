@@ -933,7 +933,7 @@ test('errors if a user is authenticated but is not an election manager', async (
       mockBaseLogger({ fn: vi.fn })
     )
   ).rejects.toThrow(
-    'Only election managers may configure an election package.'
+    'Only election managers may configure a machine from a configuration package.'
   );
 });
 

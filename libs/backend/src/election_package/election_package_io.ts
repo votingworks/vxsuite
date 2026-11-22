@@ -620,9 +620,9 @@ export async function readSignedElectionPackageFromDirectory(
   // manager has authed. But we may reach this state if a user removes their card immediately
   // after inserting it, but after the election package configuration attempt has started
   if (authStatus.status !== 'logged_in') {
-    logger.log(LogEventId.ElectionPackageLoadedFromUsb, 'system', {
+    logger.log(LogEventId.ConfigurationPackageLoadedFromUsb, 'system', {
       disposition: 'failure',
-      message: 'Election package configuration was attempted before auth.',
+      message: 'Attempted to read the configuration package before auth.',
     });
     return err({ type: 'auth_required_before_election_package_load' });
   }
@@ -631,7 +631,7 @@ export async function readSignedElectionPackageFromDirectory(
   // a simple assert to enforce
   assert(
     authStatus.user.role === 'election_manager',
-    'Only election managers may configure an election package.'
+    'Only election managers may configure a machine from a configuration package.'
   );
 
   const filepathResult = await getMostRecentElectionPackageFilepath(directory);
@@ -648,9 +648,9 @@ export async function readSignedElectionPackageFromDirectory(
         filePath: filepathResult.ok(),
       });
   if (artifactAuthenticationResult.isErr()) {
-    logger.log(LogEventId.ElectionPackageLoadedFromUsb, 'system', {
+    logger.log(LogEventId.ConfigurationPackageLoadedFromUsb, 'system', {
       disposition: 'failure',
-      message: 'Election package authentication erred.',
+      message: 'Configuration package authentication erred.',
     });
     return err({ type: 'election_package_authentication_error' });
   }
@@ -664,7 +664,7 @@ export async function readSignedElectionPackageFromDirectory(
     // No other cases should be possible if an election package was signed by VxAdmin and
     // authenticated by the current machine
     assert(error.type === 'system-limit-violation');
-    logger.log(LogEventId.ElectionPackageLoadedFromUsb, 'system', {
+    logger.log(LogEventId.ConfigurationPackageLoadedFromUsb, 'system', {
       disposition: 'failure',
       message: systemLimitViolationToString(error.violation),
     });
@@ -679,10 +679,10 @@ export async function readSignedElectionPackageFromDirectory(
   );
 
   if (!deepEqual(authStatus.user.electionKey, electionKey)) {
-    logger.log(LogEventId.ElectionPackageLoadedFromUsb, 'system', {
+    logger.log(LogEventId.ConfigurationPackageLoadedFromUsb, 'system', {
       disposition: 'failure',
       message:
-        'The election key for the authorized user and most recent election package on the USB drive did not match.',
+        'The election key for the authorized user and most recent configuration package on the USB drive did not match.',
     });
     return err({ type: 'election_key_mismatch' });
   }

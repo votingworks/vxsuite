@@ -139,8 +139,8 @@ export const LogEventId = {
   ProcessTerminated: 'process-terminated',
   SudoAction: 'sudo-action',
   PasswdChange: 'password-change',
-  SaveElectionPackageInit: 'save-election-package-init',
-  SaveElectionPackageComplete: 'save-election-package-complete',
+  SaveConfigurationPackageInit: 'save-configuration-package-init',
+  SaveConfigurationPackageComplete: 'save-configuration-package-complete',
   SmartCardProgramInit: 'smart-card-program-init',
   SmartCardProgramComplete: 'smart-card-program-complete',
   SmartCardUnprogramInit: 'smart-card-unprogram-init',
@@ -182,7 +182,8 @@ export const LogEventId = {
   ImprinterStatus: 'imprinter-status',
   ImprintingToggled: 'imprinting-toggled',
   CentralScanNetworkStatus: 'central-scan-network-status',
-  ElectionPackageLoadedFromUsb: 'election-package-load-from-usb-complete',
+  ConfigurationPackageLoadedFromUsb:
+    'configuration-package-load-from-usb-complete',
   ExportCastVoteRecordsInit: 'export-cast-vote-records-init',
   ExportCastVoteRecordsComplete: 'export-cast-vote-records-complete',
   PollsOpened: 'polls-opened',
@@ -765,19 +766,19 @@ const PasswdChange: LogDetails = {
   documentationMessage: 'A password change was executed.',
 };
 
-const SaveElectionPackageInit: LogDetails = {
-  eventId: LogEventId.SaveElectionPackageInit,
+const SaveConfigurationPackageInit: LogDetails = {
+  eventId: LogEventId.SaveConfigurationPackageInit,
   eventType: LogEventType.UserAction,
-  documentationMessage: 'Saving the election package is initiated.',
-  defaultMessage: 'User initiated saving the election package...',
+  documentationMessage: 'Saving the configuration package is initiated.',
+  defaultMessage: 'User initiated saving the configuration package...',
   restrictInDocumentationToApps: [AppName.VxAdmin],
 };
 
-const SaveElectionPackageComplete: LogDetails = {
-  eventId: LogEventId.SaveElectionPackageComplete,
+const SaveConfigurationPackageComplete: LogDetails = {
+  eventId: LogEventId.SaveConfigurationPackageComplete,
   eventType: LogEventType.UserAction,
   documentationMessage:
-    'Saving the election package completed, success or failure is indicated by the disposition.',
+    'Saving the configuration package completed, success or failure is indicated by the disposition.',
   restrictInDocumentationToApps: [AppName.VxAdmin],
 };
 
@@ -1074,12 +1075,17 @@ const CentralScanNetworkStatus: LogDetails = {
   restrictInDocumentationToApps: [AppName.VxCentralScan],
 };
 
-const ElectionPackageLoadedFromUsb: LogDetails = {
-  eventId: LogEventId.ElectionPackageLoadedFromUsb,
+const ConfigurationPackageLoadedFromUsb: LogDetails = {
+  eventId: LogEventId.ConfigurationPackageLoadedFromUsb,
   eventType: LogEventType.UserAction,
   documentationMessage:
-    'The election package has been read from the USB drive. Success or failure indicated by disposition.',
-  restrictInDocumentationToApps: [AppName.VxCentralScan, AppName.VxScan],
+    'The configuration package has been read from the USB drive. Success or failure indicated by disposition.',
+  restrictInDocumentationToApps: [
+    AppName.VxCentralScan,
+    AppName.VxScan,
+    AppName.VxMark,
+    AppName.VxMarkScan,
+  ],
 };
 
 const ExportCastVoteRecordsInit: LogDetails = {
@@ -1968,10 +1974,10 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return SudoAction;
     case LogEventId.PasswdChange:
       return PasswdChange;
-    case LogEventId.SaveElectionPackageInit:
-      return SaveElectionPackageInit;
-    case LogEventId.SaveElectionPackageComplete:
-      return SaveElectionPackageComplete;
+    case LogEventId.SaveConfigurationPackageInit:
+      return SaveConfigurationPackageInit;
+    case LogEventId.SaveConfigurationPackageComplete:
+      return SaveConfigurationPackageComplete;
     case LogEventId.SmartCardProgramInit:
       return SmartCardProgramInit;
     case LogEventId.SmartCardProgramComplete:
@@ -2046,8 +2052,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return ImprintingToggled;
     case LogEventId.CentralScanNetworkStatus:
       return CentralScanNetworkStatus;
-    case LogEventId.ElectionPackageLoadedFromUsb:
-      return ElectionPackageLoadedFromUsb;
+    case LogEventId.ConfigurationPackageLoadedFromUsb:
+      return ConfigurationPackageLoadedFromUsb;
     case LogEventId.ExportCastVoteRecordsInit:
       return ExportCastVoteRecordsInit;
     case LogEventId.ExportCastVoteRecordsComplete:
