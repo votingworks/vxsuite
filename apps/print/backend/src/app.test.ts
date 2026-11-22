@@ -524,7 +524,7 @@ test('cannot switch to test mode when the election package has no test ballots',
   expect(printCounts.some((count) => count.totalCount > 0)).toEqual(true);
 
   await expect(apiClient.setTestMode({ testMode: true })).rejects.toThrow(
-    'Cannot switch to test ballot mode: the election package does not contain test ballots.'
+    'Cannot switch to test ballot mode: the configuration package does not contain test ballots.'
   );
   expect(await apiClient.getTestMode()).toEqual(false);
   // The rejected switch must not have reset the print counts.

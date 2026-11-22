@@ -32,7 +32,7 @@ afterEach(() => {
 });
 
 const NO_TEST_BALLOTS_MESSAGE =
-  'Election package does not contain test ballots required to print test decks.';
+  'Configuration package does not contain test ballots required to print test decks.';
 
 function mockBaseQueries({
   printer = { connected: true, config: HP_4001_PRINTER_CONFIG },

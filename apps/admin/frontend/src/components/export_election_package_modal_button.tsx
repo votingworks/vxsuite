@@ -37,7 +37,7 @@ function Bytes({ value }: { value: number }): JSX.Element {
 type DoesNotFit = Exclude<UsbDriveFileFit, { type: 'fits' }>;
 
 const DOES_NOT_FIT_TITLES: Record<DoesNotFit['type'], string> = {
-  'file-too-large': 'Election Package Too Large for USB Drive',
+  'file-too-large': 'Configuration Package Too Large for USB Drive',
   'insufficient-space': 'Not Enough Space on USB Drive',
   'drive-too-small': 'USB Drive Too Small',
 };
@@ -55,9 +55,9 @@ function DoesNotFitMessage({
     case 'file-too-large':
       return (
         <P>
-          The election package is <Bytes value={electionPackageSize} />, but
-          this USB drive&apos;s current format can&apos;t hold files larger than{' '}
-          <Bytes value={fit.maxFileSize} />.{' '}
+          The configuration package is <Bytes value={electionPackageSize} />,
+          but this USB drive&apos;s current format can&apos;t hold files larger
+          than <Bytes value={fit.maxFileSize} />.{' '}
           {canFormat
             ? 'Reformat the USB drive from the Settings screen to continue.'
             : 'Ask a system administrator to reformat the USB drive, or use a different USB drive.'}
@@ -66,9 +66,9 @@ function DoesNotFitMessage({
     case 'insufficient-space':
       return (
         <P>
-          The election package is <Bytes value={electionPackageSize} />, but the
-          USB drive only has <Bytes value={fit.availableBytes} /> free. Remove
-          files from the USB drive
+          The configuration package is <Bytes value={electionPackageSize} />,
+          but the USB drive only has <Bytes value={fit.availableBytes} /> free.
+          Remove files from the USB drive
           {canFormat ? ' or reformat it from the Settings screen' : ''} to
           continue.
         </P>
@@ -76,9 +76,9 @@ function DoesNotFitMessage({
     case 'drive-too-small':
       return (
         <P>
-          The election package is <Bytes value={electionPackageSize} />, but the
-          USB drive can only hold <Bytes value={fit.totalBytes} />. Use a larger
-          USB drive.
+          The configuration package is <Bytes value={electionPackageSize} />,
+          but the USB drive can only hold <Bytes value={fit.totalBytes} />. Use
+          a larger USB drive.
         </P>
       );
     default:
@@ -133,14 +133,16 @@ export function ExportElectionPackageModalButton(): JSX.Element {
           actions = <Button onPress={closeModal}>Cancel</Button>;
           title = 'No USB Drive Detected';
           mainContent = (
-            <P>Insert a USB drive in order to save the election package.</P>
+            <P>
+              Insert a USB drive in order to save the configuration package.
+            </P>
           );
           break;
         case 'mounted': {
           const electionPackageSize = electionPackageSizeQuery.data;
           if (electionPackageSize === undefined) {
             actions = <Button onPress={closeModal}>Cancel</Button>;
-            title = 'Save Election Package';
+            title = 'Save Configuration Package';
             break;
           }
           const fit = checkFileFitsOnUsbDrive(
@@ -183,9 +185,11 @@ export function ExportElectionPackageModalButton(): JSX.Element {
               </Button>
             </React.Fragment>
           );
-          title = 'Save Election Package';
+          title = 'Save Configuration Package';
           mainContent = (
-            <P>An election package will be saved to the inserted USB drive.</P>
+            <P>
+              A configuration package will be saved to the inserted USB drive.
+            </P>
           );
           break;
         }
@@ -212,11 +216,11 @@ export function ExportElectionPackageModalButton(): JSX.Element {
       } else {
         actions = <Button onPress={closeModal}>Close</Button>;
       }
-      title = 'Election Package Saved';
+      title = 'Configuration Package Saved';
       mainContent = (
         <P>
-          You may now eject the USB drive. Use the saved election package on the
-          USB drive to configure VxSuite components.
+          You may now eject the USB drive. Use the saved configuration package
+          on the USB drive to configure your other VxSuite machines.
         </P>
       );
       break;
@@ -224,7 +228,7 @@ export function ExportElectionPackageModalButton(): JSX.Element {
 
     case 'error': {
       actions = <Button onPress={closeModal}>Close</Button>;
-      title = 'Failed to Save Election Package';
+      title = 'Failed to Save Configuration Package';
       mainContent = (
         <P>
           An error occurred:{' '}
@@ -245,7 +249,7 @@ export function ExportElectionPackageModalButton(): JSX.Element {
         icon="Export"
         onPress={() => setIsModalOpen(true)}
       >
-        Save Election Package
+        Save Configuration Package
       </Button>
       {isModalOpen && (
         <Modal

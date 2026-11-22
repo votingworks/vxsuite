@@ -17,7 +17,9 @@ test('UnconfiguredElectionScreen shows an error message when no USB drive is ins
     />
   );
 
-  await screen.findByText('Insert a USB drive containing an election package');
+  await screen.findByText(
+    'Insert a USB drive containing a configuration package'
+  );
 });
 
 test('UnconfiguredElectionScreen shows a loading screen when USB drive is mounted and no error message exists', async () => {
@@ -41,7 +43,7 @@ test.each<{
     description: 'no election package on USB drive',
     error: { type: 'no_election_package' },
     expectedErrorMessage:
-      'No signed election package found on the inserted USB drive. Save a signed election package in VxAdmin.',
+      'No configuration package found on the inserted USB drive. Save a configuration package in VxAdmin.',
   },
   {
     description: 'election package loading is attempted before authorization',
@@ -52,14 +54,14 @@ test.each<{
     description: 'election package authentication errs',
     error: { type: 'election_package_authentication_error' },
     expectedErrorMessage:
-      'Error authenticating election package. Try exporting it from VxAdmin again.',
+      'Error authenticating configuration package. Try exporting it from VxAdmin again.',
   },
   {
     description:
       'election on authorized card does not match that on the most recent election package',
     error: { type: 'election_key_mismatch' },
     expectedErrorMessage:
-      'The most recent election package found is for a different election.',
+      'The most recent configuration package found is for a different election.',
   },
   {
     description: 'system limit exceeded',

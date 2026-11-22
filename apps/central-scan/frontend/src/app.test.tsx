@@ -321,7 +321,7 @@ test('configuring election from usb election package works end to end', async ()
   await authenticateAsElectionManager(
     electionDefinition,
     'Insert an election manager card to configure VxCentralScan',
-    'Insert a USB drive containing an election package'
+    'Insert a USB drive containing a configuration package'
   );
   expect(screen.queryByText('Test Ballot Mode')).not.toBeInTheDocument();
 
@@ -363,7 +363,9 @@ test('configuring election from usb election package works end to end', async ()
   await userEvent.click(screen.getButton('Delete All Election Data'));
   screen.getByText('Unconfiguring Machine');
   unconfigure.resolve();
-  await screen.findByText('Insert a USB drive containing an election package');
+  await screen.findByText(
+    'Insert a USB drive containing a configuration package'
+  );
 });
 
 test('configures from an already-inserted USB drive in strict mode', async () => {
@@ -386,7 +388,7 @@ test('configures from an already-inserted USB drive in strict mode', async () =>
   );
 
   await screen.findByText(
-    'No signed election package found on the inserted USB drive. Save a signed election package in VxAdmin.'
+    'No configuration package found on the inserted USB drive. Save a configuration package in VxAdmin.'
   );
 });
 

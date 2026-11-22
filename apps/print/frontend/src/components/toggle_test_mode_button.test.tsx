@@ -10,7 +10,7 @@ import {
 import { ToggleTestModeButton } from './toggle_test_mode_button';
 
 const NO_TEST_BALLOTS_MESSAGE =
-  'Election package does not contain test ballots required for test mode.';
+  'Configuration package does not contain test ballots required for test mode.';
 
 let apiMock: ApiMock;
 

@@ -403,5 +403,7 @@ test('MarkAndPrint end-to-end flow', async () => {
 
   // Verify that machine was unconfigured even after election manager reauth
   apiMock.setAuthStatusElectionManagerLoggedIn(electionDefinition);
-  await screen.findByText('Insert a USB drive containing an election package');
+  await screen.findByText(
+    'Insert a USB drive containing a configuration package'
+  );
 });

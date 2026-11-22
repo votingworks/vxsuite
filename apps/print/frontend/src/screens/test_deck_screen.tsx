@@ -201,8 +201,8 @@ export function TestDeckScreen(): JSX.Element | null {
         {!canPrintTestDecks && (
           <CalloutRow>
             <Callout icon="Warning" color="warning">
-              Election package does not contain test ballots required to print
-              test decks.
+              Configuration package does not contain test ballots required to
+              print test decks.
             </Callout>
           </CalloutRow>
         )}
