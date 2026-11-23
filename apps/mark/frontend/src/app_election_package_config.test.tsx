@@ -45,7 +45,7 @@ test('renders an error if election package config endpoint returns an error', as
   apiMock.setUsbDriveStatus(mockUsbDriveStatus('mounted'));
   await screen.findByText('Configuring VxMark from USB drive…');
   await screen.findByText(
-    'The most recent election package found is for a different election.'
+    'The most recent configuration package found is for a different election.'
   );
 });
 
@@ -75,6 +75,6 @@ test('configures from an already-inserted USB drive in strict mode', async () =>
   );
 
   await screen.findByText(
-    'The most recent election package found is for a different election.'
+    'The most recent configuration package found is for a different election.'
   );
 });

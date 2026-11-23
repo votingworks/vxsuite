@@ -255,10 +255,10 @@ pub enum EventId {
     SudoAction,
     #[serde(rename = "password-change")]
     PasswdChange,
-    #[serde(rename = "save-election-package-init")]
-    SaveElectionPackageInit,
-    #[serde(rename = "save-election-package-complete")]
-    SaveElectionPackageComplete,
+    #[serde(rename = "save-configuration-package-init")]
+    SaveConfigurationPackageInit,
+    #[serde(rename = "save-configuration-package-complete")]
+    SaveConfigurationPackageComplete,
     #[serde(rename = "smart-card-program-init")]
     SmartCardProgramInit,
     #[serde(rename = "smart-card-program-complete")]
@@ -333,8 +333,8 @@ pub enum EventId {
     ImprintingToggled,
     #[serde(rename = "central-scan-network-status")]
     CentralScanNetworkStatus,
-    #[serde(rename = "election-package-load-from-usb-complete")]
-    ElectionPackageLoadedFromUsb,
+    #[serde(rename = "configuration-package-load-from-usb-complete")]
+    ConfigurationPackageLoadedFromUsb,
     #[serde(rename = "export-cast-vote-records-init")]
     ExportCastVoteRecordsInit,
     #[serde(rename = "export-cast-vote-records-complete")]

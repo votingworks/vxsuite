@@ -73,7 +73,7 @@ describe('as System Admin', () => {
     );
     screen.getByText('November 3, 2020');
 
-    screen.getButton('Save Election Package');
+    screen.getButton('Save Configuration Package');
     screen.getButton('Unconfigure Machine');
     expect(
       screen.queryByText('Revert Results to Unofficial')
@@ -140,7 +140,7 @@ describe('as election manager', () => {
     );
     screen.getByText('November 3, 2020');
 
-    screen.getButton('Save Election Package');
+    screen.getButton('Save Configuration Package');
   });
 });
 

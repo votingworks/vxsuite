@@ -29,7 +29,7 @@ describe('test cdf documentation generation', () => {
     // Make sure VxAdminFrontend specific logs are included.
     expect(structuredData.EventIdDescription).toContainEqual(
       expect.objectContaining({
-        Id: LogEventId.SaveElectionPackageComplete,
+        Id: LogEventId.SaveConfigurationPackageComplete,
       })
     );
     // Make sure a generic log to all apps is included

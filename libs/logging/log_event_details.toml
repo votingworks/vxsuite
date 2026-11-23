@@ -503,17 +503,17 @@ eventType = "user-action"
 documentationMessage = "A password change was executed."
 
 # VxAdmin-specific user action logs
-[Events.SaveElectionPackageInit]
-eventId = "save-election-package-init"
+[Events.SaveConfigurationPackageInit]
+eventId = "save-configuration-package-init"
 eventType = "user-action"
-documentationMessage = "Saving the election package is initiated."
-defaultMessage = "User initiated saving the election package..."
+documentationMessage = "Saving the configuration package is initiated."
+defaultMessage = "User initiated saving the configuration package..."
 restrictInDocumentationToApps = ["vx-admin"]
 
-[Events.SaveElectionPackageComplete]
-eventId = "save-election-package-complete"
+[Events.SaveConfigurationPackageComplete]
+eventId = "save-configuration-package-complete"
 eventType = "user-action"
-documentationMessage = "Saving the election package completed, success or failure is indicated by the disposition."
+documentationMessage = "Saving the configuration package completed, success or failure is indicated by the disposition."
 restrictInDocumentationToApps = ["vx-admin"]
 
 [Events.SmartCardProgramInit]
@@ -742,13 +742,14 @@ eventType = "application-status"
 documentationMessage = "A status message indicating an update to the network, such as host discovery, client connection changes, or error states."
 restrictInDocumentationToApps = ["vx-central-scan"]
 
-# Scanners, central and precinct
-[Events.ElectionPackageLoadedFromUsb]
-eventId = "election-package-load-from-usb-complete"
+# Machines configured from a configuration package exported by VxAdmin
+[Events.ConfigurationPackageLoadedFromUsb]
+eventId = "configuration-package-load-from-usb-complete"
 eventType = "user-action"
-documentationMessage = "The election package has been read from the USB drive. Success or failure indicated by disposition."
-restrictInDocumentationToApps = ["vx-central-scan", "vx-scan"]
+documentationMessage = "The configuration package has been read from the USB drive. Success or failure indicated by disposition."
+restrictInDocumentationToApps = ["vx-central-scan", "vx-scan", "vx-mark", "vx-mark-scan"]
 
+# Scanners, central and precinct
 [Events.ExportCastVoteRecordsInit]
 eventId = "export-cast-vote-records-init"
 eventType = "user-action"

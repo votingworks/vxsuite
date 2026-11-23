@@ -28,7 +28,7 @@ type DeviceStatuses = Awaited<ReturnType<ApiClient['getDeviceStatuses']>>;
 
 const electionDefinition = readElectionGeneralDefinition();
 const NO_ELECTION_PACKAGE_MESSAGE =
-  'No signed election package found on the inserted USB drive. Save a signed election package in VxAdmin.';
+  'No configuration package found on the inserted USB drive. Save a configuration package in VxAdmin.';
 
 let apiMock: ApiMock;
 
@@ -106,7 +106,9 @@ test('configures from a USB drive that was already inserted', async () => {
 test('configures when a USB drive is inserted', async () => {
   setDeviceStatuses(deviceStatuses('no_drive'));
   renderScreen();
-  await screen.findByText('Insert a USB drive containing an election package');
+  await screen.findByText(
+    'Insert a USB drive containing a configuration package'
+  );
 
   const resolveConfigure = expectConfigure();
   setDeviceStatuses(deviceStatuses('mounted'));
@@ -127,7 +129,9 @@ test('reconfigures when a USB drive is reinserted', async () => {
   await screen.findByText(NO_ELECTION_PACKAGE_MESSAGE);
 
   setDeviceStatuses(deviceStatuses('no_drive'));
-  await screen.findByText('Insert a USB drive containing an election package');
+  await screen.findByText(
+    'Insert a USB drive containing a configuration package'
+  );
 
   const resolveConfigure = expectConfigure();
   setDeviceStatuses(deviceStatuses('mounted'));

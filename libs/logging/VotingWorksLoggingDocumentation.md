@@ -294,13 +294,13 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)
 **Description:** A password change was executed.
 **Machines:** All
-### save-election-package-init
+### save-configuration-package-init
 **Type:** [user-action](#user-action)
-**Description:** Saving the election package is initiated.
+**Description:** Saving the configuration package is initiated.
 **Machines:** vx-admin
-### save-election-package-complete
+### save-configuration-package-complete
 **Type:** [user-action](#user-action)
-**Description:** Saving the election package completed, success or failure is indicated by the disposition.
+**Description:** Saving the configuration package completed, success or failure is indicated by the disposition.
 **Machines:** vx-admin
 ### smart-card-program-init
 **Type:** [user-action](#user-action)
@@ -450,10 +450,10 @@ IDs are logged with each log to identify the log being written.
 **Type:** [application-status](#application-status)
 **Description:** A status message indicating an update to the network, such as host discovery, client connection changes, or error states.
 **Machines:** vx-central-scan
-### election-package-load-from-usb-complete
+### configuration-package-load-from-usb-complete
 **Type:** [user-action](#user-action)
-**Description:** The election package has been read from the USB drive. Success or failure indicated by disposition.
-**Machines:** vx-central-scan, vx-scan
+**Description:** The configuration package has been read from the USB drive. Success or failure indicated by disposition.
+**Machines:** vx-central-scan, vx-scan, vx-mark, vx-mark-scan
 ### export-cast-vote-records-init
 **Type:** [user-action](#user-action)
 **Description:** Cast vote records are being exported to a USB drive.

@@ -160,7 +160,7 @@ export function AdminScreen({
         </P>
         {!isTestModeAvailable && (
           <P>
-            <Icons.Info /> Election package does not contain test ballots
+            <Icons.Info /> Configuration package does not contain test ballots
             required for test mode.
           </P>
         )}

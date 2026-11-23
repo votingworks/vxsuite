@@ -39,7 +39,7 @@ test('Button renders properly when not clicked', () => {
     apiMock,
   });
 
-  screen.getButton('Save Election Package');
+  screen.getButton('Save Configuration Package');
   expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 });
 
@@ -56,10 +56,10 @@ test.each<{
       usbDriveStatus: mockUsbDriveStatus(usbStatus),
       apiMock,
     });
-    await userEvent.click(screen.getButton('Save Election Package'));
+    await userEvent.click(screen.getButton('Save Configuration Package'));
     await vi.waitFor(() => screen.getByText('No USB Drive Detected'));
     screen.getByText(
-      'Insert a USB drive in order to save the election package.'
+      'Insert a USB drive in order to save the configuration package.'
     );
 
     await userEvent.click(screen.getButton('Cancel'));
@@ -87,12 +87,12 @@ test('Modal renders export confirmation screen when usb detected', async () => {
     apiMock,
   });
   await userEvent.click(
-    await screen.findByRole('button', { name: 'Save Election Package' })
+    await screen.findByRole('button', { name: 'Save Configuration Package' })
   );
   const modal = await screen.findByRole('alertdialog');
-  within(modal).getByText('Save Election Package');
+  within(modal).getByText('Save Configuration Package');
   within(modal).getByText(
-    /An election package will be saved to the inserted USB drive./
+    /A configuration package will be saved to the inserted USB drive./
   );
 
   const { promise, resolve } = deferred<Result<void, ExportDataError>>();
@@ -103,10 +103,10 @@ test('Modal renders export confirmation screen when usb detected', async () => {
   await userEvent.click(modal.parentElement!);
   screen.getByRole('alertdialog');
   resolve(ok());
-  await within(modal).findByText('Election Package Saved');
+  await within(modal).findByText('Configuration Package Saved');
 
   screen.getByText(
-    'You may now eject the USB drive. Use the saved election package on the USB drive to configure VxSuite components.'
+    'You may now eject the USB drive. Use the saved configuration package on the USB drive to configure your other VxSuite machines.'
   );
 
   apiMock.expectEjectUsbDrive();
@@ -135,7 +135,7 @@ test('Modal keeps showing the save in progress as the USB drive fills up', async
 
   apiMock.expectGetElectionPackageSize(GIB);
   renderInAppContext(<WithUsbDriveStatus />, { apiMock });
-  await userEvent.click(screen.getButton('Save Election Package'));
+  await userEvent.click(screen.getButton('Save Configuration Package'));
   const modal = await screen.findByRole('alertdialog');
 
   const { promise, resolve } = deferred<Result<void, ExportDataError>>();
@@ -154,7 +154,7 @@ test('Modal keeps showing the save in progress as the USB drive fills up', async
   ).not.toBeInTheDocument();
 
   resolve(ok());
-  await within(modal).findByText('Election Package Saved');
+  await within(modal).findByText('Configuration Package Saved');
 });
 
 test('Modal renders error message appropriately', async () => {
@@ -163,8 +163,8 @@ test('Modal renders error message appropriately', async () => {
     apiMock,
     usbDriveStatus: mockUsbDriveStatus('mounted'),
   });
-  await userEvent.click(screen.getButton('Save Election Package'));
-  await screen.findByRole('heading', { name: 'Save Election Package' });
+  await userEvent.click(screen.getButton('Save Configuration Package'));
+  await screen.findByRole('heading', { name: 'Save Configuration Package' });
 
   apiMock.expectSaveElectionPackageToUsb(
     err({ type: 'missing-usb-drive', message: '' })
@@ -172,7 +172,7 @@ test('Modal renders error message appropriately', async () => {
   await userEvent.click(await screen.findButton('Save'));
 
   await screen.findByRole('heading', {
-    name: 'Failed to Save Election Package',
+    name: 'Failed to Save Configuration Package',
   });
   screen.getByText(/An error occurred: No USB drive detected/);
 
@@ -189,8 +189,8 @@ test('Modal waits for the election package size before offering to save', async 
     apiMock,
     usbDriveStatus: mockUsbDriveStatus('mounted'),
   });
-  await userEvent.click(screen.getButton('Save Election Package'));
-  await screen.findByRole('heading', { name: 'Save Election Package' });
+  await userEvent.click(screen.getButton('Save Configuration Package'));
+  await screen.findByRole('heading', { name: 'Save Configuration Package' });
   expect(
     screen.queryByRole('button', { name: 'Save' })
   ).not.toBeInTheDocument();
@@ -212,12 +212,12 @@ test('Modal tells a system administrator to format the USB drive from Settings w
       availableBytes: 32 * GIB,
     }),
   });
-  await userEvent.click(screen.getButton('Save Election Package'));
+  await userEvent.click(screen.getButton('Save Configuration Package'));
   const modal = await screen.findByRole('alertdialog');
   await within(modal).findByRole('heading', {
-    name: 'Election Package Too Large for USB Drive',
+    name: 'Configuration Package Too Large for USB Drive',
   });
-  within(modal).getByText(/The election package is/);
+  within(modal).getByText(/The configuration package is/);
   within(modal).getByText('5.0 GB');
   within(modal).getByText(/current format can't hold files larger than/);
   within(modal).getByText('4.0 GB');
@@ -248,9 +248,9 @@ test('Modal tells an election manager to ask for formatting when the package exc
       availableBytes: 32 * GIB,
     }),
   });
-  await userEvent.click(screen.getButton('Save Election Package'));
+  await userEvent.click(screen.getButton('Save Configuration Package'));
   await screen.findByRole('heading', {
-    name: 'Election Package Too Large for USB Drive',
+    name: 'Configuration Package Too Large for USB Drive',
   });
   screen.getByText(/Ask a system administrator to reformat the USB drive/);
   await userEvent.click(screen.getButton('Close'));
@@ -266,7 +266,7 @@ test('Modal explains when the USB drive is too full', async () => {
       availableBytes: 2 * GIB,
     }),
   });
-  await userEvent.click(screen.getButton('Save Election Package'));
+  await userEvent.click(screen.getButton('Save Configuration Package'));
   await screen.findByRole('heading', {
     name: 'Not Enough Space on USB Drive',
   });
@@ -287,7 +287,7 @@ test('Modal tells an election manager to remove files when the USB drive is too 
       availableBytes: 2 * GIB,
     }),
   });
-  await userEvent.click(screen.getButton('Save Election Package'));
+  await userEvent.click(screen.getButton('Save Configuration Package'));
   await screen.findByRole('heading', {
     name: 'Not Enough Space on USB Drive',
   });
@@ -307,7 +307,7 @@ test('Modal explains when the USB drive is too small to ever fit the package, ev
       availableBytes: 4 * GIB,
     }),
   });
-  await userEvent.click(screen.getButton('Save Election Package'));
+  await userEvent.click(screen.getButton('Save Configuration Package'));
   await screen.findByRole('heading', {
     name: 'USB Drive Too Small',
   });
@@ -332,11 +332,11 @@ test.each<{ error: ExportDataError; message: string }>([
     apiMock,
     usbDriveStatus: mockUsbDriveStatus('mounted'),
   });
-  await userEvent.click(screen.getButton('Save Election Package'));
+  await userEvent.click(screen.getButton('Save Configuration Package'));
   apiMock.expectSaveElectionPackageToUsb(err(error));
   await userEvent.click(await screen.findButton('Save'));
   await screen.findByRole('heading', {
-    name: 'Failed to Save Election Package',
+    name: 'Failed to Save Configuration Package',
   });
   screen.getByText(`An error occurred: ${message}.`);
 });

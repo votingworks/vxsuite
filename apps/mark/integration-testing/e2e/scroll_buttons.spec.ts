@@ -67,7 +67,7 @@ test('configure, open polls, and test contest scroll buttons', async ({
     .waitFor();
   await logInAsElectionManager(page, election);
   await page
-    .getByText('Insert a USB drive containing an election package')
+    .getByText('Insert a USB drive containing a configuration package')
     .waitFor();
 
   usbHandler.insert(

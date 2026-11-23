@@ -362,7 +362,7 @@ export function buildApi(ctx: AppContext) {
       // Frontend should prevent this but we assert as a failsafe
       assert(
         !testMode || store.hasTestBallots(),
-        'Cannot switch to test ballot mode: the election package does not contain test ballots.'
+        'Cannot switch to test ballot mode: the configuration package does not contain test ballots.'
       );
       await logger.logAsCurrentRole(LogEventId.TogglingTestMode, {
         message: `Toggling to ${testMode ? 'Test' : 'Official'} Ballot Mode...`,

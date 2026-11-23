@@ -67,8 +67,8 @@ export function ToggleTestModeButton(): JSX.Element | null {
       </P>
       {hasTestBallotsQuery.isSuccess && !isTestModeAvailable && (
         <P>
-          <Icons.Info /> Election package does not contain test ballots required
-          for test mode.
+          <Icons.Info /> Configuration package does not contain test ballots
+          required for test mode.
         </P>
       )}
       {flowState === 'confirmation' && (

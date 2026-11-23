@@ -143,7 +143,9 @@ test('app can load and configure from a usb stick', async () => {
   await screen.findByText(
     'Insert an election manager card to configure VxScan'
   );
-  await screen.findByText('Insert a USB drive containing an election package');
+  await screen.findByText(
+    'Insert a USB drive containing a configuration package'
+  );
 
   // Insert a USB with no election package
   apiMock.expectGetUsbDriveStatus('mounted');
@@ -154,12 +156,14 @@ test('app can load and configure from a usb stick', async () => {
     electionDefinition: undefined,
   });
   await screen.findByText(
-    'No signed election package found on the inserted USB drive. Save a signed election package in VxAdmin.'
+    'No configuration package found on the inserted USB drive. Save a configuration package in VxAdmin.'
   );
 
   // Remove the USB
   apiMock.expectGetUsbDriveStatus('no_drive');
-  await screen.findByText('Insert a USB drive containing an election package');
+  await screen.findByText(
+    'Insert a USB drive containing a configuration package'
+  );
 
   // Insert a USB with an election package
   apiMock.expectGetUsbDriveStatus('mounted');
@@ -212,7 +216,7 @@ test('configures from an already-inserted USB drive in strict mode', async () =>
   );
 
   await screen.findByText(
-    'No signed election package found on the inserted USB drive. Save a signed election package in VxAdmin.'
+    'No configuration package found on the inserted USB drive. Save a configuration package in VxAdmin.'
   );
 });
 
@@ -233,7 +237,7 @@ test('waits for election manager auth to configure', async () => {
   apiMock.authenticateAsElectionManager(electionGeneralDefinition);
 
   await screen.findByText(
-    'No signed election package found on the inserted USB drive. Save a signed election package in VxAdmin.'
+    'No configuration package found on the inserted USB drive. Save a configuration package in VxAdmin.'
   );
 });
 
@@ -393,7 +397,9 @@ test('election manager and poll worker configuration', async () => {
   apiMock.expectGetUsbDriveStatus('ejected');
   await userEvent.click(await screen.findByText('Unconfigure Machine'));
   await userEvent.click(await screen.findByText('Delete All Election Data'));
-  await screen.findByText('Insert a USB drive containing an election package');
+  await screen.findByText(
+    'Insert a USB drive containing a configuration package'
+  );
 });
 
 const statusBallotCounted = scannerStatus({

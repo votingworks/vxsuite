@@ -478,7 +478,7 @@ function buildApi({
     },
 
     async saveElectionPackageToUsb(): Promise<Result<void, ExportDataError>> {
-      await logger.logAsCurrentRole(LogEventId.SaveElectionPackageInit);
+      await logger.logAsCurrentRole(LogEventId.SaveConfigurationPackageInit);
       const exporter = buildExporter(usbDriveAdapter);
 
       const electionRecord = getCurrentElectionRecord(workspace);
@@ -525,10 +525,13 @@ function buildApi({
         return exportSignatureFileResult;
       }
 
-      await logger.logAsCurrentRole(LogEventId.SaveElectionPackageComplete, {
-        disposition: 'success',
-        message: 'Successfully saved election package.',
-      });
+      await logger.logAsCurrentRole(
+        LogEventId.SaveConfigurationPackageComplete,
+        {
+          disposition: 'success',
+          message: 'Successfully saved configuration package.',
+        }
+      );
       return ok();
     },
 
