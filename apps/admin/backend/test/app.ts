@@ -21,7 +21,6 @@ import {
   type BallotPositions,
 } from '@votingworks/types';
 import * as grout from '@votingworks/grout';
-import type { AddressInfo } from 'node:net';
 import type { Buffer } from 'node:buffer';
 import {
   generateElectionBasedSubfolderName,
@@ -56,6 +55,7 @@ import {
   createElectionPackageZipArchive,
   type PartialElectionPackage,
 } from '@votingworks/backend';
+import { listenForTest } from '@votingworks/grout-test-utils';
 import type {
   Api,
   ElectionDefinitionApi,
@@ -252,9 +252,7 @@ export function buildTestEnvironment({
     printer: mockPrinterHandler.printer,
     machineMode,
   });
-  // port 0 will bind to a random, free port assigned by the OS
-  const server = app.listen();
-  const { port } = server.address() as AddressInfo;
+  const { port } = listenForTest(app);
   const baseUrl = `http://localhost:${port}/api`;
   const apiClient = grout.createClient<Api>({
     baseUrl,
@@ -269,8 +267,7 @@ export function buildTestEnvironment({
     logger: peerLogger,
     machineId: getMachineConfig().machineId,
   });
-  const peerServer = peerApp.listen();
-  const { port: peerPort } = peerServer.address() as AddressInfo;
+  const { server: peerServer, port: peerPort } = listenForTest(peerApp);
   const peerApiClient = grout.createClient<PeerApi>({
     baseUrl: `http://localhost:${peerPort}/api`,
   });

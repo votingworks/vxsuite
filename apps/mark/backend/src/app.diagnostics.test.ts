@@ -93,7 +93,7 @@ let mockBarcodeClient: MockBarcodeClient;
 const mockTime = new Date('2021-01-01T00:00:00.000');
 
 async function wrapWithFakeSystemTime<T>(fn: () => Promise<T>): Promise<T> {
-  vi.useFakeTimers().setSystemTime(mockTime.getTime());
+  vi.useFakeTimers({ toFake: ['Date'] }).setSystemTime(mockTime.getTime());
   const result = await fn();
   vi.useRealTimers();
   return result;
@@ -297,7 +297,7 @@ test('saveReadinessReport - machine configured', async () => {
   const [pollingPlace] = assertDefined(election.pollingPlaces);
   await apiClient.setPollingPlaceId({ id: pollingPlace!.id });
 
-  vi.useFakeTimers().setSystemTime(mockTime.getTime());
+  vi.useFakeTimers({ toFake: ['Date'] }).setSystemTime(mockTime.getTime());
   await apiClient.addDiagnosticRecord({
     type: 'mark-pat-input',
     outcome: 'pass',

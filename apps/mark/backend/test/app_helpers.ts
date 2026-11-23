@@ -5,7 +5,6 @@ import {
 } from '@votingworks/auth';
 import * as grout from '@votingworks/grout';
 import type { Application } from 'express';
-import type { AddressInfo } from 'node:net';
 import {
   mockLogger,
   LogSource,
@@ -32,6 +31,7 @@ import {
   type MemoryPrinterHandler,
 } from '@votingworks/printing';
 import { ok } from '@votingworks/basics';
+import { listenForTest } from '@votingworks/grout-test-utils';
 import { type Api, buildApp } from '../src/app.js';
 import { createWorkspace, type Workspace } from '../src/util/workspace.js';
 import { getUserRole } from '../src/util/auth.js';
@@ -89,8 +89,7 @@ export function createApp(options?: {
     barcodeClient: mockBarcodeClient,
   });
 
-  const server = app.listen();
-  const { port } = server.address() as AddressInfo;
+  const { server, port } = listenForTest(app);
   const baseUrl = `http://localhost:${port}/api`;
 
   const apiClient = grout.createClient<Api>({ baseUrl });

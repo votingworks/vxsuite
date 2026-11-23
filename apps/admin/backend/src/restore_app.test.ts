@@ -1,7 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 import { existsSync, mkdirSync } from 'node:fs';
-import type { AddressInfo } from 'node:net';
 import { dirname, join } from 'node:path';
 import {
   buildMockDippedSmartCardAuth,
@@ -20,6 +19,7 @@ import {
   detectMultiUsbDrive,
   SimulatedUsbPlatform,
 } from '@votingworks/usb-drive';
+import { listenForTest } from '@votingworks/grout-test-utils';
 import {
   attachUsbDrive,
   buildMockLogger,
@@ -77,8 +77,7 @@ function buildRestoreTestEnvironment() {
     logger,
     multiUsbDrive,
   });
-  const server = app.listen();
-  const { port } = server.address() as AddressInfo;
+  const { server, port } = listenForTest(app);
   const apiClient = grout.createClient<RestoreApi>({
     baseUrl: `http://localhost:${port}/api`,
   });

@@ -72,6 +72,7 @@
     "@vitest/coverage-istanbul": "5.0.2",
     "@votingworks/coverage-check": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
+    "@votingworks/grout-test-utils": "workspace:*",
     "@votingworks/hmpb": "workspace:*",
     "esbuild": "0.28.1",
     "eslint-plugin-vx": "workspace:*",

@@ -4,7 +4,6 @@ import {
   hasOnlineInterface,
   NETWORK_POLLING_INTERVAL_MS,
 } from '@votingworks/networking';
-import type { AddressInfo } from 'node:net';
 import type { Server } from 'node:http';
 import {
   electionTwoPartyPrimaryFixtures,
@@ -26,6 +25,7 @@ import {
   detectMultiUsbDrive,
   SimulatedUsbPlatform,
 } from '@votingworks/usb-drive';
+import { listenForTest } from '@votingworks/grout-test-utils';
 import { startHostNetworking, startClientNetworking } from './networking.js';
 import { buildPeerApp, type PeerApi } from './peer_app.js';
 import { buildClientApp, type ClientApi } from './client_app.js';
@@ -121,8 +121,9 @@ async function setupHostAndClient(
   const workspace = createWorkspace(tmpDir, logger);
   const { store } = workspace;
   const peerApp = buildPeerApp({ workspace, logger, machineId: hostMachineId });
-  peerServer = peerApp.listen();
-  const { port: peerPort } = peerServer.address() as AddressInfo;
+  const peer = listenForTest(peerApp);
+  peerServer = peer.server;
+  const peerPort = peer.port;
 
   const clientWorkspace = createClientWorkspace(makeTemporaryDirectory());
   const { clientStore } = clientWorkspace;
@@ -144,8 +145,9 @@ async function setupHostAndClient(
       },
     },
   });
-  clientServer = clientApp.listen();
-  const { port: clientPort } = clientServer.address() as AddressInfo;
+  const client = listenForTest(clientApp);
+  clientServer = client.server;
+  const clientPort = client.port;
   const clientApiClient = grout.createClient<ClientApi>({
     baseUrl: `http://localhost:${clientPort}/api`,
   });

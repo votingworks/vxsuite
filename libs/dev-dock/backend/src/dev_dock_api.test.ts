@@ -8,7 +8,6 @@ import {
   vxFamousNamesFixtures,
   vxGeneralElectionFixtures,
 } from '@votingworks/hmpb';
-import type { AddressInfo } from 'node:net';
 import {
   BooleanEnvironmentVariableName,
   ELECTION_PACKAGE_FOLDER,
@@ -60,6 +59,7 @@ import {
   SimulatedUsbPlatform,
   UsbDiskDevPathSchema,
 } from '@votingworks/usb-drive';
+import { listenForTest } from '@votingworks/grout-test-utils';
 import { ScreenRecordingFile } from './screen_recording.js';
 import {
   type Api,
@@ -123,8 +123,9 @@ function setup(
     hubExportDir,
     screenRecordingFile
   );
-  server = app.listen();
-  const { port } = server.address() as AddressInfo;
+  const listening = listenForTest(app);
+  server = listening.server;
+  const { port } = listening;
   const baseUrl = `http://localhost:${port}/dock`;
   const apiClient = grout.createClient<Api>({ baseUrl });
   return { apiClient, devDockDir, hubExportDir };
@@ -525,8 +526,9 @@ test("mounts with a default VxHub export directory, since apps don't provide one
     {},
     makeTemporaryDirectory({ prefix: 'dev-dock-test-' })
   );
-  server = app.listen();
-  const { port } = server.address() as AddressInfo;
+  const listening = listenForTest(app);
+  server = listening.server;
+  const { port } = listening;
   const apiClient = grout.createClient<Api>({
     baseUrl: `http://localhost:${port}/dock`,
   });
