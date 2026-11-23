@@ -10,7 +10,7 @@ import {
 } from '@votingworks/types';
 import type { Buffer } from 'node:buffer';
 import {
-  ELECTION_PACKAGE_FOLDER,
+  CONFIGURATION_PACKAGE_FOLDER,
   generateElectionBasedSubfolderName,
 } from '@votingworks/utils';
 import type { MockFileTree } from '@votingworks/usb-drive';
@@ -113,7 +113,7 @@ export async function mockElectionPackageFileTree(
   const { election, ballotHash } = electionPackage.electionDefinition;
   return {
     [generateElectionBasedSubfolderName(election, ballotHash)]: {
-      [ELECTION_PACKAGE_FOLDER]: {
+      [CONFIGURATION_PACKAGE_FOLDER]: {
         'test-election-package.zip':
           await createElectionPackageZipArchive(electionPackage),
       },

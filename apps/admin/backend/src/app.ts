@@ -46,9 +46,9 @@ import path, { join, matchesGlob, normalize } from 'node:path';
 import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
-  ELECTION_PACKAGE_FOLDER,
+  CONFIGURATION_PACKAGE_FOLDER,
   generateElectionBasedSubfolderName,
-  generateFilenameForElectionPackage,
+  generateFilenameForConfigurationPackage,
   getBallotCount,
   getBallotStyleGroup,
   groupMapToGroupList,
@@ -490,11 +490,11 @@ function buildApi({
         workspace.store.getElectionPackageFilePath(electionId)
       );
       const exportedElectionPackageFileName =
-        generateFilenameForElectionPackage(new Date());
+        generateFilenameForConfigurationPackage(new Date());
 
       const usbDriveElectionPackageDirectoryRelativePath = join(
         generateElectionBasedSubfolderName(election, ballotHash),
-        ELECTION_PACKAGE_FOLDER
+        CONFIGURATION_PACKAGE_FOLDER
       );
       const exportElectionPackageResult = await exporter.exportDataToUsbDrive(
         usbDriveElectionPackageDirectoryRelativePath,

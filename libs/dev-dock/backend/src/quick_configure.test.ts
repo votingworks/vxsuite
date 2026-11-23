@@ -2,7 +2,7 @@ import { expect, test } from 'vitest';
 import * as fs from 'node:fs';
 import { join } from 'node:path';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
-import { ELECTION_PACKAGE_FOLDER } from '@votingworks/utils';
+import { CONFIGURATION_PACKAGE_FOLDER } from '@votingworks/utils';
 import {
   QUICK_CONFIGURE_ELECTION_DIR,
   STAGED_ELECTION_PACKAGE_FILE_NAME,
@@ -88,7 +88,7 @@ test('stageElectionPackageOnMockUsbDrive writes the layout machines look for', (
     join(
       usbDriveDataPath,
       QUICK_CONFIGURE_ELECTION_DIR,
-      ELECTION_PACKAGE_FOLDER,
+      CONFIGURATION_PACKAGE_FOLDER,
       STAGED_ELECTION_PACKAGE_FILE_NAME
     )
   );

@@ -53,7 +53,8 @@ import {
   typedAs,
 } from '@votingworks/basics';
 import {
-  ELECTION_PACKAGE_FOLDER,
+  CONFIGURATION_PACKAGE_FOLDER,
+  LEGACY_CONFIGURATION_PACKAGE_FOLDER,
   BooleanEnvironmentVariableName,
   generateElectionBasedSubfolderName,
   getFeatureFlagMock,
@@ -861,7 +862,7 @@ test('readSignedElectionPackageFromDirectory can read an election package from a
   expect(authenticateArtifactUsingSignatureFile).toHaveBeenNthCalledWith(1, {
     type: 'election_package',
     filePath: expect.stringContaining(
-      '/election-packages/test-election-package.zip'
+      '/configuration-packages/test-election-package.zip'
     ),
   });
 });
@@ -1029,7 +1030,7 @@ test('configures using the most recently created election package for an electio
   };
   writeMockFileTree(directory, {
     [electionDirectory]: {
-      [ELECTION_PACKAGE_FOLDER]: {
+      [CONFIGURATION_PACKAGE_FOLDER]: {
         'older-election-package.zip': await createElectionPackageZipArchive(
           electionFamousNames2021Fixtures.electionJson.toElectionPackage()
         ),
@@ -1043,7 +1044,8 @@ test('configures using the most recently created election package for an electio
   assertFilesCreatedInOrder(
     directory,
     ['older-election-package.zip', 'newer-election-package.zip'].map(
-      (filename) => join(electionDirectory, ELECTION_PACKAGE_FOLDER, filename)
+      (filename) =>
+        join(electionDirectory, CONFIGURATION_PACKAGE_FOLDER, filename)
     )
   );
 
@@ -1087,14 +1089,14 @@ test('configures using the most recently created election package across electio
   );
   writeMockFileTree(directory, {
     [otherElectionDirectory]: {
-      [ELECTION_PACKAGE_FOLDER]: {
+      [CONFIGURATION_PACKAGE_FOLDER]: {
         'older-election-package.zip': await createElectionPackageZipArchive({
           electionDefinition: otherElectionDefinition,
         }),
       },
     },
     [electionDirectory]: {
-      [ELECTION_PACKAGE_FOLDER]: {
+      [CONFIGURATION_PACKAGE_FOLDER]: {
         'newer-election-package.zip': await createElectionPackageZipArchive({
           electionDefinition,
         }),
@@ -1104,12 +1106,12 @@ test('configures using the most recently created election package across electio
   assertFilesCreatedInOrder(directory, [
     join(
       otherElectionDirectory,
-      ELECTION_PACKAGE_FOLDER,
+      CONFIGURATION_PACKAGE_FOLDER,
       'older-election-package.zip'
     ),
     join(
       electionDirectory,
-      ELECTION_PACKAGE_FOLDER,
+      CONFIGURATION_PACKAGE_FOLDER,
       'newer-election-package.zip'
     ),
   ]);
@@ -1124,6 +1126,114 @@ test('configures using the most recently created election package across electio
   expect(electionPackage.electionDefinition).toEqual(
     asStoredElectionDefinition(electionDefinition)
   );
+});
+
+test('configures from a package in the legacy election-packages directory', async () => {
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const { election, ballotHash } = electionDefinition;
+  const authStatus: InsertedSmartCardAuth.AuthStatus = {
+    status: 'logged_in',
+    user: mockElectionManagerUser({
+      electionKey: constructElectionKey(election),
+    }),
+    sessionExpiresAt: mockSessionExpiresAt(),
+  };
+
+  const directory = makeTemporaryDirectory();
+  const electionDirectory = generateElectionBasedSubfolderName(
+    election,
+    ballotHash
+  );
+  writeMockFileTree(directory, {
+    [electionDirectory]: {
+      [LEGACY_CONFIGURATION_PACKAGE_FOLDER]: {
+        'test-election-package.zip': await createElectionPackageZipArchive({
+          electionDefinition,
+        }),
+      },
+    },
+  });
+
+  const { electionPackage } = (
+    await readSignedElectionPackageFromDirectory(
+      authStatus,
+      directory,
+      mockBaseLogger({ fn: vi.fn })
+    )
+  ).unsafeUnwrap();
+  expect(electionPackage.electionDefinition).toEqual(
+    asStoredElectionDefinition(electionDefinition)
+  );
+});
+
+test('configures using the most recently created package across the current and legacy directories', async () => {
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const { election, ballotHash } = electionDefinition;
+  const authStatus: InsertedSmartCardAuth.AuthStatus = {
+    status: 'logged_in',
+    user: mockElectionManagerUser({
+      electionKey: constructElectionKey(election),
+    }),
+    sessionExpiresAt: mockSessionExpiresAt(),
+  };
+
+  const directory = makeTemporaryDirectory();
+  const electionDirectory = generateElectionBasedSubfolderName(
+    election,
+    ballotHash
+  );
+  const specificSystemSettings: SystemSettings = {
+    ...DEFAULT_SYSTEM_SETTINGS,
+    auth: {
+      ...DEFAULT_SYSTEM_SETTINGS.auth,
+      inactiveSessionTimeLimitMinutes: 20,
+    },
+  };
+  // The legacy package is written second so that it is the most recent. A
+  // machine must prefer it over the package in the current directory, which
+  // only holds if the legacy directory is actually searched.
+  writeMockFileTree(directory, {
+    [electionDirectory]: {
+      [CONFIGURATION_PACKAGE_FOLDER]: {
+        'older-configuration-package.zip':
+          await createElectionPackageZipArchive({
+            electionDefinition,
+          }),
+      },
+    },
+  });
+  writeMockFileTree(join(directory, electionDirectory), {
+    [LEGACY_CONFIGURATION_PACKAGE_FOLDER]: {
+      'newer-election-package.zip': await createElectionPackageZipArchive({
+        electionDefinition,
+        systemSettings: specificSystemSettings,
+      }),
+    },
+  });
+  assertFilesCreatedInOrder(directory, [
+    join(
+      electionDirectory,
+      CONFIGURATION_PACKAGE_FOLDER,
+      'older-configuration-package.zip'
+    ),
+    join(
+      electionDirectory,
+      LEGACY_CONFIGURATION_PACKAGE_FOLDER,
+      'newer-election-package.zip'
+    ),
+  ]);
+
+  const { electionPackage } = (
+    await readSignedElectionPackageFromDirectory(
+      authStatus,
+      directory,
+      mockBaseLogger({ fn: vi.fn })
+    )
+  ).unsafeUnwrap();
+  // use correct system settings as a proxy for the correct configuration package
+  expect(electionPackage.systemSettings).toEqual(specificSystemSettings);
 });
 
 test('ignores hidden `.`-prefixed files, even if they are newer', async () => {
@@ -1145,7 +1255,7 @@ test('ignores hidden `.`-prefixed files, even if they are newer', async () => {
   );
   writeMockFileTree(directory, {
     [electionDirectory]: {
-      [ELECTION_PACKAGE_FOLDER]: {
+      [CONFIGURATION_PACKAGE_FOLDER]: {
         'older-election-package.zip': await createElectionPackageZipArchive({
           electionDefinition,
           systemSettings: safeParseSystemSettings(
@@ -1163,7 +1273,7 @@ test('ignores hidden `.`-prefixed files, even if they are newer', async () => {
       'older-election-package.zip',
       '._newer-hidden-file-election-package.zip',
     ].map((filename) =>
-      join(electionDirectory, ELECTION_PACKAGE_FOLDER, filename)
+      join(electionDirectory, CONFIGURATION_PACKAGE_FOLDER, filename)
     )
   );
 

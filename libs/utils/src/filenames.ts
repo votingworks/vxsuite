@@ -12,7 +12,19 @@ const SUBSECTION_SEPARATOR = '_';
 const WORD_SEPARATOR = '-';
 const TIME_FORMAT_STRING = `yyyy${WORD_SEPARATOR}MM${WORD_SEPARATOR}dd${SUBSECTION_SEPARATOR}HH${WORD_SEPARATOR}mm${WORD_SEPARATOR}ss`;
 
-export const ELECTION_PACKAGE_FOLDER = 'election-packages';
+/**
+ * The USB drive directory VxAdmin writes configuration packages to and all
+ * other machines read them from.
+ */
+export const CONFIGURATION_PACKAGE_FOLDER = 'configuration-packages';
+
+/**
+ * The directory configuration packages were written to before they were renamed
+ * from "election packages". Machines still read it so that a USB drive prepared
+ * by an older VxAdmin configures a newer machine. Remove in v4.2, once no
+ * supported VxAdmin writes it.
+ */
+export const LEGACY_CONFIGURATION_PACKAGE_FOLDER = 'election-packages';
 export const SCANNER_RESULTS_FOLDER = 'cast-vote-records';
 export const REPORT_FOLDER = 'reports';
 export const TEST_FILE_PREFIX = 'TEST';
@@ -63,13 +75,13 @@ export function generateFileTimeSuffix(time: Date = new Date()): string {
   return DateTime.fromJSDate(time).toFormat(TIME_FORMAT_STRING);
 }
 
-/* Generate the name for an election package */
-export function generateFilenameForElectionPackage(
+/* Generate the name for a configuration package */
+export function generateFilenameForConfigurationPackage(
   // @coverage-defer
   time: Date = new Date()
 ): string {
   const timeSuffix = generateFileTimeSuffix(time);
-  return `election-package${SECTION_SEPARATOR}${timeSuffix}.zip`;
+  return `configuration-package${SECTION_SEPARATOR}${timeSuffix}.zip`;
 }
 
 /* Describes different formats of the log file. */

@@ -6,7 +6,7 @@ import {
   listDirectory,
 } from '@votingworks/fs';
 import { writeMockFileTree } from '@votingworks/usb-drive';
-import { ELECTION_PACKAGE_FOLDER } from '@votingworks/utils';
+import { CONFIGURATION_PACKAGE_FOLDER } from '@votingworks/utils';
 
 /**
  * The election directory that the `QuickConfigure` feature owns on the
@@ -54,7 +54,7 @@ export async function findLatestVxHubElectionPackage(
 
 /**
  * Copies an election package onto the mock USB drive in the layout machines
- * look for: `<drive>/<election dir>/election-packages/<package>.zip`. Only the
+ * look for: `<drive>/<election dir>/configuration-packages/<package>.zip`. Only the
  * directory quick configure owns is written, leaving the rest of the drive's
  * contents alone. Returns the path the package was copied to.
  */
@@ -65,7 +65,7 @@ export function stageElectionPackageOnMockUsbDrive(
   const electionDirPath = join(usbDriveDataPath, QUICK_CONFIGURE_ELECTION_DIR);
   const stagedElectionPackagePath = join(
     electionDirPath,
-    ELECTION_PACKAGE_FOLDER,
+    CONFIGURATION_PACKAGE_FOLDER,
     STAGED_ELECTION_PACKAGE_FILE_NAME
   );
 
@@ -74,7 +74,7 @@ export function stageElectionPackageOnMockUsbDrive(
   // just copy the file onto itself.
   if (resolve(electionPackagePath) !== resolve(stagedElectionPackagePath)) {
     writeMockFileTree(electionDirPath, {
-      [ELECTION_PACKAGE_FOLDER]: {
+      [CONFIGURATION_PACKAGE_FOLDER]: {
         [STAGED_ELECTION_PACKAGE_FILE_NAME]: electionPackagePath,
       },
     });

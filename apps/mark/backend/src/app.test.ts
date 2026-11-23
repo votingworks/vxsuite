@@ -39,7 +39,7 @@ import {
   type PrecinctId,
 } from '@votingworks/types';
 import {
-  ELECTION_PACKAGE_FOLDER,
+  CONFIGURATION_PACKAGE_FOLDER,
   BooleanEnvironmentVariableName,
   generateElectionBasedSubfolderName,
   getFeatureFlagMock,
@@ -322,7 +322,7 @@ test('configureElectionPackageFromUsb cleans up when ballot streaming fails', as
       electionDefinition.election,
       electionDefinition.ballotHash
     )]: {
-      [ELECTION_PACKAGE_FOLDER]: {
+      [CONFIGURATION_PACKAGE_FOLDER]: {
         'test-election-package.zip': await zipFile({
           [ElectionPackageFileName.ELECTION]: electionDefinition.electionData,
           [ElectionPackageFileName.METADATA]: JSON.stringify(LATEST_METADATA),
@@ -349,7 +349,7 @@ test('configureElectionPackageFromUsb cleans up when audio clip streaming fails'
       electionDefinition.election,
       electionDefinition.ballotHash
     )]: {
-      [ELECTION_PACKAGE_FOLDER]: {
+      [CONFIGURATION_PACKAGE_FOLDER]: {
         'test-election-package.zip': await zipFile({
           [ElectionPackageFileName.ELECTION]: electionDefinition.electionData,
           [ElectionPackageFileName.METADATA]: JSON.stringify(LATEST_METADATA),
@@ -479,7 +479,7 @@ test('configureElectionPackageFromUsb returns an error if election package parsi
 
   mockUsbDrive.insertUsbDrive({
     'some-election': {
-      [ELECTION_PACKAGE_FOLDER]: {
+      [CONFIGURATION_PACKAGE_FOLDER]: {
         'test-election-package.zip': Buffer.from("doesn't matter"),
       },
     },
