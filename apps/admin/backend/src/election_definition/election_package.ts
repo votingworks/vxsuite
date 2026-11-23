@@ -21,6 +21,16 @@ export function getElectionPackageFilesPath(store: Store): string {
   return join(store.getElectionPackagesPath(), 'election-definition');
 }
 
+/** Whether the election definition's election package is being built. */
+export function isElectionPackageBuildRunning(store: Store): boolean {
+  const electionInfo = store.electionDefinition.getElectionInfo();
+  return (
+    electionInfo !== undefined &&
+    store.electionDefinition.getElectionPackage(electionInfo.electionId)
+      ?.status === 'running'
+  );
+}
+
 /** Deletes the election definition's built election package files. */
 export async function clearElectionPackageFiles(store: Store): Promise<void> {
   await rm(getElectionPackageFilesPath(store), {

@@ -7,7 +7,10 @@ import {
 } from 'node:fs';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { basename, dirname, join } from 'node:path';
-import { readElectionPackageFromFile } from '@votingworks/backend';
+import {
+  createElectionPackageZipArchive,
+  readElectionPackageFromFile,
+} from '@votingworks/backend';
 import {
   assert,
   assertDefined,
@@ -1961,6 +1964,43 @@ test('an election definition cannot be discarded while its election package is b
   await waitForElectionPackage(api, electionId);
   await api.deleteElection({ electionId });
   expect(await api.getCurrentInProgressElection()).toEqual(null);
+});
+
+test('VxAdmin cannot be configured from a USB drive while an election definition is being finalized', async () => {
+  const {
+    apiClient,
+    electionDefinitionApiClient: api,
+    auth,
+  } = buildTestEnvironment();
+  mockSystemAdministratorAuth(auth);
+  const electionId = await createFinalizableElection(api);
+  const render = deferred<ElectionPackageAndBallotsOutput>();
+  vi.mocked(renderElectionPackageAndBallots).mockReturnValueOnce(
+    render.promise
+  );
+  await api.finalizeElection({ electionId });
+  await vi.waitFor(() =>
+    expect(vi.mocked(renderElectionPackageAndBallots)).toHaveBeenCalled()
+  );
+
+  const electionFilePath = saveTmpFile(
+    await createElectionPackageZipArchive({ electionDefinition }),
+    '.zip'
+  );
+  await suppressingConsoleOutput(() =>
+    expect(apiClient.configure({ electionFilePath })).rejects.toThrow(
+      'Cannot configure VxAdmin while an election definition is being finalized'
+    )
+  );
+  await suppressingConsoleOutput(() =>
+    expect(apiClient.unconfigure()).rejects.toThrow(
+      'Cannot unconfigure VxAdmin while an election definition is being finalized'
+    )
+  );
+  expect(await apiClient.getCurrentElectionMetadata()).toEqual(null);
+
+  render.reject(new Error('stopped'));
+  await waitForElectionPackage(api, electionId);
 });
 
 test('getElectionPackageRenderingStatus rejects an unknown election definition', async () => {

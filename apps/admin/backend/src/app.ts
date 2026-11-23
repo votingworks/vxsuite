@@ -106,6 +106,7 @@ import { setRestoreState, type Workspace } from './util/workspace.js';
 import { isElectionDefinitionEnabled } from './election_definition/state.js';
 import { buildElectionDefinitionApi } from './election_definition/api.js';
 import { configureFromElectionPackageFile } from './configure_from_election_package.js';
+import { isElectionPackageBuildRunning } from './election_definition/election_package.js';
 import { getMachineConfig } from './machine_config.js';
 import { isMultiStationAdjudicationEnabled } from './multi_station_config.js';
 import type { MachineModeController } from './machine_mode.js';
@@ -596,6 +597,10 @@ function buildApi({
           : true,
         'Can only import election packages from removable media in production'
       );
+      assert(
+        !isElectionPackageBuildRunning(store),
+        'Cannot configure VxAdmin while an election definition is being finalized'
+      );
 
       // For the dev flow of configuring with a bare election.json, wrap it
       // in a minimal election package zip on disk, so that the rest of
@@ -672,6 +677,10 @@ function buildApi({
     },
 
     async unconfigure(): Promise<void> {
+      assert(
+        !isElectionPackageBuildRunning(store),
+        'Cannot unconfigure VxAdmin while an election definition is being finalized'
+      );
       await store.reset();
       await logger.logAsCurrentRole(LogEventId.ElectionUnconfigured, {
         disposition: 'success',
