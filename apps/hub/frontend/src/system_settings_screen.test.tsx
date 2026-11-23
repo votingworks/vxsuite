@@ -534,7 +534,7 @@ test('setting "other" system settings', async () => {
   );
   for (const label of [
     'Transliterate Candidate Names',
-    'Disable System Limit Checks on Election Package Import',
+    'Disable System Limit Checks',
   ]) {
     await expectUncheckedThenCheck(otherUndocumentedContainer, label);
   }
@@ -758,9 +758,7 @@ describe('other undocumented settings panel', () => {
       screen.queryByRole('heading', { name: 'Other Undocumented' })
     ).not.toBeInTheDocument();
     expect(
-      screen.queryByText(
-        'Disable System Limit Checks on Election Package Import'
-      )
+      screen.queryByText('Disable System Limit Checks')
     ).not.toBeInTheDocument();
   });
 });
@@ -904,12 +902,12 @@ test.each<{
   },
   {
     userFeatures: { UNDOCUMENTED_SYSTEM_SETTINGS: false },
-    checkboxLabel: 'Disable System Limit Checks on Election Package Import',
+    checkboxLabel: 'Disable System Limit Checks',
     isCheckboxExpected: false,
   },
   {
     userFeatures: { UNDOCUMENTED_SYSTEM_SETTINGS: true },
-    checkboxLabel: 'Disable System Limit Checks on Election Package Import',
+    checkboxLabel: 'Disable System Limit Checks',
     isCheckboxExpected: true,
     expectedSavedSystemSettings: { disableSystemLimitChecks: true },
   },

@@ -258,8 +258,9 @@ export const SystemSettingsSchema = z
     precinctScanDisableAlarms: z.boolean().optional(),
 
     /**
-     * Disables the blocking system limit checks performed on election package import and allows
-     * usage of election packages that exceed system limits.
+     * Disables the blocking system limit checks and allows usage of elections that exceed system
+     * limits. The checks run wherever a package is opened: on VxAdmin when it imports an election
+     * package, and on each machine as it configures itself from a configuration package.
      */
     disableSystemLimitChecks: z.boolean().optional(),
 
