@@ -27,7 +27,6 @@ import {
   straightPartyNotYetImplemented,
 } from '@votingworks/types';
 import type { Server } from 'node:http';
-import type { AddressInfo } from 'node:net';
 import { Readable } from 'node:stream';
 import * as tmp from 'tmp';
 import { onTestFinished, vi } from 'vitest';
@@ -39,6 +38,7 @@ import type {
   FileStorageClient,
   FileStorageClientError,
 } from '@votingworks/election-definition-backend';
+import { listenForTest } from '@votingworks/grout-test-utils';
 import { type Api, type UnauthenticatedApi, buildApp } from '../src/app.js';
 import type { Auth0ClientInterface } from '../src/auth0_client.js';
 import { GoogleCloudSpeechSynthesizerWithDbCache } from '../src/speech_synthesizer.js';
@@ -211,9 +211,8 @@ export function testSetupHelpers() {
       translator,
       workspace,
     });
-    const server = app.listen();
+    const { server, port } = listenForTest(app);
     servers.push(server);
-    const { port } = server.address() as AddressInfo;
     const baseUrl = `http://localhost:${port}`;
     const apiClient = grout.createClient<Api>({
       baseUrl: `${baseUrl}/api`,

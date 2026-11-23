@@ -2721,7 +2721,7 @@ test('Finalize ballots - DEMO state', async () => {
   expect(await apiClient.getTestDecks({ electionId })).toEqual({});
 
   const finalizedAt = new Date();
-  vi.useFakeTimers({ now: finalizedAt });
+  vi.useFakeTimers({ now: finalizedAt, toFake: ['Date'] });
   await apiClient.finalizeBallots({ electionId });
   expect(await apiClient.getBallotsFinalizedAt({ electionId })).toEqual(
     finalizedAt
@@ -2992,7 +2992,7 @@ test('approve ballots', async () => {
 
   {
     const now = new Date();
-    vi.useFakeTimers({ now });
+    vi.useFakeTimers({ now, toFake: ['Date'] });
     await apiClient.approveBallots({ electionId });
     vi.useRealTimers();
     expect(await apiClient.getBallotsApprovedAt({ electionId })).toEqual(now);

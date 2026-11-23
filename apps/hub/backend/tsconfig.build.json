@@ -17,6 +17,7 @@
     { "path": "../../../libs/coverage-check/tsconfig.build.json" },
     { "path": "../../../libs/election-definition-backend/tsconfig.build.json" },
     { "path": "../../../libs/fixtures/tsconfig.build.json" },
+    { "path": "../../../libs/grout/test-utils/tsconfig.build.json" },
     { "path": "../../../libs/grout/tsconfig.build.json" },
     { "path": "../../../libs/hmpb/tsconfig.build.json" },
     { "path": "../../../libs/image-utils/tsconfig.build.json" },

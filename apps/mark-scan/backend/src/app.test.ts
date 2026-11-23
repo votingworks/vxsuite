@@ -63,10 +63,10 @@ import {
 import type { MockUsbDrive } from '@votingworks/usb-drive';
 import type { MockPaperHandlerDriver } from '@votingworks/custom-paper-handler';
 import { LogEventId, type Logger, mockBaseLogger } from '@votingworks/logging';
-import type { AddressInfo } from 'node:net';
 import type { SimulatedClock } from 'xstate/lib/SimulatedClock.js';
 import { BLANK_PAGE_IMAGE_DATA } from '@votingworks/image-utils';
 import * as backendLib from '@votingworks/backend';
+import { listenForTest } from '@votingworks/grout-test-utils';
 import {
   createApp,
   waitForStatus as waitForStatusHelper,
@@ -859,8 +859,7 @@ test('startPaperHandlerDiagnostic fails test if no state machine', async () => {
     mockBaseLogger({ fn: vi.fn })
   );
   const app = buildApp(mockAuth, logger, ws, mockUsbDrive.usbDrive);
-  const serverNoStateMachine = app.listen();
-  const { port } = serverNoStateMachine.address() as AddressInfo;
+  const { port } = listenForTest(app);
   const baseUrl = `http://localhost:${port}/api`;
 
   const apiClientNoStateMachine = grout.createClient<Api>({ baseUrl });

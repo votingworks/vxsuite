@@ -65,6 +65,7 @@
     "@vitest/coverage-istanbul": "5.0.2",
     "@votingworks/coverage-check": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
+    "@votingworks/grout-test-utils": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
     "copyfiles": "^2.4.1",
     "esbuild": "0.28.1",

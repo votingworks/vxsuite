@@ -4,7 +4,6 @@ import {
   DEV_JURISDICTION,
 } from '@votingworks/auth';
 import * as grout from '@votingworks/grout';
-import type { AddressInfo } from 'node:net';
 import {
   DEV_MACHINE_ID,
   type SystemSettings,
@@ -22,6 +21,7 @@ import {
   type UsbPartitionInfo,
 } from '@votingworks/usb-drive';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
+import { listenForTest } from '@votingworks/grout-test-utils';
 import { buildClientApp, type ClientApi } from './client_app.js';
 import { isMultiStationAdjudicationEnabled } from './multi_station_config.js';
 import type { PeerApi } from './peer_app.js';
@@ -58,8 +58,7 @@ function buildClientTestEnvironment() {
     multiUsbDrive,
     machineMode,
   });
-  const server = app.listen();
-  const { port } = server.address() as AddressInfo;
+  const { server, port } = listenForTest(app);
   const apiClient = grout.createClient<ClientApi>({
     baseUrl: `http://localhost:${port}/api`,
   });

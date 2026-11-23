@@ -99,6 +99,7 @@
     "@votingworks/coverage-check": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/fs": "workspace:*",
+    "@votingworks/grout-test-utils": "workspace:*",
     "@votingworks/test-decks": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
     "esbuild": "0.28.1",

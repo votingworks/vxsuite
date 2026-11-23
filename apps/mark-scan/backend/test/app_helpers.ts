@@ -5,7 +5,6 @@ import {
 } from '@votingworks/auth';
 import * as grout from '@votingworks/grout';
 import type { Application } from 'express';
-import type { AddressInfo } from 'node:net';
 import {
   mockLogger,
   LogSource,
@@ -32,6 +31,7 @@ import { MockPaperHandlerDriver } from '@votingworks/custom-paper-handler';
 import { assert, ok } from '@votingworks/basics';
 import { createMockUsbDrive, type MockUsbDrive } from '@votingworks/usb-drive';
 import { SimulatedClock } from 'xstate/lib/SimulatedClock.js';
+import { listenForTest } from '@votingworks/grout-test-utils';
 import { type Api, buildApp } from '../src/app.js';
 import { createWorkspace, type Workspace } from '../src/util/workspace.js';
 import {
@@ -128,8 +128,7 @@ export async function createApp(
     stateMachine
   );
 
-  const server = app.listen();
-  const { port } = server.address() as AddressInfo;
+  const { server, port } = listenForTest(app);
   const baseUrl = `http://localhost:${port}/api`;
 
   const apiClient = grout.createClient<Api>({ baseUrl });

@@ -44,11 +44,11 @@ import { type MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
 import type { Application } from 'express';
 import { readFile } from 'node:fs/promises';
 import type { Server } from 'node:http';
-import type { AddressInfo } from 'node:net';
 import * as tmp from 'tmp';
 import { type Mocked, expect, test, vi } from 'vitest';
 import { SimulatedClock } from 'xstate/lib/SimulatedClock.js';
 import { createCanvas } from 'canvas';
+import { listenForTest } from '@votingworks/grout-test-utils';
 import { type Api, buildApp } from '../../src/app.js';
 import { type AudioPlayer, getMockAudioPlayer } from '../../src/audio/audio.js';
 import {
@@ -195,8 +195,7 @@ export async function withApp(
     logger,
   });
 
-  const server = app.listen();
-  const { port } = server.address() as AddressInfo;
+  const { server, port } = listenForTest(app);
   const baseUrl = `http://localhost:${port}/api`;
 
   const apiClient = grout.createClient<Api>({ baseUrl });

@@ -30,6 +30,7 @@ import {
   type Election,
 } from '@votingworks/types';
 import { AvahiService, type hasOnlineInterface } from '@votingworks/networking';
+import { listenForTest } from '@votingworks/grout-test-utils';
 import { type LocalApi, buildLocalApp } from '../src/app.js';
 import { createLocalWorkspace, createPeerWorkspace } from '../src/workspace.js';
 import {
@@ -138,8 +139,7 @@ export async function withApp(
     codeVersion,
   });
 
-  const peerServer = peerApp.listen();
-  const { port: peerPort } = peerServer.address() as AddressInfo;
+  const { server: peerServer, port: peerPort } = listenForTest(peerApp);
   const peerBaseUrl = `http://localhost:${peerPort}/api`;
 
   const workspace = createLocalWorkspace(
@@ -170,8 +170,7 @@ export async function withApp(
     barcodeScannerClient,
   });
 
-  const localServer = app.listen();
-  const { port: localPort } = localServer.address() as AddressInfo;
+  const { server: localServer, port: localPort } = listenForTest(app);
   const localBaseUrl = `http://localhost:${localPort}/api`;
 
   const localApiClient = grout.createClient<LocalApi>({
@@ -237,8 +236,7 @@ export async function withManyApps(
         codeVersion,
       });
 
-      const peerServer = peerApp.listen();
-      const { port: peerPort } = peerServer.address() as AddressInfo;
+      const { server: peerServer, port: peerPort } = listenForTest(peerApp);
       const peerBaseUrl = `http://localhost:${peerPort}/api`;
 
       const mockUsbDrive = createMockUsbDrive();
@@ -269,8 +267,7 @@ export async function withManyApps(
         barcodeScannerClient,
       });
 
-      const localServer = app.listen();
-      const { port: localPort } = localServer.address() as AddressInfo;
+      const { server: localServer, port: localPort } = listenForTest(app);
       const localBaseUrl = `http://localhost:${localPort}/api`;
 
       const localApiClient = grout.createClient<LocalApi>({

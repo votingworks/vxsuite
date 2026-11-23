@@ -3,7 +3,6 @@ import {
   buildMockDippedSmartCardAuth,
   type DippedSmartCardAuthApi,
 } from '@votingworks/auth';
-import type { AddressInfo } from 'node:net';
 import { createMockUsbDrive, type MockUsbDrive } from '@votingworks/usb-drive';
 import {
   createMockPrinterHandler,
@@ -39,6 +38,7 @@ import {
 } from '@votingworks/backend';
 import { readFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
+import { listenForTest } from '@votingworks/grout-test-utils';
 import { getUserRole } from '../src/util/auth.js';
 import { createWorkspace, type Workspace } from '../src/util/workspace.js';
 import { buildApp } from '../src/app.js';
@@ -217,9 +217,7 @@ export function buildTestEnvironment(): {
     printer: mockPrinterHandler.printer,
   });
 
-  // port 0 binds to a random, free port assigned by the OS
-  const server = app.listen();
-  const { port } = server.address() as AddressInfo;
+  const { server, port } = listenForTest(app);
   const baseUrl = `http://localhost:${port}/api`;
   const apiClient = grout.createClient<Api>({ baseUrl });
 
