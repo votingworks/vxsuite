@@ -8,6 +8,9 @@ const WATCH_RETRY_BACKOFF_MS = 1000;
 
 const UNMOUNTED = Symbol('unmounted');
 
+/** Behind any backend sequence, so the next poll reports and refreshes. */
+const UNKNOWN_SEQ = -1;
+
 /**
  * Subscribes to USB drive changes via long-polling and keeps the
  * `getUsbDriveStatus` query up to date, returning that query's result.
@@ -44,6 +47,8 @@ export function useWatchUsbDriveStatus(): UseQueryResult<UsbDriveStatus> {
             await queryClient.invalidateQueries(getUsbDriveStatus.queryKey());
           }
         } catch {
+          // The backend may have restarted with its sequence back at 0.
+          lastSeq = UNKNOWN_SEQ;
           // Back off before retrying so a persistent failure (e.g. the backend
           // restarting) doesn't turn this into a busy loop.
           await sleep(WATCH_RETRY_BACKOFF_MS);

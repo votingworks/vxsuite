@@ -129,3 +129,31 @@ test('stops polling after unmount', async () => {
   expect(waitForUsbDriveChange).toHaveBeenCalledTimes(callCount);
   expect(invalidateSpy).not.toHaveBeenCalled();
 });
+
+test('refreshes after a failed long-poll, even if the backend restarted', async () => {
+  const { apiClient, waitForUsbDriveChange, latestPoll } = buildMockWatch();
+  const queryClient = createQueryClient();
+  const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
+
+  renderWatchHook(apiClient, queryClient);
+  await waitFor(() => expect(waitForUsbDriveChange).toHaveBeenCalled());
+  latestPoll().resolve(5);
+  await waitFor(() =>
+    expect(waitForUsbDriveChange).toHaveBeenLastCalledWith({ lastSeq: 5 })
+  );
+  invalidateSpy.mockClear();
+
+  latestPoll().reject(new Error('network error'));
+  await vi.advanceTimersByTimeAsync(1000);
+  await waitFor(() =>
+    expect(waitForUsbDriveChange).toHaveBeenLastCalledWith({ lastSeq: -1 })
+  );
+
+  latestPoll().resolve(0);
+  await waitFor(() =>
+    expect(invalidateSpy).toHaveBeenCalledWith(USB_DRIVE_STATUS_QUERY_KEY)
+  );
+  await waitFor(() =>
+    expect(waitForUsbDriveChange).toHaveBeenLastCalledWith({ lastSeq: 0 })
+  );
+});
