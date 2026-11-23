@@ -480,7 +480,7 @@ test('editing a precinct - removing splits preserves last split voter count', as
     .expectCallWith({
       electionId,
       updatedPrecinct: precinctWithoutSplits,
-      registeredVoterCounts: 400,
+      registeredVoterCounts: { total: 400 },
     })
     .resolves(ok());
   apiMock.listPrecincts
@@ -887,8 +887,8 @@ test('shows saved registered voter counts', async () => {
   apiMock.getRegisteredVoterCounts
     .expectRepeatedCallsWith({ electionId })
     .resolves({
-      'precinct-1': 100,
-      'precinct-2': { splits: { 'split-2': 20 } },
+      'precinct-1': { total: 100 },
+      'precinct-2': { splits: { 'split-2': { total: 20 } } },
     });
   apiMock.listPrecincts.expectCallWith({ electionId }).resolves(precincts);
   apiMock.listDistricts.expectCallWith({ electionId }).resolves(districts);
@@ -945,7 +945,7 @@ test('saves registered voter counts for a precinct with splits', async () => {
     .expectCallWith({
       electionId,
       updatedPrecinct: savedPrecinct,
-      registeredVoterCounts: { splits: { [split2!.id]: 300 } },
+      registeredVoterCounts: { splits: { [split2!.id]: { total: 300 } } },
     })
     .resolves(ok());
   apiMock.listPrecincts.expectCallWith({ electionId }).resolves(precincts);

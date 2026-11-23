@@ -49,7 +49,10 @@ test('renders precinct rows with ballots cast, registered voters, and turnout', 
         generateCardCounts('precinct-1', 200),
         generateCardCounts('precinct-2', 100),
       ]}
-      registeredVoterCounts={{ 'precinct-1': 500, 'precinct-2': 400 }}
+      registeredVoterCounts={{
+        'precinct-1': { total: 500 },
+        'precinct-2': { total: 400 },
+      }}
       generatedAtTime={GENERATED_AT}
     />
   );
@@ -87,13 +90,13 @@ test('sums split registered voter counts into a single precinct row', () => {
       isTest={false}
       cardCountsList={[generateCardCounts('precinct-c2', 300)]}
       registeredVoterCounts={{
-        'precinct-c1-w1-1': 100,
-        'precinct-c1-w1-2': 200,
-        'precinct-c1-w2': 300,
+        'precinct-c1-w1-1': { total: 100 },
+        'precinct-c1-w1-2': { total: 200 },
+        'precinct-c1-w2': { total: 300 },
         'precinct-c2': {
           splits: {
-            'precinct-c2-split-1': 200,
-            'precinct-c2-split-2': 150,
+            'precinct-c2-split-1': { total: 200 },
+            'precinct-c2-split-2': { total: 150 },
           },
         },
       }}
@@ -123,7 +126,10 @@ test('shows em-dash for turnout when registered voters is 0', () => {
       isOfficial={false}
       isTest={false}
       cardCountsList={[generateCardCounts('precinct-1', 50)]}
-      registeredVoterCounts={{ 'precinct-1': 0, 'precinct-2': 400 }}
+      registeredVoterCounts={{
+        'precinct-1': { total: 0 },
+        'precinct-2': { total: 400 },
+      }}
       generatedAtTime={GENERATED_AT}
     />
   );
@@ -146,7 +152,10 @@ test('renders without errors when all registered voter counts are 0', () => {
         generateCardCounts('precinct-1', 200),
         generateCardCounts('precinct-2', 100),
       ]}
-      registeredVoterCounts={{ 'precinct-1': 0, 'precinct-2': 0 }}
+      registeredVoterCounts={{
+        'precinct-1': { total: 0 },
+        'precinct-2': { total: 0 },
+      }}
       generatedAtTime={GENERATED_AT}
     />
   );
@@ -174,7 +183,10 @@ test('prefixes title with Unofficial when isOfficial is false', () => {
       isOfficial={false}
       isTest={false}
       cardCountsList={[]}
-      registeredVoterCounts={{ 'precinct-1': 100, 'precinct-2': 200 }}
+      registeredVoterCounts={{
+        'precinct-1': { total: 100 },
+        'precinct-2': { total: 200 },
+      }}
       generatedAtTime={GENERATED_AT}
     />
   );
@@ -190,7 +202,10 @@ test('prefixes title with Official when isOfficial is true', () => {
       isOfficial
       isTest={false}
       cardCountsList={[]}
-      registeredVoterCounts={{ 'precinct-1': 100, 'precinct-2': 200 }}
+      registeredVoterCounts={{
+        'precinct-1': { total: 100 },
+        'precinct-2': { total: 200 },
+      }}
       generatedAtTime={GENERATED_AT}
     />
   );
@@ -206,7 +221,10 @@ test('renders test mode banner when isTest is true', () => {
       isOfficial={false}
       isTest
       cardCountsList={[]}
-      registeredVoterCounts={{ 'precinct-1': 100, 'precinct-2': 200 }}
+      registeredVoterCounts={{
+        'precinct-1': { total: 100 },
+        'precinct-2': { total: 200 },
+      }}
       generatedAtTime={GENERATED_AT}
     />
   );

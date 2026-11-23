@@ -57,6 +57,7 @@ import {
   isPrecinctCount,
   isSplitCounts,
   type PrecinctRegisteredVoterCountEntry,
+  type RegisteredVoterCount,
   safeParseElectionAnyVersion,
   type SoftwareVersion,
   type ElectionType,
@@ -1827,7 +1828,7 @@ export class Store {
               values ($1, $2)
             `,
             precinct.id,
-            registeredVoterCounts
+            registeredVoterCounts.total
           );
         }
         await client.query(
@@ -1853,7 +1854,7 @@ export class Store {
                   values ($1, $2)
                 `,
                 split.id,
-                splitCount
+                splitCount.total
               );
             }
           }
@@ -1933,17 +1934,17 @@ export class Store {
       for (const row of precinctRows) {
         const splits = splitsByPrecinctId.get(row.id) ?? [];
         if (splits.length > 0) {
-          const splitCounts: Record<string, number> = {};
+          const splitCounts: Record<string, RegisteredVoterCount> = {};
           for (const split of splits) {
             if (split.count !== null) {
-              splitCounts[split.id] = split.count;
+              splitCounts[split.id] = { total: split.count };
             }
           }
           if (Object.keys(splitCounts).length > 0) {
             counts[row.id] = { splits: splitCounts };
           }
         } else if (row.count !== null) {
-          counts[row.id] = row.count;
+          counts[row.id] = { total: row.count };
         }
       }
       return counts;

@@ -20,6 +20,7 @@ import {
   type Precinct,
   type PrecinctSplit,
   type PrecinctRegisteredVoterCountEntry,
+  type RegisteredVoterCount,
 } from '@votingworks/types';
 
 import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
@@ -391,7 +392,8 @@ function PrecinctFormContents(
                             value={
                               registeredVoterCounts !== undefined &&
                               isSplitCounts(registeredVoterCounts)
-                                ? (registeredVoterCounts.splits[split.id] ?? '')
+                                ? (registeredVoterCounts.splits[split.id]
+                                    ?.total ?? '')
                                 : ''
                             }
                             onChange={(e) => {
@@ -400,7 +402,10 @@ function PrecinctFormContents(
                                 isSplitCounts(registeredVoterCounts)
                                   ? registeredVoterCounts.splits
                                   : {};
-                              const newSplits: Record<string, number> = {
+                              const newSplits: Record<
+                                string,
+                                RegisteredVoterCount
+                              > = {
                                 ...currentSplits,
                               };
                               if (e.target.value) {
@@ -411,7 +416,9 @@ function PrecinctFormContents(
                                 if (parseResult.isErr()) {
                                   return;
                                 }
-                                newSplits[split.id] = parseResult.ok();
+                                newSplits[split.id] = {
+                                  total: parseResult.ok(),
+                                };
                               } else {
                                 delete newSplits[split.id];
                               }
@@ -531,7 +538,7 @@ function PrecinctFormContents(
                       value={
                         registeredVoterCounts !== undefined &&
                         isPrecinctCount(registeredVoterCounts)
-                          ? registeredVoterCounts
+                          ? registeredVoterCounts.total
                           : ''
                       }
                       onChange={(e) => {
@@ -545,7 +552,7 @@ function PrecinctFormContents(
                         if (parseResult.isErr()) {
                           return;
                         }
-                        setRegisteredVoterCounts(parseResult.ok());
+                        setRegisteredVoterCounts({ total: parseResult.ok() });
                       }}
                       style={{ width: '8rem' }}
                     />

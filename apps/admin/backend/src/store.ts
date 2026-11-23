@@ -56,6 +56,8 @@ import {
   type ElectionId,
   type ElectionRegisteredVoterCounts,
   ElectionRegisteredVoterCountsSchema,
+  isPrecinctCount,
+  isSplitCounts,
   type UserRole,
   isCombinedBallotPrimary,
   type PartyId,
@@ -697,7 +699,7 @@ export class Store implements BaseStore {
     counts: ElectionRegisteredVoterCounts
   ): void {
     for (const [precinctId, entry] of Object.entries(counts)) {
-      if (typeof entry === 'number') {
+      if (isPrecinctCount(entry)) {
         this.client.run(
           `
             insert into precinct_registered_voter_counts (election_id, precinct_id, count)
@@ -705,7 +707,7 @@ export class Store implements BaseStore {
             `,
           electionId,
           precinctId,
-          entry
+          entry.total
         );
       } else {
         for (const [splitId, count] of Object.entries(entry.splits)) {
@@ -717,7 +719,7 @@ export class Store implements BaseStore {
             electionId,
             precinctId,
             splitId,
-            count
+            count.total
           );
         }
       }
@@ -751,18 +753,18 @@ export class Store implements BaseStore {
 
     const counts: ElectionRegisteredVoterCounts = {};
     for (const { precinctId, count } of precinctRows) {
-      counts[precinctId] = count;
+      counts[precinctId] = { total: count };
     }
     for (const { precinctId, splitId, count } of splitRows) {
       const existing = counts[precinctId];
       assert(
-        typeof existing !== 'number',
+        existing === undefined || isSplitCounts(existing),
         `Precinct ${precinctId} has both a flat count and split counts`
       );
       if (existing === undefined) {
-        counts[precinctId] = { splits: { [splitId]: count } };
+        counts[precinctId] = { splits: { [splitId]: { total: count } } };
       } else {
-        existing.splits[splitId] = count;
+        existing.splits[splitId] = { total: count };
       }
     }
     return ElectionRegisteredVoterCountsSchema.parse(counts);

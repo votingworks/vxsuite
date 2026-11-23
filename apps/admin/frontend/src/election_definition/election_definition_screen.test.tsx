@@ -270,7 +270,7 @@ test('the Precincts tab edits the election precincts', async () => {
     .resolves([district]);
   apiMock.electionDefinitionApiClient.getRegisteredVoterCounts
     .expectCallWith({ electionId })
-    .resolves({ [precinct.id]: 100 });
+    .resolves({ [precinct.id]: { total: 100 } });
   await userEvent.click(screen.getByRole('tab', { name: 'Precincts' }));
   await screen.findByRole('heading', { name: 'Precinct Info' });
   screen.getByRole('tab', { name: 'Precincts', selected: true });
@@ -292,7 +292,7 @@ test('the Precincts tab edits the election precincts', async () => {
     .expectCallWith({
       electionId,
       updatedPrecinct: renamedPrecinct,
-      registeredVoterCounts: 100,
+      registeredVoterCounts: { total: 100 },
     })
     .resolves(ok());
   expectCurrentInProgressElection(generalElectionInfo);
@@ -307,7 +307,7 @@ test('the Precincts tab edits the election precincts', async () => {
     .resolves([renamedPrecinct]);
   apiMock.electionDefinitionApiClient.getRegisteredVoterCounts
     .expectCallWith({ electionId })
-    .resolves({ [precinct.id]: 100 });
+    .resolves({ [precinct.id]: { total: 100 } });
   await userEvent.click(screen.getButton('Save'));
 
   await screen.findByRole('heading', { name: 'Precinct Info' });

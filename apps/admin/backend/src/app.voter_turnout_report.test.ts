@@ -78,8 +78,8 @@ test('configure persists registered voter counts from election package', async (
   mockSystemAdministratorAuth(auth);
 
   const registeredVoterCounts: ElectionRegisteredVoterCounts = {
-    'precinct-1': 500,
-    'precinct-2': 400,
+    'precinct-1': { total: 500 },
+    'precinct-2': { total: 400 },
   };
   const electionPackageBuffer = await zipFile({
     [ElectionPackageFileName.ELECTION]: electionDefinition.electionData,
@@ -124,8 +124,8 @@ test('voter turnout report preview, print, and export', async () => {
     buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition, {
     registeredVoterCounts: {
-      'precinct-1': 500,
-      'precinct-2': 400,
+      'precinct-1': { total: 500 },
+      'precinct-2': { total: 400 },
     },
   });
   mockElectionManagerAuth(auth, electionDefinition.election);
@@ -167,8 +167,8 @@ test('voter turnout report logging', async () => {
     buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition, {
     registeredVoterCounts: {
-      'precinct-1': 500,
-      'precinct-2': 400,
+      'precinct-1': { total: 500 },
+      'precinct-2': { total: 400 },
     },
   });
   mockElectionManagerAuth(auth, electionDefinition.election);
@@ -249,8 +249,8 @@ test('voter turnout report warning', async () => {
   const { apiClient, auth } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition, {
     registeredVoterCounts: {
-      'precinct-1': 500,
-      'precinct-2': 400,
+      'precinct-1': { total: 500 },
+      'precinct-2': { total: 400 },
     },
   });
   mockElectionManagerAuth(auth, electionDefinition.election);
@@ -271,8 +271,8 @@ test('voter turnout report with split precinct registered voter counts', async (
   const registeredVoterCounts: ElectionRegisteredVoterCounts = {
     'precinct-c2': {
       splits: {
-        'precinct-c2-split-1': 200,
-        'precinct-c2-split-2': 150,
+        'precinct-c2-split-1': { total: 200 },
+        'precinct-c2-split-2': { total: 150 },
       },
     },
   };

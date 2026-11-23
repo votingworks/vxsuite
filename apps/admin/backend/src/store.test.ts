@@ -757,8 +757,8 @@ test('setRegisteredVoterCounts and getRegisteredVoterCounts with precinct-only c
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
 
   const counts: ElectionRegisteredVoterCounts = {
-    'precinct-1': 500,
-    'precinct-2': 300,
+    'precinct-1': { total: 500 },
+    'precinct-2': { total: 300 },
   };
 
   const importResult = await store.importElectionPackage({
@@ -781,11 +781,11 @@ test('setRegisteredVoterCounts and getRegisteredVoterCounts with split precinct 
 
   // precinct-c2 has splits; precinct-c1-w1-1 does not
   const counts: ElectionRegisteredVoterCounts = {
-    'precinct-c1-w1-1': 400,
+    'precinct-c1-w1-1': { total: 400 },
     'precinct-c2': {
       splits: {
-        'precinct-c2-split-1': 200,
-        'precinct-c2-split-2': 150,
+        'precinct-c2-split-1': { total: 200 },
+        'precinct-c2-split-2': { total: 150 },
       },
     },
   };
@@ -4118,14 +4118,16 @@ describe('design precincts', () => {
           name: 'Precinct 10',
           districtIds: ['d2', 'd1'],
         },
-        registeredVoterCounts: 100,
+        registeredVoterCounts: { total: 100 },
       })
     ).toEqual(ok());
     expect(
       store.electionDefinition.createPrecinct({
         electionId,
         newPrecinct: splitPrecinct,
-        registeredVoterCounts: { splits: { s2: 20, s10: 30 } },
+        registeredVoterCounts: {
+          splits: { s2: { total: 20 }, s10: { total: 30 } },
+        },
       })
     ).toEqual(ok());
     expect(
@@ -4143,8 +4145,8 @@ describe('design precincts', () => {
     expect(
       store.electionDefinition.getRegisteredVoterCounts(electionId)
     ).toEqual({
-      p10: 100,
-      p1: { splits: { s2: 20, s10: 30 } },
+      p10: { total: 100 },
+      p1: { splits: { s2: { total: 20 }, s10: { total: 30 } } },
     });
 
     expect(
@@ -4155,7 +4157,7 @@ describe('design precincts', () => {
           name: 'Precinct 1A',
           districtIds: ['d3'],
         },
-        registeredVoterCounts: 50,
+        registeredVoterCounts: { total: 50 },
       })
     ).toEqual(ok());
     expect(
@@ -4169,7 +4171,7 @@ describe('design precincts', () => {
             { id: 's4', name: 'Split 4', districtIds: ['d2'] },
           ],
         },
-        registeredVoterCounts: { splits: { s3: 5 } },
+        registeredVoterCounts: { splits: { s3: { total: 5 } } },
       })
     ).toEqual(ok());
     expect(
@@ -4193,8 +4195,8 @@ describe('design precincts', () => {
     expect(
       store.electionDefinition.getRegisteredVoterCounts(electionId)
     ).toEqual({
-      p1: 50,
-      p10: { splits: { s3: 5 } },
+      p1: { total: 50 },
+      p10: { splits: { s3: { total: 5 } } },
     });
 
     store.electionDefinition.deletePrecinct({ electionId, precinctId: 'p1' });
@@ -4204,7 +4206,7 @@ describe('design precincts', () => {
     expect(
       store.electionDefinition.getRegisteredVoterCounts(electionId)
     ).toEqual({
-      p10: { splits: { s3: 5 } },
+      p10: { splits: { s3: { total: 5 } } },
     });
   });
 
@@ -4214,14 +4216,14 @@ describe('design precincts', () => {
       .createPrecinct({
         electionId,
         newPrecinct: { id: 'p2', name: 'Precinct 2', districtIds: [] },
-        registeredVoterCounts: { splits: { s1: 10 } },
+        registeredVoterCounts: { splits: { s1: { total: 10 } } },
       })
       .unsafeUnwrap();
     store.electionDefinition
       .createPrecinct({
         electionId,
         newPrecinct: splitPrecinct,
-        registeredVoterCounts: 10,
+        registeredVoterCounts: { total: 10 },
       })
       .unsafeUnwrap();
     expect(
@@ -4256,7 +4258,7 @@ describe('design precincts', () => {
       store.electionDefinition.updatePrecinct({
         electionId,
         updatedPrecinct: { ...precinct, name: 'Precinct 1' },
-        registeredVoterCounts: 10,
+        registeredVoterCounts: { total: 10 },
       })
     ).toEqual(err('duplicate-precinct-name'));
     expect(
@@ -4314,7 +4316,7 @@ describe('design precincts', () => {
       store.electionDefinition.createPrecinct({
         electionId,
         newPrecinct: { id: 'p2', name: 'Precinct 2', districtIds: [] },
-        registeredVoterCounts: -1,
+        registeredVoterCounts: { total: -1 },
       })
     ).toThrow();
     expect(() =>
@@ -4402,7 +4404,7 @@ describe('design precincts', () => {
       .createPrecinct({
         electionId,
         newPrecinct: splitPrecinct,
-        registeredVoterCounts: { splits: { s2: 20 } },
+        registeredVoterCounts: { splits: { s2: { total: 20 } } },
       })
       .unsafeUnwrap();
 
