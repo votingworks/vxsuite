@@ -10,7 +10,7 @@ import {
 } from '@votingworks/hmpb';
 import {
   BooleanEnvironmentVariableName,
-  ELECTION_PACKAGE_FOLDER,
+  CONFIGURATION_PACKAGE_FOLDER,
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import {
@@ -603,7 +603,7 @@ test('quickConfigure clears the card and unconfigures after staging, before prog
   const stagedElectionPackagePath = join(
     getMockUsbDriveHandler().getDataPath(),
     QUICK_CONFIGURE_ELECTION_DIR,
-    ELECTION_PACKAGE_FOLDER,
+    CONFIGURATION_PACKAGE_FOLDER,
     STAGED_ELECTION_PACKAGE_FILE_NAME
   );
 
@@ -770,7 +770,7 @@ test('quickConfigure stages the selected election package and keeps it selected'
     join(
       usbDriveDataPath,
       QUICK_CONFIGURE_ELECTION_DIR,
-      ELECTION_PACKAGE_FOLDER,
+      CONFIGURATION_PACKAGE_FOLDER,
       STAGED_ELECTION_PACKAGE_FILE_NAME
     )
   );

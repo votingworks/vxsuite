@@ -34,7 +34,7 @@ import {
 } from '@votingworks/test-utils';
 import type { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import {
-  ELECTION_PACKAGE_FOLDER,
+  CONFIGURATION_PACKAGE_FOLDER,
   BooleanEnvironmentVariableName,
   generateElectionBasedSubfolderName,
   getFeatureFlagMock,
@@ -389,7 +389,7 @@ test('configureElectionPackageFromUsb returns an error if election package parsi
 
   mockUsbDrive.insertUsbDrive({
     'some-election': {
-      [ELECTION_PACKAGE_FOLDER]: {
+      [CONFIGURATION_PACKAGE_FOLDER]: {
         'test-election-package.zip': Buffer.from("doesn't matter"),
       },
     },
@@ -415,7 +415,7 @@ test('configureElectionPackageFromUsb cleans up when audio clip streaming fails'
       electionDefinition.election,
       electionDefinition.ballotHash
     )]: {
-      [ELECTION_PACKAGE_FOLDER]: {
+      [CONFIGURATION_PACKAGE_FOLDER]: {
         'test-election-package.zip': await zipFile({
           [ElectionPackageFileName.ELECTION]: electionDefinition.electionData,
           [ElectionPackageFileName.METADATA]: JSON.stringify(LATEST_METADATA),

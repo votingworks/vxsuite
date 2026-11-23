@@ -35,7 +35,7 @@ import {
 import { LogEventId, type MockLogger } from '@votingworks/logging';
 import {
   BooleanEnvironmentVariableName,
-  ELECTION_PACKAGE_FOLDER,
+  CONFIGURATION_PACKAGE_FOLDER,
   generateElectionBasedSubfolderName,
   getFeatureFlagMock,
   getMockMultiLanguageElectionDefinition,
@@ -377,7 +377,7 @@ test('configureElectionPackageFromUsb cleans up when ballot streaming fails', as
       electionDefinition.election,
       electionDefinition.ballotHash
     )]: {
-      [ELECTION_PACKAGE_FOLDER]: {
+      [CONFIGURATION_PACKAGE_FOLDER]: {
         'test-election-package.zip': await zipFile({
           [ElectionPackageFileName.ELECTION]: electionDefinition.electionData,
           [ElectionPackageFileName.METADATA]: JSON.stringify(LATEST_METADATA),

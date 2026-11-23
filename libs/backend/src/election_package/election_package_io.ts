@@ -16,7 +16,8 @@ import {
   ok,
 } from '@votingworks/basics';
 import {
-  ELECTION_PACKAGE_FOLDER,
+  CONFIGURATION_PACKAGE_FOLDER,
+  LEGACY_CONFIGURATION_PACKAGE_FOLDER,
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
   getEntries,
@@ -526,44 +527,38 @@ export function streamCandidateOrderings(
 }
 
 /**
- * Finds the most recent election package ZIP in a directory. In practice this
- * is the root of a USB drive mount.
+ * Finds every package ZIP on a USB drive that sits in a directory of the given
+ * name, across all of the drive's election directories.
  */
-export async function getMostRecentElectionPackageFilepath(
-  directory: string
-): Promise<Result<string, ElectionPackageConfigurationError>> {
+async function getPackageFilepathsInFolder(
+  directory: string,
+  folderName: string
+): Promise<string[]> {
   // Although not all USB drive root directories are election directories, we
   // just check them all. It's not necessary to enforce the naming convention.
   const possibleElectionDirectories = (
     await fs.readdir(directory, { withFileTypes: true })
   ).filter((entry) => entry.isDirectory());
 
-  const electionElectionPackageDirectories: string[] = [];
+  const packageDirectories: string[] = [];
   for (const possibleElectionDirectory of possibleElectionDirectories) {
-    const hasElectionPackageDirectory = (
+    const hasPackageDirectory = (
       await fs.readdir(join(directory, possibleElectionDirectory.name), {
         withFileTypes: true,
       })
-    ).some(
-      (entry) => entry.isDirectory() && entry.name === ELECTION_PACKAGE_FOLDER
-    );
+    ).some((entry) => entry.isDirectory() && entry.name === folderName);
 
-    // @coverage-defer
-    if (hasElectionPackageDirectory) {
-      electionElectionPackageDirectories.push(
-        join(directory, possibleElectionDirectory.name, ELECTION_PACKAGE_FOLDER)
+    if (hasPackageDirectory) {
+      packageDirectories.push(
+        join(directory, possibleElectionDirectory.name, folderName)
       );
     }
   }
 
-  const electionPackageFilePaths: string[] = [];
-  for (const electionElectionPackageDirectory of electionElectionPackageDirectories) {
-    electionPackageFilePaths.push(
-      ...(
-        await fs.readdir(electionElectionPackageDirectory, {
-          withFileTypes: true,
-        })
-      )
+  const filePaths: string[] = [];
+  for (const packageDirectory of packageDirectories) {
+    filePaths.push(
+      ...(await fs.readdir(packageDirectory, { withFileTypes: true }))
         .filter(
           (file) =>
             file.isFile() &&
@@ -571,9 +566,33 @@ export async function getMostRecentElectionPackageFilepath(
             // Ignore hidden files that start with `.`
             !file.name.startsWith('.')
         )
-        .map((file) => join(electionElectionPackageDirectory, file.name))
+        .map((file) => join(packageDirectory, file.name))
     );
   }
+
+  return filePaths;
+}
+
+/**
+ * Finds the most recent configuration package ZIP in a directory. In practice
+ * this is the root of a USB drive mount.
+ */
+export async function getMostRecentElectionPackageFilepath(
+  directory: string
+): Promise<Result<string, ElectionPackageConfigurationError>> {
+  const electionPackageFilePaths = [
+    ...(await getPackageFilepathsInFolder(
+      directory,
+      CONFIGURATION_PACKAGE_FOLDER
+    )),
+    // Packages written by a VxAdmin from before the rename. Keeping them in the
+    // running means the most recently saved package always wins, whichever
+    // VxAdmin wrote it. Remove in v4.2, once no supported VxAdmin writes them.
+    ...(await getPackageFilepathsInFolder(
+      directory,
+      LEGACY_CONFIGURATION_PACKAGE_FOLDER
+    )),
+  ];
 
   if (electionPackageFilePaths.length === 0) {
     return err({ type: 'no_election_package' });
