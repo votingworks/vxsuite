@@ -1,8 +1,9 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { type QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { renderHook, waitFor } from '@testing-library/react';
+import { renderHook, screen, waitFor } from '@testing-library/react';
 import { assertDefined, type Deferred, deferred } from '@votingworks/basics';
-import { mockUsbDriveStatus } from '@votingworks/ui';
+import { mockUsbDriveStatus, TestErrorBoundary } from '@votingworks/ui';
+import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import { type ApiClient, ApiClientContext, createQueryClient } from '../api.js';
 import { useWatchUsbDriveStatus } from './use_watch_usb_drive_status.js';
 
@@ -37,11 +38,13 @@ function buildMockWatch(): MockWatch {
 function renderWatchHook(apiClient: ApiClient, queryClient: QueryClient) {
   return renderHook(() => useWatchUsbDriveStatus(), {
     wrapper: ({ children }) => (
-      <ApiClientContext.Provider value={apiClient}>
-        <QueryClientProvider client={queryClient}>
-          {children}
-        </QueryClientProvider>
-      </ApiClientContext.Provider>
+      <TestErrorBoundary>
+        <ApiClientContext.Provider value={apiClient}>
+          <QueryClientProvider client={queryClient}>
+            {children}
+          </QueryClientProvider>
+        </ApiClientContext.Provider>
+      </TestErrorBoundary>
     ),
   });
 }
@@ -103,7 +106,7 @@ test('backs off and retries when the long-poll fails', async () => {
   await waitFor(() => expect(waitForUsbDriveChange).toHaveBeenCalled());
   const initialCallCount = waitForUsbDriveChange.mock.calls.length;
 
-  latestPoll().reject(new Error('network error'));
+  latestPoll().reject(new Error('HTTP 504'));
   await vi.advanceTimersByTimeAsync(999);
   expect(waitForUsbDriveChange).toHaveBeenCalledTimes(initialCallCount);
 
@@ -143,7 +146,7 @@ test('refreshes after a failed long-poll, even if the backend restarted', async 
   );
   invalidateSpy.mockClear();
 
-  latestPoll().reject(new Error('network error'));
+  latestPoll().reject(new Error('HTTP 504'));
   await vi.advanceTimersByTimeAsync(1000);
   await waitFor(() =>
     expect(waitForUsbDriveChange).toHaveBeenLastCalledWith({ lastSeq: -1 })
@@ -156,4 +159,33 @@ test('refreshes after a failed long-poll, even if the backend restarted', async 
   await waitFor(() =>
     expect(waitForUsbDriveChange).toHaveBeenLastCalledWith({ lastSeq: 0 })
   );
+});
+
+test('surfaces errors that are not worth retrying', async () => {
+  const { apiClient, waitForUsbDriveChange, latestPoll } = buildMockWatch();
+
+  await suppressingConsoleOutput(async () => {
+    renderWatchHook(apiClient, createQueryClient());
+    await waitFor(() => expect(waitForUsbDriveChange).toHaveBeenCalled());
+    latestPoll().reject(new Error('HTTP 500'));
+    await screen.findByText('Test Error Boundary');
+  });
+});
+
+test('surfaces a 504 once retries are exhausted', async () => {
+  const { apiClient, waitForUsbDriveChange, latestPoll } = buildMockWatch();
+
+  await suppressingConsoleOutput(async () => {
+    renderWatchHook(apiClient, createQueryClient());
+    for (const backoffMs of [1000, 2000, 4000, 8000]) {
+      await waitFor(() => expect(waitForUsbDriveChange).toHaveBeenCalled());
+      waitForUsbDriveChange.mockClear();
+      latestPoll().reject(new Error('HTTP 504'));
+      await vi.advanceTimersByTimeAsync(backoffMs);
+    }
+    expect(screen.queryByText('Test Error Boundary')).toBeNull();
+    await waitFor(() => expect(waitForUsbDriveChange).toHaveBeenCalled());
+    latestPoll().reject(new Error('HTTP 504'));
+    await screen.findByText('Test Error Boundary');
+  });
 });

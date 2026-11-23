@@ -1,7 +1,8 @@
 import { useQueryClient, type UseQueryResult } from '@tanstack/react-query';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { deferred, sleep } from '@votingworks/basics';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { shouldRetry } from '@votingworks/ui';
 import { getUsbDriveStatus, useApiClient } from '../api.js';
 
 const WATCH_RETRY_BACKOFF_MS = 1000;
@@ -21,15 +22,17 @@ const UNKNOWN_SEQ = -1;
  *
  * Mount this once per app root. Other components can read the status with
  * `getUsbDriveStatus.useQuery()`, which shares the same query and is kept
- * fresh by the invalidation here.
+ * fresh by the invalidation here. Throws during render once retries run out.
  */
 export function useWatchUsbDriveStatus(): UseQueryResult<UsbDriveStatus> {
   const apiClient = useApiClient();
   const queryClient = useQueryClient();
+  const [error, setError] = useState<{ cause: unknown }>();
 
   useEffect(() => {
     let isMounted = true;
     let lastSeq = 0;
+    let failures = 0;
     const waitForUnmount = deferred<typeof UNMOUNTED>();
 
     void (async () => {
@@ -42,16 +45,20 @@ export function useWatchUsbDriveStatus(): UseQueryResult<UsbDriveStatus> {
           if (seq === UNMOUNTED) {
             break;
           }
+          failures = 0;
           if (seq !== lastSeq) {
             lastSeq = seq;
             await queryClient.invalidateQueries(getUsbDriveStatus.queryKey());
           }
-        } catch {
+        } catch (cause) {
+          if (!shouldRetry(failures, cause)) {
+            setError({ cause });
+            break;
+          }
           // The backend may have restarted with its sequence back at 0.
           lastSeq = UNKNOWN_SEQ;
-          // Back off before retrying so a persistent failure (e.g. the backend
-          // restarting) doesn't turn this into a busy loop.
-          await sleep(WATCH_RETRY_BACKOFF_MS);
+          await sleep(WATCH_RETRY_BACKOFF_MS * 2 ** failures);
+          failures += 1;
         }
       }
     })();
@@ -62,5 +69,7 @@ export function useWatchUsbDriveStatus(): UseQueryResult<UsbDriveStatus> {
     };
   }, [apiClient, queryClient]);
 
-  return getUsbDriveStatus.useQuery();
+  const query = getUsbDriveStatus.useQuery();
+  if (error) throw error.cause;
+  return query;
 }
