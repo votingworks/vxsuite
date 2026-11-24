@@ -1,10 +1,13 @@
+import { assert } from '@votingworks/basics';
 import { getStateFeaturesConfig } from '@votingworks/election-definition-backend';
 import {
   type Election,
   type ElectionRegisteredVoterCounts,
+  ElectionRegisteredVoterCountsSchema,
   listRegisteredVoterCounts,
   type Precinct,
 } from '@votingworks/types';
+import { hasValidRegisteredVoterCountParties } from '@votingworks/utils';
 import type { Jurisdiction } from './types.js';
 
 export interface RegisteredVoterCountBreakdownConfig {
@@ -61,4 +64,29 @@ export function findRegisteredVoterCountBreakdownError(
     }
   }
   return undefined;
+}
+
+/**
+ * Asserts that each count's party breakdown sums to its total, includes the
+ * right parties, and is present only where the election requires one.
+ */
+export function assertValidRegisteredVoterCountBreakdowns(
+  jurisdiction: Jurisdiction,
+  election: Election,
+  counts: ElectionRegisteredVoterCounts
+): void {
+  assert(
+    ElectionRegisteredVoterCountsSchema.safeParse(counts).success,
+    'Party and nonpartisan registered voter counts must sum to the total'
+  );
+  assert(
+    hasValidRegisteredVoterCountParties(election, counts),
+    'Registered voter counts by party must include every party with a ballot style in each precinct and split, and only parties with a ballot style in the election'
+  );
+  const breakdownError = findRegisteredVoterCountBreakdownError(
+    election.precincts,
+    counts,
+    getRegisteredVoterCountBreakdownConfig(jurisdiction, election)
+  );
+  assert(breakdownError === undefined, breakdownError);
 }

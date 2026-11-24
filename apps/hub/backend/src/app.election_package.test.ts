@@ -48,7 +48,6 @@ import {
   BallotCandidateOrderingsSchema,
   unsafeParseJson,
   type GetCandidateOrderingsFn,
-  type Party,
   type RegisteredVoterCount,
 } from '@votingworks/types';
 import {
@@ -85,6 +84,7 @@ import path from 'node:path';
 import { createSummaryBallotTestDeck } from '@votingworks/test-decks';
 import { getStateFeaturesConfig } from '@votingworks/election-definition-backend';
 import {
+  enableStateFeaturesForTest,
   ELECTION_PACKAGE_FILE_NAME_REGEX,
   exportElectionPackage,
   getExportedFile,
@@ -1170,6 +1170,10 @@ test('export omits optional ballots if not enabled', async () => {
 });
 
 test('export - registered voter counts broken out by party', async () => {
+  enableStateFeaturesForTest(nonVxJurisdiction.stateCode, {
+    REGISTERED_VOTER_COUNTS_BY_PARTY: true,
+    NONPARTISAN_REGISTERED_VOTER_COUNT: true,
+  });
   const { apiClient, workspace, fileStorageClient, auth0 } = await setupApp({
     organizations,
     jurisdictions,
@@ -1185,38 +1189,34 @@ test('export - registered voter counts broken out by party', async () => {
         format: 'vxf',
         electionFileContents: Buffer.from(
           JSON.stringify(
-            electionFamousNames2021Fixtures.readElectionDefinition().election
+            electionTwoPartyPrimaryFixtures.readElectionDefinition().election
           )
         ),
       },
     })
   ).unsafeUnwrap();
 
-  const party: Party = {
-    id: 'party-export-test',
-    name: 'Export Test',
-    fullName: 'Export Test Party',
-    abbrev: 'E',
-  };
-  (
-    await apiClient.updateParties({ electionId, newParties: [party] })
-  ).unsafeUnwrap();
+  const [party0, party1] = await apiClient.listParties({ electionId });
   const precinct = find(
     await apiClient.listPrecincts({ electionId }),
     (p) => !hasSplits(p)
   );
+  async function setRegisteredVoterCount(count: RegisteredVoterCount) {
+    (
+      await apiClient.updatePrecinct({
+        electionId,
+        updatedPrecinct: precinct,
+        registeredVoterCounts: count,
+      })
+    ).unsafeUnwrap();
+  }
+
   const breakdown: RegisteredVoterCount = {
     total: 10,
-    byParty: { [party.id]: 4 },
+    byParty: { [party0!.id]: 3, [party1!.id]: 1 },
     nonpartisan: 6,
   };
-  (
-    await apiClient.updatePrecinct({
-      electionId,
-      updatedPrecinct: precinct,
-      registeredVoterCounts: breakdown,
-    })
-  ).unsafeUnwrap();
+  await setRegisteredVoterCount(breakdown);
 
   async function exportRegisteredVoterCounts() {
     const exportMeta = await exportElectionPackage({
@@ -1249,17 +1249,17 @@ test('export - registered voter counts broken out by party', async () => {
     [precinct.id]: breakdown,
   });
 
-  // Deleting a party leaves a breakdown that no longer sums to the total
-  (
-    await apiClient.updateParties({ electionId, deletedPartyIds: [party.id] })
-  ).unsafeUnwrap();
+  await setRegisteredVoterCount({
+    total: 4,
+    byParty: { [party0!.id]: 3, [party1!.id]: 1 },
+  });
   await expect(
     apiClient.exportElectionPackage({
       electionId,
       electionSerializationFormat: 'vxf',
     })
   ).rejects.toThrow(
-    'Party and nonpartisan registered voter counts must sum to the total'
+    'Registered voter counts by party must include a nonpartisan count'
   );
 });
 
