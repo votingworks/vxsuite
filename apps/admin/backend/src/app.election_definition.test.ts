@@ -175,6 +175,7 @@ test('create, edit and discard an election definition', async () => {
   ).toEqual({
     electionId,
     type: 'general',
+    isMiCombinedBallotPrimary: false,
     date: new DateWithoutTime('2026-11-05'),
     title: '',
     state: 'DEMO',
@@ -193,6 +194,7 @@ test('create, edit and discard an election definition', async () => {
   const electionInfoUpdate: ElectionInfoUpdate = {
     electionId,
     type: 'primary',
+    isMiCombinedBallotPrimary: false,
     date: new DateWithoutTime('2027-03-02'),
     title: ' Primary Election ',
     state: 'Demo State',
@@ -333,7 +335,7 @@ test('unsupported machine state', async () => {
   ).rejects.toThrow('election-definition:disabled');
 });
 
-test('rejects combined ballot primaries', async () => {
+test('rejects combined ballot primaries when the state does not support them', async () => {
   const { electionDefinitionApiClient, auth } = buildTestEnvironment();
   mockSystemAdministratorAuth(auth);
   const electionId =
@@ -351,8 +353,37 @@ test('rejects combined ballot primaries', async () => {
         type: 'primary',
         isMiCombinedBallotPrimary: true,
       })
-    ).rejects.toThrow('Combined ballot primaries are not supported.')
+    ).rejects.toThrow(
+      'Combined ballot primaries are not supported in this state.'
+    )
   );
+});
+
+test('saves a combined ballot primary when the state supports it', async () => {
+  vi.mocked(getStateFeaturesConfig).mockReturnValue({
+    COMBINED_BALLOT_PRIMARIES: true,
+  });
+  const { electionDefinitionApiClient, auth } = buildTestEnvironment();
+  mockSystemAdministratorAuth(auth);
+  const electionId =
+    await electionDefinitionApiClient.createInProgressElection();
+  const electionInfo = await electionDefinitionApiClient.getElectionInfo({
+    electionId,
+  });
+  expect(electionInfo.isMiCombinedBallotPrimary).toEqual(false);
+
+  (
+    await electionDefinitionApiClient.updateElectionInfo({
+      ...electionInfo,
+      title: 'Primary Election',
+      jurisdictionName: 'Demo County',
+      type: 'primary',
+      isMiCombinedBallotPrimary: true,
+    })
+  ).unsafeUnwrap();
+  expect(
+    await electionDefinitionApiClient.getElectionInfo({ electionId })
+  ).toMatchObject({ type: 'primary', isMiCombinedBallotPrimary: true });
 });
 
 test('edit districts', async () => {

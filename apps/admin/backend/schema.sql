@@ -378,6 +378,7 @@ create table design_elections (
   status text not null default 'in_progress'
     check (status in ('in_progress', 'finalized')),
   type text not null check (type in ('general', 'primary')),
+  is_mi_combined_ballot_primary integer not null default 0,
   title text not null,
   date text not null,
   state text not null,
