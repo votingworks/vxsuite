@@ -1909,6 +1909,21 @@ test('election package includes a generated straight party contest when the stat
     optionIds: [democrats.id],
   };
 
+  expect(await api.listContests({ electionId })).toEqual([
+    expectedContest,
+    mayor,
+    measure,
+  ]);
+  await api.reorderContests({
+    electionId,
+    contestIds: [expectedContest.id, measure.id, mayor.id],
+  });
+  expect(await api.listContests({ electionId })).toEqual([
+    expectedContest,
+    measure,
+    mayor,
+  ]);
+
   vi.mocked(renderBallotPreview).mockResolvedValueOnce(
     err({ error: 'contestTooLong', contest: measure })
   );

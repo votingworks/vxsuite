@@ -37,6 +37,7 @@ import {
   type StateCode,
   defaultBallotTemplate,
   stateDefaultSystemSettings,
+  straightPartyContestId,
   type StateFeaturesConfig,
 } from '@votingworks/election-definition-backend';
 import * as grout from '@votingworks/grout';
@@ -403,7 +404,14 @@ function createElectionDefinitionApiMethods({
 
     listContests(input: ElectionInput): Contest[] {
       loadInProgressElectionInfo(input);
-      return store.electionDefinition.listContests(input.electionId);
+      const { features } = assertDefined(getMachineState());
+      const { election } = assertDefined(
+        store.electionDefinition.getElectionWithCandidateOrderings(
+          input.electionId,
+          { straightPartyVoting: !!features.STRAIGHT_PARTY_VOTING }
+        )
+      );
+      return [...election.contests];
     },
 
     async createContest(
@@ -458,7 +466,12 @@ function createElectionDefinitionApiMethods({
 
     async reorderContests(input: ContestsReorder): Promise<void> {
       loadEditableElectionInfo(input);
-      store.electionDefinition.reorderContests(input);
+      store.electionDefinition.reorderContests({
+        ...input,
+        contestIds: input.contestIds.filter(
+          (contestId) => contestId !== straightPartyContestId(input.electionId)
+        ),
+      });
       await logger.logAsCurrentRole(
         LogEventId.ElectionDefinitionContestsReordered,
         {
