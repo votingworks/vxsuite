@@ -2708,9 +2708,10 @@ test('design election round trip', () => {
 
   const electionInfo = {
     electionId: 'design-election',
-    type: 'general',
+    type: 'primary',
+    isMiCombinedBallotPrimary: true,
     date: new DateWithoutTime('2026-11-03'),
-    title: 'General Election',
+    title: 'Primary Election',
     state: 'Demo State',
     jurisdictionName: 'Demo County',
     seal: '<svg>seal</svg>',
@@ -2738,14 +2739,16 @@ test('design election round trip', () => {
   } = electionInfo;
   store.electionDefinition.updateInProgressElectionInfo({
     ...withoutSignature,
-    type: 'primary',
-    title: 'Primary Election',
+    type: 'general',
+    isMiCombinedBallotPrimary: false,
+    title: 'General Election',
     languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
   });
   expect(store.electionDefinition.getElectionInfo()).toEqual({
     ...withoutSignature,
-    type: 'primary',
-    title: 'Primary Election',
+    type: 'general',
+    isMiCombinedBallotPrimary: false,
+    title: 'General Election',
     languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
   });
 

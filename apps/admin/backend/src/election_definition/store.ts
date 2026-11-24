@@ -344,6 +344,7 @@ export class ElectionDefinitionStore {
       select
         id as electionId,
         type,
+        is_mi_combined_ballot_primary as isMiCombinedBallotPrimary,
         title,
         date,
         state,
@@ -358,6 +359,7 @@ export class ElectionDefinitionStore {
       | {
           electionId: ElectionId;
           type: ElectionType;
+          isMiCombinedBallotPrimary: number;
           title: string;
           date: string;
           state: string;
@@ -374,6 +376,7 @@ export class ElectionDefinitionStore {
     return {
       electionId: row.electionId,
       type: row.type,
+      isMiCombinedBallotPrimary: row.isMiCombinedBallotPrimary === 1,
       title: row.title,
       date: new DateWithoutTime(row.date),
       state: row.state,
@@ -492,7 +495,7 @@ export class ElectionDefinitionStore {
       })),
       contests: this.listContests(electionId),
       electionType: electionInfo.type,
-      isMiCombinedBallotPrimary: false,
+      isMiCombinedBallotPrimary: !!electionInfo.isMiCombinedBallotPrimary,
       parties: this.listParties(electionId),
       precincts: this.listPrecincts(electionId),
       ballotTemplateId: this.getBallotTemplateId(electionId),
@@ -521,6 +524,7 @@ export class ElectionDefinitionStore {
       insert into design_elections (
         id,
         type,
+        is_mi_combined_ballot_primary,
         ballot_template_id,
         title,
         date,
@@ -531,10 +535,11 @@ export class ElectionDefinitionStore {
         signature_caption,
         language_codes,
         system_settings
-      ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `,
       electionInfo.electionId,
       electionInfo.type,
+      electionInfo.isMiCombinedBallotPrimary ? 1 : 0,
       ballotTemplateId,
       electionInfo.title,
       electionInfo.date.toISOString(),
@@ -554,6 +559,7 @@ export class ElectionDefinitionStore {
       update design_elections
       set
         type = ?,
+        is_mi_combined_ballot_primary = ?,
         title = ?,
         date = ?,
         state = ?,
@@ -566,6 +572,7 @@ export class ElectionDefinitionStore {
       where id = ?
     `,
       electionInfo.type,
+      electionInfo.isMiCombinedBallotPrimary ? 1 : 0,
       electionInfo.title,
       electionInfo.date.toISOString(),
       electionInfo.state,

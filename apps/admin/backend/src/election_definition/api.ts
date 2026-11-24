@@ -321,8 +321,9 @@ function createElectionDefinitionApiMethods({
     ): Promise<Result<void, never>> {
       const electionInfoUpdate = unsafeParse(ElectionInfoUpdateSchema, input);
       assert(
-        !electionInfoUpdate.isMiCombinedBallotPrimary,
-        'Combined ballot primaries are not supported.'
+        !electionInfoUpdate.isMiCombinedBallotPrimary ||
+          assertDefined(getMachineState()).features.COMBINED_BALLOT_PRIMARIES,
+        'Combined ballot primaries are not supported in this state.'
       );
       loadEditableElectionInfo(electionInfoUpdate);
       store.electionDefinition.updateInProgressElectionInfo(electionInfoUpdate);
