@@ -7,7 +7,7 @@ FROM debian:bookworm-slim
 WORKDIR /vx/code/vxsuite
 COPY .nvmrc package.json ./
 
-RUN apt update && apt install -y --no-install-recommends \
+RUN apt-get update && apt-get install -y --no-install-recommends \
   # Build deps:
   curl \
   # Runtime deps:
@@ -20,7 +20,6 @@ RUN apt update && apt install -y --no-install-recommends \
   && curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash && \
   . ~/.bashrc && \
   nvm install && \
-  . ~/.bashrc && \
   node -v && \
   npm i -g pnpm@12.16.1 && \
   pnpm -v
@@ -28,5 +27,3 @@ RUN apt update && apt install -y --no-install-recommends \
 COPY . .
 ENV HOME="/root" NODE_ENV="production" VX_HUB_IMAGE="1"
 RUN ./script/vxhub-prod-build
-
-EXPOSE 80 3000 3001
