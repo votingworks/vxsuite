@@ -869,7 +869,7 @@ export function SystemSettingsForm({
               />
               <SystemSettingsCheckbox
                 {...checkboxProps}
-                label="Disable System Limit Checks on Election Package Import"
+                label="Disable System Limit Checks"
                 setting="disableSystemLimitChecks"
                 omitWhenUnchecked
               />
