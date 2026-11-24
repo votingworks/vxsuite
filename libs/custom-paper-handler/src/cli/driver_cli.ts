@@ -7,6 +7,7 @@ import {
   sleep,
   type EnumValues,
 } from '@votingworks/basics';
+import { fromGrayScale, writeImageData } from '@votingworks/image-utils';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { getPaperHandlerDriver } from '../driver/helpers.js';
@@ -60,7 +61,8 @@ async function scan(driver: PaperHandlerDriverInterface): Promise<void> {
   const dateString = new Date().toISOString();
   const pathOut = join(tmpdir(), `ballot-driver-cli-${dateString}.jpg`);
   console.log('Writing scan to', pathOut);
-  await driver.scanAndSave(pathOut);
+  const { data, width, height } = await driver.scanAndCrop();
+  await writeImageData(pathOut, fromGrayScale(data, width, height));
 }
 
 async function setDefaults(driver: PaperHandlerDriverInterface) {

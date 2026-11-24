@@ -41,6 +41,7 @@ import {
 } from '@votingworks/fixtures';
 import {
   BallotType,
+  type GrayImageData,
   type PageInterpretation,
   type PageInterpretationType,
   type SheetOf,
@@ -54,9 +55,8 @@ import { interpretSimplexBmdBallot } from '@votingworks/ballot-interpreter';
 import {
   BLANK_PAGE_IMAGE_DATA,
   loadImageData,
-  writeImageData,
+  toGrayScale,
 } from '@votingworks/image-utils';
-import { join } from 'node:path';
 import { SimulatedClock } from 'xstate/lib/SimulatedClock.js';
 import { AudioPort, setBuiltinAudioPort } from '@votingworks/backend';
 import {
@@ -78,7 +78,7 @@ import {
   loadAndParkPaper,
   printBallotChunks,
   resetAndReconnect,
-  scanAndSave,
+  scanSheet,
 } from './application_driver.js';
 import {
   mockCardlessVoterAuth,
@@ -101,6 +101,11 @@ import type { BmdModelNumber } from '../types.js';
 import { configureStore } from '../../test/store_helpers.js';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
+const BLANK_SCAN = toGrayScale(
+  BLANK_PAGE_IMAGE_DATA.data,
+  BLANK_PAGE_IMAGE_DATA.width,
+  BLANK_PAGE_IMAGE_DATA.height
+);
 const { election } = electionGeneralDefinition;
 const parsedSystemSettings = safeParseSystemSettings(
   systemSettings.asText()
@@ -119,7 +124,7 @@ vi.mock(import('./application_driver.js'), async (importActual) => ({
   loadAndParkPaper: vi.fn(),
   printBallotChunks: vi.fn(),
   resetAndReconnect: vi.fn(),
-  scanAndSave: vi.fn(),
+  scanSheet: vi.fn(),
   scanAndInterpretBallot: vi.fn(),
 }));
 vi.mock(
@@ -161,7 +166,7 @@ let logger: MockLogger;
 let patConnectionStatusReader: PatConnectionStatusReaderInterface;
 let auth: InsertedSmartCardAuthApi;
 let ballotPdfData: Uint8Array;
-let scannedBallotFixtureFilepaths: string;
+let scannedBallotFixtureImage: GrayImageData;
 let clock: SimulatedClock;
 
 vi.mock(import('@votingworks/backend'), async (importActual) => ({
@@ -218,8 +223,10 @@ beforeAll(
       electionDefinition: electionGeneralDefinition,
       frontPageOnly: true,
     });
-    scannedBallotFixtureFilepaths =
-      await writeFirstBallotPageToImageFile(ballotPdfData);
+    const { data, width, height } = (
+      await loadImageData(await writeFirstBallotPageToImageFile(ballotPdfData))
+    ).unsafeUnwrap();
+    scannedBallotFixtureImage = toGrayScale(data, width, height);
   },
   // Increase timeout for this hook only because ballot fixture
   // rendering can take a few seconds
@@ -448,12 +455,6 @@ describe('paper jam', () => {
   });
 });
 
-async function writeTmpBlankImage(): Promise<string> {
-  const path = join(makeTemporaryDirectory(), 'blank-image.jpg');
-  await writeImageData(path, BLANK_PAGE_IMAGE_DATA);
-  return path;
-}
-
 async function executeLoadPaper(
   options: { noVoterAuth?: boolean } = {}
 ): Promise<void> {
@@ -473,7 +474,7 @@ async function executeLoadPaper(
   machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
   await waitForStatus('accepting_paper');
 
-  vi.mocked(scanAndSave).mockResolvedValue(await writeTmpBlankImage());
+  vi.mocked(scanSheet).mockResolvedValue(BLANK_SCAN);
   vi.mocked(interpretSimplexBmdBallot).mockResolvedValue(
     BLANK_PAGE_INTERPRETATION_MOCK
   );
@@ -496,18 +497,18 @@ async function executeLoadPaper(
 // Sets up print and scan mocks. Executes the state machine from 'not_accepting_paper' to 'presenting_ballot'.
 async function executePrintBallotAndAssert(
   printData: Uint8Array,
-  scanFixtureFilepath: string,
+  scanFixtureImage: GrayImageData,
   interpretationResult: SheetOf<PageInterpretation> = SUCCESSFUL_INTERPRETATION_MOCK
 ): Promise<void> {
   await executeLoadPaper();
 
-  vi.mocked(scanAndSave).mockReset();
+  vi.mocked(scanSheet).mockReset();
   vi.mocked(interpretSimplexBmdBallot).mockReset();
 
   vi.mocked(printBallotChunks).mockResolvedValue();
 
-  const mockScanResult = deferred<string>();
-  vi.mocked(scanAndSave).mockReturnValue(mockScanResult.promise);
+  const mockScanResult = deferred<GrayImageData>();
+  vi.mocked(scanSheet).mockReturnValue(mockScanResult.promise);
 
   const mockInterpretResult = deferred<SheetOf<PageInterpretation>>();
   vi.mocked(interpretSimplexBmdBallot).mockReturnValue(
@@ -520,28 +521,21 @@ async function executePrintBallotAndAssert(
   expect(printBallotChunks).toHaveBeenCalledTimes(1);
 
   await waitForStatus('scanning');
-  expect(scanAndSave).toBeCalledTimes(1);
+  expect(scanSheet).toBeCalledTimes(1);
 
-  mockScanResult.resolve(scanFixtureFilepath);
+  mockScanResult.resolve(scanFixtureImage);
   await waitForStatus('interpreting');
 
   mockInterpretResult.resolve(interpretationResult);
 
-  const scanFixtureImageData = (
-    await loadImageData(scanFixtureFilepath)
-  ).unsafeUnwrap();
   expect(interpretSimplexBmdBallot).toHaveBeenCalledTimes(1);
   const [frontImage] = vi.mocked(interpretSimplexBmdBallot).mock.calls[0]!;
 
-  assert(frontImage, 'No front image was passed to interpretSimplexBmdBallot');
-  await expect(frontImage).toMatchImage(scanFixtureImageData);
+  expect(frontImage).toEqual(scanFixtureImage);
 }
 
 test('voting flow happy path', { timeout: 6000 }, async () => {
-  await executePrintBallotAndAssert(
-    ballotPdfData,
-    scannedBallotFixtureFilepaths
-  );
+  await executePrintBallotAndAssert(ballotPdfData, scannedBallotFixtureImage);
 
   await waitForStatus('presenting_ballot');
   expectMockPaperHandlerStatus(driver, 'presentingPaper');
@@ -560,10 +554,7 @@ test('voting flow happy path', { timeout: 6000 }, async () => {
 });
 
 test('ballot invalidation flow', async () => {
-  await executePrintBallotAndAssert(
-    ballotPdfData,
-    scannedBallotFixtureFilepaths
-  );
+  await executePrintBallotAndAssert(ballotPdfData, scannedBallotFixtureImage);
 
   await waitForStatus('presenting_ballot');
   expectMockPaperHandlerStatus(driver, 'presentingPaper');
@@ -586,10 +577,7 @@ test('ballot invalidation flow', async () => {
 test('ballot box empty flow', async () => {
   workspace.store.setBallotsCastSinceLastBoxChange(MAX_BALLOT_BOX_CAPACITY - 1);
 
-  await executePrintBallotAndAssert(
-    ballotPdfData,
-    scannedBallotFixtureFilepaths
-  );
+  await executePrintBallotAndAssert(ballotPdfData, scannedBallotFixtureImage);
 
   await waitForStatus('presenting_ballot');
   expectMockPaperHandlerStatus(driver, 'presentingPaper');
@@ -621,18 +609,13 @@ test('elections with grid layouts still try to interpret BMD ballots', async () 
       .id,
   });
 
-  await executePrintBallotAndAssert(
-    ballotPdfData,
-    scannedBallotFixtureFilepaths
-  );
+  await executePrintBallotAndAssert(ballotPdfData, scannedBallotFixtureImage);
 });
 
 test('blank page interpretation', async () => {
-  const mockScannedBallotImagePath = await writeTmpBlankImage();
-
   await executePrintBallotAndAssert(
     ballotPdfData,
-    mockScannedBallotImagePath,
+    BLANK_SCAN,
     BLANK_PAGE_INTERPRETATION_MOCK
   );
 
@@ -837,8 +820,8 @@ describe('poll_worker_auth_ended_unexpectedly', () => {
     machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
     await waitForStatus('accepting_paper');
 
-    const deferredScan = deferred<string>();
-    vi.mocked(scanAndSave).mockImplementation(() => {
+    const deferredScan = deferred<GrayImageData>();
+    vi.mocked(scanSheet).mockImplementation(() => {
       mockCardlessVoterAuth(auth, {
         ballotStyleId: '1_en',
         precinctId,
@@ -856,14 +839,14 @@ describe('poll_worker_auth_ended_unexpectedly', () => {
     await waitForStatus('poll_worker_auth_ended_unexpectedly');
 
     // Clean up hanging promise:
-    deferredScan.resolve(await writeTmpBlankImage());
+    deferredScan.resolve(BLANK_SCAN);
   });
 
   test('inserted_invalid_new_sheet state', async () => {
     machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
     await waitForStatus('accepting_paper');
 
-    vi.mocked(scanAndSave).mockResolvedValue(await writeTmpBlankImage());
+    vi.mocked(scanSheet).mockResolvedValue(BLANK_SCAN);
 
     const interpretationType: PageInterpretationType = 'InvalidBallotHashPage';
     vi.mocked(interpretSimplexBmdBallot).mockResolvedValue([
@@ -888,7 +871,7 @@ describe('poll_worker_auth_ended_unexpectedly', () => {
     machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
     await waitForStatus('accepting_paper');
 
-    vi.mocked(scanAndSave).mockResolvedValue(await writeTmpBlankImage());
+    vi.mocked(scanSheet).mockResolvedValue(BLANK_SCAN);
     vi.mocked(interpretSimplexBmdBallot).mockResolvedValue(
       SUCCESSFUL_INTERPRETATION_MOCK
     );
@@ -928,7 +911,7 @@ describe('paper handler diagnostic', () => {
 test('reset() API', async () => {
   await executePrintBallotAndAssert(
     ballotPdfData,
-    scannedBallotFixtureFilepaths,
+    scannedBallotFixtureImage,
     SUCCESSFUL_INTERPRETATION_MOCK
   );
 
@@ -952,7 +935,7 @@ test('insert and validate new blank sheet', async () => {
   vi.mocked(interpretSimplexBmdBallot).mockReturnValue(
     mockInterpretResult.promise
   );
-  vi.mocked(scanAndSave).mockResolvedValue(await writeTmpBlankImage());
+  vi.mocked(scanSheet).mockResolvedValue(BLANK_SCAN);
 
   await setMockStatusAndIncrementClock('paperInserted');
   await waitForStatus('loading_new_sheet');
@@ -967,9 +950,8 @@ test('insert and validate new blank sheet', async () => {
   await waitForStatus('waiting_for_ballot_data');
 
   const [frontImage] = vi.mocked(interpretSimplexBmdBallot).mock.calls[0]!;
-  assert(frontImage, 'No front image was passed to interpretSimplexBmdBallot');
 
-  await expect(frontImage).toMatchImage(BLANK_PAGE_IMAGE_DATA);
+  expect(frontImage).toEqual(BLANK_SCAN);
 });
 
 describe('insert pre-printed ballot', () => {
@@ -981,7 +963,7 @@ describe('insert pre-printed ballot', () => {
   test('start session with valid pre-printed ballot', async () => {
     machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
 
-    vi.mocked(scanAndSave).mockResolvedValue(await writeTmpBlankImage());
+    vi.mocked(scanSheet).mockResolvedValue(BLANK_SCAN);
     vi.mocked(interpretSimplexBmdBallot).mockResolvedValue(
       SUCCESSFUL_INTERPRETATION_MOCK
     );
@@ -998,7 +980,7 @@ describe('insert pre-printed ballot', () => {
   test('return valid pre-printed ballot', async () => {
     machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
 
-    vi.mocked(scanAndSave).mockResolvedValue(await writeTmpBlankImage());
+    vi.mocked(scanSheet).mockResolvedValue(BLANK_SCAN);
     vi.mocked(interpretSimplexBmdBallot).mockResolvedValue(
       SUCCESSFUL_INTERPRETATION_MOCK
     );
@@ -1035,7 +1017,7 @@ describe('insert pre-printed ballot', () => {
     machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
     expect(machine.getSimpleStatus()).toEqual('accepting_paper');
 
-    vi.mocked(scanAndSave).mockResolvedValue(await writeTmpBlankImage());
+    vi.mocked(scanSheet).mockResolvedValue(BLANK_SCAN);
 
     const mockInterpretResult = deferred<SheetOf<PageInterpretation>>();
     vi.mocked(interpretSimplexBmdBallot).mockReturnValue(
@@ -1063,7 +1045,7 @@ describe('insert pre-printed ballot', () => {
     machine.setAcceptingPaper(['InterpretedBmdPage']);
     expect(machine.getSimpleStatus()).toEqual('accepting_paper');
 
-    vi.mocked(scanAndSave).mockResolvedValue(await writeTmpBlankImage());
+    vi.mocked(scanSheet).mockResolvedValue(BLANK_SCAN);
 
     vi.mocked(interpretSimplexBmdBallot).mockResolvedValue(
       BLANK_PAGE_INTERPRETATION_MOCK
@@ -1096,7 +1078,7 @@ describe('re-insert removed ballot', () => {
 
     machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
 
-    vi.mocked(scanAndSave).mockResolvedValue(await writeTmpBlankImage());
+    vi.mocked(scanSheet).mockResolvedValue(BLANK_SCAN);
     vi.mocked(interpretSimplexBmdBallot).mockResolvedValue(
       SUCCESSFUL_INTERPRETATION_MOCK
     );
@@ -1124,8 +1106,7 @@ describe('re-insert removed ballot', () => {
     vi.mocked(interpretSimplexBmdBallot).mockReturnValue(
       mockInterpretResult.promise
     );
-    const ballotImagePath = await writeTmpBlankImage();
-    vi.mocked(scanAndSave).mockResolvedValue(ballotImagePath);
+    vi.mocked(scanSheet).mockResolvedValue(BLANK_SCAN);
 
     await setMockStatusAndIncrementClock('paperInserted');
     await waitForStatus('loading_reinserted_ballot');
@@ -1142,7 +1123,7 @@ describe('re-insert removed ballot', () => {
     await waitForStatus('presenting_ballot');
     const [frontImage] = vi.mocked(interpretSimplexBmdBallot).mock.calls[0]!;
 
-    await expect(frontImage).toMatchImage(BLANK_PAGE_IMAGE_DATA);
+    expect(frontImage).toEqual(BLANK_SCAN);
   });
 
   test('error during interpretation of ballot re-insert', async () => {
@@ -1176,7 +1157,7 @@ describe('re-insert removed ballot', () => {
 
     machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
 
-    vi.mocked(scanAndSave).mockResolvedValue(await writeTmpBlankImage());
+    vi.mocked(scanSheet).mockResolvedValue(BLANK_SCAN);
     vi.mocked(interpretSimplexBmdBallot).mockResolvedValue(
       SUCCESSFUL_INTERPRETATION_MOCK
     );
@@ -1362,7 +1343,7 @@ describe('unrecoverable_error', () => {
     vi.mocked(interpretSimplexBmdBallot).mockReturnValue(
       mockInterpretResult.promise
     );
-    vi.mocked(scanAndSave).mockResolvedValue(await writeTmpBlankImage());
+    vi.mocked(scanSheet).mockResolvedValue(BLANK_SCAN);
 
     await setMockStatusAndIncrementClock('paperInserted');
     await waitForStatus('loading_new_sheet');
@@ -1390,12 +1371,12 @@ describe('unrecoverable_error', () => {
   test('triggers when an error occurs during voting_flow.scanning', async () => {
     await executeLoadPaper();
 
-    vi.mocked(scanAndSave).mockReset();
+    vi.mocked(scanSheet).mockReset();
     vi.mocked(interpretSimplexBmdBallot).mockReset();
     vi.mocked(printBallotChunks).mockResolvedValue();
 
-    const mockScanResult = deferred<string>();
-    vi.mocked(scanAndSave).mockReturnValue(mockScanResult.promise);
+    const mockScanResult = deferred<GrayImageData>();
+    vi.mocked(scanSheet).mockReturnValue(mockScanResult.promise);
 
     const mockInterpretResult = deferred<SheetOf<PageInterpretation>>();
     vi.mocked(interpretSimplexBmdBallot).mockReturnValue(
@@ -1407,7 +1388,7 @@ describe('unrecoverable_error', () => {
     expect(printBallotChunks).toHaveBeenCalledTimes(1);
 
     await waitForStatus('scanning');
-    expect(scanAndSave).toBeCalledTimes(1);
+    expect(scanSheet).toBeCalledTimes(1);
 
     mockScanResult.reject(new Error('Test interpretation error'));
     await waitForStatus('unrecoverable_error');
@@ -1416,12 +1397,12 @@ describe('unrecoverable_error', () => {
   test('triggers when an error occurs during voting_flow.interpreting', async () => {
     await executeLoadPaper();
 
-    vi.mocked(scanAndSave).mockReset();
+    vi.mocked(scanSheet).mockReset();
     vi.mocked(interpretSimplexBmdBallot).mockReset();
     vi.mocked(printBallotChunks).mockResolvedValue();
 
-    const mockScanResult = deferred<string>();
-    vi.mocked(scanAndSave).mockReturnValue(mockScanResult.promise);
+    const mockScanResult = deferred<GrayImageData>();
+    vi.mocked(scanSheet).mockReturnValue(mockScanResult.promise);
 
     const mockInterpretResult = deferred<SheetOf<PageInterpretation>>();
     vi.mocked(interpretSimplexBmdBallot).mockReturnValue(
@@ -1433,9 +1414,9 @@ describe('unrecoverable_error', () => {
     expect(printBallotChunks).toHaveBeenCalledTimes(1);
 
     await waitForStatus('scanning');
-    expect(scanAndSave).toBeCalledTimes(1);
+    expect(scanSheet).toBeCalledTimes(1);
 
-    mockScanResult.resolve(scannedBallotFixtureFilepaths);
+    mockScanResult.resolve(scannedBallotFixtureImage);
     await waitForStatus('interpreting');
 
     mockInterpretResult.reject(new Error('Test error in interpretation'));

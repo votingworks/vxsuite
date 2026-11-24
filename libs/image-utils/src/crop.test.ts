@@ -1,21 +1,27 @@
 import { expect, test } from 'vitest';
-import type { Rect, RgbaImageData } from '@votingworks/types';
+import type { ImageData, Rect } from '@votingworks/types';
 import fc from 'fast-check';
 import { arbitraryImageData, arbitraryRect } from '../test/arbitraries.js';
 import { crop } from './crop.js';
-import { createImageData, RGBA_CHANNEL_COUNT } from './image_data.js';
+import {
+  createGrayImageData,
+  createImageData,
+  getImageChannelCount,
+  isRgba,
+  toGrayScale,
+} from './image_data.js';
 import type { int } from './types.js';
 
 /**
  * A slow-but-accurate implementation of `crop` to compare against.
  */
 function cropReferenceImplementation(
-  { data: src, width: srcWidth }: RgbaImageData,
+  imageData: ImageData,
   bounds: Rect
-): RgbaImageData {
-  const dst = new Uint8ClampedArray(
-    bounds.width * bounds.height * RGBA_CHANNEL_COUNT
-  );
+): ImageData {
+  const { data: src, width: srcWidth } = imageData;
+  const channels = getImageChannelCount(imageData);
+  const dst = new Uint8ClampedArray(bounds.width * bounds.height * channels);
   const {
     x: srcOffsetX,
     y: srcOffsetY,
@@ -28,16 +34,18 @@ function cropReferenceImplementation(
 
     for (let x = 0; x < dstWidth; x += 1) {
       const srcX = srcOffsetX + x;
-      const srcOffset = (srcX + srcY * srcWidth) * RGBA_CHANNEL_COUNT;
-      const dstOffset = (x + y * dstWidth) * RGBA_CHANNEL_COUNT;
+      const srcOffset = (srcX + srcY * srcWidth) * channels;
+      const dstOffset = (x + y * dstWidth) * channels;
 
-      for (let c = 0; c < RGBA_CHANNEL_COUNT; c += 1) {
+      for (let c = 0; c < channels; c += 1) {
         dst[dstOffset + c] = src[srcOffset + c] as int;
       }
     }
   }
 
-  return createImageData(dst, dstWidth, dstHeight);
+  return isRgba(imageData)
+    ? createImageData(dst, dstWidth, dstHeight)
+    : createGrayImageData(dst, dstWidth, dstHeight);
 }
 
 test('crop center', () => {
@@ -77,6 +85,40 @@ test('crop random', () => {
           width: bounds.width,
           height: bounds.height,
         });
+      }
+    )
+  );
+});
+
+test('crop grayscale center', () => {
+  const imageData = createGrayImageData(Uint8ClampedArray.of(0, 1, 2), 3, 1);
+
+  const cropped = crop(imageData, { x: 1, y: 0, width: 1, height: 1 });
+  expect([...cropped.data]).toEqual([1]);
+  expect(getImageChannelCount(cropped)).toEqual(1);
+});
+
+test('crop grayscale random', () => {
+  fc.assert(
+    fc.property(
+      arbitraryImageData().chain((rgbaImageData) => {
+        const imageData = toGrayScale(
+          rgbaImageData.data,
+          rgbaImageData.width,
+          rgbaImageData.height
+        );
+        return fc.record({
+          imageData: fc.constant(imageData),
+          bounds: arbitraryRect({
+            maxX: imageData.width - 1,
+            maxY: imageData.height - 1,
+          }),
+        });
+      }),
+      ({ imageData, bounds }) => {
+        expect(crop(imageData, bounds)).toEqual(
+          cropReferenceImplementation(imageData, bounds)
+        );
       }
     )
   );

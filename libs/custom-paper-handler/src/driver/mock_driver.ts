@@ -1,11 +1,8 @@
 import { type Result, sleep } from '@votingworks/basics';
 import type { CoderError } from '@votingworks/message-coder';
 import makeDebug from 'debug';
-import {
-  BLANK_PAGE_IMAGE_DATA,
-  writeImageData,
-} from '@votingworks/image-utils';
-import type { RgbaImageData } from '@votingworks/types';
+import { BLANK_PAGE_IMAGE_DATA, toGrayScale } from '@votingworks/image-utils';
+import type { GrayImageData, RgbaImageData } from '@votingworks/types';
 import type {
   PaperHandlerStatus,
   PrinterStatusRealTimeExchangeResponse,
@@ -212,9 +209,9 @@ export class MockPaperHandlerDriver implements PaperHandlerDriverInterface {
     return Promise.resolve(this.mockPaperContents || BLANK_PAGE_IMAGE_DATA);
   }
 
-  async scanAndSave(pathOut: string): Promise<void> {
-    const scannedImage = await this.scan();
-    await writeImageData(pathOut, scannedImage);
+  async scanAndCrop(): Promise<GrayImageData> {
+    const { data, width, height } = await this.scan();
+    return toGrayScale(data, width, height);
   }
 
   loadPaper(): Promise<boolean> {

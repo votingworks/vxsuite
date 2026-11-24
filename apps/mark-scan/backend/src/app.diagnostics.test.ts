@@ -11,6 +11,7 @@ import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import {
   BallotType,
   type DiagnosticRecord,
+  type GrayImageData,
   type PageInterpretation,
   type SheetOf,
 } from '@votingworks/types';
@@ -38,11 +39,11 @@ import { isAccessibleControllerDaemonRunning } from './util/hardware.js';
 import { mockSystemAdminAuth } from '../test/auth_helpers.js';
 import {
   DIAGNOSTIC_ELECTION_PATH,
-  getDiagnosticMockBallotImagePath,
+  getDiagnosticMockBallotImage,
 } from './custom-paper-handler/diagnostic/index.js';
 import {
   loadAndParkPaper,
-  scanAndSave,
+  scanSheet,
 } from './custom-paper-handler/application_driver.js';
 import { BLANK_PAGE_MOCK } from '../test/ballot_helpers.js';
 
@@ -298,9 +299,9 @@ describe('paper handler diagnostic', () => {
 
     mockSystemAdminAuth(auth);
 
-    const mockScanResult = deferred<string>();
-    const scannedPath = await getDiagnosticMockBallotImagePath();
-    vi.mocked(scanAndSave).mockReturnValue(mockScanResult.promise);
+    const mockScanResult = deferred<GrayImageData>();
+    const scannedImage = await getDiagnosticMockBallotImage();
+    vi.mocked(scanSheet).mockReturnValue(mockScanResult.promise);
 
     const interpretationMock: SheetOf<PageInterpretation> = [
       {
@@ -354,7 +355,7 @@ describe('paper handler diagnostic', () => {
     // Chromium, used by print_ballot_fixture, needs some time to spin up
     await waitForStatus('paper_handler_diagnostic.scan_ballot', 1000);
 
-    mockScanResult.resolve(scannedPath);
+    mockScanResult.resolve(scannedImage);
     await waitForStatus('paper_handler_diagnostic.interpret_ballot');
 
     // Simulate a delay between the `ejectBallotToRear` call and the paper
@@ -433,9 +434,9 @@ describe('paper handler diagnostic', () => {
     async ({ interpretation, message }) => {
       mockSystemAdminAuth(auth);
 
-      const mockScanResult = deferred<string>();
-      const scannedPath = await getDiagnosticMockBallotImagePath();
-      vi.mocked(scanAndSave).mockReturnValue(mockScanResult.promise);
+      const mockScanResult = deferred<GrayImageData>();
+      const scannedImage = await getDiagnosticMockBallotImage();
+      vi.mocked(scanSheet).mockReturnValue(mockScanResult.promise);
 
       const interpretationMock: SheetOf<PageInterpretation> = [
         interpretation,
@@ -461,7 +462,7 @@ describe('paper handler diagnostic', () => {
       // Chromium, used by print_ballot_fixture, needs some time to spin up
       await waitForStatus('paper_handler_diagnostic.scan_ballot', 1000);
 
-      mockScanResult.resolve(scannedPath);
+      mockScanResult.resolve(scannedImage);
       await waitForStatus('paper_handler_diagnostic.interpret_ballot');
 
       // Simulate a delay between the `ejectBallotToRear` call and the paper
