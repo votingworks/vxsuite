@@ -1380,6 +1380,18 @@ export const saveBallotPreviewPdf = {
   },
 } as const;
 
+const ELECTION_DEFINITION_ACCESS_ERRORS: readonly string[] = [
+  'auth:forbidden',
+  'election-definition:disabled',
+];
+
+function isElectionDefinitionAccessError(error: unknown): boolean {
+  return (
+    error instanceof grout.UserError &&
+    ELECTION_DEFINITION_ACCESS_ERRORS.includes(error.message)
+  );
+}
+
 export const getElectionPackageRenderingStatus = {
   queryKey(electionId?: ElectionId): QueryKey {
     return ['getElectionPackageRenderingStatus', electionId];
@@ -1399,6 +1411,7 @@ export const getElectionPackageRenderingStatus = {
           : false,
       {
         enabled: electionId !== undefined,
+        useErrorBoundary: (error) => !isElectionDefinitionAccessError(error),
         async onSuccess(electionPackage) {
           if (electionPackage?.status === 'succeeded') {
             await invalidateConfiguredElectionPackageQueries(queryClient);

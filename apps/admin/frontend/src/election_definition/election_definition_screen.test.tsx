@@ -8,13 +8,15 @@ import type {
   StateFeaturesConfig,
 } from '@votingworks/election-definition-backend';
 import { BooleanEnvironmentVariableName } from '@votingworks/utils';
-import { mockUsbDriveStatus } from '@votingworks/ui';
-import type { UsbDriveStatus } from '@votingworks/usb-drive';
+import * as grout from '@votingworks/grout';
 import {
+  suppressingConsoleOutput,
   mockElectionManagerUser,
   mockSessionExpiresAt,
   mockSystemAdministratorUser,
 } from '@votingworks/test-utils';
+import { mockUsbDriveStatus } from '@votingworks/ui';
+import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import {
   type BallotStyle,
   BallotType,
@@ -1249,6 +1251,35 @@ test('a build that finishes while the Election screen is open refreshes the conf
   expect(invalidateQueries).toHaveBeenCalledWith(
     getCurrentElectionMetadata.queryKey()
   );
+});
+
+test('losing access while a build is rendering does not crash VxAdmin', async () => {
+  expectCurrentInProgressElection(generalElectionInfo);
+  apiMock.expectListPotentialElectionPackagesOnUsbDrive([]);
+  apiMock.electionDefinitionApiClient.getElectionPackageRenderingStatus
+    .expectCallWith({ electionId })
+    .resolves({ status: 'running' });
+  apiMock.electionDefinitionApiClient.getElectionPackageRenderingStatus
+    .expectCallWith({ electionId })
+    .throws(new grout.UserError('auth:forbidden'));
+  renderScreen();
+  await screen.findByRole('link', { name: /General Election/ });
+
+  await waitFor(() => apiMock.assertComplete(), { timeout: 3000 });
+  expect(screen.queryByText('Test Error Boundary')).not.toBeInTheDocument();
+  screen.getByRole('link', { name: /General Election/ });
+});
+
+test('a rendering status error other than losing access still reaches the error boundary', async () => {
+  expectCurrentInProgressElection(generalElectionInfo);
+  apiMock.expectListPotentialElectionPackagesOnUsbDrive([]);
+  apiMock.electionDefinitionApiClient.getElectionPackageRenderingStatus
+    .expectCallWith({ electionId })
+    .throws(new Error('unexpected'));
+  await suppressingConsoleOutput(async () => {
+    renderScreen();
+    await screen.findByText('Test Error Boundary');
+  });
 });
 
 test('a Finalize URL for an old election opens the Election screen', async () => {
