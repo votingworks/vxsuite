@@ -13,8 +13,7 @@ export interface RegisteredVoterCountBreakdownConfig {
 }
 
 /**
- * Which breakdowns an election's registered voter counts must have. v4.0
- * software can only read totals, so v4.0 jurisdictions never have breakdowns.
+ * Which breakdowns an election's registered voter counts must have.
  */
 export function getRegisteredVoterCountBreakdownConfig(
   jurisdiction: Jurisdiction,
@@ -23,6 +22,8 @@ export function getRegisteredVoterCountBreakdownConfig(
   const stateFeatures = getStateFeaturesConfig(jurisdiction);
   const byParty =
     election.type === 'primary' &&
+    // v4.0 software can only read totals, so v4.0 jurisdictions never
+    // have breakdowns
     jurisdiction.softwareVersion !== 'v4.0' &&
     stateFeatures.REGISTERED_VOTER_COUNTS_BY_PARTY === true;
   return {

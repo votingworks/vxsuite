@@ -17,9 +17,17 @@ function partyIdsWithBallotStyles(
 }
 
 /**
- * Whether each party breakdown has a count for every party with a ballot style
- * in its precinct or split, and only for parties with a ballot style in the
- * election.
+ * A party breakdown belongs to a precinct or split.
+ * In a primary, each precinct or split has
+ * ballot styles that are tied to a party.
+ *
+ * This function checks:
+ * 1. If a precinct or split includes a party's ballot style,
+ * that precinct's `counts` also include a registered voter count
+ * for that party.
+ *
+ * 2. `counts` includes breakdowns only for parties that have
+ * a ballot style somewhere in the election
  */
 export function hasValidRegisteredVoterCountParties(
   election: Election,
