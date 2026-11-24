@@ -24,18 +24,14 @@ pnpm approve-builds \
   "!node-quirc" \
   "!usb"
 
-TURBO_FORCE=true pnpm --dir apps/hub/frontend build
+pnpm --dir apps/hub/frontend build
 pnpm --dir libs/hmpb exec playwright install --with-deps --only-shell chromium
 
 # [TODO] Run pnpm prune --prod (requires fixing dev/prod dependency 
 # categorizations in a few packages).
 
-rm -rf \
-  apps/mark-scan \
-  apps/pollbook \
-  libs/fs/rust \
-  libs/logging-utils/rust \
-  target
+# Unused build caches:
+rm -rf .turbo target
 
 rustup self uninstall -y
 

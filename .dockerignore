@@ -1,4 +1,5 @@
 .git
+.turbo
 **/__image_snapshots__
 **/__pdf_snapshots__
 **/__snapshots__
