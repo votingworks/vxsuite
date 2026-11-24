@@ -25,6 +25,7 @@ import {
   type DuplicatePrecinctError,
   type ElectionInfo,
   type ElectionInfoUpdate,
+  generateStraightPartyContest,
   hasDuplicateOptionLabels,
   type PartiesUpdate,
   type PollingPlaceDelete,
@@ -396,7 +397,10 @@ export class ElectionDefinitionStore {
     return this.getElectionWithCandidateOrderings(electionId)?.election;
   }
 
-  getElectionWithCandidateOrderings(electionId: ElectionId):
+  getElectionWithCandidateOrderings(
+    electionId: ElectionId,
+    { straightPartyVoting = false }: { straightPartyVoting?: boolean } = {}
+  ):
     | {
         election: Election;
         candidateOrderings: Map<BallotStyleGroupId, CandidateOrderings>;
@@ -408,6 +412,18 @@ export class ElectionDefinitionStore {
     }
     const { ballotStyles, candidateOrderings } =
       this.generateBallotStyles(electionId);
+    const districts = this.listDistricts(electionId);
+    const parties = this.listParties(electionId);
+    const contests = this.listContests(electionId);
+    const straightPartyContest =
+      straightPartyVoting && electionInfo.type === 'general'
+        ? generateStraightPartyContest({
+            electionId,
+            districts,
+            parties,
+            ballotStyles,
+          })
+        : undefined;
     const election: Election = {
       id: electionInfo.electionId,
       type: electionInfo.type,
@@ -428,11 +444,13 @@ export class ElectionDefinitionStore {
             },
           }
         : {}),
-      districts: this.listDistricts(electionId),
+      districts,
       precincts: this.listPrecincts(electionId),
       pollingPlaces: this.listPollingPlaces(electionId),
-      parties: this.listParties(electionId),
-      contests: this.listContests(electionId),
+      parties,
+      contests: straightPartyContest
+        ? [straightPartyContest, ...contests]
+        : contests,
       ballotStyles,
       ballotLayout: {
         paperSize: this.getBallotLayoutSettings(electionId).paperSize,

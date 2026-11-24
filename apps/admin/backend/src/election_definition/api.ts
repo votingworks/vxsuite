@@ -211,9 +211,11 @@ function createElectionDefinitionApiMethods({
     input: BallotPreviewInput
   ): Promise<Result<BallotPreviewPdf, BallotLayoutError>> {
     const electionInfo = loadInProgressElectionInfo(input);
+    const { features } = assertDefined(getMachineState());
     const { election, candidateOrderings } = assertDefined(
       store.electionDefinition.getElectionWithCandidateOrderings(
-        input.electionId
+        input.electionId,
+        { straightPartyVoting: !!features.STRAIGHT_PARTY_VOTING }
       )
     );
     const result = await renderBallotPreview({
@@ -761,6 +763,20 @@ function createElectionDefinitionApiMethods({
             store.electionDefinition.listPollingPlaces(input.electionId)
           ).length === 0,
           'Absentee polling places must cover every precinct for central scanning'
+        );
+      }
+      if (features.STRAIGHT_PARTY_VOTING && electionInfo.type === 'general') {
+        const { election } = assertDefined(
+          store.electionDefinition.getElectionWithCandidateOrderings(
+            input.electionId,
+            { straightPartyVoting: true }
+          )
+        );
+        assert(
+          election.contests.some(
+            (contest) => contest.type === 'straight-party'
+          ),
+          'A straight party contest needs a district that covers every precinct'
         );
       }
       assert(
