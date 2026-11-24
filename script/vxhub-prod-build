@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+# shellcheck disable=SC1090
+. ~/.bashrc
+
+apt-get update && apt-get install -y --no-install-recommends \
+  build-essential \
+  libpcsclite-dev \
+  python3
+
+curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain=none -y
+# shellcheck disable=SC1090
+. ~/.cargo/env
+rustup toolchain install
+
+# Skip building unused native dependencies.
+# NOTE: Some unused deps are still loaded at startup by transitive imports and
+# aren't included here (e.g. pcsclite).
+pnpm approve-builds \
+  "!better-sqlite3" \
+  "!node-hid" \
+  "!node-quirc" \
+  "!usb"
+
+pnpm --dir apps/hub/frontend build
+pnpm --dir libs/hmpb exec playwright install --with-deps --only-shell chromium
+
+# [TODO] Run pnpm prune --prod (requires fixing dev/prod dependency 
+# categorizations in a few packages).
+
+# Unused build caches:
+rm -rf .turbo target
+
+rustup self uninstall -y
+
+apt-get purge -y --auto-remove \
+  build-essential \
+  libpcsclite-dev \
+  python3

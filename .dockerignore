@@ -1,4 +1,11 @@
+.git
+.turbo
+**/__image_snapshots__
+**/__pdf_snapshots__
+**/__snapshots__
 **/*.local
+**/*.test.ts
+**/*.test.tsx
 **/*.tsbuildinfo
 **/build
 **/node_modules
@@ -6,7 +13,12 @@
 Dockerfile
 Dockerfile.*
 heroku.yml
-apps/admin
-apps/central-scan
-apps/scan
+libs/auth/scripts
 libs/hmpb/fixtures
+libs/ballot-interpreter/test/fixtures
+
+apps/**/backend
+apps/**/frontend
+apps/**/integration-testing
+
+!apps/hub/**
