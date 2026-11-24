@@ -19,10 +19,10 @@ interface InFlightRead {
 
 export function createStatusUpdates({
   getStatuses,
-  onChange,
+  subscribe,
 }: {
   getStatuses(): Promise<StatusUpdate['statuses']>;
-  onChange(listener: () => void): void;
+  subscribe(listener: () => void): void;
 }): {
   next(since?: number): Promise<StatusUpdate>;
   notifyChanged(): void;
@@ -38,7 +38,7 @@ export function createStatusUpdates({
     changed.resolve();
     changed = deferred();
   }
-  onChange(notifyChanged);
+  subscribe(notifyChanged);
 
   async function readStatuses(): Promise<StatusUpdate> {
     const statuses = await getStatuses();

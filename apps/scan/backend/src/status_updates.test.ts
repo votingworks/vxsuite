@@ -19,7 +19,7 @@ function createSource(initial: StatusUpdate['statuses']) {
   const listeners: Array<() => void> = [];
   return {
     getStatuses: () => Promise.resolve(statuses),
-    onChange: (listener: () => void) => {
+    subscribe: (listener: () => void) => {
       listeners.push(listener);
     },
     set(next: StatusUpdate['statuses']) {
@@ -83,7 +83,7 @@ test('rereads on timeout to pick up changes made without a notification', async 
   let statuses = noPaper;
   const updates = createStatusUpdates({
     getStatuses: () => Promise.resolve(statuses),
-    onChange: () => {},
+    subscribe: () => {},
   });
   const { revision } = await updates.next(undefined);
 

@@ -107,7 +107,7 @@ export function buildApi({
   }
   const statusUpdates = createStatusUpdates({
     getStatuses: async () => ({ scanner: await getScannerStatus() }),
-    onChange: machine.subscribe,
+    subscribe: machine.subscribe,
   });
 
   return grout.createApi({
@@ -450,8 +450,6 @@ export function buildApi({
     async printWriteInImageReport(): Promise<PrintResult> {
       return printWriteInImageReport({ store, printer });
     },
-
-    getScannerStatus,
 
     /**
      * Long-polls for a change to any of the bundled statuses. Pass the

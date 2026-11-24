@@ -45,7 +45,7 @@ export async function expectStatus(
   apiClient: grout.Client<Api>,
   expectedStatus: ExpectedScannerStatus
 ): Promise<void> {
-  const status = await apiClient.getScannerStatus();
+  const status = (await apiClient.getStatusUpdate({})).statuses.scanner;
   expect(status).toEqual({
     ballotsCounted: 0,
     lifetimeSheetsCounted:
