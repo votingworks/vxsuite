@@ -41,7 +41,6 @@
     "@types/tmp": "0.2.4",
     "@vitest/coverage-istanbul": "5.0.2",
     "@votingworks/coverage-check": "workspace:*",
-    "esbuild": "0.28.1",
     "eslint-plugin-vx": "workspace:*",
     "sort-package-json": "^1.50.0",
     "vitest": "5.0.2"

@@ -102,7 +102,6 @@
     "@votingworks/grout-test-utils": "workspace:*",
     "@votingworks/test-decks": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
-    "esbuild": "0.28.1",
     "eslint-plugin-vx": "workspace:*",
     "jest-image-snapshot": "^6.4.0",
     "jszip": "^3.9.1",

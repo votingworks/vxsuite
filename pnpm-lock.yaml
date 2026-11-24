@@ -368,9 +368,6 @@ importers:
       '@votingworks/test-utils':
         specifier: workspace:*
         version: link:../../../libs/test-utils
-      esbuild:
-        specifier: 0.28.1
-        version: 0.28.1
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../../libs/eslint-plugin-vx
@@ -710,9 +707,6 @@ importers:
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../../../libs/fixtures
-      esbuild:
-        specifier: 0.28.1
-        version: 0.28.1
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../../libs/eslint-plugin-vx
@@ -846,9 +840,6 @@ importers:
       '@votingworks/usb-drive':
         specifier: workspace:*
         version: link:../../../libs/usb-drive
-      esbuild:
-        specifier: 0.28.1
-        version: 0.28.1
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../../libs/eslint-plugin-vx
@@ -1034,9 +1025,6 @@ importers:
       '@votingworks/test-utils':
         specifier: workspace:*
         version: link:../../../libs/test-utils
-      esbuild:
-        specifier: 0.28.1
-        version: 0.28.1
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../../libs/eslint-plugin-vx
@@ -1321,9 +1309,6 @@ importers:
       copyfiles:
         specifier: ^2.4.1
         version: 2.4.1
-      esbuild:
-        specifier: 0.28.1
-        version: 0.28.1
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../../libs/eslint-plugin-vx
@@ -1627,9 +1612,6 @@ importers:
       copyfiles:
         specifier: ^2.4.1
         version: 2.4.1
-      esbuild:
-        specifier: 0.28.1
-        version: 0.28.1
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../../libs/eslint-plugin-vx
@@ -1984,9 +1966,6 @@ importers:
       '@votingworks/test-utils':
         specifier: workspace:*
         version: link:../../../libs/test-utils
-      esbuild:
-        specifier: 0.28.1
-        version: 0.28.1
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../../libs/eslint-plugin-vx
@@ -2259,9 +2238,6 @@ importers:
       copyfiles:
         specifier: ^2.4.1
         version: 2.4.1
-      esbuild:
-        specifier: 0.28.1
-        version: 0.28.1
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../../libs/eslint-plugin-vx
@@ -2525,9 +2501,6 @@ importers:
       '@votingworks/hmpb':
         specifier: workspace:*
         version: link:../../../libs/hmpb
-      esbuild:
-        specifier: 0.28.1
-        version: 0.28.1
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../../libs/eslint-plugin-vx
@@ -3033,9 +3006,6 @@ importers:
       canvas:
         specifier: 3.2.3
         version: 3.2.3
-      esbuild:
-        specifier: 0.28.1
-        version: 0.28.1
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
@@ -3263,9 +3233,6 @@ importers:
       '@votingworks/test-utils':
         specifier: workspace:*
         version: link:../test-utils
-      esbuild:
-        specifier: 0.28.1
-        version: 0.28.1
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
@@ -3852,9 +3819,6 @@ importers:
       debug:
         specifier: 4.3.4
         version: 4.3.4(supports-color@5.5.0)
-      esbuild:
-        specifier: 0.28.1
-        version: 0.28.1
       jszip:
         specifier: ^3.9.1
         version: 3.9.1
@@ -4030,9 +3994,6 @@ importers:
       '@votingworks/coverage-check':
         specifier: workspace:*
         version: link:../coverage-check
-      esbuild:
-        specifier: 0.28.1
-        version: 0.28.1
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
@@ -4210,9 +4171,6 @@ importers:
       '@votingworks/test-utils':
         specifier: workspace:*
         version: link:../test-utils
-      esbuild:
-        specifier: 0.28.1
-        version: 0.28.1
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
@@ -4390,9 +4348,6 @@ importers:
       '@votingworks/test-utils':
         specifier: workspace:*
         version: link:../test-utils
-      esbuild:
-        specifier: 0.28.1
-        version: 0.28.1
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
@@ -4526,9 +4481,6 @@ importers:
       buffer:
         specifier: ^6.0.3
         version: 6.0.3
-      esbuild:
-        specifier: 0.28.1
-        version: 0.28.1
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
@@ -4658,9 +4610,6 @@ importers:
       '@votingworks/test-utils':
         specifier: workspace:*
         version: link:../test-utils
-      esbuild:
-        specifier: 0.28.1
-        version: 0.28.1
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
@@ -4804,9 +4753,6 @@ importers:
       '@votingworks/image-utils':
         specifier: workspace:*
         version: link:../image-utils
-      esbuild:
-        specifier: 0.28.1
-        version: 0.28.1
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
@@ -4883,9 +4829,6 @@ importers:
       '@votingworks/test-utils':
         specifier: workspace:*
         version: link:../test-utils
-      esbuild:
-        specifier: 0.28.1
-        version: 0.28.1
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
@@ -5209,9 +5152,6 @@ importers:
       buffer:
         specifier: ^6.0.3
         version: 6.0.3
-      esbuild:
-        specifier: 0.28.1
-        version: 0.28.1
       eslint-plugin-storybook:
         specifier: 10.5.10
         version: 10.5.10(@typescript/typescript6@6.0.2)(eslint@9.39.5(supports-color@5.5.0))(supports-color@5.5.0)
@@ -5324,9 +5264,6 @@ importers:
       '@votingworks/coverage-check':
         specifier: workspace:*
         version: link:../coverage-check
-      esbuild:
-        specifier: 0.28.1
-        version: 0.28.1
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx

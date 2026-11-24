@@ -81,7 +81,6 @@
     "@votingworks/monorepo-utils": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
     "@votingworks/usb-drive": "workspace:*",
-    "esbuild": "0.28.1",
     "eslint-plugin-vx": "workspace:*",
     "history": "4.10.1",
     "jsdom": "30.1.3",

@@ -63,7 +63,6 @@
     "@votingworks/hmpb": "workspace:*",
     "@votingworks/types-rs": "workspace:*",
     "canvas": "3.2.3",
-    "esbuild": "0.28.1",
     "eslint-plugin-vx": "workspace:*",
     "fast-check": "2.23.2",
     "jest-image-snapshot": "^6.4.0",
