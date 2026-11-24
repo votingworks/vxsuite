@@ -1,0 +1,10 @@
+version: 1
+rules:
+  - purpose:
+      "Claude approves when a requested review passes. GitHub's approval rule
+      gates merges."
+    paths: ['**']
+    verdict: { claude: comments, seats: 0 }
+    override:
+      - if: 'claude/code_review = pass'
+        verdict: { claude: approves, seats: 0 }
