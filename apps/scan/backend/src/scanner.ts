@@ -54,6 +54,7 @@ import { interpret } from './interpret.js';
 import type {
   InterpretationResult,
   PrecinctScannerStateMachine,
+  PrecinctScannerStatus,
 } from './types.js';
 import { rootDebug } from './util/debug.js';
 import { getCurrentTime } from './util/get_current_time.js';
@@ -1503,10 +1504,17 @@ export function createPrecinctScannerStateMachine({
   ).start();
   setupLogging(machineService, logger);
 
-  return {
+  const precinctScannerMachine: PrecinctScannerStateMachine = {
     subscribe: (listener: () => void): void => {
       machineService.subscribe(listener);
+      workspace.subscribe(listener);
     },
+
+    scannerStatus: async (): Promise<PrecinctScannerStatus> => ({
+      ...precinctScannerMachine.status(),
+      ballotsCounted: workspace.store.getBallotsCounted(),
+      lifetimeSheetsCounted: await workspace.lifetimeSheetCounter.get(),
+    }),
 
     status: (): PrecinctScannerMachineStatus => {
       const { state } = machineService;
@@ -1653,4 +1661,5 @@ export function createPrecinctScannerStateMachine({
       machineService.stop();
     },
   };
+  return precinctScannerMachine;
 }

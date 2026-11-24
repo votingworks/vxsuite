@@ -43,7 +43,6 @@ import type {
 import type {
   PrecinctScannerStateMachine,
   PrecinctScannerConfig,
-  PrecinctScannerStatus,
   PrecinctScannerPollsInfo,
 } from './types.js';
 import { constructAuthMachineState } from './util/auth.js';
@@ -98,15 +97,8 @@ export function buildApi({
 }) {
   const { store } = workspace;
 
-  async function getScannerStatus(): Promise<PrecinctScannerStatus> {
-    return {
-      ...machine.status(),
-      ballotsCounted: store.getBallotsCounted(),
-      lifetimeSheetsCounted: await workspace.lifetimeSheetCounter.get(),
-    };
-  }
   const statusUpdates = createStatusUpdates({
-    getStatuses: async () => ({ scanner: await getScannerStatus() }),
+    getStatuses: async () => ({ scanner: await machine.scannerStatus() }),
     subscribe: machine.subscribe,
   });
 
@@ -283,7 +275,6 @@ export function buildApi({
 
     async unconfigureElection(): Promise<void> {
       workspace.unconfigure();
-      statusUpdates.notifyChanged();
       await audioPlayer.setIsScreenReaderEnabled(false);
       await logger.logAsCurrentRole(LogEventId.ElectionUnconfigured, {
         disposition: 'success',
@@ -311,7 +302,6 @@ export function buildApi({
 
       store.setPollingPlaceId(input.id);
       workspace.resetElectionSession();
-      statusUpdates.notifyChanged();
 
       void logger.logAsCurrentRole(LogEventId.PollingPlaceChanged, {
         disposition: 'success',
@@ -370,7 +360,6 @@ export function buildApi({
         workspace.resetElectionSession()
       );
       store.setTestMode(input.isTestMode);
-      statusUpdates.notifyChanged();
       await logger.logAsCurrentRole(LogEventId.ToggledTestMode, {
         disposition: 'success',
         message: `Successfully toggled from ${logMessage} mode.`,
@@ -398,7 +387,6 @@ export function buildApi({
       // switching casting modes.
       store.setPollingPlaceId(null);
       workspace.resetElectionSession();
-      statusUpdates.notifyChanged();
 
       await logger.logAsCurrentRole(LogEventId.SetBallotCastingMode, {
         message: `Successfully set ballot casting mode to ${input.ballotCastingMode}.`,

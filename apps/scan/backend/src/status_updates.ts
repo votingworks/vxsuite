@@ -23,10 +23,7 @@ export function createStatusUpdates({
 }: {
   getStatuses(): Promise<StatusUpdate['statuses']>;
   subscribe(listener: () => void): void;
-}): {
-  next(since?: number): Promise<StatusUpdate>;
-  notifyChanged(): void;
-} {
+}): { next(since?: number): Promise<StatusUpdate> } {
   let current: StatusUpdate | undefined;
   let changes = 0;
   let inFlight: InFlightRead | undefined;
@@ -61,8 +58,6 @@ export function createStatusUpdates({
   }
 
   return {
-    notifyChanged,
-
     async next(since) {
       const deadline = Date.now() + STATUS_UPDATE_TIMEOUT_MS;
       for (;;) {

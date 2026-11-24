@@ -36,6 +36,25 @@ test('dispose closes the store', () => {
   expect(() => workspace.store.hasElection()).toThrow(/is closed/);
 });
 
+test('notifies subscribers when session data or the lifetime count changes', async () => {
+  const workspace = createWorkspace(
+    makeTemporaryDirectory(),
+    mockBaseLogger({ fn: vi.fn })
+  );
+  const listener = vi.fn();
+  workspace.subscribe(listener);
+
+  workspace.resetElectionSession();
+  expect(listener).toHaveBeenCalledTimes(1);
+
+  workspace.unconfigure();
+  expect(listener).toHaveBeenCalledTimes(2);
+
+  await workspace.lifetimeSheetCounter.increment();
+  expect(listener).toHaveBeenCalledTimes(3);
+  expect(await workspace.lifetimeSheetCounter.get()).toEqual(1);
+});
+
 test('SCAN_WORKSPACE takes precedence over the environment default', () => {
   vi.stubEnv('SCAN_WORKSPACE', '/media/vx/workspace');
   vi.stubEnv('NODE_ENV', 'development');
