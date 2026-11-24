@@ -21,7 +21,7 @@
   "tasks": {
     "build:self": {
       "dependsOn": ["^build:self"],
-      "env": ["REACT_APP_*"],
+      "env": ["VX_HUB_IMAGE", "REACT_APP_*"],
       "outputs": ["build/**", "*.node"]
     },
     "type-check:self": {
