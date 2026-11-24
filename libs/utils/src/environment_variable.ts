@@ -387,7 +387,7 @@ export function getBooleanEnvVarConfig(
     case BooleanEnvironmentVariableName.ENABLE_ADMIN_ELECTION_DESIGN:
       return {
         name,
-        allowInProduction: false,
+        allowInProduction: true,
         autoEnableInDevelopment: false,
       };
     default:
