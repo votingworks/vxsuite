@@ -23,6 +23,7 @@
   // turbo hides other environment variables from tasks. The trusted build sets
   // this so every cargo build uses only crates fetched beforehand.
   "globalPassThroughEnv": ["CARGO_NET_OFFLINE"],
+  "noUpdateNotifier": true,
   "tasks": {
     "build:self": {
       "dependsOn": ["^build:self"],
