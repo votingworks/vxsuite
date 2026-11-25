@@ -2,8 +2,8 @@
 FORCE:
 
 build: FORCE
-	mkdir -p target && cargo build --release --target-dir target/.
+	pnpm build:self
 
 run:
-	./target/release/barcodescannerd
+	./build/barcodescannerd
 

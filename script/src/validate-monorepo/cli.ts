@@ -143,9 +143,27 @@ export async function main({ stderr }: IO): Promise<number> {
         );
         break;
 
-      case 'MissingCargoBinaryOutput':
+      case 'UntrackedCargoWorkspaceFile':
         stderr.write(
-          `${issue.packageDir}: Cargo binary "${issue.binaryName}" is not a turbo output. Add it to build:self outputs in ${issue.packageDir}/turbo.json, e.g. "outputs": ["build/**", "${issue.expectedOutput}"]\n`
+          `${issue.packageDir}: Cargo workspace file "${issue.workspaceFile}" is not tracked by turbo. Add it to build:self inputs in ${issue.packageDir}/turbo.json, e.g. "inputs": ["$TURBO_DEFAULT$", "${issue.suggestedInput}"]\n`
+        );
+        break;
+
+      case 'DirectCargoBuild':
+        stderr.write(
+          `${issue.packageDir}: "${issue.script}" must build Rust with "pnpm -w vx-cargo-build [cargo args]" instead of "cargo build", so the binaries are copied into build/ to run from there and be restored on a turbo cache hit\n`
+        );
+        break;
+
+      case 'MissingTurboDefaultInput':
+        stderr.write(
+          `${issue.packageDir}/turbo.json: build:self "inputs" must include "$TURBO_DEFAULT$", or turbo won't hash the package's own files\n`
+        );
+        break;
+
+      case 'MissingBuildOutput':
+        stderr.write(
+          `${issue.packageDir}/turbo.json: build:self "outputs" must include "build/**", where vx-cargo-build copies the binaries, or a turbo cache hit won't restore them\n`
         );
         break;
 

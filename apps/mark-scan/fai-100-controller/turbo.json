@@ -1,0 +1,14 @@
+{
+  "extends": ["//"],
+  "tasks": {
+    "build:self": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "../../../Cargo.toml",
+        "../../../Cargo.lock",
+        "../daemon-utils/**",
+        "../../../libs/logging/rust/**"
+      ]
+    }
+  }
+}

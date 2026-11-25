@@ -18,7 +18,7 @@ const debug = makeDebug('pdi-scanner');
 
 const PDICTL_PATH = path.join(
   assertDefined(import.meta.dirname.split('libs')[0]),
-  'libs/pdi-scanner/target/release/pdictl'
+  'libs/pdi-scanner/build/pdictl'
 );
 
 /**
