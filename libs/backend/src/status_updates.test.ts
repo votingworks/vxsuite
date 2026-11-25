@@ -3,7 +3,6 @@ import { deferred } from '@votingworks/basics';
 import {
   createStatusUpdates,
   STATUS_UPDATE_TIMEOUT_MS,
-  type StatusUpdate,
 } from './status_updates.js';
 
 beforeEach(() => {
@@ -14,7 +13,11 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-function createSource(initial: StatusUpdate['statuses']) {
+interface Statuses {
+  readonly scanner: { readonly state: string };
+}
+
+function createSource(initial: Statuses) {
   let statuses = initial;
   const listeners: Array<() => void> = [];
   return {
@@ -22,23 +25,15 @@ function createSource(initial: StatusUpdate['statuses']) {
     subscribe: (listener: () => void) => {
       listeners.push(listener);
     },
-    set(next: StatusUpdate['statuses']) {
+    set(next: Statuses) {
       statuses = next;
       for (const listener of listeners) listener();
     },
   };
 }
 
-const noPaper: StatusUpdate['statuses'] = {
-  scanner: {
-    state: 'waiting_for_ballot',
-    ballotsCounted: 0,
-    lifetimeSheetsCounted: 0,
-  },
-};
-const scanning: StatusUpdate['statuses'] = {
-  scanner: { state: 'scanning', ballotsCounted: 0, lifetimeSheetsCounted: 0 },
-};
+const noPaper: Statuses = { scanner: { state: 'waiting_for_ballot' } };
+const scanning: Statuses = { scanner: { state: 'scanning' } };
 
 test('returns the current statuses immediately without or with a stale revision', async () => {
   const updates = createStatusUpdates(createSource(noPaper));
@@ -131,7 +126,7 @@ test('shares one read among concurrent waiters', async () => {
 
 test('shares a newer in-flight read with a waiter whose read finished', async () => {
   const source = createSource(noPaper);
-  const firstRead = deferred<StatusUpdate['statuses']>();
+  const firstRead = deferred<Statuses>();
   const getStatuses = vi
     .fn(source.getStatuses)
     .mockReturnValueOnce(firstRead.promise);
@@ -151,7 +146,7 @@ test('shares a newer in-flight read with a waiter whose read finished', async ()
 
 test('does not miss a change made while a read is in flight', async () => {
   const source = createSource(noPaper);
-  const firstRead = deferred<StatusUpdate['statuses']>();
+  const firstRead = deferred<Statuses>();
   const getStatuses = vi
     .fn(source.getStatuses)
     .mockReturnValueOnce(firstRead.promise);

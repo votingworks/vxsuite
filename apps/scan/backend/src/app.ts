@@ -20,6 +20,7 @@ import {
   Exporter,
   type ExportDataResult,
   getScanAllowedExportPatterns,
+  createStatusUpdates,
 } from '@votingworks/backend';
 import {
   assert,
@@ -44,6 +45,8 @@ import type {
   PrecinctScannerStateMachine,
   PrecinctScannerConfig,
   PrecinctScannerPollsInfo,
+  ScanStatuses,
+  StatusUpdate,
 } from './types.js';
 import { constructAuthMachineState } from './util/auth.js';
 import type { Workspace } from './util/workspace.js';
@@ -73,7 +76,6 @@ import {
 import { saveReadinessReport } from './printing/readiness_report.js';
 import type { AudioPlayer, SoundName } from './audio/audio.js';
 import { getScannerResultsByPrecinctMemoized } from './util/results.js';
-import { createStatusUpdates, type StatusUpdate } from './status_updates.js';
 
 export const BALLOT_AUDIT_ID_FILE_NAME = 'ballot-audit-id-secret-key.txt';
 
@@ -97,7 +99,7 @@ export function buildApi({
 }) {
   const { store } = workspace;
 
-  const statusUpdates = createStatusUpdates({
+  const statusUpdates = createStatusUpdates<ScanStatuses>({
     getStatuses: async () => ({ scanner: await machine.scannerStatus() }),
     subscribe: machine.subscribe,
   });

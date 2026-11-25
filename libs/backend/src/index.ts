@@ -18,6 +18,7 @@ export * from './pdf_to_text.js';
 export * from './lifetime_sheet_count.js';
 export * from './system_call/index.js';
 export * from './globals.js';
+export * from './status_updates.js';
 export * from './task_controller.js';
 export * from './ui_strings/index.js';
 export * from './language_and_audio/index.js';
