@@ -1313,6 +1313,18 @@ eventType = "user-action"
 documentationMessage = "A user printed a proof of a ballot in the election definition being designed."
 restrictInDocumentationToApps = ["vx-admin"]
 
+[Events.ElectionDefinitionFinalized]
+eventId = "election-definition-finalized"
+eventType = "user-action"
+documentationMessage = "A user finalized the election definition being designed, which locks it from editing and starts rendering its ballots and building the election package that VxAdmin is then configured with."
+restrictInDocumentationToApps = ["vx-admin"]
+
+[Events.ElectionDefinitionElectionPackageBuilt]
+eventId = "election-definition-election-package-built"
+eventType = "application-status"
+documentationMessage = "VxAdmin finished rendering the ballots and building the election package for a finalized election definition, or failed to, in which case the election definition can be edited again."
+restrictInDocumentationToApps = ["vx-admin"]
+
 [Events.ElectionDefinitionDiscarded]
 eventId = "election-definition-discarded"
 eventType = "user-action"

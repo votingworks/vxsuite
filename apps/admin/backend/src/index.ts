@@ -12,7 +12,14 @@ export type { BackupStatus } from './backup/create/index.js';
 export type { BackupDetails } from './backup/backup_manifest.js';
 export type { BackupProgressEvent } from './backup/progress.js';
 export type { ClientApi } from './client_app.js';
-export type { ElectionDefinitionApi } from './election_definition/api.js';
+export type {
+  ElectionDefinitionApi,
+  ElectionPackageRenderingStatus,
+} from './election_definition/api.js';
+export type {
+  ElectionDefinitionPackage,
+  ElectionPackageProgress,
+} from './election_definition/store.js';
 export type {
   BackupListing,
   AvailableBackup,

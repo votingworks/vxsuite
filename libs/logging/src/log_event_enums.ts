@@ -284,6 +284,9 @@ export const LogEventId = {
     'election-definition-ballot-proof-viewed',
   ElectionDefinitionBallotProofPrinted:
     'election-definition-ballot-proof-printed',
+  ElectionDefinitionFinalized: 'election-definition-finalized',
+  ElectionDefinitionElectionPackageBuilt:
+    'election-definition-election-package-built',
   ElectionDefinitionDiscarded: 'election-definition-discarded',
 } as const;
 export type LogEventId = (typeof LogEventId)[keyof typeof LogEventId];
@@ -1824,6 +1827,22 @@ const ElectionDefinitionBallotProofPrinted: LogDetails = {
   restrictInDocumentationToApps: [AppName.VxAdmin],
 };
 
+const ElectionDefinitionFinalized: LogDetails = {
+  eventId: LogEventId.ElectionDefinitionFinalized,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'A user finalized the election definition being designed, which locks it from editing and starts rendering its ballots and building the election package that VxAdmin is then configured with.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
+const ElectionDefinitionElectionPackageBuilt: LogDetails = {
+  eventId: LogEventId.ElectionDefinitionElectionPackageBuilt,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage:
+    'VxAdmin finished rendering the ballots and building the election package for a finalized election definition, or failed to, in which case the election definition can be edited again.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
 const ElectionDefinitionDiscarded: LogDetails = {
   eventId: LogEventId.ElectionDefinitionDiscarded,
   eventType: LogEventType.UserAction,
@@ -2244,6 +2263,10 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return ElectionDefinitionBallotProofViewed;
     case LogEventId.ElectionDefinitionBallotProofPrinted:
       return ElectionDefinitionBallotProofPrinted;
+    case LogEventId.ElectionDefinitionFinalized:
+      return ElectionDefinitionFinalized;
+    case LogEventId.ElectionDefinitionElectionPackageBuilt:
+      return ElectionDefinitionElectionPackageBuilt;
     case LogEventId.ElectionDefinitionDiscarded:
       return ElectionDefinitionDiscarded;
     default:

@@ -9,7 +9,7 @@ import {
   createPlaywrightRendererPool,
   type ScratchDir,
 } from '@votingworks/hmpb';
-import { extractErrorMessage } from '@votingworks/basics';
+import { assertDefined, extractErrorMessage } from '@votingworks/basics';
 import {
   type FileStorageClient,
   renderElectionPackageAndBallots,
@@ -221,7 +221,7 @@ export async function generateElectionPackageAndBallots(
     }
   );
 
-  const electionPackageUrl = fileUrl(electionPackagePath);
+  const electionPackageUrl = fileUrl(assertDefined(electionPackagePath));
   await store.setElectionPackageExportInformation({
     electionId,
     ballotHash: electionDefinition.ballotHash,

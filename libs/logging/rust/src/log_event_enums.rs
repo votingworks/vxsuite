@@ -525,6 +525,10 @@ pub enum EventId {
     ElectionDefinitionBallotProofViewed,
     #[serde(rename = "election-definition-ballot-proof-printed")]
     ElectionDefinitionBallotProofPrinted,
+    #[serde(rename = "election-definition-finalized")]
+    ElectionDefinitionFinalized,
+    #[serde(rename = "election-definition-election-package-built")]
+    ElectionDefinitionElectionPackageBuilt,
     #[serde(rename = "election-definition-discarded")]
     ElectionDefinitionDiscarded,
 }

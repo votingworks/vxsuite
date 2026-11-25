@@ -54,7 +54,6 @@ import {
   groupMapToGroupList,
   isIntegrationTest,
   isSystemAdministratorAuth,
-  systemLimitViolationToString,
 } from '@votingworks/utils';
 import {
   type ElectionPackageError,
@@ -106,6 +105,8 @@ import type {
 import { setRestoreState, type Workspace } from './util/workspace.js';
 import { isElectionDefinitionEnabled } from './election_definition/state.js';
 import { buildElectionDefinitionApi } from './election_definition/api.js';
+import { configureFromElectionPackageFile } from './configure_from_election_package.js';
+import { isElectionPackageBuildRunning } from './election_definition/election_package.js';
 import { getMachineConfig } from './machine_config.js';
 import { isMultiStationAdjudicationEnabled } from './multi_station_config.js';
 import type { MachineModeController } from './machine_mode.js';
@@ -599,6 +600,10 @@ function buildApi({
           : true,
         'Can only import election packages from removable media in production'
       );
+      assert(
+        !isElectionPackageBuildRunning(store),
+        'Cannot configure VxAdmin while an election definition is being finalized'
+      );
 
       // For the dev flow of configuring with a bare election.json, wrap it
       // in a minimal election package zip on disk, so that the rest of
@@ -660,31 +665,11 @@ function buildApi({
       }
 
       try {
-        const res = await store.importElectionPackage({ packagePath });
-        if (res.isErr()) {
-          const errorDetails = res.err();
-          await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {
-            message: `Error configuring machine.`,
-            disposition: 'failure',
-            errorDetails:
-              // @coverage-defer
-              errorDetails.type === 'system-limit-violation'
-                ? systemLimitViolationToString(errorDetails.violation)
-                : JSON.stringify(errorDetails),
-          });
-
-          return res;
-        }
-
-        const { electionId, electionPackage } = res.ok();
-        store.setCurrentElectionId(electionId);
-
-        await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {
-          disposition: 'success',
-          newBallotHash: electionPackage.electionDefinition.ballotHash,
+        return await configureFromElectionPackageFile({
+          store,
+          logger,
+          packagePath,
         });
-
-        return ok({ electionId });
       } finally {
         // Clean up the temporary package built from a bare election.json,
         // even when configuration fails partway
@@ -695,6 +680,10 @@ function buildApi({
     },
 
     async unconfigure(): Promise<void> {
+      assert(
+        !isElectionPackageBuildRunning(store),
+        'Cannot unconfigure VxAdmin while an election definition is being finalized'
+      );
       await store.reset();
       await logger.logAsCurrentRole(LogEventId.ElectionUnconfigured, {
         disposition: 'success',
