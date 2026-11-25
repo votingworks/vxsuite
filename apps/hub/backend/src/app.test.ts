@@ -1,5 +1,13 @@
 import { Buffer } from 'node:buffer';
-import { afterAll, afterEach, beforeEach, expect, test, vi } from 'vitest';
+import {
+  afterAll,
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  test,
+  vi,
+} from 'vitest';
 import {
   DateWithoutTime,
   type Result,
@@ -46,6 +54,7 @@ import {
   LATEST_SOFTWARE_VERSION,
   straightPartyNotYetImplemented,
   type GetCandidateOrderingsFn,
+  type BallotStyle,
 } from '@votingworks/types';
 import {
   ballotStyleHasPrecinctOrSplit,
@@ -63,6 +72,7 @@ import {
   renderAllBallotPdfsAndCreateElectionDefinition,
   generateBallotStyles,
   type ScratchDir,
+  type PrimaryBallotConfig,
 } from '@votingworks/hmpb';
 import { join } from 'node:path';
 import { Readable } from 'node:stream';
@@ -72,6 +82,7 @@ import { createSummaryBallotTestDeck } from '@votingworks/test-decks';
 import {
   type DuplicateDistrictError,
   type DuplicatePartyError,
+  getStateFeaturesConfig,
   SLI_DEFAULT_SYSTEM_SETTINGS,
   stateDefaultSystemSettings,
   stateFeatureConfigs,
@@ -169,6 +180,7 @@ vi.mock(import('@votingworks/hmpb'), async (importActual) => {
   return {
     ...original,
     createElectionDefinition: vi.fn(original.createElectionDefinition),
+    generateBallotStyles: vi.fn(original.generateBallotStyles),
     renderAllBallotPdfsAndCreateElectionDefinition: vi.fn(
       original.renderAllBallotPdfsAndCreateElectionDefinition
     ),
@@ -202,6 +214,17 @@ vi.mock(import('@votingworks/test-decks'), async (importActual) => {
   };
 });
 
+vi.mock(
+  import('@votingworks/election-definition-backend'),
+  async (importActual) => {
+    const original = await importActual();
+    return {
+      ...original,
+      getStateFeaturesConfig: vi.fn(original.getStateFeaturesConfig),
+    };
+  }
+);
+
 const ANY_SCRATCH_DIR: ScratchDir = { path: expect.any(String) };
 
 const ANY_GET_CANDIDATE_ORDERINGS_FN: GetCandidateOrderingsFn =
@@ -220,6 +243,8 @@ afterEach(() => {
   vi.mocked(createPrecinctTestDeck).mockRestore();
   vi.mocked(createSummaryBallotTestDeck).mockRestore();
   vi.mocked(createTestDeckTallyReports).mockRestore();
+  vi.mocked(generateBallotStyles).mockRestore();
+  vi.mocked(getStateFeaturesConfig).mockRestore();
 });
 
 test('all methods require authentication', async () => {
@@ -521,11 +546,14 @@ test('create/list/delete elections', async () => {
       ballotLanguageConfigs: [{ languages: [LanguageCode.ENGLISH] }],
       contests: election2Contests,
       electionType: sliElection.type,
-      isMiCombinedBallotPrimary: false,
       parties: election2Parties,
       precincts: [...election2Precincts],
       ballotTemplateId: 'VxDefaultBallot',
       electionId: sliElectionId,
+      primaryConfig: {
+        type: 'closed',
+        withNonPartisanBallots: false,
+      },
     }).ballotStyles
   );
   expect(
@@ -3345,6 +3373,9 @@ test('combined ballot primary elections', async () => {
     ).rejects.toThrow('Combined ballot primary')
   );
 
+  const ballotStyles = await apiClient.listBallotStyles({ electionId });
+  for (const bs of ballotStyles) expect(bs.partyId).toBeUndefined();
+
   // Finalizing a combined ballot primary generates the election package but skips test
   // decks, which don't yet support combined ballot primaries.
   await addAbsenteePollingPlaceCoveringAllPrecincts(apiClient, electionId);
@@ -3852,4 +3883,70 @@ test('loadElection rejects an election file that is not valid UTF-8', async () =
   });
   expect(result.err()?.message).toMatch(/utf-8/i);
   expect(await apiClient.listElections()).toEqual([]);
+});
+
+describe('NON_PARTISAN_PRIMARY_BALLOTS state feature', () => {
+  const mockBallotStyles: BallotStyle[] = [
+    { districts: [], groupId: '1', id: '1_m', languages: [], precincts: [] },
+  ];
+
+  async function setUp() {
+    const { apiClient, auth0 } = await setupApp({
+      organizations,
+      jurisdictions,
+      users,
+    });
+    auth0.setLoggedInUser(nonVxUser);
+
+    const fixtures = electionPrimaryPrecinctSplitsFixtures;
+    const electionResult = await apiClient.loadElection({
+      newId: 'new-election-id',
+      jurisdictionId: nonVxJurisdiction.id,
+      upload: {
+        format: 'vxf',
+        electionFileContents: fixtures.readElectionDefinition().electionData,
+      },
+    });
+    const electionId = electionResult.unsafeUnwrap();
+
+    return { apiClient, electionId };
+  }
+
+  test('enabled - listBallotStyles generates nonpartisan primary ballots', async () => {
+    vi.mocked(getStateFeaturesConfig).mockReturnValue({
+      NON_PARTISAN_PRIMARY_BALLOTS: true,
+    });
+
+    vi.mocked(generateBallotStyles).mockImplementation((params) => {
+      expect(params.primaryConfig).toEqual<PrimaryBallotConfig>({
+        type: 'closed',
+        withNonPartisanBallots: true,
+      });
+
+      return { ballotStyles: mockBallotStyles, candidateOrderings: new Map() };
+    });
+
+    const { apiClient, electionId } = await setUp();
+    const res = await apiClient.listBallotStyles({ electionId });
+    expect(res).toEqual(mockBallotStyles);
+  });
+
+  test('disabled - listBallotStyles generates only partisan primary ballots', async () => {
+    vi.mocked(getStateFeaturesConfig).mockReturnValue({
+      NON_PARTISAN_PRIMARY_BALLOTS: false,
+    });
+
+    vi.mocked(generateBallotStyles).mockImplementation((params) => {
+      expect(params.primaryConfig).toEqual<PrimaryBallotConfig>({
+        type: 'closed',
+        withNonPartisanBallots: false,
+      });
+
+      return { ballotStyles: mockBallotStyles, candidateOrderings: new Map() };
+    });
+
+    const { apiClient, electionId } = await setUp();
+    const res = await apiClient.listBallotStyles({ electionId });
+    expect(res).toEqual(mockBallotStyles);
+  });
 });

@@ -81,6 +81,7 @@ import {
 } from '@votingworks/types';
 import { z } from 'zod/v4';
 import type { TranslatedString } from './translations.js';
+import { getMachineState } from './state.js';
 
 /** Progress of building an election package. */
 export interface ElectionPackageProgress {
@@ -486,17 +487,26 @@ export class ElectionDefinitionStore {
   ): ReturnType<typeof generateBallotStyles> {
     const electionInfo = assertDefined(this.getElectionInfo());
     assert(electionInfo.electionId === electionId, 'Election not found');
+
+    const features = getMachineState()?.features;
+
     return generateBallotStyles({
       ballotLanguageConfigs: electionInfo.languageCodes.map((languageCode) => ({
         languages: [languageCode],
       })),
       contests: this.listContests(electionId),
       electionType: electionInfo.type,
-      isMiCombinedBallotPrimary: false,
       parties: this.listParties(electionId),
       precincts: this.listPrecincts(electionId),
       ballotTemplateId: 'VxDefaultBallot',
       electionId,
+      primaryConfig: electionInfo.isMiCombinedBallotPrimary
+        ? // @coverage-defer: blocked by WIP work
+          { type: 'combined' }
+        : {
+            type: 'closed',
+            withNonPartisanBallots: !!features?.NON_PARTISAN_PRIMARY_BALLOTS,
+          },
     });
   }
 

@@ -1169,6 +1169,10 @@ export class Store {
         }
       });
 
+      const stateFeaturesConfig = getStateFeaturesConfig({
+        stateCode: electionRow.jurisdictionStateCode,
+      });
+
       const ballotLanguageConfigs = electionRow.ballotLanguageCodes.map(
         (l): BallotLanguageConfig => ({ languages: [l] })
       );
@@ -1177,7 +1181,13 @@ export class Store {
         ballotLanguageConfigs,
         contests,
         electionType: electionRow.type,
-        isMiCombinedBallotPrimary: electionRow.isMiCombinedBallotPrimary,
+        primaryConfig: electionRow.isMiCombinedBallotPrimary
+          ? { type: 'combined' }
+          : {
+              type: 'closed',
+              withNonPartisanBallots:
+                !!stateFeaturesConfig.NON_PARTISAN_PRIMARY_BALLOTS,
+            },
         parties,
         precincts,
         ballotTemplateId: electionRow.ballotTemplateId,
@@ -1186,9 +1196,6 @@ export class Store {
 
       const pollingPlaces = await this.listPollingPlaces(electionId);
 
-      const stateFeaturesConfig = getStateFeaturesConfig({
-        stateCode: electionRow.jurisdictionStateCode,
-      });
       if (
         stateFeaturesConfig.STRAIGHT_PARTY_VOTING &&
         electionRow.type === 'general'

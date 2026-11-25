@@ -62,7 +62,9 @@ export function makeElectionRecord(
     ballotLanguageConfigs,
     contests,
     electionType: baseElection.type,
-    isMiCombinedBallotPrimary: isCombinedBallotPrimary(baseElection),
+    primaryConfig: isCombinedBallotPrimary(baseElection)
+      ? { type: 'combined' }
+      : { type: 'closed', withNonPartisanBallots: false },
     parties: baseElection.parties,
     precincts: [...baseElection.precincts],
     ballotTemplateId: 'VxDefaultBallot',

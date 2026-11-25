@@ -30,10 +30,15 @@ import {
 } from '@votingworks/election-definition-backend';
 import { describeElectionDefinitionMethods } from '@votingworks/election-definition-backend/test-utils';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
-import { renderBallotPreview } from '@votingworks/hmpb';
+import {
+  generateBallotStyles,
+  renderBallotPreview,
+  type PrimaryBallotConfig,
+} from '@votingworks/hmpb';
 import { HP_4001_PRINTER_CONFIG, PrintSides } from '@votingworks/printing';
 import { LogEventId } from '@votingworks/logging';
 import {
+  type BallotStyle,
   BallotType,
   type CandidateContest,
   type Contest,
@@ -84,6 +89,7 @@ vi.mock(import('@votingworks/hmpb'), async (importActual) => {
   const actual = await importActual();
   return {
     ...actual,
+    generateBallotStyles: vi.fn(actual.generateBallotStyles),
     renderBallotPreview: vi.fn(actual.renderBallotPreview),
   };
 });
@@ -102,6 +108,7 @@ afterEach(() => {
   featureFlagMock.resetFeatureFlags();
   vi.mocked(getStateFeaturesConfig).mockReset();
   vi.mocked(renderElectionPackageAndBallots).mockReset();
+  vi.mocked(generateBallotStyles).mockReset();
   vi.unstubAllEnvs();
   vi.useRealTimers();
 });
@@ -950,6 +957,64 @@ test('ballot layout settings and ballot styles', async () => {
       languages: [LanguageCode.ENGLISH],
     },
   ]);
+});
+
+describe('NON_PARTISAN_PRIMARY_BALLOTS state feature', () => {
+  const mockBallotStyles: BallotStyle[] = [
+    { districts: [], groupId: '1', id: '1_m', languages: [], precincts: [] },
+  ];
+
+  async function setUp() {
+    const { electionDefinitionApiClient: api, auth } = buildTestEnvironment();
+    mockSystemAdministratorAuth(auth);
+
+    const electionId = await api.createInProgressElection();
+    const precinctRes = await api.createPrecinct({
+      electionId,
+      newPrecinct: { id: 'precinct-1', name: 'Precinct 1', districtIds: [] },
+    });
+    precinctRes.unsafeUnwrap();
+
+    return { api, electionId };
+  }
+
+  test('enabled - listBallotStyles generates nonpartisan primary ballots', async () => {
+    vi.mocked(getStateFeaturesConfig).mockReturnValue({
+      NON_PARTISAN_PRIMARY_BALLOTS: true,
+    });
+
+    vi.mocked(generateBallotStyles).mockImplementation((params) => {
+      expect(params.primaryConfig).toEqual<PrimaryBallotConfig>({
+        type: 'closed',
+        withNonPartisanBallots: true,
+      });
+
+      return { ballotStyles: mockBallotStyles, candidateOrderings: new Map() };
+    });
+
+    const { api, electionId } = await setUp();
+    const res = await api.listBallotStyles({ electionId });
+    expect(res).toEqual(mockBallotStyles);
+  });
+
+  test('disabled - listBallotStyles generates only partisan primary ballot', async () => {
+    vi.mocked(getStateFeaturesConfig).mockReturnValue({
+      NON_PARTISAN_PRIMARY_BALLOTS: false,
+    });
+
+    vi.mocked(generateBallotStyles).mockImplementation((params) => {
+      expect(params.primaryConfig).toEqual<PrimaryBallotConfig>({
+        type: 'closed',
+        withNonPartisanBallots: false,
+      });
+
+      return { ballotStyles: mockBallotStyles, candidateOrderings: new Map() };
+    });
+
+    const { api, electionId } = await setUp();
+    const res = await api.listBallotStyles({ electionId });
+    expect(res).toEqual(mockBallotStyles);
+  });
 });
 
 test('rejects invalid ballot layout settings and unknown elections', async () => {

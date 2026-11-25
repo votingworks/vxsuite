@@ -111,6 +111,11 @@ export interface StateFeaturesConfig {
    * holds.
    */
   CANDIDATE_DESIGNATIONS?: boolean;
+  /**
+   * For closed primary elections, enable the generation of additional,
+   * nonpartisan ballot styles that only contain nonpartisan contests.
+   */
+  NON_PARTISAN_PRIMARY_BALLOTS?: boolean;
 }
 
 export type StateFeature = keyof StateFeaturesConfig;
