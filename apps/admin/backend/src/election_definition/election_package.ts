@@ -90,7 +90,8 @@ export async function buildElectionPackage({
         ballotLanguageConfigs: electionInfo.languageCodes.map(
           (languageCode) => ({ languages: [languageCode] })
         ),
-        ballotTemplateId: 'VxDefaultBallot',
+        ballotTemplateId:
+          store.electionDefinition.getBallotTemplateId(electionId),
         getCandidateOrderings: (ballotStyle) =>
           assertDefined(candidateOrderings.get(ballotStyle.groupId)),
         compact:

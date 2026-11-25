@@ -34,7 +34,7 @@ import {
   type PrecinctUpdate,
   type SetPollingPlaceError,
 } from '@votingworks/election-definition-backend';
-import { generateBallotStyles } from '@votingworks/hmpb';
+import { type BallotTemplateId, generateBallotStyles } from '@votingworks/hmpb';
 import {
   type BallotStyle,
   type BallotStyleGroupId,
@@ -495,20 +495,33 @@ export class ElectionDefinitionStore {
       isMiCombinedBallotPrimary: false,
       parties: this.listParties(electionId),
       precincts: this.listPrecincts(electionId),
-      ballotTemplateId: 'VxDefaultBallot',
+      ballotTemplateId: this.getBallotTemplateId(electionId),
       electionId,
     });
   }
 
+  getBallotTemplateId(electionId: ElectionId): BallotTemplateId {
+    const { ballotTemplateId } = assertDefined(
+      this.client.one(
+        'select ballot_template_id as ballotTemplateId from design_elections where id = ?',
+        electionId
+      ) as { ballotTemplateId: BallotTemplateId } | undefined,
+      'Election not found'
+    );
+    return ballotTemplateId;
+  }
+
   createInProgressElection(
     electionInfo: ElectionInfoUpdate,
-    systemSettings: SystemSettings
+    systemSettings: SystemSettings,
+    ballotTemplateId: BallotTemplateId
   ): void {
     this.client.run(
       `
       insert into design_elections (
         id,
         type,
+        ballot_template_id,
         title,
         date,
         state,
@@ -518,10 +531,11 @@ export class ElectionDefinitionStore {
         signature_caption,
         language_codes,
         system_settings
-      ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `,
       electionInfo.electionId,
       electionInfo.type,
+      ballotTemplateId,
       electionInfo.title,
       electionInfo.date.toISOString(),
       electionInfo.state,

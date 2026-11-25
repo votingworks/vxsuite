@@ -378,6 +378,7 @@ create table design_elections (
   status text not null default 'in_progress'
     check (status in ('in_progress', 'finalized')),
   type text not null check (type in ('general', 'primary')),
+  ballot_template_id text not null,
   title text not null,
   date text not null,
   state text not null,

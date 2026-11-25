@@ -35,6 +35,7 @@ import {
   type PrecinctUpdate,
   type SetPollingPlaceError,
   type StateCode,
+  defaultBallotTemplate,
   stateDefaultSystemSettings,
   type StateFeaturesConfig,
 } from '@votingworks/election-definition-backend';
@@ -220,7 +221,9 @@ function createElectionDefinitionApiMethods({
       ballotLanguageConfigs: electionInfo.languageCodes.map((languageCode) => ({
         languages: [languageCode],
       })),
-      ballotTemplateId: 'VxDefaultBallot',
+      ballotTemplateId: store.electionDefinition.getBallotTemplateId(
+        input.electionId
+      ),
       getCandidateOrderings: (ballotStyle) =>
         assertDefined(candidateOrderings.get(ballotStyle.groupId)),
       compact: store.electionDefinition.getBallotLayoutSettings(
@@ -281,7 +284,8 @@ function createElectionDefinitionApiMethods({
       );
       store.electionDefinition.createInProgressElection(
         blankElectionInfo(electionId, stateCode),
-        stateDefaultSystemSettings(stateCode)
+        stateDefaultSystemSettings(stateCode),
+        defaultBallotTemplate(stateCode)
       );
       await logger.logAsCurrentRole(LogEventId.ElectionDefinitionCreated, {
         message: `Created election definition ${electionId}.`,

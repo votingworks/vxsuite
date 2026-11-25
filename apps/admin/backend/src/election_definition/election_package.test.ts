@@ -21,7 +21,8 @@ function createFinalizedElection(store: Store): void {
       seal: '',
       languageCodes: [LanguageCode.ENGLISH],
     },
-    DEFAULT_SYSTEM_SETTINGS
+    DEFAULT_SYSTEM_SETTINGS,
+    'VxDefaultBallot'
   );
   store.electionDefinition.finalizeElection('design-election');
 }

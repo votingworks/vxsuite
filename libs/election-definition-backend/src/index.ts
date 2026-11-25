@@ -2,6 +2,7 @@ export type {
   ElectionDefinitionMethods,
   ElectionInput,
 } from './election_definition_methods.js';
+export * from './ballot_templates.js';
 export * from './contests.js';
 export * from './election_package/ballot_pdfs.js';
 export * from './election_package/election_export.js';
