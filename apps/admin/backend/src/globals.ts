@@ -15,7 +15,6 @@ export const PEER_PORT = Number(process.env['PEER_PORT'] || PORT + 1);
 /** How long to wait before considering a machine stale (in milliseconds) */
 export const STALE_MACHINE_THRESHOLD_MS = 10 * 1000;
 
-
 /**
  * Where are exported files allowed to be written to?
  */
