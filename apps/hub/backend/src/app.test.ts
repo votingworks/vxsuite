@@ -78,6 +78,7 @@ import {
   stateFeatureConfigs,
 } from '@votingworks/election-definition-backend';
 import {
+  enableStateFeaturesForTest,
   type ApiClient,
   exportElectionPackage,
   testSetupHelpers,
@@ -3297,6 +3298,143 @@ test('Finalize ballots - rejects partial registered voter counts', async () => {
   // This editing state also requires absentee polling place coverage.
   await addAbsenteePollingPlaceCoveringAllPrecincts(apiClient, electionId);
 
+  await apiClient.finalizeBallots({ electionId });
+  expect(await apiClient.getBallotsFinalizedAt({ electionId })).not.toEqual(
+    null
+  );
+});
+
+test('Finalize ballots - validates registered voter counts by party', async () => {
+  enableStateFeaturesForTest(nonVxJurisdiction.stateCode, {
+    REGISTERED_VOTER_COUNTS_BY_PARTY: true,
+    NONPARTISAN_REGISTERED_VOTER_COUNT: true,
+  });
+  const { apiClient, auth0 } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
+  auth0.setLoggedInUser(nonVxUser);
+  const electionId = (
+    await apiClient.loadElection({
+      newId: 'new-election-id',
+      jurisdictionId: nonVxJurisdiction.id,
+      upload: {
+        format: 'vxf',
+        electionFileContents:
+          electionPrimaryPrecinctSplitsFixtures.readElectionDefinition()
+            .electionData,
+      },
+    })
+  ).unsafeUnwrap();
+  await addAbsenteePollingPlaceCoveringAllPrecincts(apiClient, electionId);
+
+  const precincts = await apiClient.listPrecincts({ electionId });
+  const [party0, party1] = await apiClient.listParties({ electionId });
+  const partyWithoutBallotStyle: Party = {
+    id: 'party-without-ballot-style',
+    name: 'Other',
+    fullName: 'Other Party',
+    abbrev: 'O',
+  };
+  (
+    await apiClient.updateParties({
+      electionId,
+      newParties: [partyWithoutBallotStyle],
+    })
+  ).unsafeUnwrap();
+
+  async function setAllCounts(count: RegisteredVoterCount) {
+    for (const precinct of precincts) {
+      (
+        await apiClient.updatePrecinct({
+          electionId,
+          updatedPrecinct: precinct,
+          registeredVoterCounts: hasSplits(precinct)
+            ? {
+                splits: Object.fromEntries(
+                  precinct.splits.map((split) => [split.id, count])
+                ),
+              }
+            : count,
+        })
+      ).unsafeUnwrap();
+    }
+  }
+
+  async function expectFinalizeError(message: string) {
+    await suppressingConsoleOutput(async () => {
+      await expect(apiClient.finalizeBallots({ electionId })).rejects.toThrow(
+        message
+      );
+    });
+  }
+
+  await setAllCounts({ total: 10, byParty: { [party0!.id]: 10 } });
+  await expectFinalizeError(
+    'Registered voter counts by party must include every party with a ballot style in each precinct and split, and only parties with a ballot style in the election'
+  );
+
+  await setAllCounts({
+    total: 40,
+    byParty: {
+      [party0!.id]: 10,
+      [party1!.id]: 20,
+      [partyWithoutBallotStyle.id]: 10,
+    },
+  });
+  await expectFinalizeError(
+    'Registered voter counts by party must include every party with a ballot style in each precinct and split, and only parties with a ballot style in the election'
+  );
+
+  (
+    await apiClient.updateParties({
+      electionId,
+      deletedPartyIds: [partyWithoutBallotStyle.id],
+    })
+  ).unsafeUnwrap();
+  await expectFinalizeError(
+    'Party and nonpartisan registered voter counts must sum to the total'
+  );
+
+  const lastParty: Party = {
+    id: 'last-party',
+    name: 'Last',
+    fullName: 'Last Party',
+    abbrev: 'L',
+  };
+  (
+    await apiClient.updateParties({ electionId, newParties: [lastParty] })
+  ).unsafeUnwrap();
+  await setAllCounts({ total: 10, byParty: { [lastParty.id]: 10 } });
+  (
+    await apiClient.updateParties({
+      electionId,
+      deletedPartyIds: [lastParty.id],
+    })
+  ).unsafeUnwrap();
+  await expectFinalizeError(
+    'Party and nonpartisan registered voter counts must sum to the total'
+  );
+
+  await setAllCounts({ total: 30 });
+  await expectFinalizeError(
+    'Registered voter counts must be broken out by party'
+  );
+
+  await setAllCounts({
+    total: 30,
+    byParty: { [party0!.id]: 10, [party1!.id]: 20 },
+  });
+  await expectFinalizeError(
+    'Registered voter counts by party must include a nonpartisan count'
+  );
+
+  await setAllCounts({
+    total: 35,
+    byParty: { [party0!.id]: 10, [party1!.id]: 20 },
+    nonpartisan: 5,
+  });
   await apiClient.finalizeBallots({ electionId });
   expect(await apiClient.getBallotsFinalizedAt({ electionId })).not.toEqual(
     null

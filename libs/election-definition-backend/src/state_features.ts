@@ -111,6 +111,16 @@ export interface StateFeaturesConfig {
    * holds.
    */
   CANDIDATE_DESIGNATIONS?: boolean;
+  /**
+   * For primaries, break out registered voter counts by voter party
+   * affiliation.
+   */
+  REGISTERED_VOTER_COUNTS_BY_PARTY?: boolean;
+  /**
+   * Include a nonpartisan count in registered voter counts broken out by party.
+   * Requires REGISTERED_VOTER_COUNTS_BY_PARTY.
+   */
+  NONPARTISAN_REGISTERED_VOTER_COUNT?: boolean;
 }
 
 export type StateFeature = keyof StateFeaturesConfig;

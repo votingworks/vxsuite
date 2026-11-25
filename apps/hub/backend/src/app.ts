@@ -13,7 +13,6 @@ import {
   getAllBallotLanguages,
   type Precinct,
   PrecinctRegisteredVoterCountEntrySchema,
-  ElectionRegisteredVoterCountsSchema,
   type ElectionRegisteredVoterCounts,
   type District,
   type Party,
@@ -145,6 +144,7 @@ import {
   type ConvertMsResultsError,
 } from './convert_ms_results.js';
 import { defaultSystemSettings } from './system_settings.js';
+import { assertValidRegisteredVoterCountBreakdowns } from './registered_voter_counts.js';
 import { logActivity } from './activity_logs.js';
 
 const debug = rootDebug.extend('app');
@@ -735,6 +735,11 @@ export function buildApi(ctx: AppContext) {
           !hasPartialRegisteredVoterCounts(precincts, registeredVoterCounts),
           'Registered voter counts must be provided for all precincts and splits or none'
         );
+        assertValidRegisteredVoterCountBreakdowns(
+          jurisdiction,
+          election,
+          registeredVoterCounts
+        );
       }
 
       // When polling places are user-defined and this state does not allow
@@ -872,13 +877,10 @@ export function buildApi(ctx: AppContext) {
       shouldExportTestBallots?: boolean;
       numAuditIdBallots?: number;
     }): Promise<void> {
-      const registeredVoterCounts = await store.getRegisteredVoterCounts(
-        input.electionId
-      );
-      assert(
-        ElectionRegisteredVoterCountsSchema.safeParse(registeredVoterCounts)
-          .success,
-        'Party and nonpartisan registered voter counts must sum to the total'
+      assertValidRegisteredVoterCountBreakdowns(
+        await store.getElectionJurisdiction(input.electionId),
+        (await store.getElection(input.electionId)).election,
+        await store.getRegisteredVoterCounts(input.electionId)
       );
       return store.createElectionPackageBackgroundTask(input);
     },

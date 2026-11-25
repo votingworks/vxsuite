@@ -65,7 +65,8 @@ export interface PrecinctOrSplitRegisteredVoterCount {
 }
 
 /**
- * Lists each precinct's or split's count, or undefined where none is set.
+ * Flattens nested registered voter counts into a list
+ * for easier iteration and so missing counts are visible.
  */
 export function listRegisteredVoterCounts(
   precincts: readonly Precinct[],

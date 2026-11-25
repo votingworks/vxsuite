@@ -34,9 +34,12 @@ import { join } from 'node:path';
 import { readFileSync } from 'node:fs';
 import { stringify } from 'csv-stringify/sync';
 import { buffer } from 'node:stream/consumers';
-import type {
-  FileStorageClient,
-  FileStorageClientError,
+import {
+  type FileStorageClient,
+  type FileStorageClientError,
+  type StateCode,
+  type StateFeaturesConfig,
+  stateFeatureConfigs,
 } from '@votingworks/election-definition-backend';
 import { listenForTest } from '@votingworks/grout-test-utils';
 import { type Api, type UnauthenticatedApi, buildApp } from '../src/app.js';
@@ -54,6 +57,23 @@ import type {
 import type { MainExportTaskMetadata } from '../src/index.js';
 
 tmp.setGracefulCleanup();
+
+const ORIGINAL_STATE_FEATURE_CONFIGS: Record<StateCode, StateFeaturesConfig> = {
+  ...stateFeatureConfigs,
+};
+
+export function enableStateFeaturesForTest(
+  stateCode: StateCode,
+  features: StateFeaturesConfig
+): void {
+  stateFeatureConfigs[stateCode] = {
+    ...stateFeatureConfigs[stateCode],
+    ...features,
+  };
+  onTestFinished(() => {
+    stateFeatureConfigs[stateCode] = ORIGINAL_STATE_FEATURE_CONFIGS[stateCode];
+  });
+}
 
 export type ApiClient = grout.Client<Api>;
 
