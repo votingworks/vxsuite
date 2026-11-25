@@ -27,14 +27,17 @@
     "build:self": {
       "dependsOn": ["^build:self"],
       "env": ["VX_HUB_IMAGE", "REACT_APP_*"],
+      "outputLogs": "new-only",
       "outputs": ["build/**", "*.node"]
     },
     "type-check:self": {
       "dependsOn": ["^build:self"],
+      "outputLogs": "new-only",
       "outputs": []
     },
     "lint:self": {
-      "dependsOn": ["^build:self"]
+      "dependsOn": ["^build:self"],
+      "outputLogs": "new-only"
     },
     "test:run:self": {
       "dependsOn": ["build:self"],
