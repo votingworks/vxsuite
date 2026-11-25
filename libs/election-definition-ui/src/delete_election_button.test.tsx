@@ -46,3 +46,17 @@ test('confirms before deleting', async () => {
   await waitFor(() => expect(onDeleted).toHaveBeenCalled());
   expect(invalidateElectionListQueries).toHaveBeenCalled();
 });
+
+test('can be disabled', () => {
+  render(
+    provideApi(
+      apiMock,
+      <DeleteElectionButton
+        electionId={electionId}
+        disabled
+        onDeleted={vi.fn()}
+      />
+    )
+  );
+  expect(screen.getButton('Delete Election')).toBeDisabled();
+});

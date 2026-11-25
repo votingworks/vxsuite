@@ -1,5 +1,5 @@
 import React from 'react';
-import { deepEqual, fail } from '@votingworks/basics';
+import { assertDefined, deepEqual, fail } from '@votingworks/basics';
 import type { Api, ElectionDefinitionApi } from '@votingworks/admin-backend';
 import {
   AUTH_STATUS_POLLING_INTERVAL_MS,
@@ -859,16 +859,20 @@ function invalidateManualResultsQueries(queryClient: QueryClient) {
 
 // Mutations
 
+async function invalidateConfiguredElectionPackageQueries(
+  queryClient: QueryClient
+): Promise<void> {
+  await queryClient.invalidateQueries(getCurrentElectionMetadata.queryKey());
+  await queryClient.invalidateQueries(getSystemSettings.queryKey());
+}
+
 export const configure = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.configure, {
       async onSuccess() {
-        await queryClient.invalidateQueries(
-          getCurrentElectionMetadata.queryKey()
-        );
-        await queryClient.invalidateQueries(getSystemSettings.queryKey());
+        await invalidateConfiguredElectionPackageQueries(queryClient);
       },
     });
   },
@@ -1373,5 +1377,68 @@ export const saveBallotPreviewPdf = {
   useMutation() {
     const apiClient = useElectionDefinitionApiClient();
     return useMutation(apiClient.saveBallotPreviewPdf);
+  },
+} as const;
+
+const ELECTION_DEFINITION_ACCESS_ERRORS: readonly string[] = [
+  'auth:forbidden',
+  'election-definition:disabled',
+];
+
+function isElectionDefinitionAccessError(error: unknown): boolean {
+  return (
+    error instanceof grout.UserError &&
+    ELECTION_DEFINITION_ACCESS_ERRORS.includes(error.message)
+  );
+}
+
+export const getElectionPackageRenderingStatus = {
+  queryKey(electionId?: ElectionId): QueryKey {
+    return ['getElectionPackageRenderingStatus', electionId];
+  },
+  usePollingQuery(electionId?: ElectionId) {
+    const apiClient = useElectionDefinitionApiClient();
+    const queryClient = useQueryClient();
+    return usePollingQuery(
+      this.queryKey(electionId),
+      () =>
+        apiClient.getElectionPackageRenderingStatus({
+          electionId: assertDefined(electionId),
+        }),
+      (electionPackage) =>
+        electionPackage?.status === 'running'
+          ? DEFAULT_QUERY_REFETCH_INTERVAL
+          : false,
+      {
+        enabled: electionId !== undefined,
+        useErrorBoundary: (error) => !isElectionDefinitionAccessError(error),
+        async onSuccess(electionPackage) {
+          if (electionPackage?.status === 'succeeded') {
+            await invalidateConfiguredElectionPackageQueries(queryClient);
+          }
+        },
+      }
+    );
+  },
+} as const;
+
+export const finalizeElection = {
+  useMutation() {
+    const apiClient = useElectionDefinitionApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.finalizeElection, {
+      async onSuccess(_, { electionId }) {
+        await queryClient.invalidateQueries(
+          getElectionPackageRenderingStatus.queryKey(electionId)
+        );
+      },
+    });
+  },
+} as const;
+
+export const saveElectionPackageBallots = {
+  useMutation() {
+    const apiClient = useElectionDefinitionApiClient();
+    return useMutation(apiClient.saveElectionPackageBallots);
   },
 } as const;

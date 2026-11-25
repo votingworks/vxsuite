@@ -35,6 +35,9 @@ export const routerPaths = {
     ballotStyleId: BallotStyleId,
     precinctId: PrecinctId
   ): string => `/proof-ballots/${electionId}/${ballotStyleId}/${precinctId}`,
+  finalize: '/finalize',
+  finalizeForElection: (electionId: ElectionId): string =>
+    `/finalize/${electionId}`,
   smartcards: '/smartcards',
   tally: '/tally',
   tallyCvrs: '/tally/cvrs',
