@@ -51,7 +51,11 @@ function setupStore(
 ): ElectionDefinitionStore {
   const store = Store.memoryStore(makeTemporaryDirectory()).electionDefinition;
   const electionInfo: ElectionInfoUpdate = { ...ELECTION_INFO, ...overrides };
-  store.createInProgressElection(electionInfo, DEFAULT_SYSTEM_SETTINGS);
+  store.createInProgressElection(
+    electionInfo,
+    DEFAULT_SYSTEM_SETTINGS,
+    'VxDefaultBallot'
+  );
   store
     .updateDistricts({
       electionId: electionInfo.electionId,

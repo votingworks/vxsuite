@@ -2708,9 +2708,10 @@ test('design election round trip', () => {
 
   const electionInfo = {
     electionId: 'design-election',
-    type: 'general',
+    type: 'primary',
+    isMiCombinedBallotPrimary: true,
     date: new DateWithoutTime('2026-11-03'),
-    title: 'General Election',
+    title: 'Primary Election',
     state: 'Demo State',
     jurisdictionName: 'Demo County',
     seal: '<svg>seal</svg>',
@@ -2723,9 +2724,13 @@ test('design election round trip', () => {
       ...electionInfo,
       languageCodes: [...electionInfo.languageCodes],
     },
-    DEFAULT_SYSTEM_SETTINGS
+    DEFAULT_SYSTEM_SETTINGS,
+    'MiBallot'
   );
   expect(store.electionDefinition.getElectionInfo()).toEqual(electionInfo);
+  expect(
+    store.electionDefinition.getBallotTemplateId('design-election')
+  ).toEqual('MiBallot');
 
   const {
     signatureImage: _signatureImage,
@@ -2734,14 +2739,16 @@ test('design election round trip', () => {
   } = electionInfo;
   store.electionDefinition.updateInProgressElectionInfo({
     ...withoutSignature,
-    type: 'primary',
-    title: 'Primary Election',
+    type: 'general',
+    isMiCombinedBallotPrimary: false,
+    title: 'General Election',
     languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
   });
   expect(store.electionDefinition.getElectionInfo()).toEqual({
     ...withoutSignature,
-    type: 'primary',
-    title: 'Primary Election',
+    type: 'general',
+    isMiCombinedBallotPrimary: false,
+    title: 'General Election',
     languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
   });
 
@@ -2766,7 +2773,8 @@ test('only one design election can exist', () => {
       ...electionInfo,
       languageCodes: [...electionInfo.languageCodes],
     },
-    DEFAULT_SYSTEM_SETTINGS
+    DEFAULT_SYSTEM_SETTINGS,
+    'VxDefaultBallot'
   );
   expect(() =>
     store.electionDefinition.createInProgressElection(
@@ -2775,7 +2783,8 @@ test('only one design election can exist', () => {
         electionId: 'another-design-election',
         languageCodes: [...electionInfo.languageCodes],
       },
-      DEFAULT_SYSTEM_SETTINGS
+      DEFAULT_SYSTEM_SETTINGS,
+      'VxDefaultBallot'
     )
   ).toThrow();
 
@@ -2786,7 +2795,8 @@ test('only one design election can exist', () => {
       electionId: 'another-design-election',
       languageCodes: [...electionInfo.languageCodes],
     },
-    DEFAULT_SYSTEM_SETTINGS
+    DEFAULT_SYSTEM_SETTINGS,
+    'VxDefaultBallot'
   );
   expect(store.electionDefinition.getElectionInfo()?.electionId).toEqual(
     'another-design-election'
@@ -2812,7 +2822,8 @@ test('getElection assembles the in-progress election', () => {
       ...electionInfo,
       languageCodes: [...electionInfo.languageCodes],
     },
-    DEFAULT_SYSTEM_SETTINGS
+    DEFAULT_SYSTEM_SETTINGS,
+    'VxDefaultBallot'
   );
   store.electionDefinition
     .updateDistricts({
@@ -2927,7 +2938,8 @@ describe('design finalization and election package', () => {
         seal: '',
         languageCodes: [LanguageCode.ENGLISH],
       },
-      designSystemSettings
+      designSystemSettings,
+      'VxDefaultBallot'
     );
     return store;
   }
@@ -3087,7 +3099,8 @@ describe('design ballot layout and ballot styles', () => {
         seal: '',
         languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
       },
-      DEFAULT_SYSTEM_SETTINGS
+      DEFAULT_SYSTEM_SETTINGS,
+      'VxDefaultBallot'
     );
     return store;
   }
@@ -3313,7 +3326,8 @@ describe('design districts', () => {
         seal: '',
         languageCodes: [LanguageCode.ENGLISH],
       },
-      DEFAULT_SYSTEM_SETTINGS
+      DEFAULT_SYSTEM_SETTINGS,
+      'VxDefaultBallot'
     );
     return store;
   }
@@ -3479,7 +3493,8 @@ describe('design parties', () => {
         seal: '',
         languageCodes: [LanguageCode.ENGLISH],
       },
-      DEFAULT_SYSTEM_SETTINGS
+      DEFAULT_SYSTEM_SETTINGS,
+      'VxDefaultBallot'
     );
     return store;
   }
@@ -3781,7 +3796,8 @@ describe('design contests', () => {
         seal: '',
         languageCodes: [LanguageCode.ENGLISH],
       },
-      DEFAULT_SYSTEM_SETTINGS
+      DEFAULT_SYSTEM_SETTINGS,
+      'VxDefaultBallot'
     );
     store.electionDefinition
       .updateDistricts({
@@ -4252,7 +4268,8 @@ describe('design precincts', () => {
         seal: '',
         languageCodes: [LanguageCode.ENGLISH],
       },
-      DEFAULT_SYSTEM_SETTINGS
+      DEFAULT_SYSTEM_SETTINGS,
+      'VxDefaultBallot'
     );
     store.electionDefinition
       .updateDistricts({
@@ -4626,7 +4643,8 @@ describe('design polling places', () => {
         seal: '',
         languageCodes: [LanguageCode.ENGLISH],
       },
-      DEFAULT_SYSTEM_SETTINGS
+      DEFAULT_SYSTEM_SETTINGS,
+      'VxDefaultBallot'
     );
     for (const precinct of [
       { id: 'p1', name: 'Precinct 1', districtIds: [] },

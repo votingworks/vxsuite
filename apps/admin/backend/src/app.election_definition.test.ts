@@ -42,6 +42,7 @@ import {
   type Party,
   type PollingPlace,
   type Precinct,
+  type StraightPartyContest,
   type YesNoContest,
 } from '@votingworks/types';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
@@ -175,6 +176,7 @@ test('create, edit and discard an election definition', async () => {
   ).toEqual({
     electionId,
     type: 'general',
+    isMiCombinedBallotPrimary: false,
     date: new DateWithoutTime('2026-11-05'),
     title: '',
     state: 'DEMO',
@@ -193,6 +195,7 @@ test('create, edit and discard an election definition', async () => {
   const electionInfoUpdate: ElectionInfoUpdate = {
     electionId,
     type: 'primary',
+    isMiCombinedBallotPrimary: false,
     date: new DateWithoutTime('2027-03-02'),
     title: ' Primary Election ',
     state: 'Demo State',
@@ -333,7 +336,7 @@ test('unsupported machine state', async () => {
   ).rejects.toThrow('election-definition:disabled');
 });
 
-test('rejects combined ballot primaries', async () => {
+test('rejects combined ballot primaries when the state does not support them', async () => {
   const { electionDefinitionApiClient, auth } = buildTestEnvironment();
   mockSystemAdministratorAuth(auth);
   const electionId =
@@ -351,8 +354,37 @@ test('rejects combined ballot primaries', async () => {
         type: 'primary',
         isMiCombinedBallotPrimary: true,
       })
-    ).rejects.toThrow('Combined ballot primaries are not supported.')
+    ).rejects.toThrow(
+      'Combined ballot primaries are not supported in this state.'
+    )
   );
+});
+
+test('saves a combined ballot primary when the state supports it', async () => {
+  vi.mocked(getStateFeaturesConfig).mockReturnValue({
+    COMBINED_BALLOT_PRIMARIES: true,
+  });
+  const { electionDefinitionApiClient, auth } = buildTestEnvironment();
+  mockSystemAdministratorAuth(auth);
+  const electionId =
+    await electionDefinitionApiClient.createInProgressElection();
+  const electionInfo = await electionDefinitionApiClient.getElectionInfo({
+    electionId,
+  });
+  expect(electionInfo.isMiCombinedBallotPrimary).toEqual(false);
+
+  (
+    await electionDefinitionApiClient.updateElectionInfo({
+      ...electionInfo,
+      title: 'Primary Election',
+      jurisdictionName: 'Demo County',
+      type: 'primary',
+      isMiCombinedBallotPrimary: true,
+    })
+  ).unsafeUnwrap();
+  expect(
+    await electionDefinitionApiClient.getElectionInfo({ electionId })
+  ).toMatchObject({ type: 'primary', isMiCombinedBallotPrimary: true });
 });
 
 test('edit districts', async () => {
@@ -1856,6 +1888,131 @@ test('finalize skips the absentee polling place check when polling places are ge
     status: 'failed',
     error: 'not rendered',
   });
+});
+
+test('election package includes a generated straight party contest when the state supports straight party voting', async () => {
+  vi.mocked(getStateFeaturesConfig).mockReturnValue({
+    ...stateFeatureConfigs.DEMO,
+    STRAIGHT_PARTY_VOTING: true,
+  });
+  const { electionDefinitionApiClient: api, auth } = buildTestEnvironment();
+  mockSystemAdministratorAuth(auth);
+  const electionId = await createFinalizableElection(api);
+  (
+    await api.updateParties({ electionId, newParties: [democrats] })
+  ).unsafeUnwrap();
+  const expectedContest: StraightPartyContest = {
+    id: `${electionId}-straight-party-contest`,
+    type: 'straight-party',
+    title: 'Straight Party Ticket',
+    districtId: 'district-1',
+    optionIds: [democrats.id],
+  };
+
+  expect(await api.listContests({ electionId })).toEqual([
+    expectedContest,
+    mayor,
+    measure,
+  ]);
+  await api.reorderContests({
+    electionId,
+    contestIds: [expectedContest.id, measure.id, mayor.id],
+  });
+  expect(await api.listContests({ electionId })).toEqual([
+    expectedContest,
+    measure,
+    mayor,
+  ]);
+
+  vi.mocked(renderBallotPreview).mockResolvedValueOnce(
+    err({ error: 'contestTooLong', contest: measure })
+  );
+  expect(
+    await api.getBallotPreviewPdf({
+      electionId,
+      precinctId: 'precinct-1',
+      ballotStyleId: '1_en',
+      ballotType: BallotType.Precinct,
+      ballotMode: 'official',
+    })
+  ).toEqual(err({ error: 'contestTooLong', contest: measure }));
+  expect(
+    vi.mocked(renderBallotPreview).mock.lastCall![0].election.contests[0]
+  ).toEqual(expectedContest);
+
+  vi.mocked(renderElectionPackageAndBallots).mockRejectedValueOnce(
+    new Error('not rendered')
+  );
+  await api.finalizeElection({ electionId });
+  await waitForElectionPackage(api, electionId);
+  expect(
+    vi.mocked(renderElectionPackageAndBallots).mock.lastCall![1].election
+      .contests[0]
+  ).toEqual(expectedContest);
+});
+
+test('finalize rejects straight party voting when no district covers every precinct', async () => {
+  vi.mocked(getStateFeaturesConfig).mockReturnValue({
+    ...stateFeatureConfigs.DEMO,
+    STRAIGHT_PARTY_VOTING: true,
+  });
+  const { electionDefinitionApiClient: api, auth } = buildTestEnvironment();
+  mockSystemAdministratorAuth(auth);
+  const electionId = await createFinalizableElection(api);
+  (
+    await api.updateDistricts({
+      electionId,
+      newDistricts: [{ id: 'district-2', name: 'District 2' }],
+    })
+  ).unsafeUnwrap();
+  (
+    await api.createPrecinct({
+      electionId,
+      newPrecinct: {
+        id: 'precinct-2',
+        name: 'Precinct 2',
+        districtIds: ['district-2'],
+      },
+    })
+  ).unsafeUnwrap();
+  (
+    await api.createContest({
+      electionId,
+      newContest: {
+        ...measure,
+        id: 'measure-2',
+        title: 'Measure 2',
+        districtId: 'district-2',
+        options: [
+          { id: 'measure-2-yes', label: 'Yes' },
+          { id: 'measure-2-no', label: 'No' },
+        ],
+      },
+    })
+  ).unsafeUnwrap();
+  (
+    await api.setPollingPlace({
+      electionId,
+      place: {
+        id: 'absentee-place',
+        name: 'Town Hall',
+        type: 'absentee',
+        precincts: {
+          'precinct-1': { type: 'whole' },
+          'precinct-2': { type: 'whole' },
+        },
+      },
+    })
+  ).unsafeUnwrap();
+
+  await suppressingConsoleOutput(async () => {
+    await expect(api.finalizeElection({ electionId })).rejects.toThrow(
+      'A straight party contest needs a district that covers every precinct'
+    );
+  });
+  expect(await api.getElectionPackageRenderingStatus({ electionId })).toEqual(
+    null
+  );
 });
 
 test('a failed election package build returns the election definition to editing, and it can be finalized again', async () => {

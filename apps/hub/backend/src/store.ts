@@ -62,7 +62,6 @@ import {
   type SoftwareVersion,
   type ElectionType,
   straightPartyNotYetImplemented,
-  type StraightPartyContest,
   type Tabulation,
 } from '@votingworks/types';
 import {
@@ -83,11 +82,13 @@ import {
   type DuplicatePartyError,
   type DuplicatePrecinctError,
   type ExternalElectionSource,
+  generateStraightPartyContest,
   getStateFeaturesConfig,
   hasDuplicateOptionLabels,
   type PartiesUpdate,
   type SetPollingPlaceError,
   type StateCode,
+  straightPartyContestId,
 } from '@votingworks/election-definition-backend';
 import type {
   ElectionInfoUpdate,
@@ -239,10 +240,6 @@ function isForeignKeyError(
     error.code === '23503' &&
     error.constraint === constraint
   );
-}
-
-function straightPartyContestId(electionId: ElectionId): ContestId {
-  return `${electionId}-straight-party-contest`;
 }
 
 async function insertDistrict(
@@ -1193,21 +1190,13 @@ export class Store {
         stateFeaturesConfig.STRAIGHT_PARTY_VOTING &&
         electionRow.type === 'general'
       ) {
-        // The straight party contest's district must be on every ballot style
-        // so the contest appears on every ballot.
-        const district = districts.find((d) =>
-          ballotStyles.every((ballotStyle) =>
-            ballotStyle.districts.includes(d.id)
-          )
-        );
-        if (district) {
-          const straightPartyContest: StraightPartyContest = {
-            id: straightPartyContestId(electionId),
-            type: 'straight-party',
-            title: 'Straight Party Ticket',
-            districtId: district.id,
-            optionIds: parties.map((party) => party.id),
-          };
+        const straightPartyContest = generateStraightPartyContest({
+          electionId,
+          districts,
+          parties,
+          ballotStyles,
+        });
+        if (straightPartyContest) {
           contests.unshift(straightPartyContest);
         }
       }

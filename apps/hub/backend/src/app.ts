@@ -79,6 +79,7 @@ import {
   type ContestDelete,
   type ContestsReorder,
   type ContestUpdate,
+  defaultBallotTemplate,
   type DistrictsUpdate,
   type DuplicateContestError,
   type DuplicateDistrictError,
@@ -128,7 +129,6 @@ import {
   DEPLOY_ENV,
   authEnabled,
 } from './globals.js';
-import { defaultBallotTemplate } from './ballots.js';
 import {
   regenerateElectionIds,
   splitCandidateName,
@@ -445,7 +445,7 @@ export function buildApi(ctx: AppContext) {
           jurisdiction,
           election,
           isMiCombinedBallotPrimary,
-          ballotTemplateId: defaultBallotTemplate(jurisdiction),
+          ballotTemplateId: defaultBallotTemplate(jurisdiction.stateCode),
           externalSource:
             input.upload.format === 'ms-sems' ? 'ms-sems' : undefined,
           systemSettings: defaultSystemSettings(jurisdiction),
@@ -467,7 +467,7 @@ export function buildApi(ctx: AppContext) {
         jurisdiction,
         election,
         isMiCombinedBallotPrimary: false,
-        ballotTemplateId: defaultBallotTemplate(jurisdiction),
+        ballotTemplateId: defaultBallotTemplate(jurisdiction.stateCode),
         systemSettings: defaultSystemSettings(jurisdiction),
       });
       return ok(election.id);

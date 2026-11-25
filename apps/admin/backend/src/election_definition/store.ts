@@ -25,6 +25,7 @@ import {
   type DuplicatePrecinctError,
   type ElectionInfo,
   type ElectionInfoUpdate,
+  generateStraightPartyContest,
   hasDuplicateOptionLabels,
   type PartiesUpdate,
   type PollingPlaceDelete,
@@ -34,7 +35,7 @@ import {
   type PrecinctUpdate,
   type SetPollingPlaceError,
 } from '@votingworks/election-definition-backend';
-import { generateBallotStyles } from '@votingworks/hmpb';
+import { type BallotTemplateId, generateBallotStyles } from '@votingworks/hmpb';
 import {
   type BallotStyle,
   type BallotStyleGroupId,
@@ -344,6 +345,7 @@ export class ElectionDefinitionStore {
       select
         id as electionId,
         type,
+        is_mi_combined_ballot_primary as isMiCombinedBallotPrimary,
         title,
         date,
         state,
@@ -358,6 +360,7 @@ export class ElectionDefinitionStore {
       | {
           electionId: ElectionId;
           type: ElectionType;
+          isMiCombinedBallotPrimary: number;
           title: string;
           date: string;
           state: string;
@@ -374,6 +377,7 @@ export class ElectionDefinitionStore {
     return {
       electionId: row.electionId,
       type: row.type,
+      isMiCombinedBallotPrimary: row.isMiCombinedBallotPrimary === 1,
       title: row.title,
       date: new DateWithoutTime(row.date),
       state: row.state,
@@ -393,7 +397,10 @@ export class ElectionDefinitionStore {
     return this.getElectionWithCandidateOrderings(electionId)?.election;
   }
 
-  getElectionWithCandidateOrderings(electionId: ElectionId):
+  getElectionWithCandidateOrderings(
+    electionId: ElectionId,
+    { straightPartyVoting = false }: { straightPartyVoting?: boolean } = {}
+  ):
     | {
         election: Election;
         candidateOrderings: Map<BallotStyleGroupId, CandidateOrderings>;
@@ -405,6 +412,18 @@ export class ElectionDefinitionStore {
     }
     const { ballotStyles, candidateOrderings } =
       this.generateBallotStyles(electionId);
+    const districts = this.listDistricts(electionId);
+    const parties = this.listParties(electionId);
+    const contests = this.listContests(electionId);
+    const straightPartyContest =
+      straightPartyVoting && electionInfo.type === 'general'
+        ? generateStraightPartyContest({
+            electionId,
+            districts,
+            parties,
+            ballotStyles,
+          })
+        : undefined;
     const election: Election = {
       id: electionInfo.electionId,
       type: electionInfo.type,
@@ -425,11 +444,13 @@ export class ElectionDefinitionStore {
             },
           }
         : {}),
-      districts: this.listDistricts(electionId),
+      districts,
       precincts: this.listPrecincts(electionId),
       pollingPlaces: this.listPollingPlaces(electionId),
-      parties: this.listParties(electionId),
-      contests: this.listContests(electionId),
+      parties,
+      contests: straightPartyContest
+        ? [straightPartyContest, ...contests]
+        : contests,
       ballotStyles,
       ballotLayout: {
         paperSize: this.getBallotLayoutSettings(electionId).paperSize,
@@ -492,23 +513,37 @@ export class ElectionDefinitionStore {
       })),
       contests: this.listContests(electionId),
       electionType: electionInfo.type,
-      isMiCombinedBallotPrimary: false,
+      isMiCombinedBallotPrimary: !!electionInfo.isMiCombinedBallotPrimary,
       parties: this.listParties(electionId),
       precincts: this.listPrecincts(electionId),
-      ballotTemplateId: 'VxDefaultBallot',
+      ballotTemplateId: this.getBallotTemplateId(electionId),
       electionId,
     });
   }
 
+  getBallotTemplateId(electionId: ElectionId): BallotTemplateId {
+    const { ballotTemplateId } = assertDefined(
+      this.client.one(
+        'select ballot_template_id as ballotTemplateId from design_elections where id = ?',
+        electionId
+      ) as { ballotTemplateId: BallotTemplateId } | undefined,
+      'Election not found'
+    );
+    return ballotTemplateId;
+  }
+
   createInProgressElection(
     electionInfo: ElectionInfoUpdate,
-    systemSettings: SystemSettings
+    systemSettings: SystemSettings,
+    ballotTemplateId: BallotTemplateId
   ): void {
     this.client.run(
       `
       insert into design_elections (
         id,
         type,
+        is_mi_combined_ballot_primary,
+        ballot_template_id,
         title,
         date,
         state,
@@ -518,10 +553,12 @@ export class ElectionDefinitionStore {
         signature_caption,
         language_codes,
         system_settings
-      ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `,
       electionInfo.electionId,
       electionInfo.type,
+      electionInfo.isMiCombinedBallotPrimary ? 1 : 0,
+      ballotTemplateId,
       electionInfo.title,
       electionInfo.date.toISOString(),
       electionInfo.state,
@@ -540,6 +577,7 @@ export class ElectionDefinitionStore {
       update design_elections
       set
         type = ?,
+        is_mi_combined_ballot_primary = ?,
         title = ?,
         date = ?,
         state = ?,
@@ -552,6 +590,7 @@ export class ElectionDefinitionStore {
       where id = ?
     `,
       electionInfo.type,
+      electionInfo.isMiCombinedBallotPrimary ? 1 : 0,
       electionInfo.title,
       electionInfo.date.toISOString(),
       electionInfo.state,

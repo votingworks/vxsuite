@@ -60,7 +60,9 @@ export async function buildElectionPackage({
       store.electionDefinition.getElectionInfo()
     );
     const { election, candidateOrderings } = assertDefined(
-      store.electionDefinition.getElectionWithCandidateOrderings(electionId)
+      store.electionDefinition.getElectionWithCandidateOrderings(electionId, {
+        straightPartyVoting: !!features.STRAIGHT_PARTY_VOTING,
+      })
     );
     await rm(join(getElectionPackageFilesPath(store), electionId), {
       recursive: true,
@@ -90,7 +92,8 @@ export async function buildElectionPackage({
         ballotLanguageConfigs: electionInfo.languageCodes.map(
           (languageCode) => ({ languages: [languageCode] })
         ),
-        ballotTemplateId: 'VxDefaultBallot',
+        ballotTemplateId:
+          store.electionDefinition.getBallotTemplateId(electionId),
         getCandidateOrderings: (ballotStyle) =>
           assertDefined(candidateOrderings.get(ballotStyle.groupId)),
         compact:
