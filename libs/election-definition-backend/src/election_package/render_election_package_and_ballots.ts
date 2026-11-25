@@ -14,6 +14,7 @@ import {
   ElectionPackageFileName,
   type ElectionPackageMetadata,
   type ElectionRegisteredVoterCounts,
+  type ElectionRegisteredVoterCountTotals,
   toTotalRegisteredVoterCounts,
   type ElectionSerializationFormat,
   type EncodedBallotEntry,
@@ -104,6 +105,20 @@ export interface ElectionPackageAndBallotsOutput {
   officialBallotsPath: string;
   sampleBallotsPath?: string;
   testBallotsPath?: string;
+}
+
+function serializeRegisteredVoterCounts(
+  counts: ElectionRegisteredVoterCounts,
+  version: SoftwareVersion
+): ElectionRegisteredVoterCounts | ElectionRegisteredVoterCountTotals {
+  switch (version) {
+    case 'v4.0':
+      return toTotalRegisteredVoterCounts(counts);
+    case 'v4.1':
+      return counts;
+    default:
+      return throwIllegalValue(version);
+  }
 }
 
 function generateEncodedBallots(p: {
@@ -300,16 +315,13 @@ async function generate(
     name: ElectionPackageFileName.SYSTEM_SETTINGS,
   });
 
-  electionPackageZip.addEntry(
-    JSON.stringify(
-      toTotalRegisteredVoterCounts(input.registeredVoterCounts),
-      null,
-      2
-    ),
-    {
-      name: ElectionPackageFileName.REGISTERED_VOTER_COUNTS,
-    }
+  const registeredVoterCounts = serializeRegisteredVoterCounts(
+    input.registeredVoterCounts,
+    input.softwareVersion
   );
+  electionPackageZip.addEntry(JSON.stringify(registeredVoterCounts, null, 2), {
+    name: ElectionPackageFileName.REGISTERED_VOTER_COUNTS,
+  });
 
   if (audio) {
     const { uiStringAudioIds, uiStringAudioClips } = generateAudioIdsAndClips({
