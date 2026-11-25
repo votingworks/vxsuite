@@ -36,7 +36,7 @@ import {
   getUsbDriveStatus,
   unconfigureElection,
   useApiClient,
-  useStatusUpdates,
+  useScanStatusUpdates,
 } from './api.js';
 import { VoterScreen } from './screens/voter_screen.js';
 import { LoginPromptScreen } from './screens/login_prompt_screen.js';
@@ -64,7 +64,7 @@ export function AppRoot(): JSX.Element | null {
   const checkPinMutation = checkPin.useMutation();
   const unconfigureMutation = unconfigureElection.useMutation();
 
-  useStatusUpdates();
+  useScanStatusUpdates();
   const scannerStatusQuery = getScannerStatus.useQuery();
   const printerStatusQuery = getPrinterStatus.useQuery();
 

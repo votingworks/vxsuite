@@ -42,7 +42,7 @@ import type {
 } from '@votingworks/fujitsu-thermal-printer';
 import { mockPollsInfo } from './mock_polls_info.js';
 import { ApiProvider } from '../../src/api_provider.js';
-import { useStatusUpdates } from '../../src/api.js';
+import { useScanStatusUpdates } from '../../src/api.js';
 
 export const machineConfig: MachineConfig = {
   machineId: '0002',
@@ -412,7 +412,7 @@ export function createApiMock() {
 export type ApiMock = ReturnType<typeof createApiMock>;
 
 function StatusUpdates(): null {
-  useStatusUpdates();
+  useScanStatusUpdates();
   return null;
 }
 
