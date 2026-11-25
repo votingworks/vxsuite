@@ -11,13 +11,19 @@ import {
   type PrecinctSplit,
   type BallotStyle,
   type YesNoContest,
+  type ElectionType,
 } from '@votingworks/types';
 import {
   ballotStyleHasPrecinctOrSplit,
   generateBallotStyleGroupId,
   generateBallotStyleId,
 } from '@votingworks/utils';
-import { generateBallotStyles } from './ballot_styles.js';
+import {
+  generateBallotStyles,
+  NON_PARTISAN_BALLOT_PARTY,
+  type BallotParty,
+  type PrimaryBallotConfig,
+} from './ballot_styles.js';
 import * as ballotRotation from './ballot_rotation.js';
 
 function makeContest(
@@ -173,14 +179,32 @@ describe('generateBallotStyles()', () => {
     type: 'yesno',
   };
 
+  interface BallotStyleSpec {
+    contests: { [id: string]: Contest[] };
+    electionType: ElectionType;
+    name: string;
+    parties: Party[];
+    primaryConfig: PrimaryBallotConfig;
+  }
+
   // General and combined ballot primary elections share the same ballot style generation
   // logic: one ballot style per precinct/district group, no partyId. Partisan
   // contests in combined ballot primaries don't affect ballot style partitioning.
-  const generalAndCombinedBallotPrimaryCases = [
+  const generalAndCombinedBallotPrimaryCases: BallotStyleSpec[] = [
     {
-      name: 'general',
-      electionType: 'general' as const,
-      isMiCombinedBallotPrimary: false,
+      name: 'general (nonpartisan primary ballots enabled)',
+      electionType: 'general',
+      primaryConfig: { type: 'closed', withNonPartisanBallots: false },
+      contests: {
+        [district1.id]: [generalContest1, ballotMeasure],
+        [district2.id]: [generalContest2],
+      },
+      parties: [],
+    },
+    {
+      name: 'general (nonpartisan primary ballots enabled)',
+      electionType: 'general',
+      primaryConfig: { type: 'closed', withNonPartisanBallots: true },
       contests: {
         [district1.id]: [generalContest1, ballotMeasure],
         [district2.id]: [generalContest2],
@@ -189,8 +213,8 @@ describe('generateBallotStyles()', () => {
     },
     {
       name: 'combined ballot primary',
-      electionType: 'primary' as const,
-      isMiCombinedBallotPrimary: true,
+      electionType: 'primary',
+      primaryConfig: { type: 'combined' },
       contests: {
         [district1.id]: [partyAContest1, partyBContest1, ballotMeasure],
         [district2.id]: [partyAContest2, partyBContest2],
@@ -201,7 +225,7 @@ describe('generateBallotStyles()', () => {
 
   test.each(generalAndCombinedBallotPrimaryCases)(
     '$name election, no splits, default rotation',
-    ({ electionType, isMiCombinedBallotPrimary, contests, parties }) => {
+    ({ electionType, primaryConfig, contests, parties }) => {
       const ballotLanguageConfigs = [
         { languages: [ENGLISH] },
         { languages: [ENGLISH, SPANISH] },
@@ -210,7 +234,7 @@ describe('generateBallotStyles()', () => {
         ballotLanguageConfigs,
         contests: Object.values(contests).flat(),
         electionType,
-        isMiCombinedBallotPrimary,
+        primaryConfig,
         parties,
         precincts: [
           precinct1District1,
@@ -280,7 +304,7 @@ describe('generateBallotStyles()', () => {
 
   test.each(generalAndCombinedBallotPrimaryCases)(
     '$name election, split precincts, default rotation',
-    ({ electionType, isMiCombinedBallotPrimary, contests, parties }) => {
+    ({ electionType, primaryConfig, contests, parties }) => {
       const ballotLanguageConfigs = [
         { languages: [ENGLISH] },
         { languages: [ENGLISH, SPANISH] },
@@ -289,7 +313,7 @@ describe('generateBallotStyles()', () => {
         ballotLanguageConfigs,
         contests: Object.values(contests).flat(),
         electionType,
-        isMiCombinedBallotPrimary,
+        primaryConfig,
         parties,
         precincts: [
           precinct1District1,
@@ -359,7 +383,7 @@ describe('generateBallotStyles()', () => {
 
   test.each(generalAndCombinedBallotPrimaryCases)(
     '$name election, split precincts, rotation by precinct',
-    ({ electionType, isMiCombinedBallotPrimary, contests, parties }) => {
+    ({ electionType, primaryConfig, contests, parties }) => {
       const ballotLanguageConfigs = [
         { languages: [ENGLISH] },
         { languages: [ENGLISH, SPANISH] },
@@ -372,7 +396,7 @@ describe('generateBallotStyles()', () => {
         ballotLanguageConfigs,
         contests: Object.values(contests).flat(),
         electionType,
-        isMiCombinedBallotPrimary,
+        primaryConfig,
         parties,
         precincts: [
           precinct1District1,
@@ -487,7 +511,7 @@ describe('generateBallotStyles()', () => {
         partyBContest2,
       ],
       electionType: 'primary',
-      isMiCombinedBallotPrimary: false,
+      primaryConfig: { type: 'closed', withNonPartisanBallots: false },
       parties: [partyA, partyB, partyC],
       precincts: [
         precinct1District1,
@@ -624,6 +648,97 @@ describe('generateBallotStyles()', () => {
     }
   });
 
+  describe('closed primary, withNonPartisanContests = true', () => {
+    type ClosedPrimaryStyleSpec = [
+      ballotStyleIndex: number,
+      languages: LanguageCode[],
+      party: BallotParty,
+      district: District,
+      precinct: Precinct,
+    ];
+
+    function expectStylesEqual(
+      actual: BallotStyle[],
+      expected: ClosedPrimaryStyleSpec[]
+    ) {
+      expect(actual).toEqual(
+        expected.map(
+          ([ballotStyleIndex, languages, party, district, precinct]) => ({
+            id: generateBallotStyleId({ ballotStyleIndex, languages, party }),
+            groupId: generateBallotStyleGroupId({ ballotStyleIndex, party }),
+            districts: [district.id],
+            languages,
+            partyId: party.id,
+            precincts: [precinct.id],
+          })
+        )
+      );
+    }
+
+    test('adds nonpartisan styles', () => {
+      const languages = [ENGLISH, SPANISH];
+      const { ballotStyles } = generateBallotStyles({
+        ballotLanguageConfigs: languages.map((l) => ({ languages: [l] })),
+        contests: [
+          partyAContest1,
+          partyBContest1,
+          ballotMeasure,
+          generalContest2,
+        ],
+        electionType: 'primary',
+        primaryConfig: { type: 'closed', withNonPartisanBallots: true },
+        parties: [partyA, partyB],
+        precincts: [precinct1District1, precinct2District2],
+        ballotTemplateId: 'VxDefaultBallot',
+        electionId: 'test-election',
+      });
+
+      const NON_PARTISAN = NON_PARTISAN_BALLOT_PARTY;
+      expect(NON_PARTISAN.id).toBeUndefined();
+
+      expectStylesEqual(ballotStyles, [
+        [1, [ENGLISH], partyA, district1, precinct1District1],
+        [1, [SPANISH], partyA, district1, precinct1District1],
+
+        [1, [ENGLISH], partyB, district1, precinct1District1],
+        [1, [SPANISH], partyB, district1, precinct1District1],
+
+        // Covers `ballotMeasure`:
+        [1, [ENGLISH], NON_PARTISAN, district1, precinct1District1],
+        [1, [SPANISH], NON_PARTISAN, district1, precinct1District1],
+
+        // Covers `generalContest2`:
+        [2, [ENGLISH], NON_PARTISAN, district2, precinct2District2],
+        [2, [SPANISH], NON_PARTISAN, district2, precinct2District2],
+      ]);
+    });
+
+    test('omits nonpartisan styles when no nonpartisan contests exist', () => {
+      const languages = [ENGLISH, SPANISH];
+      const { ballotStyles } = generateBallotStyles({
+        ballotLanguageConfigs: languages.map((l) => ({ languages: [l] })),
+        contests: [partyAContest1, partyBContest1, partyAContest2],
+        electionType: 'primary',
+        primaryConfig: { type: 'closed', withNonPartisanBallots: true },
+        parties: [partyA, partyB],
+        precincts: [precinct1District1, precinct2District2],
+        ballotTemplateId: 'VxDefaultBallot',
+        electionId: 'test-election',
+      });
+
+      expectStylesEqual(ballotStyles, [
+        [1, [ENGLISH], partyA, district1, precinct1District1],
+        [1, [SPANISH], partyA, district1, precinct1District1],
+
+        [1, [ENGLISH], partyB, district1, precinct1District1],
+        [1, [SPANISH], partyB, district1, precinct1District1],
+
+        [2, [ENGLISH], partyA, district2, precinct2District2],
+        [2, [SPANISH], partyA, district2, precinct2District2],
+      ]);
+    });
+  });
+
   test('primary election, split precincts, no rotation', () => {
     const ballotLanguageConfigs = [
       { languages: [ENGLISH] },
@@ -638,7 +753,7 @@ describe('generateBallotStyles()', () => {
         partyBContest2,
       ],
       electionType: 'primary',
-      isMiCombinedBallotPrimary: false,
+      primaryConfig: { type: 'closed', withNonPartisanBallots: false },
       parties: [partyA, partyB, partyC],
       precincts: [
         precinct1District1,
@@ -812,7 +927,7 @@ describe('generateBallotStyles()', () => {
         partyBContest2,
       ],
       electionType: 'primary',
-      isMiCombinedBallotPrimary: false,
+      primaryConfig: { type: 'closed', withNonPartisanBallots: false },
       parties: [partyA, partyB, partyC],
       precincts: [
         precinct1District1,
@@ -1069,7 +1184,7 @@ describe('generateBallotStyles()', () => {
       ballotLanguageConfigs,
       contests: [generalContest1, generalContest2],
       electionType: 'general',
-      isMiCombinedBallotPrimary: false,
+      primaryConfig: { type: 'closed', withNonPartisanBallots: false },
       parties: [],
       precincts: [precinct1, precinct2, precinct3, precinct4],
       ballotTemplateId: 'VxDefaultBallot',

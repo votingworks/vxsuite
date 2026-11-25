@@ -62,7 +62,10 @@ import {
   nhBallotTemplate,
 } from './ballot_templates/nh_ballot_template.js';
 import { convertPdfToCmyk } from './pdf_conversion.js';
-import { generateBallotStyles } from './ballot_styles.js';
+import {
+  generateBallotStyles,
+  type PrimaryBallotConfig,
+} from './ballot_styles.js';
 import { miBallotTemplate } from './ballot_templates/mi_ballot_template.js';
 import { msBallotTemplate } from './ballot_templates/ms_ballot_template.js';
 import { nhStateBallotTemplate } from './ballot_templates/nh_state_ballot_template.js';
@@ -743,7 +746,7 @@ export const nhGeneralElectionFixtures = lazyFixtures(() => {
       ballotStyles: generateBallotStylesWithOrderings({
         ballotTemplateId: 'NhBallot',
         electionType: 'general',
-        isMiCombinedBallotPrimary: false,
+        primaryConfig: { type: 'closed', withNonPartisanBallots: false },
         ballotLanguageConfigs: [{ languages: [LanguageCode.ENGLISH] }],
         precincts: [...baseElection.precincts],
         parties: baseElection.parties,
@@ -977,7 +980,7 @@ export const nhStateGeneralElectionFixtures = lazyFixtures(() => {
     ballotStyles: generateBallotStylesWithOrderings({
       ballotTemplateId: 'NhStateBallot',
       electionType: 'general',
-      isMiCombinedBallotPrimary: false,
+      primaryConfig: { type: 'closed', withNonPartisanBallots: false },
       ballotLanguageConfigs: [{ languages: [LanguageCode.ENGLISH] }],
       precincts: [...baseElection.precincts],
       parties: baseElection.parties,
@@ -1935,7 +1938,7 @@ export function generateBallotStylesWithOrderings(params: {
   contests: readonly Contest[];
   ballotLanguageConfigs: BallotLanguageConfigs;
   electionType: ElectionType;
-  isMiCombinedBallotPrimary: boolean;
+  primaryConfig: PrimaryBallotConfig;
   parties: Parties;
   precincts: Precinct[];
   ballotTemplateId: BallotTemplateId;

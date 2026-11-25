@@ -801,6 +801,10 @@ export type ElectionType = (typeof ELECTION_TYPES)[number];
 export const ElectionTypeSchema: z.ZodSchema<ElectionType> =
   z.enum(ELECTION_TYPES);
 
+export const PRIMARY_ELECTION_TYPES = ['closed', 'combined'] as const;
+export const PrimaryElectionTypeSchema = z.enum(PRIMARY_ELECTION_TYPES);
+export type PrimaryElectionType = z.infer<typeof PrimaryElectionTypeSchema>;
+
 export interface Election {
   readonly ballotLayout: BallotLayout;
   readonly ballotStrings: UiStringsPackage;

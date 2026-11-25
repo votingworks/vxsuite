@@ -13,6 +13,7 @@ import {
   type Party,
   type PartyId,
   type BallotStyleGroupId,
+  type PrimaryElectionType,
 } from '@votingworks/types';
 import {
   generateBallotStyleGroupId,
@@ -21,14 +22,41 @@ import {
 import type { BallotTemplateId } from './ballot_templates/index.js';
 import { getAllPossibleCandidateOrderings } from './ballot_rotation.js';
 
+export type PrimaryBallotConfig =
+  | ClosedPrimaryBallotConfig
+  | CombinedPrimaryBallotConfig;
+
+export interface ClosedPrimaryBallotConfig {
+  type: Extract<PrimaryElectionType, 'closed'>;
+  withNonPartisanBallots: boolean;
+}
+
+export interface CombinedPrimaryBallotConfig {
+  type: Extract<PrimaryElectionType, 'combined'>;
+}
+
+export type BallotParty = Pick<Party, 'abbrev'> & {
+  id?: PartyId;
+};
+
+export const NON_PARTISAN_BALLOT_PARTY: BallotParty = {
+  abbrev: 'NP',
+};
+
+const NO_PARTY = undefined;
+
 /**
  * - For general elections, generates ballot styles based on geography data
- * (districts, precincts, and precinct splits), ballot languages, and the ballot
- * template.
+ *   (districts, precincts, and precinct splits), ballot languages, and the
+ *   ballot template.
+ *
  * - For closed primary elections, uses the same factors but also generates
- * distinct ballot styles for each party.
- * - For combined ballot primaries (where voters see contests from all parties on one
- * ballot), does the same as general elections.
+ *   distinct ballot styles for each party. If nonpartisan ballots are enabled,
+ *   an additional, corresponding, nonpartisan style is created for each group
+ *   of partisan styles, if there are any nonpartisan contests in that group.
+ *
+ * - For combined ballot primaries (where voters see contests from all parties
+ *   on one ballot), does the same as general elections.
  *
  * The ballot template defines what rotation rules are applied. Rotation by
  * precinct may cause more ballot styles to need to be created.
@@ -45,7 +73,7 @@ export function generateBallotStyles(params: {
   contests: readonly Contest[];
   ballotLanguageConfigs: BallotLanguageConfigs;
   electionType: ElectionType;
-  isMiCombinedBallotPrimary: boolean;
+  primaryConfig: PrimaryBallotConfig;
   parties: Parties;
   precincts: Precinct[];
   ballotTemplateId: BallotTemplateId;
@@ -58,7 +86,7 @@ export function generateBallotStyles(params: {
     ballotLanguageConfigs,
     contests,
     electionType,
-    isMiCombinedBallotPrimary,
+    primaryConfig,
     parties,
     precincts,
     ballotTemplateId,
@@ -106,7 +134,8 @@ export function generateBallotStyles(params: {
     CandidateOrderings
   >();
 
-  const withParties = electionType !== 'general' && !isMiCombinedBallotPrimary;
+  const withParties =
+    electionType !== 'general' && primaryConfig.type !== 'combined';
 
   let i = 1; // Ballot styles are 1-indexed.
   for (const { districtIds, precinctsOrSplitIds } of districtGroups.values()) {
@@ -129,16 +158,18 @@ export function generateBallotStyles(params: {
     const contestParties = new Set<PartyId>();
     if (withParties) {
       for (const c of ballotStyleContests) {
-        // @coverage-defer: pre-existing missing coverage for primary candidate
-        // contest without party.
-        // [TODO] Surface to users as an error.
         if (c.type === 'candidate' && c.partyId) contestParties.add(c.partyId);
       }
     }
 
-    const ballotParties: Party[] | [undefined] = withParties
-      ? parties.filter((p) => contestParties.has(p.id))
-      : [undefined];
+    const ballotParties: BallotParty[] | [typeof NO_PARTY] = withParties
+      ? getClosedPrimaryParties({
+          ballotStyleContests,
+          config: primaryConfig,
+          contestParties,
+          parties,
+        })
+      : [NO_PARTY];
 
     const hasRotations = orderingSets.length > 1;
     for (const [orderingIndex, orderings] of orderingSets.entries()) {
@@ -178,4 +209,24 @@ export function generateBallotStyles(params: {
   }
 
   return { ballotStyles, candidateOrderings: ballotCandidateOrderings };
+}
+
+function getClosedPrimaryParties(params: {
+  ballotStyleContests: Contest[];
+  config: ClosedPrimaryBallotConfig;
+  contestParties: Set<PartyId>;
+  parties: Parties;
+}): BallotParty[] {
+  const parties: BallotParty[] = params.parties.filter((p) =>
+    params.contestParties.has(p.id)
+  );
+
+  if (params.config.withNonPartisanBallots) {
+    const hasNonPartisanContests = params.ballotStyleContests.some(
+      (c) => c.type !== 'candidate' || !c.partyId
+    );
+    if (hasNonPartisanContests) parties.push(NON_PARTISAN_BALLOT_PARTY);
+  }
+
+  return parties;
 }

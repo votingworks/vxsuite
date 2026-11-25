@@ -28,7 +28,7 @@ const GROUP_ID_PARTS_SEPARATOR = '-';
 export function generateBallotStyleGroupId(params: {
   ballotStyleIndex: number;
   rotationIndex?: number;
-  party?: Party;
+  party?: Pick<Party, 'abbrev'>;
 }): BallotStyleGroupId {
   // @coverage-defer
   const indexString = params.rotationIndex
@@ -47,7 +47,7 @@ export function generateBallotStyleId(params: {
   ballotStyleIndex: number;
   rotationIndex?: number;
   languages: string[];
-  party?: Party;
+  party?: Pick<Party, 'abbrev'>;
 }): BallotStyleId {
   return [generateBallotStyleGroupId(params), ...params.languages].join(
     ID_LANGUAGES_SEPARATOR
