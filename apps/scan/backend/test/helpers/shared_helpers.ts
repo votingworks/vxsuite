@@ -45,7 +45,7 @@ export async function expectStatus(
   apiClient: grout.Client<Api>,
   expectedStatus: ExpectedScannerStatus
 ): Promise<void> {
-  const status = await apiClient.getScannerStatus();
+  const status = (await apiClient.getStatusUpdate({})).statuses.scanner;
   expect(status).toEqual({
     ballotsCounted: 0,
     lifetimeSheetsCounted:
@@ -161,6 +161,8 @@ export function buildMockLogger(
 export function createPrecinctScannerStateMachineMock(): Mocked<PrecinctScannerStateMachine> {
   return {
     status: vi.fn(),
+    scannerStatus: vi.fn(),
+    subscribe: vi.fn(),
     accept: vi.fn(),
     return: vi.fn(),
     readyForNextBallot: vi.fn(),

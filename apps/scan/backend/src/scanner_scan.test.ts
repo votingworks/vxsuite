@@ -799,8 +799,9 @@ test('defaults the lifetime count to 0 when it cannot be read', async () => {
       getLifetimeSheetCountFilePath({ devRoot: workspace.path }),
       'not a number\n'
     );
-    expect((await apiClient.getScannerStatus()).lifetimeSheetsCounted).toEqual(
-      0
-    );
+    expect(
+      (await apiClient.getStatusUpdate({})).statuses.scanner
+        .lifetimeSheetsCounted
+    ).toEqual(0);
   });
 });

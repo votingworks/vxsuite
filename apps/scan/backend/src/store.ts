@@ -695,7 +695,6 @@ export class Store {
   }
 
   resetElectionSession(): void {
-    // @coverage-defer
     if (this.hasElection()) {
       this.client.transaction(() => {
         this.resetPollsState();

@@ -43,7 +43,6 @@ import type {
 import type {
   PrecinctScannerStateMachine,
   PrecinctScannerConfig,
-  PrecinctScannerStatus,
   PrecinctScannerPollsInfo,
 } from './types.js';
 import { constructAuthMachineState } from './util/auth.js';
@@ -74,6 +73,7 @@ import {
 import { saveReadinessReport } from './printing/readiness_report.js';
 import type { AudioPlayer, SoundName } from './audio/audio.js';
 import { getScannerResultsByPrecinctMemoized } from './util/results.js';
+import { createStatusUpdates, type StatusUpdate } from './status_updates.js';
 
 export const BALLOT_AUDIT_ID_FILE_NAME = 'ballot-audit-id-secret-key.txt';
 
@@ -96,6 +96,11 @@ export function buildApi({
   logger: Logger;
 }) {
   const { store } = workspace;
+
+  const statusUpdates = createStatusUpdates({
+    getStatuses: async () => ({ scanner: await machine.scannerStatus() }),
+    subscribe: machine.subscribe,
+  });
 
   return grout.createApi({
     getMachineConfig,
@@ -434,15 +439,13 @@ export function buildApi({
       return printWriteInImageReport({ store, printer });
     },
 
-    async getScannerStatus(): Promise<PrecinctScannerStatus> {
-      const machineStatus = machine.status();
-      const ballotsCounted = store.getBallotsCounted();
-      const lifetimeSheetsCounted = await workspace.lifetimeSheetCounter.get();
-      return {
-        ...machineStatus,
-        ballotsCounted,
-        lifetimeSheetsCounted,
-      };
+    /**
+     * Long-polls for a change to any of the bundled statuses. Pass the
+     * `revision` from the previous update as `since` to wait for the next
+     * change; omit it to get the current statuses immediately.
+     */
+    getStatusUpdate(input: { since?: number }): Promise<StatusUpdate> {
+      return statusUpdates.next(input.since);
     },
 
     acceptBallot(): void {

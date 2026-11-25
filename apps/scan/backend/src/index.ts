@@ -37,6 +37,7 @@ export type * as HWTA from './electrical_testing/exports.js';
 export type { OpenPollsResult } from './polls.js';
 export type { SoundName } from './audio/audio.js';
 export * from './types.js';
+export type { StatusUpdate } from './status_updates.js';
 
 loadEnvVarsFromDotenvFiles();
 

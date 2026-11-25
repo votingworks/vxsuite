@@ -64,6 +64,9 @@ export interface Workspace extends Disposable {
    */
   unconfigure(): void;
 
+  /** Calls `listener` after the session data or lifetime sheet count changes. */
+  subscribe(listener: () => void): void;
+
   /**
    * Clears the uploads directory.
    */
@@ -93,6 +96,11 @@ export function createWorkspace(
     options.store ||
     Store.fileStore(sessionDbPath, electionPackageDbPath, logger);
 
+  const listeners: Array<() => void> = [];
+  function notifyListeners(): void {
+    for (const listener of listeners) listener();
+  }
+
   const lifetimeSheetCounter = createLifetimeSheetCounter({
     devRoot: resolvedRoot,
     logger,
@@ -105,7 +113,13 @@ export function createWorkspace(
     uploadsPath,
     store,
     electionPackageDbPath,
-    lifetimeSheetCounter,
+    lifetimeSheetCounter: {
+      get: () => lifetimeSheetCounter.get(),
+      async increment() {
+        await lifetimeSheetCounter.increment();
+        notifyListeners();
+      },
+    },
     continuousExportMutex: new Mutex(),
     resetElectionSession() {
       store.resetElectionSession();
@@ -113,6 +127,7 @@ export function createWorkspace(
       rmSync(scannedImagesPath, { recursive: true, force: true });
       mkdirSync(ballotImagesPath, { recursive: true });
       mkdirSync(scannedImagesPath, { recursive: true });
+      notifyListeners();
     },
     unconfigure() {
       store.reset();
@@ -120,10 +135,14 @@ export function createWorkspace(
       rmSync(scannedImagesPath, { recursive: true, force: true });
       mkdirSync(ballotImagesPath, { recursive: true });
       mkdirSync(scannedImagesPath, { recursive: true });
+      notifyListeners();
     },
     clearUploads() {
       rmSync(uploadsPath, { recursive: true, force: true });
       mkdirSync(uploadsPath, { recursive: true });
+    },
+    subscribe(listener) {
+      listeners.push(listener);
     },
     getDiskSpaceSummary: async () => {
       const [summary] = await getDiskSpaceSummaries([resolvedRoot]);

@@ -44,6 +44,10 @@ export interface PrecinctScannerConfig {
  */
 export interface PrecinctScannerStateMachine {
   status: () => PrecinctScannerMachineStatus;
+  /** Adds the ballot and lifetime sheet counts to {@link status}. */
+  scannerStatus: () => Promise<PrecinctScannerStatus>;
+  /** Calls `listener` after the machine or the counts it reports change. */
+  subscribe: (listener: () => void) => void;
   // The commands are non-blocking and do not return a result. They just send an
   // event to the machine. The effects of the event (or any error) will show up
   // in the status.

@@ -3,9 +3,11 @@ import type {
   PrecinctScannerStatus,
   SoundName,
 } from '@votingworks/scan-backend';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import * as grout from '@votingworks/grout';
+import { sleep } from '@votingworks/basics';
 import {
+  hashQueryKey,
   QueryClient,
   type QueryKey,
   useMutation,
@@ -18,6 +20,7 @@ import {
   AUTH_STATUS_POLLING_INTERVAL_MS,
   USB_DRIVE_STATUS_POLLING_INTERVAL_MS,
   QUERY_CLIENT_DEFAULT_OPTIONS,
+  shouldRetry,
   createUiStringsApi,
   createSystemCallApi,
   useAudioControls,
@@ -213,22 +216,6 @@ export const configureFromElectionPackageOnUsbDrive = {
   },
 } as const;
 
-export const unconfigureElection = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.unconfigureElection, {
-      async onSuccess() {
-        // If we configure with a different election, any data in the cache will
-        // correspond to the previous election, so we don't just invalidate, but
-        // reset all queries to clear their cached data, since invalidated
-        // queries may still return stale data while refetching.
-        await queryClient.resetQueries();
-      },
-    });
-  },
-} as const;
-
 export const setPollingPlaceId = {
   useMutation() {
     const apiClient = useApiClient();
@@ -413,20 +400,81 @@ export const getScannerStatus = {
   queryKey(): QueryKey {
     return ['getScannerStatus'];
   },
-  /**
-   * AppRoot (which is always mounted) is the only component that should pass
-   * a `refetchInterval`. react-query runs a separate refetch timer for every
-   * observer that sets one, so a second polling component would double the
-   * request rate to the backend. Everything else should subscribe with
-   * `useQuery()` and receive updates through the shared query cache.
-   */
-  useQuery(options?: UseQueryOptions<PrecinctScannerStatus>) {
+  /** Never fetches on its own; `useStatusUpdates` keeps it current. */
+  useQuery() {
+    return useQuery<PrecinctScannerStatus>(this.queryKey(), {
+      enabled: false,
+    });
+  },
+} as const;
+
+const STATUS_UPDATE_RETRY_DELAY_MS = 1000;
+
+/** Excluded from cache resets since nothing would refetch it. */
+const STATUS_UPDATE_QUERY_HASH = hashQueryKey(getScannerStatus.queryKey());
+
+/**
+ * Long-polls the backend for status changes. Mount once, at the app root.
+ * Throws during render once retries are exhausted, like a failed query would.
+ */
+export function useStatusUpdates(): void {
+  const apiClient = useApiClient();
+  const queryClient = useQueryClient();
+  const [error, setError] = useState<{ cause: unknown }>();
+
+  useEffect(() => {
+    let isCanceled = false;
+
+    async function pollForever(): Promise<void> {
+      let since: number | undefined;
+      let failures = 0;
+      while (!isCanceled) {
+        try {
+          const update = await apiClient.getStatusUpdate({ since });
+          if (isCanceled) return;
+          since = update.revision;
+          failures = 0;
+          queryClient.setQueryData(
+            getScannerStatus.queryKey(),
+            update.statuses.scanner
+          );
+        } catch (cause) {
+          if (isCanceled) return;
+          if (!shouldRetry(failures, cause)) {
+            setError({ cause });
+            return;
+          }
+          since = undefined;
+          await sleep(STATUS_UPDATE_RETRY_DELAY_MS * 2 ** failures);
+          failures += 1;
+        }
+      }
+    }
+
+    void pollForever();
+    return () => {
+      isCanceled = true;
+    };
+  }, [apiClient, queryClient]);
+
+  if (error) throw error.cause;
+}
+
+export const unconfigureElection = {
+  useMutation() {
     const apiClient = useApiClient();
-    return useQuery(
-      this.queryKey(),
-      () => apiClient.getScannerStatus(),
-      options
-    );
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.unconfigureElection, {
+      async onSuccess() {
+        // If we configure with a different election, any data in the cache will
+        // correspond to the previous election, so we don't just invalidate, but
+        // reset all queries to clear their cached data, since invalidated
+        // queries may still return stale data while refetching.
+        await queryClient.resetQueries({
+          predicate: (query) => query.queryHash !== STATUS_UPDATE_QUERY_HASH,
+        });
+      },
+    });
   },
 } as const;
 
@@ -496,12 +544,7 @@ export const getMostRecentScannerDiagnostic = {
 export const beginScannerDiagnostic = {
   useMutation() {
     const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.beginScannerDiagnostic, {
-      async onSuccess() {
-        await queryClient.invalidateQueries(getScannerStatus.queryKey());
-      },
-    });
+    return useMutation(apiClient.beginScannerDiagnostic);
   },
 } as const;
 
@@ -514,7 +557,6 @@ export const endScannerDiagnostic = {
         await queryClient.invalidateQueries(
           getMostRecentScannerDiagnostic.queryKey()
         );
-        await queryClient.invalidateQueries(getScannerStatus.queryKey());
       },
     });
   },

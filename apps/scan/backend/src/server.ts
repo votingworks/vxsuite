@@ -120,5 +120,8 @@ export async function start({
       message: `Scanning ballots into ${workspace.ballotImagesPath}`,
     });
   });
+  // Long-polls bound their own wait, so never reset a socket left idle.
+  server.timeout = 0;
+
   server.on('close', stopDetectingDevices);
 }
