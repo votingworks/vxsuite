@@ -1,191 +1,39 @@
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { type QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { renderHook, screen, waitFor } from '@testing-library/react';
-import { assertDefined, type Deferred, deferred } from '@votingworks/basics';
-import { mockUsbDriveStatus, TestErrorBoundary } from '@votingworks/ui';
-import { suppressingConsoleOutput } from '@votingworks/test-utils';
+import { expect, test, vi } from 'vitest';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { renderHook, waitFor } from '@testing-library/react';
+import type { AdminStatusUpdate } from '@votingworks/admin-backend';
+import { deferred } from '@votingworks/basics';
+import { mockUsbDriveStatus } from '@votingworks/ui';
 import { type ApiClient, ApiClientContext, createQueryClient } from '../api.js';
 import { useWatchUsbDriveStatus } from './use_watch_usb_drive_status.js';
 
-const USB_DRIVE_STATUS_QUERY_KEY = ['getUsbDriveStatus'];
-
-interface MockWatch {
-  readonly apiClient: ApiClient;
-  readonly waitForUsbDriveChange: ReturnType<typeof vi.fn>;
-  latestPoll(): Deferred<number>;
-}
-
-function buildMockWatch(): MockWatch {
-  const polls: Array<Deferred<number>> = [];
-  const waitForUsbDriveChange = vi.fn(() => {
-    const poll = deferred<number>();
-    polls.push(poll);
-    return poll.promise;
-  });
+test('keeps the USB drive status query current from status updates', async () => {
+  const getStatusUpdate = vi.fn(({ since }: { since?: number }) =>
+    since === undefined
+      ? Promise.resolve<AdminStatusUpdate>({
+          revision: 1,
+          statuses: { usbDrive: mockUsbDriveStatus('mounted') },
+        })
+      : deferred<AdminStatusUpdate>().promise
+  );
   const apiClient = {
-    waitForUsbDriveChange,
-    getUsbDriveStatus: vi.fn(() =>
-      Promise.resolve(mockUsbDriveStatus('no_drive'))
-    ),
+    getStatusUpdate,
+    getUsbDriveStatus: () => deferred().promise,
   } as unknown as ApiClient;
-  return {
-    apiClient,
-    waitForUsbDriveChange,
-    latestPoll: () => assertDefined(polls.at(-1)),
-  };
-}
+  const queryClient = createQueryClient();
 
-function renderWatchHook(apiClient: ApiClient, queryClient: QueryClient) {
-  return renderHook(() => useWatchUsbDriveStatus(), {
+  const { result } = renderHook(() => useWatchUsbDriveStatus(), {
     wrapper: ({ children }) => (
-      <TestErrorBoundary>
-        <ApiClientContext.Provider value={apiClient}>
-          <QueryClientProvider client={queryClient}>
-            {children}
-          </QueryClientProvider>
-        </ApiClientContext.Provider>
-      </TestErrorBoundary>
+      <ApiClientContext.Provider value={apiClient}>
+        <QueryClientProvider client={queryClient}>
+          {children}
+        </QueryClientProvider>
+      </ApiClientContext.Provider>
     ),
   });
-}
 
-beforeEach(() => {
-  vi.useFakeTimers({ shouldAdvanceTime: true });
-});
-
-afterEach(() => {
-  vi.useRealTimers();
-});
-
-test('invalidates the USB drive status query when the sequence advances', async () => {
-  const { apiClient, waitForUsbDriveChange, latestPoll } = buildMockWatch();
-  const queryClient = createQueryClient();
-  const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
-
-  renderWatchHook(apiClient, queryClient);
   await waitFor(() =>
-    expect(waitForUsbDriveChange).toHaveBeenCalledWith({ lastSeq: 0 })
+    expect(result.current.data).toEqual(mockUsbDriveStatus('mounted'))
   );
-  expect(invalidateSpy).not.toHaveBeenCalled();
-
-  // A sequence ahead of the caller's `lastSeq` means a change occurred.
-  latestPoll().resolve(1);
-  await waitFor(() =>
-    expect(invalidateSpy).toHaveBeenCalledWith(USB_DRIVE_STATUS_QUERY_KEY)
-  );
-  // The next poll advances its cursor to the observed sequence.
-  await waitFor(() =>
-    expect(waitForUsbDriveChange).toHaveBeenLastCalledWith({ lastSeq: 1 })
-  );
-});
-
-test('does not invalidate when the sequence is unchanged (timeout)', async () => {
-  const { apiClient, waitForUsbDriveChange, latestPoll } = buildMockWatch();
-  const queryClient = createQueryClient();
-  const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
-
-  renderWatchHook(apiClient, queryClient);
-  await waitFor(() => expect(waitForUsbDriveChange).toHaveBeenCalled());
-  const initialCallCount = waitForUsbDriveChange.mock.calls.length;
-
-  // The timeout resolves with the same sequence the caller passed in.
-  latestPoll().resolve(0);
-  // The loop re-issues the long-poll (still from seq 0) without invalidating.
-  await waitFor(() =>
-    expect(waitForUsbDriveChange).toHaveBeenCalledTimes(initialCallCount + 1)
-  );
-  expect(waitForUsbDriveChange).toHaveBeenLastCalledWith({ lastSeq: 0 });
-  expect(invalidateSpy).not.toHaveBeenCalled();
-});
-
-test('backs off and retries when the long-poll fails', async () => {
-  const { apiClient, waitForUsbDriveChange, latestPoll } = buildMockWatch();
-  const queryClient = createQueryClient();
-
-  renderWatchHook(apiClient, queryClient);
-  await waitFor(() => expect(waitForUsbDriveChange).toHaveBeenCalled());
-  const initialCallCount = waitForUsbDriveChange.mock.calls.length;
-
-  latestPoll().reject(new Error('HTTP 504'));
-  await vi.advanceTimersByTimeAsync(999);
-  expect(waitForUsbDriveChange).toHaveBeenCalledTimes(initialCallCount);
-
-  await vi.advanceTimersByTimeAsync(1);
-  await waitFor(() =>
-    expect(waitForUsbDriveChange).toHaveBeenCalledTimes(initialCallCount + 1)
-  );
-});
-
-test('stops polling after unmount', async () => {
-  const { apiClient, waitForUsbDriveChange, latestPoll } = buildMockWatch();
-  const queryClient = createQueryClient();
-  const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
-
-  const { unmount } = renderWatchHook(apiClient, queryClient);
-  await waitFor(() => expect(waitForUsbDriveChange).toHaveBeenCalled());
-  const callCount = waitForUsbDriveChange.mock.calls.length;
-
-  unmount();
-  latestPoll().resolve(1);
-  await vi.advanceTimersByTimeAsync(1000);
-
-  expect(waitForUsbDriveChange).toHaveBeenCalledTimes(callCount);
-  expect(invalidateSpy).not.toHaveBeenCalled();
-});
-
-test('refreshes after a failed long-poll, even if the backend restarted', async () => {
-  const { apiClient, waitForUsbDriveChange, latestPoll } = buildMockWatch();
-  const queryClient = createQueryClient();
-  const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
-
-  renderWatchHook(apiClient, queryClient);
-  await waitFor(() => expect(waitForUsbDriveChange).toHaveBeenCalled());
-  latestPoll().resolve(5);
-  await waitFor(() =>
-    expect(waitForUsbDriveChange).toHaveBeenLastCalledWith({ lastSeq: 5 })
-  );
-  invalidateSpy.mockClear();
-
-  latestPoll().reject(new Error('HTTP 504'));
-  await vi.advanceTimersByTimeAsync(1000);
-  await waitFor(() =>
-    expect(waitForUsbDriveChange).toHaveBeenLastCalledWith({ lastSeq: -1 })
-  );
-
-  latestPoll().resolve(0);
-  await waitFor(() =>
-    expect(invalidateSpy).toHaveBeenCalledWith(USB_DRIVE_STATUS_QUERY_KEY)
-  );
-  await waitFor(() =>
-    expect(waitForUsbDriveChange).toHaveBeenLastCalledWith({ lastSeq: 0 })
-  );
-});
-
-test('surfaces errors that are not worth retrying', async () => {
-  const { apiClient, waitForUsbDriveChange, latestPoll } = buildMockWatch();
-
-  await suppressingConsoleOutput(async () => {
-    renderWatchHook(apiClient, createQueryClient());
-    await waitFor(() => expect(waitForUsbDriveChange).toHaveBeenCalled());
-    latestPoll().reject(new Error('HTTP 500'));
-    await screen.findByText('Test Error Boundary');
-  });
-});
-
-test('surfaces a 504 once retries are exhausted', async () => {
-  const { apiClient, waitForUsbDriveChange, latestPoll } = buildMockWatch();
-
-  await suppressingConsoleOutput(async () => {
-    renderWatchHook(apiClient, createQueryClient());
-    for (const backoffMs of [1000, 2000, 4000, 8000]) {
-      await waitFor(() => expect(waitForUsbDriveChange).toHaveBeenCalled());
-      waitForUsbDriveChange.mockClear();
-      latestPoll().reject(new Error('HTTP 504'));
-      await vi.advanceTimersByTimeAsync(backoffMs);
-    }
-    expect(screen.queryByText('Test Error Boundary')).toBeNull();
-    await waitFor(() => expect(waitForUsbDriveChange).toHaveBeenCalled());
-    latestPoll().reject(new Error('HTTP 504'));
-    await screen.findByText('Test Error Boundary');
-  });
+  expect(getStatusUpdate).toHaveBeenLastCalledWith({ since: 1 });
 });

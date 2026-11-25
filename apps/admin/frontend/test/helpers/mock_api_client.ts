@@ -1,5 +1,6 @@
 import { screen } from '@testing-library/react';
 import type {
+  AdminStatusUpdate,
   Api,
   ElectionDefinitionApi,
   AdjudicatedCvrContest,
@@ -25,7 +26,7 @@ import type {
 import type { BatteryInfo } from '@votingworks/backend';
 import type { DiskSpaceSummary } from '@votingworks/utils';
 import { type FileSystemEntry, FileSystemEntryType } from '@votingworks/fs';
-import { type Deferred, type Result, deferred, ok } from '@votingworks/basics';
+import { type Result, deferred, ok } from '@votingworks/basics';
 import {
   createMockClient,
   type MockClient,
@@ -79,7 +80,8 @@ type MockApiClient = Omit<
   | 'isMultiStationAdjudicationEnabled'
   | 'getCastVoteRecordsDataVersion'
   | 'getBackupStatus'
-  | 'waitForUsbDriveChange'
+  | 'getStatusUpdate'
+  | 'getUsbDriveStatus'
   | 'getCandidateOrderings'
   | 'getMaxSheetsPerBallot'
 > & {
@@ -93,7 +95,8 @@ type MockApiClient = Omit<
   // Polled continuously by the tally screen's CvrDataRefresher, so a
   // standard vitest mock avoids forcing every test to set an expectation.
   getCastVoteRecordsDataVersion: Mock;
-  waitForUsbDriveChange: Mock;
+  getStatusUpdate: Mock;
+  getUsbDriveStatus: Mock;
   getBackupStatus: Mock;
   getCandidateOrderings: Mock<
     (p: { ballotStyleGroupId: string }) => Promise<CandidateOrderings | null>
@@ -116,11 +119,13 @@ export function createMockApiClient(): MockApiClient {
   );
   mockApiClient.getCastVoteRecordsDataVersion = vi.fn(() => Promise.resolve(0));
   mockApiClient.getBackupStatus = vi.fn(() => Promise.resolve(null));
-  // The USB drive watcher long-polls this continuously. Default it to a
-  // never-resolving promise; `createApiMock` replaces it with a controllable
-  // version that reports a change whenever the expected status is updated.
-  mockApiClient.waitForUsbDriveChange = vi.fn(
-    () => new Promise<number>(() => {})
+  // Long-polled continuously at the app root. Default it to a never-resolving
+  // promise; `createApiMock` replaces it with one that reports status changes.
+  mockApiClient.getStatusUpdate = vi.fn(
+    () => new Promise<AdminStatusUpdate>(() => {})
+  );
+  mockApiClient.getUsbDriveStatus = vi.fn(
+    () => new Promise<UsbDriveStatus>(() => {})
   );
 
   mockApiClient.getCandidateOrderings = vi.fn(() => Promise.resolve(null));
@@ -183,29 +188,32 @@ export function createApiMock(
 ) {
   const electionDefinitionApiClient = createMockClient<ElectionDefinitionApi>();
 
-  // Emulates the backend's sequence-based `waitForUsbDriveChange` long-poll:
-  // each expected status change bumps the sequence, so the watcher refetches
-  // `getUsbDriveStatus` once (rather than idly polling). Comparing against
-  // `lastSeq` covers the case where a change is reported before the watcher
-  // has re-issued its long-poll — it simply returns the new sequence at once.
-  let usbDriveChangeSeq = 0;
-  let usbDriveChangeWaiter: Deferred<number> | undefined;
-  apiClient.waitForUsbDriveChange.mockImplementation(
-    ({ lastSeq }: { lastSeq: number }) => {
-      if (usbDriveChangeSeq > lastSeq) {
-        return Promise.resolve(usbDriveChangeSeq);
+  // Emulates the backend's `getStatusUpdate` long-poll, which waits until the
+  // revision differs from `since`, and serves the same status when the
+  // `getUsbDriveStatus` query refetches.
+  let statusUpdate: AdminStatusUpdate | undefined;
+  let statusUpdateChanged = deferred<void>();
+  apiClient.getStatusUpdate.mockImplementation(
+    async ({ since }: { since?: number }) => {
+      while (!statusUpdate || statusUpdate.revision === since) {
+        await statusUpdateChanged.promise;
       }
-      usbDriveChangeWaiter = deferred<number>();
-      return usbDriveChangeWaiter.promise;
+      return statusUpdate;
     }
   );
-  function reportUsbDriveChange(): void {
-    usbDriveChangeSeq += 1;
-    if (usbDriveChangeWaiter) {
-      const waiter = usbDriveChangeWaiter;
-      usbDriveChangeWaiter = undefined;
-      waiter.resolve(usbDriveChangeSeq);
+  apiClient.getUsbDriveStatus.mockImplementation(async () => {
+    while (!statusUpdate) {
+      await statusUpdateChanged.promise;
     }
+    return statusUpdate.statuses.usbDrive;
+  });
+  function reportUsbDriveStatus(usbDrive: UsbDriveStatus): void {
+    statusUpdate = {
+      revision: (statusUpdate?.revision ?? 0) + 1,
+      statuses: { usbDrive },
+    };
+    statusUpdateChanged.resolve();
+    statusUpdateChanged = deferred();
   }
 
   function setPrinterStatus(printerStatus: Partial<PrinterStatus> = {}): void {
@@ -322,10 +330,7 @@ export function createApiMock(
     },
 
     expectGetUsbDriveStatus(status: UsbDriveStatus['status']): void {
-      apiClient.getUsbDriveStatus
-        .expectRepeatedCallsWith()
-        .resolves(mockUsbDriveStatus(status));
-      reportUsbDriveChange();
+      reportUsbDriveStatus(mockUsbDriveStatus(status));
     },
 
     expectEjectUsbDrive(): void {

@@ -22,13 +22,11 @@ import {
 import {
   assert,
   assertDefined,
-  deferred,
   type Err,
   err,
   ok,
   type Optional,
   type Result,
-  timeout,
 } from '@votingworks/basics';
 import express, { type Application } from 'express';
 import {
@@ -59,6 +57,7 @@ import {
 import {
   type ElectionPackageError,
   type ExportDataError,
+  createStatusUpdates,
   createSystemCallApi,
   getNodeEnv,
   reboot,
@@ -102,6 +101,8 @@ import type {
   BallotAdjudicationQueueMetadata,
   BallotAdjudicationData,
   BallotImages,
+  AdminStatuses,
+  AdminStatusUpdate,
 } from './types.js';
 import { setRestoreState, type Workspace } from './util/workspace.js';
 import { isElectionDefinitionEnabled } from './election_definition/state.js';
@@ -139,7 +140,6 @@ import {
   generateAdminLiveResultsReportingUrls,
   getLiveReportsPollingPlaces,
 } from './live_results_reporting.js';
-import { USB_DRIVE_CHANGE_LONG_POLL_TIMEOUT_MS } from './globals.js';
 import {
   exportWriteInAdjudicationReportPdf,
   generateWriteInAdjudicationReportPreview,
@@ -234,18 +234,9 @@ function buildApi({
   );
   let currentBackup: BackupController | undefined;
 
-  // Backs the `waitForUsbDriveChange` long-poll. `usbDriveChangeSeq` is a
-  // monotonic counter bumped on every change; `nextUsbDriveChange` resolves to
-  // wake any parked long-polls. The counter makes the long-poll level-triggered
-  // rather than edge-triggered: a client passes the last sequence it saw, so a
-  // change that fires between two long-polls is reported on the next one
-  // instead of being lost.
-  let usbDriveChangeSeq = 0;
-  let nextUsbDriveChange = deferred<void>();
-  multiUsbDrive.addListener(() => {
-    usbDriveChangeSeq += 1;
-    nextUsbDriveChange.resolve();
-    nextUsbDriveChange = deferred<void>();
+  const statusUpdates = createStatusUpdates<AdminStatuses>({
+    getStatuses: async () => ({ usbDrive: await usbDriveAdapter.status() }),
+    subscribe: (listener) => multiUsbDrive.addListener(listener),
   });
 
   return grout.createApi({
@@ -419,30 +410,8 @@ function buildApi({
       return usbDriveAdapter.status();
     },
 
-    /**
-     * Long-polls for a USB drive change. The caller passes the last change
-     * sequence it observed; this resolves with the current sequence once it is
-     * ahead of `lastSeq` (i.e. a change has happened), or after
-     * {@link USB_DRIVE_CHANGE_LONG_POLL_TIMEOUT_MS} with the sequence
-     * unchanged. Comparing sequences lets the caller
-     * detect a change that occurred between polls, so none are missed.
-     */
-    async waitForUsbDriveChange({
-      lastSeq,
-    }: {
-      lastSeq: number;
-    }): Promise<number> {
-      if (usbDriveChangeSeq > lastSeq) {
-        return usbDriveChangeSeq;
-      }
-      // Bound the wait so the held-open connection is recycled rather than
-      // lingering indefinitely; on timeout the sequence is unchanged and the
-      // caller simply polls again.
-      await timeout(
-        USB_DRIVE_CHANGE_LONG_POLL_TIMEOUT_MS,
-        nextUsbDriveChange.promise
-      );
-      return usbDriveChangeSeq;
+    getStatusUpdate(input: { since?: number }): Promise<AdminStatusUpdate> {
+      return statusUpdates.next(input.since);
     },
 
     async ejectUsbDrive(): Promise<void> {
