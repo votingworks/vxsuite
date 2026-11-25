@@ -8,6 +8,7 @@ import type {
   PrecinctScannerMachineStatus,
   BallotCastingMode,
 } from '@votingworks/types';
+import type { StatusUpdate as BundledStatusUpdate } from '@votingworks/backend';
 
 export interface MachineConfig {
   machineId: string;
@@ -22,6 +23,13 @@ export interface PrecinctScannerStatus extends PrecinctScannerMachineStatus {
   ballotsCounted: number;
   lifetimeSheetsCounted: number;
 }
+
+/** Add a status here to bundle it into the `getStatusUpdate` long-poll. */
+export interface ScanStatuses {
+  readonly scanner: PrecinctScannerStatus;
+}
+
+export type StatusUpdate = BundledStatusUpdate<ScanStatuses>;
 
 export interface PrecinctScannerConfig {
   // Config that persists across switching modes

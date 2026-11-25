@@ -26,7 +26,18 @@ import type { RegisterScannerError } from '@votingworks/networking';
 import { z } from 'zod/v4';
 import type { EnumValues } from '@votingworks/basics';
 
+import type { StatusUpdate } from '@votingworks/backend';
+import type { UsbDriveStatus } from '@votingworks/usb-drive';
+
 export type { ExportDataResult, ExportDataError } from '@votingworks/backend';
+
+/** Add a status here to bundle it into the `getStatusUpdate` long-poll. */
+export interface AdminStatuses {
+  readonly usbDrive: UsbDriveStatus;
+}
+
+/** Response from the `getStatusUpdate` long-poll. */
+export type AdminStatusUpdate = StatusUpdate<AdminStatuses>;
 
 /**
  * Whether this VxAdmin is running as a host (full functionality) or client

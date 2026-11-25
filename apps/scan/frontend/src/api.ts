@@ -2,10 +2,10 @@ import type {
   Api,
   PrecinctScannerStatus,
   SoundName,
+  StatusUpdate,
 } from '@votingworks/scan-backend';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback } from 'react';
 import * as grout from '@votingworks/grout';
-import { sleep } from '@votingworks/basics';
 import {
   hashQueryKey,
   QueryClient,
@@ -20,11 +20,11 @@ import {
   AUTH_STATUS_POLLING_INTERVAL_MS,
   USB_DRIVE_STATUS_POLLING_INTERVAL_MS,
   QUERY_CLIENT_DEFAULT_OPTIONS,
-  shouldRetry,
   createUiStringsApi,
   createSystemCallApi,
   useAudioControls,
   useAudioEnabledByUser,
+  useStatusUpdates,
 } from '@votingworks/ui';
 import type { DiagnosticRecord } from '@votingworks/types';
 
@@ -400,7 +400,7 @@ export const getScannerStatus = {
   queryKey(): QueryKey {
     return ['getScannerStatus'];
   },
-  /** Never fetches on its own; `useStatusUpdates` keeps it current. */
+  /** Never fetches on its own; `useScanStatusUpdates` keeps it current. */
   useQuery() {
     return useQuery<PrecinctScannerStatus>(this.queryKey(), {
       enabled: false,
@@ -408,56 +408,26 @@ export const getScannerStatus = {
   },
 } as const;
 
-const STATUS_UPDATE_RETRY_DELAY_MS = 1000;
-
 /** Excluded from cache resets since nothing would refetch it. */
 const STATUS_UPDATE_QUERY_HASH = hashQueryKey(getScannerStatus.queryKey());
 
-/**
- * Long-polls the backend for status changes. Mount once, at the app root.
- * Throws during render once retries are exhausted, like a failed query would.
- */
-export function useStatusUpdates(): void {
+/** Long-polls the backend for status changes. Mount once, at the app root. */
+export function useScanStatusUpdates(): void {
   const apiClient = useApiClient();
   const queryClient = useQueryClient();
-  const [error, setError] = useState<{ cause: unknown }>();
-
-  useEffect(() => {
-    let isCanceled = false;
-
-    async function pollForever(): Promise<void> {
-      let since: number | undefined;
-      let failures = 0;
-      while (!isCanceled) {
-        try {
-          const update = await apiClient.getStatusUpdate({ since });
-          if (isCanceled) return;
-          since = update.revision;
-          failures = 0;
-          queryClient.setQueryData(
-            getScannerStatus.queryKey(),
-            update.statuses.scanner
-          );
-        } catch (cause) {
-          if (isCanceled) return;
-          if (!shouldRetry(failures, cause)) {
-            setError({ cause });
-            return;
-          }
-          since = undefined;
-          await sleep(STATUS_UPDATE_RETRY_DELAY_MS * 2 ** failures);
-          failures += 1;
-        }
-      }
-    }
-
-    void pollForever();
-    return () => {
-      isCanceled = true;
-    };
-  }, [apiClient, queryClient]);
-
-  if (error) throw error.cause;
+  const getStatusUpdate = useCallback(
+    (input: { since?: number }) => apiClient.getStatusUpdate(input),
+    [apiClient]
+  );
+  const onUpdate = useCallback(
+    (update: StatusUpdate) =>
+      queryClient.setQueryData(
+        getScannerStatus.queryKey(),
+        update.statuses.scanner
+      ),
+    [queryClient]
+  );
+  useStatusUpdates({ getStatusUpdate, onUpdate });
 }
 
 export const unconfigureElection = {

@@ -45,7 +45,11 @@ import {
 } from '../test/app.js';
 import { addMockCvrFileToStore } from '../test/mock_cvr_file.js';
 import { isMultiStationAdjudicationEnabled } from './multi_station_config.js';
-import type { ManualResultsIdentifier, ManualResultsRecord } from './types.js';
+import type {
+  AdminStatusUpdate,
+  ManualResultsIdentifier,
+  ManualResultsRecord,
+} from './types.js';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 const electionGeneral = electionGeneralDefinition.election;
@@ -655,52 +659,36 @@ test('usbDrive', async () => {
   expect(await apiClient.formatUsbDrive()).toEqual(err(error));
 });
 
-test('waitForUsbDriveChange returns immediately when the sequence is already ahead', async () => {
+test('getStatusUpdate reports the USB drive status', async () => {
   const { apiClient, usbPlatform } = buildTestEnvironment();
-  // Attaching a drive advances the change sequence past the caller's `lastSeq`.
   await attachUsbDrive(apiClient, usbPlatform);
 
-  // Because a change already happened, the poll resolves without waiting.
-  const seq = await apiClient.waitForUsbDriveChange({ lastSeq: 0 });
-  expect(seq).toBeGreaterThan(0);
+  const update = await apiClient.getStatusUpdate({});
+  expect(update.statuses.usbDrive).toMatchObject({
+    status: 'mounted',
+    fstype: 'exfat',
+  });
 });
 
-test('waitForUsbDriveChange waits for and reports the next change', async () => {
+test('getStatusUpdate wakes a waiting long-poll when the USB drive changes', async () => {
   const { apiClient, usbPlatform } = buildTestEnvironment();
   await attachUsbDrive(apiClient, usbPlatform);
+  const baseline = await apiClient.getStatusUpdate({});
 
-  // Learn the current sequence (this returns immediately since attaching the
-  // drive already advanced it), giving us a quiet baseline.
-  const baselineSeq = await apiClient.waitForUsbDriveChange({ lastSeq: 0 });
-
-  // With no change since the baseline, this poll parks until the next change.
-  let observedSeq: number | undefined;
-  void apiClient.waitForUsbDriveChange({ lastSeq: baselineSeq }).then((seq) => {
-    observedSeq = seq;
-  });
-
-  // The sequence can only advance when we drive `usbPlatform`, so it stays
-  // frozen here. A couple of round-trips give the poll time to park; it must
-  // not resolve while nothing has changed.
+  // Free space comes from the host disk, so it may change between reads.
+  async function waitForNoDrive(): Promise<AdminStatusUpdate> {
+    let update = baseline;
+    while (update.statuses.usbDrive.status !== 'no_drive') {
+      update = await apiClient.getStatusUpdate({ since: update.revision });
+    }
+    return update;
+  }
+  const pending = waitForNoDrive();
   await apiClient.getUsbDriveStatus();
-  await apiClient.getUsbDriveStatus();
-  expect(observedSeq).toBeUndefined();
 
-  // Now a change wakes the parked poll. Toggle presence in case a single
-  // filesystem event is missed.
-  let present = true;
-  await vi.waitFor(
-    () => {
-      present = !present;
-      if (present) {
-        usbPlatform.insertDrive(devsdb);
-      } else {
-        usbPlatform.removeDrive(devsdb);
-      }
-      expect(observedSeq).toBeGreaterThan(baselineSeq);
-    },
-    { timeout: 10_000, interval: 250 }
-  );
+  usbPlatform.removeDrive(devsdb);
+  const update = await pending;
+  expect(update.revision).toBeGreaterThan(baseline.revision);
 });
 
 test('usbDrive without proper auth', async () => {

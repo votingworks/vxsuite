@@ -1,32 +1,39 @@
 import { deepEqual, deferred, timeout } from '@votingworks/basics';
-import type { PrecinctScannerStatus } from './types.js';
 
 /** Bounds how long a client holds a request open waiting for a change. */
 export const STATUS_UPDATE_TIMEOUT_MS = 30_000;
 
-/** Add a status here to bundle it into the same long-poll request. */
-export interface StatusUpdate {
-  revision: number;
-  statuses: {
-    scanner: PrecinctScannerStatus;
-  };
+/** A snapshot of the statuses bundled into one long-poll endpoint. */
+export interface StatusUpdate<Statuses> {
+  readonly revision: number;
+  readonly statuses: Statuses;
 }
 
-interface InFlightRead {
+/** Answers long-polls for changes to a set of statuses. */
+export interface StatusUpdates<Statuses> {
+  /** Resolves once the revision differs from `since`, or at the timeout. */
+  next(since?: number): Promise<StatusUpdate<Statuses>>;
+}
+
+interface InFlightRead<Statuses> {
   readonly changes: number;
-  readonly update: Promise<StatusUpdate>;
+  readonly update: Promise<StatusUpdate<Statuses>>;
 }
 
-export function createStatusUpdates({
+/**
+ * Serves long-polls for `getStatuses`, re-reading whenever `subscribe`'s
+ * listener fires. Expose `next` as a `getStatusUpdate({ since })` endpoint.
+ */
+export function createStatusUpdates<Statuses>({
   getStatuses,
   subscribe,
 }: {
-  getStatuses(): Promise<StatusUpdate['statuses']>;
+  getStatuses(): Promise<Statuses>;
   subscribe(listener: () => void): void;
-}): { next(since?: number): Promise<StatusUpdate> } {
-  let current: StatusUpdate | undefined;
+}): StatusUpdates<Statuses> {
+  let current: StatusUpdate<Statuses> | undefined;
   let changes = 0;
-  let inFlight: InFlightRead | undefined;
+  let inFlight: InFlightRead<Statuses> | undefined;
   let previousRead: Promise<void> = Promise.resolve();
   let changed = deferred<void>();
 
@@ -37,7 +44,7 @@ export function createStatusUpdates({
   }
   subscribe(notifyChanged);
 
-  async function readStatuses(): Promise<StatusUpdate> {
+  async function readStatuses(): Promise<StatusUpdate<Statuses>> {
     const statuses = await getStatuses();
     if (!current || !deepEqual(statuses, current.statuses)) {
       current = { revision: (current?.revision ?? 0) + 1, statuses };
@@ -45,10 +52,10 @@ export function createStatusUpdates({
     return current;
   }
 
-  function read(): Promise<StatusUpdate> {
+  function read(): Promise<StatusUpdate<Statuses>> {
     if (inFlight?.changes === changes) return inFlight.update;
     const update = previousRead.then(readStatuses);
-    const entry: InFlightRead = { changes, update };
+    const entry: InFlightRead<Statuses> = { changes, update };
     function clearInFlight() {
       if (inFlight === entry) inFlight = undefined;
     }
