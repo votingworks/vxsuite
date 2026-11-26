@@ -11,6 +11,7 @@ use napi::{Env, sys};
 use napi_derive::napi;
 use serde::{Deserialize, Serialize};
 use std::io::Cursor;
+use types_rs::ballot_card::BallotSide;
 use types_rs::bmd::cvr::CastVoteRecord;
 use types_rs::bubble_ballot::{Metadata, SoftwareVersion};
 use types_rs::coding;
@@ -19,11 +20,13 @@ use crate::ballot_card::{BallotPage, PaperInfo, ballot_scan_bubble_image};
 use crate::election_source::{
     ElectionDefinition, ElectionSource, SqliteElectionSource, partial_ballot_hash_from_hex,
 };
+use crate::image_utils::write_png;
 use crate::interpret::{
     self, BallotImageBitDepth, InterpretedBallotCard, MetadataSource, Options,
     VerticalStreakDetection, WriteInScoring, ballot_card,
 };
 use crate::scoring::UnitIntervalScore;
+use crate::summary_ballot;
 use crate::timing_marks::{self, DefaultForGeometry, TimingMarks};
 
 #[derive(Debug, Deserialize)]
@@ -309,6 +312,124 @@ pub async fn interpret_images(
     };
 
     let result = interpret(side_a_image, side_b_image, options)?;
+    to_json(&result)
+}
+
+// struct_field_names: the names mirror the JS options.
+#[allow(clippy::struct_field_names)]
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct JsSummaryBallotOptions {
+    db_path: PathBuf,
+    front_normalized_image_output_path: Option<PathBuf>,
+    back_normalized_image_output_path: Option<PathBuf>,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct JsSummaryBallotInterpretation {
+    record: CastVoteRecord,
+    side: BallotSide,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(tag = "type", content = "value")]
+enum JsSummaryBallotResult {
+    #[serde(rename = "ok")]
+    Ok(Box<JsSummaryBallotInterpretation>),
+    #[serde(rename = "err")]
+    Err(Box<summary_ballot::Error>),
+}
+
+#[napi(object, js_name = "BridgeImageData")]
+pub struct JsImageData {
+    pub width: u32,
+    pub height: u32,
+    #[napi(ts_type = "Uint8Array | Uint8ClampedArray")]
+    pub data: Buffer,
+}
+
+fn encode_gray_png(image: &GrayImage) -> image::ImageResult<Vec<u8>> {
+    write_png(
+        image.dimensions(),
+        BallotImageBitDepth::Eight,
+        image.as_raw(),
+    )
+}
+
+fn save_gray_pngs(
+    front: Option<(&Path, &GrayImage)>,
+    back: Option<(&Path, &GrayImage)>,
+) -> napi::Result<()> {
+    let save = |page: Option<(&Path, &GrayImage)>| {
+        page.map_or(Ok(()), |(path, image)| {
+            maybe_save_encoded_image(Some(path), encode_gray_png(image))
+        })
+    };
+    match rayon::join(|| save(front), || save(back)) {
+        (Err(err), _) | (_, Err(err)) => Err(napi::Error::from_reason(err)),
+        (Ok(()), Ok(())) => Ok(()),
+    }
+}
+
+/// Interprets a summary ballot sheet, or a single page when `sideB` is
+/// omitted. On success, writes the upright summary ballot page to the front
+/// output path and the other page to the back output path; otherwise writes
+/// the input images as given.
+// unused_async: napi-rs requires `async fn` to return a Promise in JS.
+#[allow(clippy::unused_async)]
+#[napi(
+    ts_args_type = "sideA: BridgeImageData, sideB: BridgeImageData | undefined, options: BridgeSummaryBallotOptions",
+    ts_return_type = "Promise<BridgeSummaryBallotResult>"
+)]
+pub async fn interpret_summary_ballot(
+    side_a: JsImageData,
+    side_b: Option<JsImageData>,
+    options: serde_json::Value,
+) -> napi::Result<serde_json::Value> {
+    let options: JsSummaryBallotOptions = from_json(options)?;
+    let ElectionDefinition {
+        election,
+        ballot_hash: expected_ballot_hash,
+    } = SqliteElectionSource {
+        db_path: options.db_path,
+    }
+    .election_definition()
+    .map_err(napi::Error::from_reason)?;
+    let to_gray = |image: JsImageData| gray_image(image.width, image.height, image.data.to_vec());
+    let side_a = to_gray(side_a)?;
+    let side_b = side_b.map(to_gray).transpose()?;
+    let front_path = options.front_normalized_image_output_path.as_deref();
+    let back_path = options.back_normalized_image_output_path.as_deref();
+
+    let originals =
+        (front_path.is_some() || back_path.is_some()).then(|| (side_a.clone(), side_b.clone()));
+
+    let result = match summary_ballot::interpret(&election, &expected_ballot_hash, side_a, side_b) {
+        Ok(interpretation) => {
+            save_gray_pngs(
+                front_path.map(|path| (path, &interpretation.summary_ballot_image)),
+                back_path.zip(interpretation.blank_page_image.as_ref()),
+            )?;
+            JsSummaryBallotResult::Ok(Box::new(JsSummaryBallotInterpretation {
+                record: interpretation.record,
+                side: interpretation.side,
+            }))
+        }
+        Err(summary_ballot::Error::InvalidBallotData { message }) => {
+            return Err(napi::Error::from_reason(message));
+        }
+        Err(err) => {
+            if let Some((side_a, side_b)) = &originals {
+                save_gray_pngs(
+                    front_path.map(|path| (path, side_a)),
+                    back_path.zip(side_b.as_ref()),
+                )?;
+            }
+            JsSummaryBallotResult::Err(Box::new(err))
+        }
+    };
+
     to_json(&result)
 }
 

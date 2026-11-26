@@ -823,7 +823,7 @@ fn pack_row<const SAMPLES_PER_BYTE: usize>(
 
 /// Writes `data`, already packed at `bit_depth`, as a grayscale PNG with the
 /// dimensions of `image`.
-fn write_png(
+pub(crate) fn write_png(
     (width, height): (u32, u32),
     bit_depth: BallotImageBitDepth,
     data: &[u8],

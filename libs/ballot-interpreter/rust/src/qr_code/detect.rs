@@ -122,6 +122,7 @@ pub fn get_hmpb_detection_areas(img: &GrayImage) -> Vec<DetectionArea<'_>> {
 /// Gets the broad detection areas for summary (BMD) ballots: bottom 60% then
 /// top 50% of the image at full width. A summary ballot's QR code is printed at
 /// the top, so finding it in the bottom area means the page is upside down.
+#[must_use]
 pub fn get_broad_detection_areas(img: &GrayImage) -> Vec<DetectionArea<'_>> {
     let (width, height) = img.dimensions();
     let height_midpoint = height / 2;
@@ -205,7 +206,8 @@ fn is_vx_payload(bytes: &[u8]) -> bool {
     )
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Serialize)]
+#[serde(rename_all = "lowercase")]
 #[must_use]
 pub enum Detector {
     Rqrr,
@@ -337,14 +339,64 @@ fn unwrap_qr_payload(detected: &Detected) -> Detected {
     )
 }
 
-/// Detect a QR code using the specified search strategy.
-///
-/// # Errors
-///
-/// Returns an `Err` if no QR codes are detected.
-pub fn detect_with_strategy(
+/// Which QR codes end a search.
+#[derive(Debug, Clone, Copy)]
+enum Accept {
+    /// The first QR code found, even one that fails to decode.
+    First,
+    /// The first QR code of this kind, since the decoders occasionally find
+    /// QR codes in noise.
+    Kind(QrCodeKind),
+}
+
+fn detect_in_areas(detector: Detector, areas: &[DetectionArea<'_>], accept: Accept) -> Result {
+    let detection_areas: Vec<Rect> = areas.iter().map(DetectionArea::bounds).collect();
+
+    for area in areas {
+        let candidates = match detector {
+            Detector::Zedbar => zedbar::scan_area(area)
+                .map_err(|e| Error::DetectFailed {
+                    detection_areas: detection_areas.clone(),
+                    message: e.to_string(),
+                })?
+                .into_iter()
+                .map(Ok)
+                .collect(),
+            Detector::Rqrr => rqrr::scan_area(area),
+        };
+
+        for candidate in candidates {
+            match (candidate, accept) {
+                (Ok((bytes, bounds)), _) => {
+                    let detected = unwrap_qr_payload(&Detected::new(
+                        detector,
+                        detection_areas.clone(),
+                        bytes,
+                        bounds,
+                        area.orientation(),
+                    ));
+                    if !matches!(accept, Accept::Kind(kind) if detected.kind() != kind) {
+                        return Ok(detected);
+                    }
+                }
+                (Err(message), Accept::First) => {
+                    return Err(Error::DecodeFailed {
+                        detection_areas,
+                        message,
+                    });
+                }
+                (Err(_), Accept::Kind(_)) => {}
+            }
+        }
+    }
+
+    Err(Error::NoQrCodeDetected { detection_areas })
+}
+
+fn detect(
     img: &GrayImage,
     strategy: SearchStrategy,
+    accept: Accept,
     debug: &ImageDebugWriter,
 ) -> Result {
     // Cropping to the strategy's search areas is dramatically cheaper than
@@ -355,18 +407,46 @@ pub fn detect_with_strategy(
     // Try zedbar first because on representative ballot images it decodes
     // more QR codes than rqrr and is faster per call. rqrr is kept as a
     // fallback to catch the rare cases zedbar misses.
-    let zedbar_result = zedbar::detect_in_areas(&areas);
-    let detect_result = zedbar_result.or_else(|_| rqrr::detect_in_areas(&areas));
+    let detect_result = detect_in_areas(Detector::Zedbar, &areas, accept)
+        .or_else(|_| detect_in_areas(Detector::Rqrr, &areas, accept));
     let detection_areas = match detect_result {
-        Ok(ref qr_code) => qr_code.detection_areas().to_vec(),
-        Err(ref e) => e.detection_areas().to_vec(),
+        Ok(ref qr_code) => qr_code.detection_areas(),
+        Err(ref e) => e.detection_areas(),
     };
 
     debug.write("qr_code", |canvas| {
-        debug::draw_qr_code_debug_image_mut(canvas, detect_result.as_ref().ok(), &detection_areas);
+        debug::draw_qr_code_debug_image_mut(canvas, detect_result.as_ref().ok(), detection_areas);
     });
 
-    detect_result.map(|detected| unwrap_qr_payload(&detected))
+    detect_result
+}
+
+/// Detect a QR code using the specified search strategy.
+///
+/// # Errors
+///
+/// Returns an `Err` if no QR codes are detected.
+pub fn detect_with_strategy(
+    img: &GrayImage,
+    strategy: SearchStrategy,
+    debug: &ImageDebugWriter,
+) -> Result {
+    detect(img, strategy, Accept::First, debug)
+}
+
+/// Detects a summary ballot QR code in the [`SearchStrategy::Broad`] areas,
+/// skipping QR codes whose payload isn't summary ballot data.
+///
+/// # Errors
+///
+/// Returns an `Err` if no summary ballot QR code is detected.
+pub fn detect_summary_ballot(img: &GrayImage) -> Result {
+    detect(
+        img,
+        SearchStrategy::Broad,
+        Accept::Kind(QrCodeKind::SummaryBallot),
+        &ImageDebugWriter::disabled(),
+    )
 }
 
 #[cfg(test)]
@@ -640,9 +720,43 @@ mod test {
     fn test_rqrr_detects_summary_ballot_qr_code() {
         let image = load_summary_ballot_fixture("summary-page.png");
         let areas = get_broad_detection_areas(&image);
-        let qr_code = unwrap_qr_payload(&rqrr::detect_in_areas(&areas).unwrap());
+        let qr_code = detect_in_areas(Detector::Rqrr, &areas, Accept::First).unwrap();
         assert_eq!(qr_code.kind(), QrCodeKind::SummaryBallot);
         assert_eq!(qr_code.orientation(), Orientation::Portrait);
+    }
+
+    /// The bottom area is searched first, so a QR code there that isn't a
+    /// summary ballot's must be skipped rather than ending the search.
+    #[test]
+    fn test_detect_summary_ballot_skips_other_qr_codes() {
+        let fixture_path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../test/fixtures");
+        let bubble_ballot = image::open(fixture_path.join("all-bubble-ballot/blank-front.jpg"))
+            .unwrap()
+            .into_luma8();
+        let bubble_ballot_qr_code =
+            image::imageops::crop_imm(&bubble_ballot, 78, 1986, 138, 139).to_image();
+
+        let mut image = load_summary_ballot_fixture("summary-page.png");
+        let bottom_y = i64::from(image.height()) - 400;
+        image::imageops::replace(&mut image, &bubble_ballot_qr_code, 100, bottom_y);
+
+        let broad =
+            detect_with_strategy(&image, SearchStrategy::Broad, &ImageDebugWriter::disabled())
+                .unwrap();
+        assert_eq!(broad.orientation(), Orientation::PortraitReversed);
+
+        let qr_code = detect_summary_ballot(&image).unwrap();
+        assert_eq!(qr_code.kind(), QrCodeKind::SummaryBallot);
+        assert_eq!(qr_code.orientation(), Orientation::Portrait);
+    }
+
+    #[test]
+    fn test_detect_summary_ballot_on_blank_page() {
+        let image = load_summary_ballot_fixture("blank-page.png");
+        assert!(matches!(
+            detect_summary_ballot(&image),
+            Err(Error::NoQrCodeDetected { .. })
+        ));
     }
 
     #[test]

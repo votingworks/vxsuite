@@ -2,38 +2,17 @@ use image::{EncodableLayout, GrayImage};
 use types_rs::geometry::{PixelUnit, Point, Rect};
 use zedbar::{DecoderConfig, Image, Scanner, SymbolType, config};
 
-use super::detect::{Detected, DetectionArea, Detector, Error, Result};
+use super::detect::DetectionArea;
 
-/// Uses the `zedbar` QR code library to detect a QR code in the given
-/// detection areas.
-pub fn detect_in_areas(detection_areas: &[DetectionArea<'_>]) -> Result {
-    let detection_area_rects = detection_areas.iter().map(DetectionArea::bounds).collect();
-    for area in detection_areas {
-        match scan_image_for_qr_codes(area.image()) {
-            Ok(qr_codes) => {
-                if let Some((data, bounds)) = qr_codes.into_iter().next() {
-                    let bounds = offset_bounds(area.origin(), &bounds);
-                    return Ok(Detected::new(
-                        Detector::Zedbar,
-                        detection_area_rects,
-                        data,
-                        bounds,
-                        area.orientation(),
-                    ));
-                }
-            }
-            Err(e) => {
-                return Err(Error::DetectFailed {
-                    detection_areas: detection_area_rects,
-                    message: e.to_string(),
-                });
-            }
-        }
-    }
-
-    Err(Error::NoQrCodeDetected {
-        detection_areas: detection_area_rects,
-    })
+/// Decodes every QR code in the detection area, with bounds in the coordinates
+/// of the source image.
+pub fn scan_area(
+    area: &DetectionArea<'_>,
+) -> std::result::Result<Vec<(Vec<u8>, Rect)>, zedbar::Error> {
+    Ok(scan_image_for_qr_codes(area.image())?
+        .into_iter()
+        .map(|(data, bounds)| (data, offset_bounds(area.origin(), &bounds)))
+        .collect())
 }
 
 /// Configures a `zedbar` scanner to only look for QR codes and returns the

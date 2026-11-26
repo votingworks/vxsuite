@@ -14,6 +14,7 @@ mod js;
 mod layout;
 pub mod qr_code;
 pub mod scoring;
+pub mod summary_ballot;
 pub mod timing_marks;
 
 // Anything marked with `#[napi]` is exported to JavaScript.

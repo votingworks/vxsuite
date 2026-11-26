@@ -434,3 +434,48 @@ export interface RustBubbleBallotMetadata {
  * Result of decoding raw bubble ballot metadata bytes via the Rust decoder.
  */
 export type BridgeDecodeBubbleBallotMetadataResult = RustBubbleBallotMetadata;
+
+/**
+ * Why the Rust summary ballot interpreter found no QR code on a page.
+ */
+export type RustSummaryBallotPageError = 'blankPage' | 'noQrCode';
+
+/**
+ * A summary ballot QR code found by the Rust summary ballot interpreter.
+ */
+export interface RustSummaryBallotQrCode {
+  detector: 'zedbar' | 'rqrr';
+  bounds: Rect;
+  orientation: 'portrait' | 'portrait-reversed';
+}
+
+/**
+ * Errors from the Rust summary ballot interpreter.
+ */
+export type RustSummaryBallotError =
+  | {
+      type: 'votesNotFound';
+      sideA: RustSummaryBallotPageError;
+      sideB: RustSummaryBallotPageError | null;
+    }
+  | {
+      type: 'multipleQrCodes';
+      sideA: RustSummaryBallotQrCode;
+      sideB: RustSummaryBallotQrCode;
+    }
+  | {
+      type: 'mismatchedElection';
+      expectedBallotHash: string;
+      actualBallotHash: string;
+    };
+
+/**
+ * The raw JSON shape returned by the Rust summary ballot interpreter. `side`
+ * is the input side holding the summary ballot.
+ */
+export type BridgeSummaryBallotResult =
+  | {
+      type: 'ok';
+      value: { record: RustCastVoteRecord; side: 'front' | 'back' };
+    }
+  | { type: 'err'; value: RustSummaryBallotError };

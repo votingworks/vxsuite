@@ -74,6 +74,28 @@ impl BallotImage {
     /// on ballots with significant but still acceptable skew (i.e. 3 degrees).
     const CROP_BORDERS_THRESHOLD_RATIO: f32 = 0.1;
 
+    /// Crops off the dark border outside the paper. Returns the image as given
+    /// with no inset if a valid border inset cannot be computed.
+    pub(crate) fn crop_borders(image: GrayImage, threshold: u8) -> (GrayImage, Option<Inset>) {
+        if image.width() == 0 || image.height() == 0 {
+            return (image, None);
+        }
+
+        match find_scanned_document_inset(&image, threshold, Self::CROP_BORDERS_THRESHOLD_RATIO) {
+            Some(inset) if !inset.is_zero() => {
+                let cropped = crop_to_image(
+                    &image,
+                    inset.left,
+                    inset.top,
+                    image.width() - inset.left - inset.right,
+                    image.height() - inset.top - inset.bottom,
+                );
+                (cropped, Some(inset))
+            }
+            inset => (image, inset),
+        }
+    }
+
     /// Builds a [`BallotImage`] with the black border outside the paper area
     /// cropped off. Returns [`None`] if a valid border inset cannot be
     /// computed.
@@ -81,43 +103,26 @@ impl BallotImage {
     pub fn from_image(image: GrayImage, debug_base: Option<PathBuf>) -> Option<Self> {
         let hist = histogram(image.as_raw());
         let threshold = binarization_threshold_from_histogram(&hist);
-        let border_inset =
-            find_scanned_document_inset(&image, threshold, Self::CROP_BORDERS_THRESHOLD_RATIO)?;
-
-        if border_inset.is_zero() {
-            // Don't bother cropping if there's no inset.
-            let debug = debug_base.map_or_else(ImageDebugWriter::disabled, |debug_base| {
-                ImageDebugWriter::new(debug_base, image.clone())
-            });
-            return Some(Self {
-                image,
-                histogram: hist,
-                threshold,
-                border_inset,
-                debug,
-            });
-        }
-
-        let image = crop_to_image(
-            &image,
-            border_inset.left,
-            border_inset.top,
-            image.width() - border_inset.left - border_inset.right,
-            image.height() - border_inset.top - border_inset.bottom,
-        );
+        let (image, border_inset) = Self::crop_borders(image, threshold);
+        let border_inset = border_inset?;
 
         // Re-compute the threshold after cropping to ensure future
         // re-interpretations based on the saved image are consistent with the
         // initial one.
-        let hist = histogram(image.as_raw());
-        let threshold = binarization_threshold_from_histogram(&hist);
+        let (histogram, threshold) = if border_inset.is_zero() {
+            (hist, threshold)
+        } else {
+            let hist = histogram(image.as_raw());
+            let threshold = binarization_threshold_from_histogram(&hist);
+            (hist, threshold)
+        };
         let debug = debug_base.map_or_else(ImageDebugWriter::disabled, |debug_base| {
             ImageDebugWriter::new(debug_base, image.clone())
         });
 
         Some(Self {
             image,
-            histogram: hist,
+            histogram,
             threshold,
             border_inset,
             debug,

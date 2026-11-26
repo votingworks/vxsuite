@@ -1,35 +1,22 @@
 use rqrr::PreparedImage;
 use types_rs::geometry::{PixelUnit, Point, Rect};
 
-use super::detect::{Detected, DetectionArea, Detector, Error, Result};
+use super::detect::DetectionArea;
 
-/// Uses the `rqrr` QR code library to detect a QR code in the given detection
-/// areas.
-pub fn detect_in_areas(detection_areas: &[DetectionArea<'_>]) -> Result {
-    let detection_area_rects = detection_areas.iter().map(DetectionArea::bounds).collect();
-    for area in detection_areas {
-        let mut prepared_img = PreparedImage::prepare(area.image().clone());
-        if let Some(grid) = prepared_img.detect_grids().first() {
+/// Decodes every QR code grid in the detection area, with bounds in the
+/// coordinates of the source image.
+pub fn scan_area(area: &DetectionArea<'_>) -> Vec<Result<(Vec<u8>, Rect), String>> {
+    let mut prepared_img = PreparedImage::prepare(area.image().clone());
+    prepared_img
+        .detect_grids()
+        .iter()
+        .map(|grid| {
             let mut bytes = Vec::new();
-            return match grid.decode_to(&mut bytes) {
-                Ok(_) => Ok(Detected::new(
-                    Detector::Rqrr,
-                    detection_area_rects,
-                    bytes,
-                    get_original_bounds_rqrr(area.origin(), grid),
-                    area.orientation(),
-                )),
-                Err(e) => Err(Error::DecodeFailed {
-                    detection_areas: detection_area_rects,
-                    message: e.to_string(),
-                }),
-            };
-        }
-    }
-
-    Err(Error::NoQrCodeDetected {
-        detection_areas: detection_area_rects,
-    })
+            grid.decode_to(&mut bytes)
+                .map(|_| (bytes, get_original_bounds_rqrr(area.origin(), grid)))
+                .map_err(|e| e.to_string())
+        })
+        .collect()
 }
 
 const fn get_original_bounds_rqrr<G>(origin: Point<PixelUnit>, qr_code: &rqrr::Grid<G>) -> Rect {
