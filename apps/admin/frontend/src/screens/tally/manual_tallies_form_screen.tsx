@@ -142,20 +142,27 @@ function TallyMetadata({
 
 const VoteTotalsContainer = styled.div`
   padding: 0 1rem 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-
-  svg {
-    margin-right: 0.125rem;
-  }
+  font-variant-numeric: tabular-nums;
 `;
 
 const VoteTotalRow = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  font-variant-numeric: tabular-nums;
+`;
+
+const VoteTotalsStatus = styled.div`
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: ${(p) => p.theme.sizes.bordersRem.thin}rem solid
+    ${(p) => p.theme.colors.outline};
+
+  > * {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    height: 1.5rem;
+  }
 `;
 
 function VoteTotalsSummary({
@@ -169,37 +176,41 @@ function VoteTotalsSummary({
   const difference = entered - expected;
   return (
     <VoteTotalsContainer>
-      <div>
-        <VoteTotalRow>
-          <span>Votes expected</span>
-          <Font weight="semiBold">{format.count(expected)}</Font>
-        </VoteTotalRow>
-        {votesAllowed > 1 && (
-          <Caption>
-            {format.count(ballots)} {ballots === 1 ? 'ballot' : 'ballots'} ×{' '}
-            {votesAllowed}
-          </Caption>
-        )}
-      </div>
       <VoteTotalRow>
         <span>Votes entered</span>
         <Font weight="semiBold">{format.count(entered)}</Font>
       </VoteTotalRow>
-      {isEmpty ? (
-        <div>
-          <Icons.Info /> No tallies entered
-        </div>
-      ) : difference === 0 ? (
-        <div>
-          <Icons.Checkbox color="success" /> Entered votes match expected
-        </div>
-      ) : (
-        <Font weight="semiBold">
-          <Icons.Warning color="warning" /> {format.count(Math.abs(difference))}{' '}
-          {Math.abs(difference) === 1 ? 'vote' : 'votes'}{' '}
-          {difference < 0 ? 'too few' : 'too many'}
-        </Font>
-      )}
+      <VoteTotalRow>
+        <span>
+          Votes expected
+          {votesAllowed > 1 && (
+            <Caption>
+              {' '}
+              ({format.count(ballots)} {ballots === 1 ? 'ballot' : 'ballots'} ×{' '}
+              {votesAllowed})
+            </Caption>
+          )}
+        </span>
+        <Font weight="semiBold">{format.count(expected)}</Font>
+      </VoteTotalRow>
+      <VoteTotalsStatus>
+        {isEmpty ? (
+          <div>
+            <Icons.Info /> No tallies entered
+          </div>
+        ) : difference === 0 ? (
+          <div>
+            <Icons.Checkbox color="success" /> Entered votes match expected
+          </div>
+        ) : (
+          <Font weight="semiBold">
+            <Icons.Warning color="warning" />{' '}
+            {format.count(Math.abs(difference))}{' '}
+            {Math.abs(difference) === 1 ? 'vote' : 'votes'}{' '}
+            {difference < 0 ? 'too few' : 'too many'}
+          </Font>
+        )}
+      </VoteTotalsStatus>
     </VoteTotalsContainer>
   );
 }

@@ -367,8 +367,7 @@ test('shows expected and entered vote totals', async () => {
   await screen.findByRole('heading', { name: contests[1]!.title });
   screen.getByText('Vote for 3');
   screen.getByText('Enter 3 for each overvoted ballot');
-  screen.getByText(hasTextAcrossElements('Votes expected30'));
-  screen.getByText(hasTextAcrossElements('10 ballots × 3'));
+  screen.getByText(hasTextAcrossElements('Votes expected (10 ballots × 3)30'));
   screen.getByText(hasTextAcrossElements('Votes entered30'));
   screen.getByText('Entered votes match expected');
 
@@ -385,8 +384,7 @@ test('shows expected and entered vote totals', async () => {
   const ballotCountInput = screen.getByLabelText('Ballot Count');
   await userEvent.clear(ballotCountInput);
   await userEvent.type(ballotCountInput, '1');
-  screen.getByText(hasTextAcrossElements('Votes expected3'));
-  screen.getByText(hasTextAcrossElements('1 ballot × 3'));
+  screen.getByText(hasTextAcrossElements('Votes expected (1 ballot × 3)3'));
   screen.getByText('28 votes too many');
 });
 
