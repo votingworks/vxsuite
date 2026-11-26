@@ -5,7 +5,7 @@ import type {
   UiStringAudioIdsPackage,
   UiStringsPackage,
 } from '@votingworks/types';
-import type { MockUsbDrive } from '@votingworks/usb-drive';
+import type { MockUsbDrive } from '@votingworks/usb-drive/mocks';
 import { type Result, assertDefined } from '@votingworks/basics';
 import type { UiStringsStore } from './ui_strings_store.js';
 import {

@@ -8,7 +8,7 @@ import {
   makeTemporaryDirectory,
 } from '@votingworks/fixtures';
 import { anyPollingPlace, TEST_JURISDICTION } from '@votingworks/types';
-import { createMockUsbDrive } from '@votingworks/usb-drive';
+import { createMockUsbDrive } from '@votingworks/usb-drive/mocks';
 import { testDetectDevices } from '@votingworks/backend';
 import { EventEmitter } from 'node:events';
 import type { Server } from 'node:http';

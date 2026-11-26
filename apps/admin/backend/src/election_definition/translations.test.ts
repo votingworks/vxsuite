@@ -12,7 +12,10 @@ import {
   LanguageCode,
   type NonEnglishLanguageCode,
 } from '@votingworks/types';
-import { createMockUsbDrive, type MockUsbDrive } from '@votingworks/usb-drive';
+import {
+  createMockUsbDrive,
+  type MockUsbDrive,
+} from '@votingworks/usb-drive/mocks';
 import { parse as parseCsv } from 'csv-parse/sync';
 import { stringify as stringifyCsv } from 'csv-stringify/sync';
 import { Store } from '../store.js';

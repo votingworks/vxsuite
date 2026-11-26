@@ -17,7 +17,10 @@ import {
   type PageInterpretation,
   type SheetOf,
 } from '@votingworks/types';
-import { createMockUsbDrive, type MockUsbDrive } from '@votingworks/usb-drive';
+import {
+  createMockUsbDrive,
+  type MockUsbDrive,
+} from '@votingworks/usb-drive/mocks';
 
 import {
   interpretedBmdBallot,

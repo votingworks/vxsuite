@@ -16,7 +16,10 @@ import {
   buildMockDippedSmartCardAuth,
 } from '@votingworks/auth';
 import { dirSync } from 'tmp';
-import { type MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
+import {
+  type MockUsbDrive,
+  createMockUsbDrive,
+} from '@votingworks/usb-drive/mocks';
 import { type Workspace, createWorkspace } from '../../src/util/workspace.js';
 import { type MockScanner, makeMockScanner } from '../util/mocks.js';
 import {

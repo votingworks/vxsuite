@@ -16,7 +16,7 @@ import {
   type SheetOf,
 } from '@votingworks/types';
 import { getDiskSpaceSummaries } from '@votingworks/backend';
-import type { MockUsbDrive } from '@votingworks/usb-drive';
+import type { MockUsbDrive } from '@votingworks/usb-drive/mocks';
 import type { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import type { MockPaperHandlerDriver } from '@votingworks/custom-paper-handler';
 import { assertDefined, deferred, ok } from '@votingworks/basics';

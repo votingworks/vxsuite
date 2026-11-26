@@ -8,7 +8,10 @@ import {
   vi,
   afterEach,
 } from 'vitest';
-import { type MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
+import {
+  type MockUsbDrive,
+  createMockUsbDrive,
+} from '@votingworks/usb-drive/mocks';
 import { LogEventId, type MockLogger, mockLogger } from '@votingworks/logging';
 import type { DiskSpaceSummary } from '@votingworks/utils';
 import { type SystemCallApiMethods, createSystemCallApi } from './api.js';

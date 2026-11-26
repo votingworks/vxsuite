@@ -1,8 +1,6 @@
 import { beforeEach, expect, type MockInstance, test, vi } from 'vitest';
-import {
-  createMockUsbDrive,
-  UsbPartitionMountpointSchema,
-} from '@votingworks/usb-drive';
+import { UsbPartitionMountpointSchema } from '@votingworks/usb-drive';
+import { createMockUsbDrive } from '@votingworks/usb-drive/mocks';
 import * as fs from 'node:fs/promises';
 import {
   Stats,

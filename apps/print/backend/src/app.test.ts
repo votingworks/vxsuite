@@ -55,7 +55,7 @@ import {
 import type { Server } from 'node:http';
 import type * as grout from '@votingworks/grout';
 import type { DippedSmartCardAuthApi } from '@votingworks/auth';
-import type { MockUsbDrive } from '@votingworks/usb-drive';
+import type { MockUsbDrive } from '@votingworks/usb-drive/mocks';
 import { generateTestDeckBallots } from '@votingworks/test-decks';
 import {
   buildTestEnvironment,

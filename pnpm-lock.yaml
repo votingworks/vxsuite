@@ -649,9 +649,6 @@ importers:
       '@votingworks/printing':
         specifier: workspace:*
         version: link:../../../libs/printing
-      '@votingworks/test-utils':
-        specifier: workspace:*
-        version: link:../../../libs/test-utils
       '@votingworks/types':
         specifier: workspace:*
         version: link:../../../libs/types
@@ -710,6 +707,9 @@ importers:
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../../../libs/fixtures
+      '@votingworks/test-utils':
+        specifier: workspace:*
+        version: link:../../../libs/test-utils
       esbuild:
         specifier: 0.28.1
         version: 0.28.1
@@ -2472,9 +2472,6 @@ importers:
       '@votingworks/printing':
         specifier: workspace:*
         version: link:../../../libs/printing
-      '@votingworks/test-utils':
-        specifier: workspace:*
-        version: link:../../../libs/test-utils
       '@votingworks/types':
         specifier: workspace:*
         version: link:../../../libs/types
@@ -2545,6 +2542,9 @@ importers:
       '@votingworks/hmpb':
         specifier: workspace:*
         version: link:../../../libs/hmpb
+      '@votingworks/test-utils':
+        specifier: workspace:*
+        version: link:../../../libs/test-utils
       esbuild:
         specifier: 0.28.1
         version: 0.28.1
@@ -2992,9 +2992,6 @@ importers:
       '@votingworks/image-utils':
         specifier: workspace:*
         version: link:../image-utils
-      '@votingworks/test-utils':
-        specifier: workspace:*
-        version: link:../test-utils
       '@votingworks/types':
         specifier: workspace:*
         version: link:../types
@@ -3047,6 +3044,9 @@ importers:
       '@votingworks/hmpb':
         specifier: workspace:*
         version: link:../hmpb
+      '@votingworks/test-utils':
+        specifier: workspace:*
+        version: link:../test-utils
       '@votingworks/types-rs':
         specifier: workspace:*
         version: link:../types-rs
@@ -4748,9 +4748,6 @@ importers:
       '@votingworks/logging':
         specifier: workspace:*
         version: link:../logging
-      '@votingworks/test-utils':
-        specifier: workspace:*
-        version: link:../test-utils
       '@votingworks/types':
         specifier: workspace:*
         version: link:../types
@@ -4824,6 +4821,9 @@ importers:
       '@votingworks/image-utils':
         specifier: workspace:*
         version: link:../image-utils
+      '@votingworks/test-utils':
+        specifier: workspace:*
+        version: link:../test-utils
       esbuild:
         specifier: 0.28.1
         version: 0.28.1
@@ -5307,15 +5307,9 @@ importers:
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../basics
-      '@votingworks/fixtures':
-        specifier: workspace:*
-        version: link:../fixtures
       '@votingworks/logging':
         specifier: workspace:*
         version: link:../logging
-      '@votingworks/test-utils':
-        specifier: workspace:*
-        version: link:../test-utils
       '@votingworks/utils':
         specifier: workspace:*
         version: link:../utils
@@ -5344,6 +5338,12 @@ importers:
       '@votingworks/coverage-check':
         specifier: workspace:*
         version: link:../coverage-check
+      '@votingworks/fixtures':
+        specifier: workspace:*
+        version: link:../fixtures
+      '@votingworks/test-utils':
+        specifier: workspace:*
+        version: link:../test-utils
       esbuild:
         specifier: 0.28.1
         version: 0.28.1

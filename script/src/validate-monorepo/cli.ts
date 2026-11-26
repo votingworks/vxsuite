@@ -67,6 +67,17 @@ export async function main({ stderr }: IO): Promise<number> {
         break;
       }
 
+      case 'DevOnlyProductionDependency': {
+        const { packageJsonPath, dependencyName } = issue;
+        stderr.write(
+          `${relative(
+            cwd,
+            packageJsonPath
+          )}: ${dependencyName} must be in "devDependencies" of packages that ship in production\n`
+        );
+        break;
+      }
+
       case 'MissingConfigFile': {
         const { tsconfigPath } = issue;
         stderr.write(`${tsconfigPath}: missing TypeScript configuration\n`);

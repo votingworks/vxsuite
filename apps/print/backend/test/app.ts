@@ -3,7 +3,10 @@ import {
   buildMockDippedSmartCardAuth,
   type DippedSmartCardAuthApi,
 } from '@votingworks/auth';
-import { createMockUsbDrive, type MockUsbDrive } from '@votingworks/usb-drive';
+import {
+  createMockUsbDrive,
+  type MockUsbDrive,
+} from '@votingworks/usb-drive/mocks';
 import {
   createMockPrinterHandler,
   JOB_SETTLEMENT_POLL_INTERVAL_MS,

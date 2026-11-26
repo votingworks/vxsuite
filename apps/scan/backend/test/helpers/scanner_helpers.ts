@@ -40,7 +40,10 @@ import {
   type RgbaImageData,
   type SheetOf,
 } from '@votingworks/types';
-import { type MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
+import {
+  type MockUsbDrive,
+  createMockUsbDrive,
+} from '@votingworks/usb-drive/mocks';
 import type { Application } from 'express';
 import { readFile } from 'node:fs/promises';
 import type { Server } from 'node:http';

@@ -1,4 +1,4 @@
-import { getTemporaryRootDir } from '@votingworks/fixtures';
+import { getTemporaryRootDir } from '@votingworks/fixtures/tmpdir';
 import { type Mocked, mockFunction } from '@votingworks/test-utils';
 import type { UsbDriveSpace } from '@votingworks/utils';
 import tmp from 'tmp';

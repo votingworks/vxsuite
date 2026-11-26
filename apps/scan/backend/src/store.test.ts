@@ -24,7 +24,7 @@ import {
   type SheetOf,
   TEST_JURISDICTION,
 } from '@votingworks/types';
-import { createMockUsbDrive } from '@votingworks/usb-drive';
+import { createMockUsbDrive } from '@votingworks/usb-drive/mocks';
 import { getFeatureFlagMock } from '@votingworks/utils';
 import { DateTime } from 'luxon';
 import { expect, test, vi } from 'vitest';

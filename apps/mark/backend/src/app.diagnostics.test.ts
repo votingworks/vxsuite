@@ -12,7 +12,7 @@ import {
 } from '@votingworks/types';
 import type { Server } from 'node:http';
 import type * as grout from '@votingworks/grout';
-import type { MockUsbDrive } from '@votingworks/usb-drive';
+import type { MockUsbDrive } from '@votingworks/usb-drive/mocks';
 import {
   getDiskSpaceSummaries,
   mockElectionPackageFileTree,
