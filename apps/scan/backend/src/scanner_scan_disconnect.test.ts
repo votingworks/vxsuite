@@ -9,7 +9,7 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   type SheetInterpretation,
 } from '@votingworks/types';
-import { createMockUsbDrive } from '@votingworks/usb-drive';
+import { createMockUsbDrive } from '@votingworks/usb-drive/mocks';
 import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,

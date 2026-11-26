@@ -1,5 +1,4 @@
 export * from './media_mount_dir.js';
-export * from './mocks/memory_usb_drive.js';
 export * from './mocks/mock_usb_dir.js';
 export * from './mocks/simulated_usb_platform.js';
 export * from './mocks/simulated_usb_drive_handler.js';

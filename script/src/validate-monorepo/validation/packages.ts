@@ -31,11 +31,18 @@ export interface InvalidTaskDelegationIssue {
   readonly actual?: string;
 }
 
+export interface DevOnlyProductionDependencyIssue {
+  readonly kind: 'DevOnlyProductionDependency';
+  readonly packageJsonPath: string;
+  readonly dependencyName: string;
+}
+
 export type ValidationIssue =
   | MismatchedPropertyIssue
   | NoLicenseSpecifiedIssue
   | UnexportedPackageJsonIssue
-  | InvalidTaskDelegationIssue;
+  | InvalidTaskDelegationIssue
+  | DevOnlyProductionDependencyIssue;
 
 export type ValidationIssueKind = ValidationIssue['kind'];
 
@@ -284,6 +291,55 @@ export async function* checkTaskDelegation({
           task,
           expected,
           actual: scripts[task],
+        };
+      }
+    }
+  }
+}
+
+const DEV_ONLY_PACKAGES: readonly string[] = ['@votingworks/test-utils'];
+
+const PRODUCTION_ROOT_PATTERN = /^apps\/[^/]+\/(frontend|backend)$/;
+
+/**
+ * Check that no package an app frontend or backend depends on in production
+ * lists a dev-only package in `dependencies`.
+ */
+export async function* checkDevOnlyDependencies({
+  workspacePackages,
+}: {
+  workspacePackages: ReadonlyMap<string, PnpmPackageInfo>;
+}): AsyncGenerator<ValidationIssue> {
+  const productionPackages = new Set<PnpmPackageInfo>();
+  const queue = [...workspacePackages.values()].filter((pkg) =>
+    PRODUCTION_ROOT_PATTERN.test(pkg.relativePath)
+  );
+
+  for (let pkg = queue.shift(); pkg; pkg = queue.shift()) {
+    if (productionPackages.has(pkg)) {
+      continue;
+    }
+    productionPackages.add(pkg);
+
+    for (const name of Object.keys(pkg.packageJson?.dependencies ?? {})) {
+      const dependency = workspacePackages.get(name);
+      if (dependency) {
+        queue.push(dependency);
+      }
+    }
+  }
+
+  for (const { packageJson, packageJsonPath } of productionPackages) {
+    if (!packageJson || !packageJsonPath) {
+      continue;
+    }
+
+    for (const dependencyName of DEV_ONLY_PACKAGES) {
+      if (packageJson.dependencies?.[dependencyName] !== undefined) {
+        yield {
+          kind: 'DevOnlyProductionDependency',
+          packageJsonPath,
+          dependencyName,
         };
       }
     }

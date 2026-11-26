@@ -60,7 +60,7 @@ import {
   anyPollingPlace,
   safeParseSystemSettings,
 } from '@votingworks/types';
-import type { MockUsbDrive } from '@votingworks/usb-drive';
+import type { MockUsbDrive } from '@votingworks/usb-drive/mocks';
 import type { MockPaperHandlerDriver } from '@votingworks/custom-paper-handler';
 import { LogEventId, type Logger, mockBaseLogger } from '@votingworks/logging';
 import type { SimulatedClock } from 'xstate/lib/SimulatedClock.js';

@@ -24,7 +24,7 @@ import {
   pollingPlaceFromElection,
   type RgbaImageData,
 } from '@votingworks/types';
-import type { MockUsbDrive } from '@votingworks/usb-drive';
+import type { MockUsbDrive } from '@votingworks/usb-drive/mocks';
 import { mockLogger, LogSource, type MockLogger } from '@votingworks/logging';
 import { pdfToImages } from '@votingworks/image-utils/pdf';
 

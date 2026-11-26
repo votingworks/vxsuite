@@ -18,7 +18,7 @@ import {
   electionGridLayoutNewHampshireTestBallotFixtures,
   makeTemporaryDirectory,
 } from '@votingworks/fixtures';
-import { createMockUsbDrive } from '@votingworks/usb-drive';
+import { createMockUsbDrive } from '@votingworks/usb-drive/mocks';
 import { makeMockScanner } from '../test/util/mocks.js';
 import { type Api, buildCentralScannerApp } from './app.js';
 import {

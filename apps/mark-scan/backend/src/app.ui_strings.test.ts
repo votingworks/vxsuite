@@ -14,7 +14,10 @@ import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
-import { type MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
+import {
+  type MockUsbDrive,
+  createMockUsbDrive,
+} from '@votingworks/usb-drive/mocks';
 import { mockBaseLogger } from '@votingworks/logging';
 import { Store } from './store.js';
 import { createWorkspace, type Workspace } from './util/workspace.js';

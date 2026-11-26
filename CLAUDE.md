@@ -314,7 +314,7 @@ a fresh checkout without a prior full build.
 | --------------------------------------- | ---------------------------------------- | ------------------------------------------------------------------------------- |
 | `mockFunction`                          | `@votingworks/test-utils`                | Strict mock with ordered call expectations and `.assertComplete()`              |
 | `createMockClient<Api>()`               | `@votingworks/grout-test-utils`          | Grout API client mocking (each method is a `mockFunction`)                      |
-| `MockUsbDrive` / `createMockUsbDrive()` | `@votingworks/usb-drive`                 | Mock USB drive with `insertUsbDrive()`/`removeUsbDrive()`                       |
+| `MockUsbDrive` / `createMockUsbDrive()` | `@votingworks/usb-drive/mocks`           | Mock USB drive with `insertUsbDrive()`/`removeUsbDrive()`                       |
 | `mockBaseLogger()` / `mockLogger()`     | `@votingworks/logging` (in `test_utils`) | Mock loggers with vitest mock functions                                         |
 | Election fixtures                       | `@votingworks/fixtures`                  | Election definitions, CVR data, ballot images (`electionGeneralFixtures`, etc.) |
 | `@votingworks/test-utils`               | `libs/test-utils`                        | Shared helpers: `mockFunction`, auth mocking, timer utilities, election helpers |

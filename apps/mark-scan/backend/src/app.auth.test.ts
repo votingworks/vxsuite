@@ -20,7 +20,7 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 
-import type { MockUsbDrive } from '@votingworks/usb-drive';
+import type { MockUsbDrive } from '@votingworks/usb-drive/mocks';
 import { configureApp, createApp } from '../test/app_helpers.js';
 import type { Workspace } from './util/workspace.js';
 import type { Api } from './app.js';

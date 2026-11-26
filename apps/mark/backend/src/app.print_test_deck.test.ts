@@ -21,7 +21,7 @@ import {
 } from '@votingworks/printing';
 import type * as grout from '@votingworks/grout';
 import type { InsertedSmartCardAuthApi } from '@votingworks/auth';
-import type { MockUsbDrive } from '@votingworks/usb-drive';
+import type { MockUsbDrive } from '@votingworks/usb-drive/mocks';
 import { LogEventId, type Logger } from '@votingworks/logging';
 import {
   electionFamousNames2021Fixtures,

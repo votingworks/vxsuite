@@ -55,7 +55,7 @@ import {
 } from '@votingworks/backend';
 import type { Server } from 'node:http';
 import type * as grout from '@votingworks/grout';
-import type { MockUsbDrive } from '@votingworks/usb-drive';
+import type { MockUsbDrive } from '@votingworks/usb-drive/mocks';
 import { LogEventId, type Logger } from '@votingworks/logging';
 import {
   HP_4001_PRINTER_CONFIG,

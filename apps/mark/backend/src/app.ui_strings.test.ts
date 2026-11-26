@@ -22,7 +22,10 @@ import {
   mockSessionExpiresAt,
   parseElectionDefinition,
 } from '@votingworks/test-utils';
-import { type MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
+import {
+  type MockUsbDrive,
+  createMockUsbDrive,
+} from '@votingworks/usb-drive/mocks';
 import { createMockPrinterHandler } from '@votingworks/printing';
 import { mockBaseLogger } from '@votingworks/logging';
 import { Store } from './store.js';

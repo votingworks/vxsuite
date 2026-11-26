@@ -25,7 +25,10 @@ import {
   type SystemSettings,
   TEST_JURISDICTION,
 } from '@votingworks/types';
-import { createMockUsbDrive, type MockUsbDrive } from '@votingworks/usb-drive';
+import {
+  createMockUsbDrive,
+  type MockUsbDrive,
+} from '@votingworks/usb-drive/mocks';
 import {
   createMockPrinterHandler,
   type MemoryPrinterHandler,

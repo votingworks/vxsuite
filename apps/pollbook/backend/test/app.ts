@@ -4,7 +4,10 @@ import {
   type DippedSmartCardAuthApi,
 } from '@votingworks/auth';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
-import { createMockUsbDrive, type MockUsbDrive } from '@votingworks/usb-drive';
+import {
+  createMockUsbDrive,
+  type MockUsbDrive,
+} from '@votingworks/usb-drive/mocks';
 import {
   createMockPrinterHandler,
   type MemoryPrinterHandler,

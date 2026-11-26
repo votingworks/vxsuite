@@ -2,7 +2,7 @@ import { expect, type Mocked, test, vi } from 'vitest';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 
 import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
-import { createMockUsbDrive } from '@votingworks/usb-drive';
+import { createMockUsbDrive } from '@votingworks/usb-drive/mocks';
 import { typedAs } from '@votingworks/basics';
 
 import { mockBaseLogger } from '@votingworks/logging';

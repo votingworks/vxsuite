@@ -29,7 +29,10 @@ import {
 } from '@votingworks/types';
 import { MockPaperHandlerDriver } from '@votingworks/custom-paper-handler';
 import { assert, ok } from '@votingworks/basics';
-import { createMockUsbDrive, type MockUsbDrive } from '@votingworks/usb-drive';
+import {
+  createMockUsbDrive,
+  type MockUsbDrive,
+} from '@votingworks/usb-drive/mocks';
 import { SimulatedClock } from 'xstate/lib/SimulatedClock.js';
 import { listenForTest } from '@votingworks/grout-test-utils';
 import { type Api, buildApp } from '../src/app.js';

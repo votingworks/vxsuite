@@ -15,10 +15,8 @@ import { execFileSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { openRegularFileForWriting } from '@votingworks/fs';
-import {
-  createMockUsbDrive,
-  UsbPartitionMountpointSchema,
-} from '@votingworks/usb-drive';
+import { UsbPartitionMountpointSchema } from '@votingworks/usb-drive';
+import { createMockUsbDrive } from '@votingworks/usb-drive/mocks';
 import { Exporter, type ExportDataResult } from './exporter.js';
 import { execFile } from './exec.js';
 
