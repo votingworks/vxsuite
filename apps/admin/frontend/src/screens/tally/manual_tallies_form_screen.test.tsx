@@ -197,7 +197,7 @@ test('entering initial ballot count and contest tallies', async () => {
     const overvotesInput = screen.getByLabelText('Overvotes');
     expect(overvotesInput).toHaveValue('');
     await userEvent.type(overvotesInput, contestResults.overvotes.toString());
-    screen.getByText('Entered tallies do not match total ballots cast');
+    screen.getByText(/votes? too (few|many)/);
     expect(screen.getButton(saveButtonLabel)).toBeEnabled();
 
     const undervotesInput = screen.getByLabelText('Undervotes');
@@ -228,7 +228,7 @@ test('entering initial ballot count and contest tallies', async () => {
         );
       }
     }
-    screen.getByText('Entered tallies are valid');
+    screen.getByText('Entered votes match expected');
 
     updatedResults = {
       ...updatedResults,
@@ -286,7 +286,7 @@ test('blank tallies are saved as zeros', async () => {
   await screen.findByRole('heading', { name: contests[0]!.title });
   screen.getByText('No tallies entered');
   await userEvent.type(screen.getByLabelText('Undervotes'), '10');
-  screen.getByText('Entered tallies are valid');
+  screen.getByText('Entered votes match expected');
 
   const resultsAfterFirstContest: Tabulation.ManualElectionResults = {
     ballotCount: 10,
@@ -317,6 +317,57 @@ test('blank tallies are saved as zeros', async () => {
   apiMock.expectGetWriteInCandidates([]);
   await userEvent.click(screen.getButton('Save & Next'));
   await screen.findByRole('heading', { name: contests[2]!.title });
+});
+
+test('shows expected and entered vote totals', async () => {
+  apiMock.expectGetWriteInCandidates([]);
+  apiMock.expectGetManualResults(identifier, mockValidResults);
+  renderScreen({
+    initialRoute: `/tally/manual/${ballotStyleGroupId}/${votingMethod}/${precinctId}/${contests[0]!.id}`,
+  });
+
+  await screen.findByRole('heading', { name: contests[0]!.title });
+  screen.getByText(hasTextAcrossElements('Votes expected10'));
+  screen.getByText(hasTextAcrossElements('Votes entered10'));
+  screen.getByText('Entered votes match expected');
+  expect(screen.queryByText(/ballots ×/)).not.toBeInTheDocument();
+  expect(
+    screen.queryByText(/for each overvoted ballot/)
+  ).not.toBeInTheDocument();
+
+  apiMock.expectSetManualResults({
+    ...identifier,
+    manualResults: mockValidResults,
+  });
+  apiMock.expectGetManualResults(identifier, mockValidResults);
+  apiMock.expectGetWriteInCandidates([]);
+  await userEvent.click(screen.getButton('Save & Next'));
+
+  await screen.findByRole('heading', { name: contests[1]!.title });
+  screen.getByText('Vote for 3');
+  screen.getByText('Enter 3 for each overvoted ballot');
+  screen.getByText(hasTextAcrossElements('Votes expected30'));
+  screen.getByText(hasTextAcrossElements('10 ballots × 3'));
+  screen.getByText(hasTextAcrossElements('Votes entered30'));
+  screen.getByText('Entered votes match expected');
+
+  const overvotesInput = screen.getByLabelText('Overvotes');
+  await userEvent.clear(overvotesInput);
+  await userEvent.type(overvotesInput, '4');
+  screen.getByText(hasTextAcrossElements('Votes entered28'));
+  screen.getByText('2 votes too few');
+
+  await userEvent.clear(overvotesInput);
+  await userEvent.type(overvotesInput, '7');
+  screen.getByText('1 vote too many');
+
+  await userEvent.click(screen.getButton('Override'));
+  const ballotCountInput = screen.getByLabelText('Manual Tally Ballot Count');
+  await userEvent.clear(ballotCountInput);
+  await userEvent.type(ballotCountInput, '1');
+  screen.getByText(hasTextAcrossElements('Votes expected3'));
+  screen.getByText(hasTextAcrossElements('1 ballot × 3'));
+  screen.getByText('28 votes too many');
 });
 
 test('editing existing tallies', async () => {
@@ -377,16 +428,16 @@ test('editing existing tallies', async () => {
     ]),
   ] as const;
   for (const [label, value] of inputs) {
-    screen.getByText('Entered tallies do not match total ballots cast');
+    screen.getByText(/votes? too (few|many)/);
     const input = screen.getByLabelText(label);
     expect(input).toHaveValue(`${value}`);
     await userEvent.clear(input);
-    screen.getByText('Entered tallies do not match total ballots cast');
+    screen.getByText(/votes? too (few|many)/);
     expect(screen.getButton('Save & Next')).toBeEnabled();
     await userEvent.type(input, 'abc'); // Non-number shouldn't do anything
     await userEvent.type(input, (value * 2).toString());
   }
-  screen.getByText('Entered tallies are valid');
+  screen.getByText('Entered votes match expected');
 
   updatedResults = {
     ...updatedResults,
@@ -479,7 +530,7 @@ test('adding new write-in candidates', async () => {
   await userEvent.click(screen.getButton('Add Write-In Candidate'));
   await userEvent.type(screen.getByLabelText('Write-in'), 'Mock Candidate');
   await userEvent.click(screen.getButton('Add'));
-  screen.getByText('Entered tallies are valid');
+  screen.getByText('Entered votes match expected');
 
   // Can add to new write-in candidate's count
   await userEvent.type(
@@ -488,14 +539,14 @@ test('adding new write-in candidates', async () => {
   );
 
   // Write-in counts affect validation
-  screen.getByText('Entered tallies do not match total ballots cast');
+  screen.getByText(/votes? too (few|many)/);
 
   // Can remove our write-in
   await userEvent.click(screen.getButton('Remove'));
   expect(
     screen.queryByText('Mock Candidate (write-in)')
   ).not.toBeInTheDocument();
-  screen.getByText('Entered tallies are valid');
+  screen.getByText('Entered votes match expected');
 
   // Add back the candidate and save
   await userEvent.click(screen.getButton('Add Write-In Candidate'));
@@ -650,14 +701,14 @@ test('overriding ballot count for a contest', async () => {
   screen.getButton('Remove Override');
 
   await userEvent.clear(ballotCountInput);
-  screen.getByText('Entered tallies do not match total ballots cast');
+  screen.getByText(/votes? too (few|many)/);
   expect(screen.getButton('Save & Next')).toBeEnabled();
 
   await userEvent.type(
     ballotCountInput,
     (mockValidResults.ballotCount * 2).toString()
   );
-  screen.getByText('Entered tallies do not match total ballots cast');
+  screen.getByText(/votes? too (few|many)/);
 
   const updatedResults: Tabulation.ManualElectionResults = {
     ...mockValidResults,
@@ -688,7 +739,7 @@ test('overriding ballot count for a contest', async () => {
   await userEvent.click(screen.getButton('Remove Override'));
   expect(ballotCountInput).toHaveValue(`${mockValidResults.ballotCount}`);
   expect(ballotCountInput).toBeDisabled();
-  screen.getByText('Entered tallies are valid');
+  screen.getByText('Entered votes match expected');
 
   apiMock.expectSetManualResults({
     ...identifier,

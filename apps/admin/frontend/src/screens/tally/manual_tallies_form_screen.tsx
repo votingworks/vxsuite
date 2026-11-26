@@ -2,6 +2,7 @@ import {
   assert,
   assertDefined,
   find,
+  iter,
   mapObject,
   throwIllegalValue,
 } from '@votingworks/basics';
@@ -27,7 +28,6 @@ import {
   Button,
   LinkButton,
   Icons,
-  P,
   Card,
   Caption,
   LabelledText,
@@ -45,7 +45,6 @@ import {
 import {
   format,
   getBallotStyleGroup,
-  areContestResultsValid,
   uniqueCandidateOptions,
   contestOptionName,
 } from '@votingworks/utils';
@@ -138,13 +137,69 @@ function TallyMetadata({
   );
 }
 
-const ValidationMessage = styled.div`
-  padding: 0 1rem;
+const VoteTotalsContainer = styled.div`
+  padding: 0 1rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 
   svg {
     margin-right: 0.125rem;
   }
 `;
+
+const VoteTotalRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-variant-numeric: tabular-nums;
+`;
+
+function VoteTotalsSummary({
+  ballots,
+  voteTotals,
+}: {
+  ballots: number;
+  voteTotals: VoteTotals;
+}): JSX.Element {
+  const { isEmpty, votesAllowed, expected, entered } = voteTotals;
+  const difference = entered - expected;
+  return (
+    <VoteTotalsContainer>
+      <div>
+        <VoteTotalRow>
+          <span>Votes expected</span>
+          <Font weight="semiBold">{format.count(expected)}</Font>
+        </VoteTotalRow>
+        {votesAllowed > 1 && (
+          <Caption>
+            {format.count(ballots)} {ballots === 1 ? 'ballot' : 'ballots'} ×{' '}
+            {votesAllowed}
+          </Caption>
+        )}
+      </div>
+      <VoteTotalRow>
+        <span>Votes entered</span>
+        <Font weight="semiBold">{format.count(entered)}</Font>
+      </VoteTotalRow>
+      {isEmpty ? (
+        <div>
+          <Icons.Info /> No tallies entered
+        </div>
+      ) : difference === 0 ? (
+        <div>
+          <Icons.Checkbox color="success" /> Entered votes match expected
+        </div>
+      ) : (
+        <Font weight="semiBold">
+          <Icons.Warning color="warning" /> {format.count(Math.abs(difference))}{' '}
+          {Math.abs(difference) === 1 ? 'vote' : 'votes'}{' '}
+          {difference < 0 ? 'too few' : 'too many'}
+        </Font>
+      )}
+    </VoteTotalsContainer>
+  );
+}
 
 const Actions = styled.div`
   padding: 1rem;
@@ -347,8 +402,6 @@ function emptyFormContestResults(
   }
 }
 
-type ValidationError = 'empty' | 'invalid';
-
 function valueOrZero(value: InputValue): number {
   return value === '' ? 0 : value;
 }
@@ -386,9 +439,14 @@ function convertFormContestResultsToTabulationContestResults(
   }
 }
 
-function validateTallies(
-  formContestResults: FormContestResults
-): ValidationError | undefined {
+interface VoteTotals {
+  readonly isEmpty: boolean;
+  readonly votesAllowed: number;
+  readonly expected: number;
+  readonly entered: number;
+}
+
+function getVoteTotals(formContestResults: FormContestResults): VoteTotals {
   const tallyValues = [
     formContestResults.overvotes,
     formContestResults.undervotes,
@@ -396,17 +454,16 @@ function validateTallies(
       ? Object.values(formContestResults.tallies).map(({ tally }) => tally)
       : Object.values(formContestResults.tallies)),
   ];
-  if (tallyValues.every((v) => v === '')) {
-    return 'empty';
-  }
-  if (
-    !areContestResultsValid(
-      convertFormContestResultsToTabulationContestResults(formContestResults)
-    )
-  ) {
-    return 'invalid';
-  }
-  return undefined;
+  const votesAllowed =
+    formContestResults.contestType === 'candidate'
+      ? formContestResults.votesAllowed
+      : 1;
+  return {
+    isEmpty: tallyValues.every((v) => v === ''),
+    votesAllowed,
+    expected: valueOrZero(formContestResults.ballots) * votesAllowed,
+    entered: iter(tallyValues).map(valueOrZero).sum(),
+  };
 }
 
 function convertTabulationResultsToFormResults(
@@ -767,10 +824,8 @@ function ContestForm({
     updateManualResultsWithNewContestResults(contestResults);
   }
 
-  const validationError = validateTallies(
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    formManualResults.contestResults[contestId]!
-  );
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const formContestResults = formManualResults.contestResults[contestId]!;
 
   const contestWriteInCandidates = savedWriteInCandidates.filter(
     (candidate) => candidate.contestId === contestId
@@ -855,6 +910,11 @@ function ContestForm({
                 onChange={(value) => updateContestData('overvotes', value)}
               />
               <label htmlFor="overvotes">Overvotes</label>
+              {contest.type === 'candidate' && contest.seats > 1 && (
+                <Caption style={{ marginLeft: 'auto' }}>
+                  Enter {contest.seats} for each overvoted ballot
+                </Caption>
+              )}
             </ContestDataRow>
           </ContestSection>
 
@@ -953,35 +1013,10 @@ function ContestForm({
             votingMethod={votingMethod}
           />
           <div>
-            <ValidationMessage>
-              {(() => {
-                switch (validationError) {
-                  case 'empty':
-                    return (
-                      <P>
-                        <Icons.Info /> No tallies entered
-                      </P>
-                    );
-                  case 'invalid':
-                    return (
-                      <P>
-                        <Icons.Warning color="warning" /> Entered tallies do not
-                        match total ballots cast
-                      </P>
-                    );
-                  case undefined:
-                    return (
-                      <P>
-                        <Icons.Checkbox color="success" /> Entered tallies are
-                        valid
-                      </P>
-                    );
-                  default: {
-                    throwIllegalValue(validationError);
-                  }
-                }
-              })()}
-            </ValidationMessage>
+            <VoteTotalsSummary
+              ballots={valueOrZero(formContestResults.ballots)}
+              voteTotals={getVoteTotals(formContestResults)}
+            />
             <Actions>
               <Button
                 icon="Previous"
