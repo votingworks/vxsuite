@@ -347,28 +347,63 @@ function emptyFormContestResults(
   }
 }
 
-type ValidationError = 'empty' | 'incomplete' | 'invalid';
+type ValidationError = 'empty' | 'invalid';
+
+function valueOrZero(value: InputValue): number {
+  return value === '' ? 0 : value;
+}
+
+function convertFormContestResultsToTabulationContestResults(
+  formContestResults: FormContestResults
+): Tabulation.ContestResults {
+  const metadata: Pick<
+    Tabulation.ContestResults,
+    'ballots' | 'overvotes' | 'undervotes'
+  > = {
+    ballots: valueOrZero(formContestResults.ballots),
+    overvotes: valueOrZero(formContestResults.overvotes),
+    undervotes: valueOrZero(formContestResults.undervotes),
+  };
+  switch (formContestResults.contestType) {
+    case 'yesno':
+      return {
+        ...formContestResults,
+        ...metadata,
+        tallies: mapObject(formContestResults.tallies, valueOrZero),
+      };
+    case 'candidate':
+      return {
+        ...formContestResults,
+        ...metadata,
+        tallies: mapObject(formContestResults.tallies, (candidateTally) => ({
+          ...candidateTally,
+          tally: valueOrZero(candidateTally.tally),
+        })),
+      };
+    default: {
+      throwIllegalValue(formContestResults);
+    }
+  }
+}
 
 function validateTallies(
-  formContestResults: FormContestResults,
-  isOverridingBallotCount: boolean
+  formContestResults: FormContestResults
 ): ValidationError | undefined {
-  const formValues = [
-    ...(isOverridingBallotCount ? [formContestResults.ballots] : []),
+  const tallyValues = [
     formContestResults.overvotes,
     formContestResults.undervotes,
     ...(formContestResults.contestType === 'candidate'
       ? Object.values(formContestResults.tallies).map(({ tally }) => tally)
       : Object.values(formContestResults.tallies)),
   ];
-  if (formValues.every((v) => v === '')) {
+  if (tallyValues.every((v) => v === '')) {
     return 'empty';
   }
-  if (formValues.some((v) => v === '')) {
-    return 'incomplete';
-  }
-  const contestResults = formContestResults as Tabulation.ContestResults;
-  if (!areContestResultsValid(contestResults)) {
+  if (
+    !areContestResultsValid(
+      convertFormContestResultsToTabulationContestResults(formContestResults)
+    )
+  ) {
     return 'invalid';
   }
   return undefined;
@@ -393,34 +428,6 @@ function convertTabulationResultsToFormResults(
     })
   );
   return { contestResults, ballotCount: savedResults?.ballotCount ?? '' };
-}
-
-function convertFormResultsToTabulationResults(
-  formResults: FormManualResults
-): Tabulation.ManualElectionResults {
-  assert(formResults.ballotCount !== '');
-  const validContestResults = Object.fromEntries(
-    Object.entries(formResults.contestResults).filter(
-      ([, formContestResults]) => {
-        const isOverridingBallotCount =
-          formContestResults.ballots !== formResults.ballotCount;
-        const validationError = validateTallies(
-          formContestResults,
-          isOverridingBallotCount
-        );
-        assert(validationError !== 'incomplete');
-        return validationError !== 'empty';
-      }
-    )
-  );
-
-  return {
-    contestResults: validContestResults as Record<
-      string,
-      Tabulation.ContestResults
-    >,
-    ballotCount: formResults.ballotCount,
-  };
 }
 
 function BallotCountForm({
@@ -463,16 +470,16 @@ function BallotCountForm({
         precinctId,
         ballotStyleGroupId,
         votingMethod,
-        manualResults: convertFormResultsToTabulationResults({
+        manualResults: {
           ballotCount,
           contestResults: mapObject(
-            initialManualResults.contestResults,
+            savedManualResults?.manualResults.contestResults ?? {},
             (contestResults) => ({
               ...contestResults,
               ballots: ballotCount,
             })
           ),
-        }),
+        },
       });
     }
 
@@ -604,7 +611,16 @@ function ContestForm({
       precinctId,
       ballotStyleGroupId,
       votingMethod,
-      manualResults: convertFormResultsToTabulationResults(formManualResults),
+      manualResults: {
+        ballotCount: savedManualResults.manualResults.ballotCount,
+        contestResults: {
+          ...savedManualResults.manualResults.contestResults,
+          [contestId]: convertFormContestResultsToTabulationContestResults(
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            formManualResults.contestResults[contestId]!
+          ),
+        },
+      },
     });
     history.push(
       nextContest
@@ -753,8 +769,7 @@ function ContestForm({
 
   const validationError = validateTallies(
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    formManualResults.contestResults[contestId]!,
-    isOverridingBallotCount
+    formManualResults.contestResults[contestId]!
   );
 
   const contestWriteInCandidates = savedWriteInCandidates.filter(
@@ -947,12 +962,6 @@ function ContestForm({
                         <Icons.Info /> No tallies entered
                       </P>
                     );
-                  case 'incomplete':
-                    return (
-                      <P>
-                        <Icons.Warning color="warning" /> Incomplete tallies
-                      </P>
-                    );
                   case 'invalid':
                     return (
                       <P>
@@ -1003,10 +1012,7 @@ function ContestForm({
                 variant="primary"
                 icon="Done"
                 onPress={saveResults}
-                disabled={
-                  validationError === 'incomplete' ||
-                  setManualTallyMutation.isLoading
-                }
+                disabled={setManualTallyMutation.isLoading}
               >
                 {nextContest ? 'Save & Next' : 'Finish'}
               </Button>

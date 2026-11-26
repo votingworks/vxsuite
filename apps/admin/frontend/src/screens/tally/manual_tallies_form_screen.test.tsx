@@ -197,8 +197,8 @@ test('entering initial ballot count and contest tallies', async () => {
     const overvotesInput = screen.getByLabelText('Overvotes');
     expect(overvotesInput).toHaveValue('');
     await userEvent.type(overvotesInput, contestResults.overvotes.toString());
-    screen.getByText('Incomplete tallies');
-    expect(screen.getButton(saveButtonLabel)).toBeDisabled();
+    screen.getByText('Entered tallies do not match total ballots cast');
+    expect(screen.getButton(saveButtonLabel)).toBeEnabled();
 
     const undervotesInput = screen.getByLabelText('Undervotes');
     expect(undervotesInput).toHaveValue('');
@@ -249,6 +249,74 @@ test('entering initial ballot count and contest tallies', async () => {
   await vi.waitFor(() =>
     expect(history.location.pathname).toEqual('/tally/manual')
   );
+});
+
+test('blank tallies are saved as zeros', async () => {
+  const initialResults: Tabulation.ManualElectionResults = {
+    ballotCount: 10,
+    contestResults: {},
+  };
+  apiMock.expectGetWriteInCandidates([]);
+  apiMock.expectGetManualResults(identifier, initialResults);
+  renderScreen({
+    initialRoute: `/tally/manual/${ballotStyleGroupId}/${votingMethod}/${precinctId}/${contests[0]!.id}`,
+  });
+
+  function zeroResults(
+    contest: (typeof contests)[number],
+    undervotes: number
+  ): Tabulation.ContestResults {
+    assert(contest.type === 'candidate');
+    return {
+      contestId: contest.id,
+      contestType: 'candidate',
+      votesAllowed: contest.seats,
+      ballots: 10,
+      overvotes: 0,
+      undervotes,
+      tallies: Object.fromEntries(
+        contest.candidates.map((candidate) => [
+          candidate.id,
+          { id: candidate.id, name: candidate.name, tally: 0 },
+        ])
+      ),
+    };
+  }
+
+  await screen.findByRole('heading', { name: contests[0]!.title });
+  screen.getByText('No tallies entered');
+  await userEvent.type(screen.getByLabelText('Undervotes'), '10');
+  screen.getByText('Entered tallies are valid');
+
+  const resultsAfterFirstContest: Tabulation.ManualElectionResults = {
+    ballotCount: 10,
+    contestResults: { [contests[0]!.id]: zeroResults(contests[0]!, 10) },
+  };
+  apiMock.expectSetManualResults({
+    ...identifier,
+    manualResults: resultsAfterFirstContest,
+  });
+  apiMock.expectGetManualResults(identifier, resultsAfterFirstContest);
+  apiMock.expectGetWriteInCandidates([]);
+  await userEvent.click(screen.getButton('Save & Next'));
+
+  await screen.findByRole('heading', { name: contests[1]!.title });
+  screen.getByText('No tallies entered');
+  const resultsAfterSecondContest: Tabulation.ManualElectionResults = {
+    ballotCount: 10,
+    contestResults: {
+      ...resultsAfterFirstContest.contestResults,
+      [contests[1]!.id]: zeroResults(contests[1]!, 0),
+    },
+  };
+  apiMock.expectSetManualResults({
+    ...identifier,
+    manualResults: resultsAfterSecondContest,
+  });
+  apiMock.expectGetManualResults(identifier, resultsAfterSecondContest);
+  apiMock.expectGetWriteInCandidates([]);
+  await userEvent.click(screen.getButton('Save & Next'));
+  await screen.findByRole('heading', { name: contests[2]!.title });
 });
 
 test('editing existing tallies', async () => {
@@ -313,8 +381,8 @@ test('editing existing tallies', async () => {
     const input = screen.getByLabelText(label);
     expect(input).toHaveValue(`${value}`);
     await userEvent.clear(input);
-    screen.getByText('Incomplete tallies');
-    expect(screen.getButton('Save & Next')).toBeDisabled();
+    screen.getByText('Entered tallies do not match total ballots cast');
+    expect(screen.getButton('Save & Next')).toBeEnabled();
     await userEvent.type(input, 'abc'); // Non-number shouldn't do anything
     await userEvent.type(input, (value * 2).toString());
   }
@@ -411,7 +479,7 @@ test('adding new write-in candidates', async () => {
   await userEvent.click(screen.getButton('Add Write-In Candidate'));
   await userEvent.type(screen.getByLabelText('Write-in'), 'Mock Candidate');
   await userEvent.click(screen.getButton('Add'));
-  screen.getByText('Incomplete tallies');
+  screen.getByText('Entered tallies are valid');
 
   // Can add to new write-in candidate's count
   await userEvent.type(
@@ -582,8 +650,8 @@ test('overriding ballot count for a contest', async () => {
   screen.getButton('Remove Override');
 
   await userEvent.clear(ballotCountInput);
-  screen.getByText('Incomplete tallies');
-  expect(screen.getButton('Save & Next')).toBeDisabled();
+  screen.getByText('Entered tallies do not match total ballots cast');
+  expect(screen.getButton('Save & Next')).toBeEnabled();
 
   await userEvent.type(
     ballotCountInput,
