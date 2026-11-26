@@ -181,17 +181,16 @@ function VoteTotalsSummary({
         <Font weight="semiBold">{format.count(entered)}</Font>
       </VoteTotalRow>
       <VoteTotalRow>
+        <span>Votes expected</span>
         <span>
-          Votes expected
           {votesAllowed > 1 && (
             <Caption>
-              {' '}
-              ({format.count(ballots)} {ballots === 1 ? 'ballot' : 'ballots'} ×{' '}
-              {votesAllowed})
+              {format.count(ballots)} {ballots === 1 ? 'ballot' : 'ballots'} ×{' '}
+              {votesAllowed} votes ={' '}
             </Caption>
           )}
+          <Font weight="semiBold">{format.count(expected)}</Font>
         </span>
-        <Font weight="semiBold">{format.count(expected)}</Font>
       </VoteTotalRow>
       <VoteTotalsStatus>
         {isEmpty ? (
@@ -200,15 +199,15 @@ function VoteTotalsSummary({
           </div>
         ) : difference === 0 ? (
           <div>
-            <Icons.Checkbox color="success" /> Entered votes match expected
+            <Icons.Done color="success" /> Entered votes match expected
           </div>
         ) : (
-          <Font weight="semiBold">
+          <div>
             <Icons.Warning color="warning" />{' '}
             {format.count(Math.abs(difference))}{' '}
             {Math.abs(difference) === 1 ? 'vote' : 'votes'}{' '}
             {difference < 0 ? 'too few' : 'too many'}
-          </Font>
+          </div>
         )}
       </VoteTotalsStatus>
     </VoteTotalsContainer>
