@@ -715,6 +715,11 @@ function ContestForm({
           <div style={{ marginBottom: '0.5rem' }}>
             <Caption>{getContestDistrictName(election, contest)}</Caption>
             <H2 style={{ margin: 0 }}>{contest.title}</H2>
+            {contest.type === 'candidate' && contest.termDescription && (
+              <Font weight="semiBold" style={{ display: 'block' }}>
+                {contest.termDescription}
+              </Font>
+            )}
             {contest.type === 'candidate' && (
               <div>Vote for {contest.seats}</div>
             )}

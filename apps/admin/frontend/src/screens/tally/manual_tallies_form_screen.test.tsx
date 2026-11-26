@@ -365,6 +365,7 @@ test('shows expected and entered vote totals', async () => {
   await userEvent.click(screen.getButton('Save & Next'));
 
   await screen.findByRole('heading', { name: contests[1]!.title });
+  screen.getByText('For three years');
   screen.getByText('Vote for 3');
   screen.getByText('Enter 3 for each overvoted ballot');
   screen.getByText(
