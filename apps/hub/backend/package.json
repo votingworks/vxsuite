@@ -49,11 +49,11 @@
     "send-welcome-email": "pnpm build && node ./build/scripts/send_welcome_email.js",
     "start": "./scripts/start.sh",
     "start-with-mock-circleci": "./scripts/start-with-mock-circleci.sh",
-    "test": "pnpm -w vx-task build $npm_package_name && TZ=America/Anchorage vitest",
+    "test": "pnpm -w vx-task build $npm_package_name && vitest",
     "test:ci": "pnpm -w vx-task test:ci $npm_package_name",
-    "test:ci:self": "pnpm db:migrations:ci-validate && TZ=America/Anchorage ./scripts/test_ci.sh",
+    "test:ci:self": "pnpm db:migrations:ci-validate && ./scripts/test_ci.sh",
     "test:run": "pnpm -w vx-task test:run $npm_package_name",
-    "test:run:self": "TZ=America/Anchorage vitest run",
+    "test:run:self": "vitest run",
     "type-check:self": "rm -f tsconfig.tsbuildinfo && tsc -p tsconfig.json"
   },
   "dependencies": {

@@ -61,7 +61,7 @@ const mockPollsOpenReport: ReceivedReportInfo = {
   ballotHash: 'abc123def456',
   machineId: 'VxScan-001',
   isLive: true,
-  pollsTransitionTime: new Date('2024-11-05T08:00:00Z'),
+  pollsTransitionTime: new Date(2024, 10, 5, 8, 0),
   election,
   pollingPlaceId: generalPollingPlaceId,
 
