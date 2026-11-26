@@ -22,9 +22,9 @@
     "start": "pnpm -w vx-dev mark",
     "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}'",
     "stylelint:run:fix": "stylelint 'src/**/*.{js,jsx,ts,tsx}' --fix",
-    "test": "pnpm -w vx-task build $npm_package_name && TZ=America/Anchorage vitest",
+    "test": "pnpm -w vx-task build $npm_package_name && vitest",
     "test:run": "pnpm -w vx-task test:run $npm_package_name",
-    "test:run:self": "TZ=America/Anchorage vitest run",
+    "test:run:self": "vitest run",
     "type-check:self": "rm -f tsconfig.tsbuildinfo && tsc -p tsconfig.json"
   },
   "browserslist": {

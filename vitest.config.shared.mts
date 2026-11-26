@@ -3,6 +3,9 @@ import * as vitest from 'vitest/config';
 
 const isCI = process.env['CI'] === 'true';
 
+// Near production zones (same side of UTC) but unlike any dev machine's zone.
+process.env['TZ'] = 'America/Anchorage';
+
 const coverageCheckReporter = fileURLToPath(
   new URL('./libs/coverage-check/vitest_coverage_reporter.cjs', import.meta.url)
 );
