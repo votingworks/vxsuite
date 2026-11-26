@@ -108,6 +108,9 @@ test('mark official results button enabled when manual tallies exist but no CVRs
       votingMethod: 'precinct',
       ballotCount: 100,
       createdAt: new Date().toISOString(),
+      contestCount: 5,
+      enteredContestCount: 5,
+      invalidContestCount: 0,
     },
   ]); // has manual tallies
   renderInAppContext(<MarkResultsOfficialButton />, {

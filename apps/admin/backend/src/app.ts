@@ -113,7 +113,7 @@ import type { MachineModeController } from './machine_mode.js';
 import { getBallotImages } from './util/adjudication.js';
 import {
   transformWriteInsAndSetManualResults,
-  validateManualResults,
+  getManualResultsProgress,
 } from './util/manual_results.js';
 import { addFileToZipStream } from './util/zip.js';
 
@@ -1088,7 +1088,7 @@ function buildApi({
         return {
           ...metadata,
           ballotCount: manualResults.ballotCount,
-          validationError: validateManualResults(election, record),
+          ...getManualResultsProgress(election, record),
         };
       });
     },

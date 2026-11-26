@@ -75,6 +75,9 @@ export const mockManualResultsMetadata: ManualResultsMetadata[] = [
     votingMethod: 'precinct',
     ballotCount: 10,
     createdAt: new Date().toISOString(),
+    contestCount: 5,
+    enteredContestCount: 5,
+    invalidContestCount: 0,
   },
 ];
 

@@ -596,18 +596,20 @@ export interface ManualResultsMetadataRecord extends ManualResultsIdentifier {
 }
 
 /**
- * Validation error types for manual results.
- * invalid - some contest has tallies that don't match the number of ballots
- * incomplete - some contest is missing tallies
+ * Entry progress for a set of manual results.
  */
-export type ManualResultsValidationError = 'invalid' | 'incomplete';
+export interface ManualResultsProgress {
+  readonly contestCount: number;
+  readonly enteredContestCount: number;
+  readonly invalidContestCount: number;
+  readonly firstUnresolvedContestId?: ContestId;
+}
 
 /**
- * Manual results metadata with optional validation error.
+ * Manual results metadata with entry progress.
  */
-export interface ManualResultsMetadata extends ManualResultsMetadataRecord {
-  validationError?: 'invalid' | 'incomplete';
-}
+export interface ManualResultsMetadata
+  extends ManualResultsMetadataRecord, ManualResultsProgress {}
 
 /**
  * Subset of cast vote record filters that we can filter on for manual results.

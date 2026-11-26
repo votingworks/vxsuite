@@ -14,7 +14,7 @@ import {
 import type { Store } from '../store.js';
 import type {
   ManualResultsRecord,
-  ManualResultsValidationError,
+  ManualResultsProgress,
   ManualResultsVotingMethod,
 } from '../types.js';
 
@@ -129,16 +129,15 @@ export async function transformWriteInsAndSetManualResults({
 }
 
 /**
- * Validates that a set of manual results are complete and valid, returning a
- * {@link ManualResultsValidationError} if not.
+ * Summarizes how far along entry of a set of manual results is: how many of
+ * the ballot style's contests have been entered, how many of those have
+ * tallies that don't add up, and the first contest (in ballot order) that
+ * is either not entered or doesn't add up.
  */
-export function validateManualResults(
+export function getManualResultsProgress(
   election: Election,
   resultsRecord: ManualResultsRecord
-): ManualResultsValidationError | undefined {
-  const anyInvalidContests = !Object.values(
-    resultsRecord.manualResults.contestResults
-  ).every(areContestResultsValid);
+): ManualResultsProgress {
   const ballotStyleGroup = assertDefined(
     getBallotStyleGroup({
       election,
@@ -148,13 +147,23 @@ export function validateManualResults(
   const contests = getContests({
     election,
     ballotStyle: ballotStyleGroup,
-  });
-  const anyMissingContests = contests.some(
-    (contest) => !resultsRecord.manualResults.contestResults[contest.id]
+  }).filter((contest) => contest.type !== 'straight-party');
+  const { contestResults } = resultsRecord.manualResults;
+  const enteredContests = contests.filter(
+    (contest) => contestResults[contest.id]
   );
-  return anyInvalidContests
-    ? 'invalid'
-    : anyMissingContests
-      ? 'incomplete'
-      : undefined;
+  const invalidContests = enteredContests.filter(
+    (contest) =>
+      !areContestResultsValid(assertDefined(contestResults[contest.id]))
+  );
+  const firstUnresolvedContest = contests.find(
+    (contest) =>
+      !enteredContests.includes(contest) || invalidContests.includes(contest)
+  );
+  return {
+    contestCount: contests.length,
+    enteredContestCount: enteredContests.length,
+    invalidContestCount: invalidContests.length,
+    firstUnresolvedContestId: firstUnresolvedContest?.id,
+  };
 }

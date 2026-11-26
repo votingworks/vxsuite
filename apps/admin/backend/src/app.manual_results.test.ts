@@ -179,7 +179,10 @@ test('manual results flow (official candidates only)', async () => {
     votingMethod: 'precinct',
     ballotCount: resultsPrecinct1MammalBallotStyle.ballotCount,
     createdAt: expect.any(String),
-    validationError: 'invalid',
+    contestCount: 5,
+    enteredContestCount: 5,
+    invalidContestCount: 1,
+    firstUnresolvedContestId: 'best-animal-mammal',
   });
   expect(precinct1FishMetadata).toEqual({
     precinctId: 'precinct-1',
@@ -187,7 +190,10 @@ test('manual results flow (official candidates only)', async () => {
     votingMethod: 'precinct',
     ballotCount: resultsPrecinct1FishBallotStyle.ballotCount,
     createdAt: expect.any(String),
-    validationError: undefined,
+    contestCount: 5,
+    enteredContestCount: 5,
+    invalidContestCount: 0,
+    firstUnresolvedContestId: undefined,
   });
   expect(precinct2MammalMetadata).toEqual({
     precinctId: 'precinct-2',
@@ -195,7 +201,10 @@ test('manual results flow (official candidates only)', async () => {
     votingMethod: 'precinct',
     ballotCount: resultsPrecinct2MammalBallotStyle.ballotCount,
     createdAt: expect.any(String),
-    validationError: undefined,
+    contestCount: 5,
+    enteredContestCount: 5,
+    invalidContestCount: 0,
+    firstUnresolvedContestId: undefined,
   });
   expect(precinct2FishMetadata).toEqual({
     precinctId: 'precinct-2',
@@ -203,7 +212,10 @@ test('manual results flow (official candidates only)', async () => {
     votingMethod: 'precinct',
     ballotCount: resultsPrecinct2FishBallotStyle.ballotCount,
     createdAt: expect.any(String),
-    validationError: 'incomplete',
+    contestCount: 5,
+    enteredContestCount: 4,
+    invalidContestCount: 0,
+    firstUnresolvedContestId: 'aquarium-council-fish',
   });
 
   // check retrieving individual tally

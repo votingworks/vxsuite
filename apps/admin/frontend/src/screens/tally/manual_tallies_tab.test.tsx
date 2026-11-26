@@ -182,19 +182,33 @@ test('link to edit an existing tally', async () => {
   );
 });
 
-test('table shows tally info and validation errors', async () => {
+test('table shows tally info and entry progress', async () => {
   apiMock.expectGetManualResultsMetadata([
-    { ...mockManualResultsMetadata[0]!, validationError: 'incomplete' },
+    {
+      ...mockManualResultsMetadata[0]!,
+      enteredContestCount: 2,
+      firstUnresolvedContestId: 'zoo-council-mammal',
+    },
     {
       ...mockManualResultsMetadata[0]!,
       votingMethod: 'absentee',
-      validationError: 'invalid',
+      enteredContestCount: 3,
+      invalidContestCount: 1,
+      firstUnresolvedContestId: 'best-animal-mammal',
+    },
+    {
+      ...mockManualResultsMetadata[0]!,
+      votingMethod: 'early_voting',
+      invalidContestCount: 2,
+      firstUnresolvedContestId: 'new-zoo-either',
     },
   ]);
   apiMock.expectGetSystemSettings();
+  const history = createMemoryHistory();
   renderInAppContext(<ManualTalliesTab />, {
     electionDefinition,
     apiMock,
+    history,
   });
 
   const table = await screen.findByRole('table');
@@ -211,14 +225,24 @@ test('table shows tally info and validation errors', async () => {
     'Precinct 1 - Mammal',
     'Absentee',
     '10',
-    ' Invalid',
-    'EditRemove',
+    " 1 contest doesn't add up",
+    'ContinueRemove',
+    'Precinct 1 - Mammal',
+    'Early Voting',
+    '10',
+    " 2 contests don't add up",
+    'ContinueRemove',
     'Precinct 1 - Mammal',
     'Precinct',
     '10',
-    ' Incomplete',
-    'EditRemove',
+    ' 2 of 5 contests entered',
+    'ContinueRemove',
   ]);
+
+  await userEvent.click(screen.getAllButtons('Continue')[2]!);
+  expect(history.location.pathname).toEqual(
+    '/tally/manual/1-Ma/precinct/precinct-c1-w1-1/zoo-council-mammal'
+  );
 });
 
 test('delete an existing tally', async () => {
@@ -262,6 +286,9 @@ test('full table & clearing all data', async () => {
           votingMethod,
           ballotCount: 10,
           createdAt: new Date().toISOString(),
+          contestCount: 5,
+          enteredContestCount: 5,
+          invalidContestCount: 0,
         }))
       )
     )

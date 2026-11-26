@@ -407,26 +407,45 @@ export function ManualTalliesTab(): JSX.Element | null {
                     {metadata.ballotCount.toLocaleString()}
                   </TD>
                   <TD narrow nowrap>
-                    {metadata.validationError === 'invalid' && (
+                    {metadata.invalidContestCount > 0 ? (
                       <React.Fragment>
-                        <Icons.Warning color="warning" /> Invalid
+                        <Icons.Warning color="warning" />{' '}
+                        {metadata.invalidContestCount === 1
+                          ? "1 contest doesn't add up"
+                          : `${metadata.invalidContestCount} contests don't add up`}
                       </React.Fragment>
-                    )}
-                    {metadata.validationError === 'incomplete' && (
-                      <React.Fragment>
-                        <Icons.Info /> Incomplete
-                      </React.Fragment>
+                    ) : (
+                      metadata.enteredContestCount < metadata.contestCount && (
+                        <React.Fragment>
+                          <Icons.Info /> {metadata.enteredContestCount} of{' '}
+                          {metadata.contestCount} contests entered
+                        </React.Fragment>
+                      )
                     )}
                   </TD>
                   <TD nowrap style={{ minWidth: '14rem' }}>
-                    <LinkButton
-                      icon="Edit"
-                      fill="transparent"
-                      to={routerPaths.tallyManualForm(metadata)}
-                      disabled={isOfficialResults}
-                    >
-                      Edit
-                    </LinkButton>
+                    {metadata.firstUnresolvedContestId ? (
+                      <LinkButton
+                        icon="Next"
+                        fill="transparent"
+                        to={routerPaths.tallyManualFormContest({
+                          ...metadata,
+                          contestId: metadata.firstUnresolvedContestId,
+                        })}
+                        disabled={isOfficialResults}
+                      >
+                        Continue
+                      </LinkButton>
+                    ) : (
+                      <LinkButton
+                        icon="Edit"
+                        fill="transparent"
+                        to={routerPaths.tallyManualForm(metadata)}
+                        disabled={isOfficialResults}
+                      >
+                        Edit
+                      </LinkButton>
+                    )}
                     <Button
                       icon="Delete"
                       color="danger"

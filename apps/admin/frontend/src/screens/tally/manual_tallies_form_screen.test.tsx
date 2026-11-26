@@ -119,6 +119,45 @@ const mockValidResults: Tabulation.ManualElectionResults = {
   ),
 };
 
+function zeroResults(
+  contest: (typeof contests)[number],
+  {
+    ballots,
+    undervotes = 0,
+  }: {
+    ballots: number;
+    undervotes?: number;
+  }
+): Tabulation.ContestResults {
+  if (contest.type === 'candidate') {
+    return {
+      contestId: contest.id,
+      contestType: 'candidate',
+      votesAllowed: contest.seats,
+      ballots,
+      overvotes: 0,
+      undervotes,
+      tallies: Object.fromEntries(
+        contest.candidates.map((candidate) => [
+          candidate.id,
+          { id: candidate.id, name: candidate.name, tally: 0 },
+        ])
+      ),
+    };
+  }
+  assert(contest.type === 'yesno');
+  return {
+    contestId: contest.id,
+    contestType: 'yesno',
+    ballots,
+    overvotes: 0,
+    undervotes,
+    tallies: Object.fromEntries(
+      contest.options.map((option) => [option.id, 0])
+    ),
+  };
+}
+
 function renderScreen({
   initialRoute = `/tally/manual/${ballotStyleGroupId}/${votingMethod}/${precinctId}`,
 }: {
@@ -142,7 +181,7 @@ function renderScreen({
   };
 }
 
-test('entering initial ballot count and contest tallies', async () => {
+test('entering contest tallies for a new manual tally', async () => {
   apiMock.expectGetWriteInCandidates([]);
   apiMock.expectGetManualResults(identifier, undefined);
   const { history } = renderScreen();
@@ -151,25 +190,11 @@ test('entering initial ballot count and contest tallies', async () => {
   screen.getByText(hasTextAcrossElements(/Ballot StylePrecinct 1 - Mammal/));
   screen.getByText(hasTextAcrossElements(/Voting MethodAbsentee/));
 
-  // Enter ballot count
   screen.getButton('Close');
-  screen.getButton('Cancel');
-  expect(screen.getButton('Save & Next')).toBeDisabled();
-  await userEvent.type(
-    screen.getByLabelText('Manual Tally Ballot Count'),
-    mockValidResults.ballotCount.toString()
-  );
   let updatedResults: Tabulation.ManualElectionResults = {
     ...mockValidResults,
     contestResults: {},
   };
-  apiMock.expectSetManualResults({
-    ...identifier,
-    manualResults: updatedResults,
-  });
-  apiMock.expectGetManualResults(identifier, updatedResults);
-  apiMock.expectGetWriteInCandidates([]);
-  await userEvent.click(screen.getButton('Save & Next'));
 
   // Enter tallies for each contest
   for (const [i, contest] of contests.entries()) {
@@ -190,9 +215,20 @@ test('entering initial ballot count and contest tallies', async () => {
       contestNumber === contests.length ? 'Finish' : 'Save & Next';
     expect(screen.getButton(saveButtonLabel)).toBeEnabled();
 
-    const ballotCountInput = screen.getByLabelText('Manual Tally Ballot Count');
-    expect(ballotCountInput).toHaveValue(`${mockValidResults.ballotCount}`);
-    expect(ballotCountInput).toBeDisabled();
+    const ballotCountInput = screen.getByLabelText('Ballot Count');
+    if (i === 0) {
+      expect(screen.getButton('Previous')).toBeDisabled();
+      expect(ballotCountInput).toHaveValue('');
+      expect(ballotCountInput).toHaveFocus();
+      await userEvent.type(
+        ballotCountInput,
+        mockValidResults.ballotCount.toString()
+      );
+    } else {
+      expect(screen.getButton('Previous')).toBeEnabled();
+      expect(ballotCountInput).toHaveValue(`${mockValidResults.ballotCount}`);
+      expect(screen.getByLabelText('Undervotes')).toHaveFocus();
+    }
 
     const overvotesInput = screen.getByLabelText('Overvotes');
     expect(overvotesInput).toHaveValue('');
@@ -262,35 +298,20 @@ test('blank tallies are saved as zeros', async () => {
     initialRoute: `/tally/manual/${ballotStyleGroupId}/${votingMethod}/${precinctId}/${contests[0]!.id}`,
   });
 
-  function zeroResults(
-    contest: (typeof contests)[number],
-    undervotes: number
-  ): Tabulation.ContestResults {
-    assert(contest.type === 'candidate');
-    return {
-      contestId: contest.id,
-      contestType: 'candidate',
-      votesAllowed: contest.seats,
-      ballots: 10,
-      overvotes: 0,
-      undervotes,
-      tallies: Object.fromEntries(
-        contest.candidates.map((candidate) => [
-          candidate.id,
-          { id: candidate.id, name: candidate.name, tally: 0 },
-        ])
-      ),
-    };
-  }
-
   await screen.findByRole('heading', { name: contests[0]!.title });
   screen.getByText('No tallies entered');
+  await userEvent.type(screen.getByLabelText('Ballot Count'), '10');
   await userEvent.type(screen.getByLabelText('Undervotes'), '10');
   screen.getByText('Entered votes match expected');
 
   const resultsAfterFirstContest: Tabulation.ManualElectionResults = {
     ballotCount: 10,
-    contestResults: { [contests[0]!.id]: zeroResults(contests[0]!, 10) },
+    contestResults: {
+      [contests[0]!.id]: zeroResults(contests[0]!, {
+        ballots: 10,
+        undervotes: 10,
+      }),
+    },
   };
   apiMock.expectSetManualResults({
     ...identifier,
@@ -306,7 +327,7 @@ test('blank tallies are saved as zeros', async () => {
     ballotCount: 10,
     contestResults: {
       ...resultsAfterFirstContest.contestResults,
-      [contests[1]!.id]: zeroResults(contests[1]!, 0),
+      [contests[1]!.id]: zeroResults(contests[1]!, { ballots: 10 }),
     },
   };
   apiMock.expectSetManualResults({
@@ -361,8 +382,7 @@ test('shows expected and entered vote totals', async () => {
   await userEvent.type(overvotesInput, '7');
   screen.getByText('1 vote too many');
 
-  await userEvent.click(screen.getButton('Override'));
-  const ballotCountInput = screen.getByLabelText('Manual Tally Ballot Count');
+  const ballotCountInput = screen.getByLabelText('Ballot Count');
   await userEvent.clear(ballotCountInput);
   await userEvent.type(ballotCountInput, '1');
   screen.getByText(hasTextAcrossElements('Votes expected3'));
@@ -385,40 +405,19 @@ test('editing existing tallies', async () => {
   await screen.findByRole('heading', { name: 'Edit Tallies' });
   screen.getByText(hasTextAcrossElements(/Voting MethodPrecinct/));
 
-  // Edit ballot count
-  const ballotCountInput = screen.getByLabelText('Manual Tally Ballot Count');
-  expect(ballotCountInput).toHaveValue(`${mockValidResults.ballotCount}`);
-  await userEvent.clear(ballotCountInput);
-  expect(screen.getButton('Save & Next')).toBeDisabled();
-  await userEvent.type(
-    ballotCountInput,
-    (mockValidResults.ballotCount * 2).toString()
-  );
-
-  let updatedResults: Tabulation.ManualElectionResults = {
-    ballotCount: mockValidResults.ballotCount * 2,
-    contestResults: mapObject(
-      mockValidResults.contestResults,
-      (contestResults) => ({
-        ...contestResults,
-        ballots: mockValidResults.ballotCount * 2,
-      })
-    ),
-  };
-  apiMock.expectSetManualResults({
-    ...precinctIdentifier,
-    manualResults: updatedResults,
-  });
-  apiMock.expectGetManualResults(precinctIdentifier, updatedResults);
-  apiMock.expectGetWriteInCandidates([]);
-  await userEvent.click(screen.getButton('Save & Next'));
-
   // Edit contest tallies
   const contest = contests[0]!;
   await screen.findByText(`1 of ${contests.length}`);
   assert(contest.type === 'candidate');
-  const contestResults = updatedResults.contestResults[contest.id]!;
+  const contestResults = mockValidResults.contestResults[contest.id]!;
   assert(contestResults.contestType === 'candidate');
+  const ballotCountInput = screen.getByLabelText('Ballot Count');
+  expect(ballotCountInput).toHaveValue(`${mockValidResults.ballotCount}`);
+  await userEvent.clear(ballotCountInput);
+  await userEvent.type(
+    ballotCountInput,
+    (mockValidResults.ballotCount * 2).toString()
+  );
   const inputs = [
     ['Overvotes', contestResults.overvotes],
     ['Undervotes', contestResults.undervotes],
@@ -439,12 +438,13 @@ test('editing existing tallies', async () => {
   }
   screen.getByText('Entered votes match expected');
 
-  updatedResults = {
-    ...updatedResults,
+  const updatedResults: Tabulation.ManualElectionResults = {
+    ballotCount: mockValidResults.ballotCount * 2,
     contestResults: {
-      ...updatedResults.contestResults,
+      ...mockValidResults.contestResults,
       [contest.id]: {
         ...contestResults,
+        ballots: mockValidResults.ballotCount * 2,
         undervotes: contestResults.undervotes * 2,
         overvotes: contestResults.overvotes * 2,
         tallies: mapObject(contestResults.tallies, (candidateTally) => ({
@@ -473,8 +473,7 @@ test('cannot add negative or decimal tallies', async () => {
   screen.getByText(hasTextAcrossElements(/Ballot StylePrecinct 1 - Mammal/));
   screen.getByText(hasTextAcrossElements(/Voting MethodAbsentee/));
 
-  // Enter ballot count
-  const ballotCountInput = screen.getByLabelText('Manual Tally Ballot Count');
+  const ballotCountInput = await screen.findByLabelText('Ballot Count');
 
   await userEvent.type(ballotCountInput, '-100');
   expect(ballotCountInput).toHaveValue('100');
@@ -655,21 +654,18 @@ test('loads adjudicated write-in candidates', async () => {
   await screen.findByText(`3 of ${contests.length}`);
 });
 
-test('previous/cancel button', async () => {
+test('previous button', async () => {
   apiMock.expectGetWriteInCandidates([]);
   apiMock.expectGetManualResults(identifier, mockValidResults);
-  const { history } = renderScreen({
-    initialRoute: `/tally/manual/${ballotStyleGroupId}/${votingMethod}/${precinctId}/${contests[0]!.id}`,
+  renderScreen({
+    initialRoute: `/tally/manual/${ballotStyleGroupId}/${votingMethod}/${precinctId}/${contests[1]!.id}`,
   });
 
-  await screen.findByRole('heading', { name: contests[0]!.title });
+  await screen.findByRole('heading', { name: contests[1]!.title });
   await userEvent.click(screen.getButton('Previous'));
 
-  await screen.findByLabelText('Manual Tally Ballot Count');
-  await userEvent.click(screen.getButton('Cancel'));
-  await vi.waitFor(() =>
-    expect(history.location.pathname).toEqual('/tally/manual')
-  );
+  await screen.findByRole('heading', { name: contests[0]!.title });
+  expect(screen.getButton('Previous')).toBeDisabled();
 });
 
 test('close button', async () => {
@@ -684,110 +680,87 @@ test('close button', async () => {
   );
 });
 
-test('overriding ballot count for a contest', async () => {
-  apiMock.expectGetWriteInCandidates([]);
-  apiMock.expectGetManualResults(identifier, mockValidResults);
-  renderScreen({
-    initialRoute: `/tally/manual/${ballotStyleGroupId}/${votingMethod}/${precinctId}/${contests[0]!.id}`,
-  });
-
-  await screen.findByRole('heading', { name: contests[0]!.title });
-  let ballotCountInput = screen.getByLabelText('Manual Tally Ballot Count');
-  expect(ballotCountInput).toHaveValue(`${mockValidResults.ballotCount}`);
-  expect(ballotCountInput).toBeDisabled();
-
-  await userEvent.click(screen.getButton('Override'));
-  expect(ballotCountInput).toBeEnabled();
-  screen.getButton('Remove Override');
-
-  await userEvent.clear(ballotCountInput);
-  screen.getByText(/votes? too (few|many)/);
-  expect(screen.getButton('Save & Next')).toBeEnabled();
-
-  await userEvent.type(
-    ballotCountInput,
-    (mockValidResults.ballotCount * 2).toString()
-  );
-  screen.getByText(/votes? too (few|many)/);
-
-  const updatedResults: Tabulation.ManualElectionResults = {
-    ...mockValidResults,
+test('ballot count carries forward to contests not yet entered', async () => {
+  const savedResults: Tabulation.ManualElectionResults = {
+    ballotCount: 10,
     contestResults: {
-      ...mockValidResults.contestResults,
-      [contests[0]!.id]: {
-        ...mockValidResults.contestResults[contests[0]!.id]!,
-        ballots: mockValidResults.ballotCount * 2,
-      },
+      [contests[0]!.id]: mockValidResults.contestResults[contests[0]!.id]!,
+      [contests[3]!.id]: mockValidResults.contestResults[contests[3]!.id]!,
     },
   };
-  apiMock.expectSetManualResults({
-    ...identifier,
-    manualResults: updatedResults,
-  });
-  apiMock.expectGetManualResults(identifier, updatedResults);
   apiMock.expectGetWriteInCandidates([]);
-  await userEvent.click(screen.getButton('Save & Next'));
+  apiMock.expectGetManualResults(identifier, savedResults);
+  renderScreen({
+    initialRoute: `/tally/manual/${ballotStyleGroupId}/${votingMethod}/${precinctId}/${contests[1]!.id}`,
+  });
 
   await screen.findByRole('heading', { name: contests[1]!.title });
-  await userEvent.click(screen.getButton('Previous'));
-
-  await screen.findByRole('heading', { name: contests[0]!.title });
-  ballotCountInput = screen.getByLabelText('Manual Tally Ballot Count');
-  expect(ballotCountInput).toHaveValue(`${mockValidResults.ballotCount * 2}`);
-  expect(ballotCountInput).toBeEnabled();
-
-  await userEvent.click(screen.getButton('Remove Override'));
-  expect(ballotCountInput).toHaveValue(`${mockValidResults.ballotCount}`);
-  expect(ballotCountInput).toBeDisabled();
+  const ballotCountInput = screen.getByLabelText('Ballot Count');
+  expect(ballotCountInput).toHaveValue('10');
+  await userEvent.clear(ballotCountInput);
+  await userEvent.type(ballotCountInput, '4');
+  await userEvent.type(screen.getByLabelText('Undervotes'), '12');
   screen.getByText('Entered votes match expected');
 
+  const resultsAfterSecondContest: Tabulation.ManualElectionResults = {
+    ballotCount: 10,
+    contestResults: {
+      ...savedResults.contestResults,
+      [contests[1]!.id]: zeroResults(contests[1]!, {
+        ballots: 4,
+        undervotes: 12,
+      }),
+    },
+  };
   apiMock.expectSetManualResults({
     ...identifier,
-    manualResults: mockValidResults,
+    manualResults: resultsAfterSecondContest,
   });
+  apiMock.expectGetManualResults(identifier, resultsAfterSecondContest);
   apiMock.expectGetWriteInCandidates([]);
-  apiMock.expectGetManualResults(identifier, mockValidResults);
   await userEvent.click(screen.getButton('Save & Next'));
-  await screen.findByRole('heading', { name: contests[1]!.title });
+
+  await screen.findByRole('heading', { name: contests[2]!.title });
+  expect(screen.getByLabelText('Ballot Count')).toHaveValue('4');
+
+  const resultsAfterThirdContest: Tabulation.ManualElectionResults = {
+    ballotCount: 10,
+    contestResults: {
+      ...resultsAfterSecondContest.contestResults,
+      [contests[2]!.id]: zeroResults(contests[2]!, { ballots: 4 }),
+    },
+  };
+  apiMock.expectSetManualResults({
+    ...identifier,
+    manualResults: resultsAfterThirdContest,
+  });
+  apiMock.expectGetManualResults(identifier, resultsAfterThirdContest);
+  apiMock.expectGetWriteInCandidates([]);
+  await userEvent.click(screen.getButton('Save & Next'));
+
+  await screen.findByRole('heading', { name: contests[3]!.title });
+  expect(screen.getByLabelText('Ballot Count')).toHaveValue('10');
 });
 
-test('changing overall ballot count when there are overrides', async () => {
+test('keeps the saved overall ballot count when the first contest has not been entered', async () => {
+  const savedResults: Tabulation.ManualElectionResults = {
+    ballotCount: 7,
+    contestResults: {},
+  };
   apiMock.expectGetWriteInCandidates([]);
-  apiMock.expectGetManualResults(identifier, {
-    ...mockValidResults,
-    contestResults: {
-      ...mockValidResults.contestResults,
-      [contests[0]!.id]: {
-        ...mockValidResults.contestResults[contests[0]!.id]!,
-        ballots: mockValidResults.ballotCount * 2,
-      },
-    },
+  apiMock.expectGetManualResults(identifier, savedResults);
+  renderScreen({
+    initialRoute: `/tally/manual/${ballotStyleGroupId}/${votingMethod}/${precinctId}/${contests[1]!.id}`,
   });
-  renderScreen();
 
-  const ballotCountInput = await screen.findByLabelText(
-    'Manual Tally Ballot Count'
-  );
-  expect(ballotCountInput).toHaveValue(`${mockValidResults.ballotCount}`);
-  screen.getByText(
-    'Changing the manual tally ballot count will remove contest overrides.'
-  );
-  await userEvent.clear(ballotCountInput);
-  expect(screen.getButton('Save & Next')).toBeDisabled();
-  await userEvent.type(
-    ballotCountInput,
-    (mockValidResults.ballotCount + 1).toString()
-  );
+  await screen.findByRole('heading', { name: contests[1]!.title });
+  expect(screen.getByLabelText('Ballot Count')).toHaveValue('');
 
   const updatedResults: Tabulation.ManualElectionResults = {
-    ballotCount: mockValidResults.ballotCount + 1,
-    contestResults: mapObject(
-      mockValidResults.contestResults,
-      (contestResults) => ({
-        ...contestResults,
-        ballots: mockValidResults.ballotCount + 1,
-      })
-    ),
+    ballotCount: 7,
+    contestResults: {
+      [contests[1]!.id]: zeroResults(contests[1]!, { ballots: 0 }),
+    },
   };
   apiMock.expectSetManualResults({
     ...identifier,
@@ -796,44 +769,7 @@ test('changing overall ballot count when there are overrides', async () => {
   apiMock.expectGetManualResults(identifier, updatedResults);
   apiMock.expectGetWriteInCandidates([]);
   await userEvent.click(screen.getButton('Save & Next'));
-
-  await screen.findByRole('heading', { name: contests[0]!.title });
-  expect(screen.getByLabelText('Manual Tally Ballot Count')).toHaveValue(
-    `${mockValidResults.ballotCount + 1}`
-  );
-  expect(screen.getByLabelText('Manual Tally Ballot Count')).toBeDisabled();
-});
-
-test('leaving overrides as is when passing through overall ballot count without an update', async () => {
-  apiMock.expectGetWriteInCandidates([]);
-  apiMock.expectGetManualResults(identifier, {
-    ...mockValidResults,
-    contestResults: {
-      ...mockValidResults.contestResults,
-      [contests[0]!.id]: {
-        ...mockValidResults.contestResults[contests[0]!.id]!,
-        ballots: mockValidResults.ballotCount * 2,
-      },
-    },
-  });
-  renderScreen();
-
-  const ballotCountInput = await screen.findByLabelText(
-    'Manual Tally Ballot Count'
-  );
-  expect(ballotCountInput).toHaveValue(`${mockValidResults.ballotCount}`);
-  screen.getByText(
-    'Changing the manual tally ballot count will remove contest overrides.'
-  );
-
-  // No API calls are expected since we didn't change the overall ballot count
-  await userEvent.click(screen.getButton('Save & Next'));
-
-  await screen.findByRole('heading', { name: contests[0]!.title });
-  expect(screen.getByLabelText('Manual Tally Ballot Count')).toHaveValue(
-    `${mockValidResults.ballotCount * 2}`
-  );
-  expect(screen.getByLabelText('Manual Tally Ballot Count')).toBeEnabled();
+  await screen.findByRole('heading', { name: contests[2]!.title });
 });
 
 test('candidates are ordered according to ballot style rotation', async () => {
@@ -880,23 +816,6 @@ test('candidates are ordered according to ballot style rotation', async () => {
   );
 
   await screen.findByRole('heading', { name: 'Edit Tallies' });
-
-  // Enter ballot count and navigate to first contest
-  await userEvent.type(
-    screen.getByLabelText('Manual Tally Ballot Count'),
-    '10'
-  );
-  const updatedResults: Tabulation.ManualElectionResults = {
-    ballotCount: 10,
-    contestResults: {},
-  };
-  apiMock.expectSetManualResults({
-    ...testIdentifier,
-    manualResults: updatedResults,
-  });
-  apiMock.expectGetManualResults(testIdentifier, updatedResults);
-  apiMock.expectGetWriteInCandidates([]);
-  await userEvent.click(screen.getButton('Save & Next'));
 
   // Check that candidates appear in the rotated order
   await screen.findByRole('heading', { name: 'Best Animal' });
@@ -962,23 +881,6 @@ test('cross-endorsed candidates appear only once in manual tallies form', async 
   );
 
   await screen.findByRole('heading', { name: 'Edit Tallies' });
-
-  // Enter ballot count and navigate to first contest
-  await userEvent.type(
-    screen.getByLabelText('Manual Tally Ballot Count'),
-    '10'
-  );
-  const updatedResults: Tabulation.ManualElectionResults = {
-    ballotCount: 10,
-    contestResults: {},
-  };
-  apiMock.expectSetManualResults({
-    ...testIdentifier,
-    manualResults: updatedResults,
-  });
-  apiMock.expectGetManualResults(testIdentifier, updatedResults);
-  apiMock.expectGetWriteInCandidates([]);
-  await userEvent.click(screen.getButton('Save & Next'));
 
   // Check that fox appears only once despite being in orderedCandidatesByContest twice
   await screen.findByRole('heading', { name: 'Best Animal' });

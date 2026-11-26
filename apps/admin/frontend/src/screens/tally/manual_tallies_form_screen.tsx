@@ -7,10 +7,15 @@ import {
   throwIllegalValue,
 } from '@votingworks/basics';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { Route, Switch, useHistory, useParams } from 'react-router-dom';
+import {
+  Redirect,
+  Route,
+  Switch,
+  useHistory,
+  useParams,
+} from 'react-router-dom';
 import styled from 'styled-components';
 import {
-  type ContestId,
   type ContestOptionId,
   getContestDistrictName,
   getContests,
@@ -38,8 +43,6 @@ import {
   TaskScreen,
   H2,
   Font,
-  Callout,
-  H3,
   NumberInput,
 } from '@votingworks/ui';
 import {
@@ -227,13 +230,9 @@ const FormCard = styled(Card)`
   background: ${(p) => p.theme.colors.background};
 `;
 
-const ContestSection = styled.div<{ fill?: 'neutral' | 'warning' }>`
+const ContestSection = styled.div<{ fill?: 'neutral' }>`
   background: ${(p) =>
-    p.fill === 'neutral'
-      ? p.theme.colors.container
-      : p.fill === 'warning'
-        ? p.theme.colors.warningContainer
-        : undefined};
+    p.fill === 'neutral' ? p.theme.colors.container : undefined};
   border-top: ${(p) => p.theme.sizes.bordersRem.thick}rem double
     ${(p) => p.theme.colors.outline};
 
@@ -345,11 +344,6 @@ type FormCandidateContestResults = Omit<
 
 type FormContestResults = FormYesNoContestResults | FormCandidateContestResults;
 
-interface FormManualResults {
-  readonly contestResults: Record<ContestId, FormContestResults>;
-  readonly ballotCount: number | EmptyValue;
-}
-
 interface FormWriteInCandidate {
   readonly id: string;
   readonly name: string;
@@ -357,7 +351,7 @@ interface FormWriteInCandidate {
 
 function emptyFormContestResults(
   contest: Contest,
-  ballotCount?: number
+  ballots: InputValue
 ): FormContestResults {
   // @coverage-exclude
   if (contest.type === 'straight-party') {
@@ -368,7 +362,7 @@ function emptyFormContestResults(
       return {
         contestId: contest.id,
         contestType: 'yesno',
-        ballots: ballotCount ?? '',
+        ballots,
         overvotes: '',
         undervotes: '',
         tallies: Object.fromEntries(
@@ -381,7 +375,7 @@ function emptyFormContestResults(
         contestId: contest.id,
         contestType: 'candidate',
         votesAllowed: contest.seats,
-        ballots: ballotCount ?? '',
+        ballots,
         overvotes: '',
         undervotes: '',
         tallies: Object.fromEntries(
@@ -466,140 +460,15 @@ function getVoteTotals(formContestResults: FormContestResults): VoteTotals {
   };
 }
 
-function convertTabulationResultsToFormResults(
-  contests: readonly Contest[],
-  savedResults?: Tabulation.ManualElectionResults
-): FormManualResults {
-  const contestResults = Object.fromEntries(
-    contests.map((contest): [ContestId, FormContestResults] => {
-      const savedContestResults = savedResults?.contestResults[contest.id];
-      assert(
-        savedContestResults?.contestType !== 'straight-party',
-        'Straight party contests are not yet supported for manual tallies'
-      );
-      return [
-        contest.id,
-        savedContestResults ??
-          emptyFormContestResults(contest, savedResults?.ballotCount),
-      ];
-    })
-  );
-  return { contestResults, ballotCount: savedResults?.ballotCount ?? '' };
-}
-
-function BallotCountForm({
-  savedManualResults,
-}: {
-  savedManualResults: ManualResultsRecord | null;
-}): JSX.Element {
-  const { precinctId, ballotStyleGroupId, votingMethod } =
-    useParams<ManualTallyFormParams>();
-  const { electionDefinition } = useContext(AppContext);
-  assert(electionDefinition);
-  const { election } = electionDefinition;
-  const precinct = assertDefined(getPrecinctById({ election, precinctId }));
+function getManualTallyContests(
+  election: Election,
+  ballotStyleGroupId: BallotStyleGroupId
+): Contest[] {
   const ballotStyleGroup = assertDefined(
     getBallotStyleGroup({ election, ballotStyleGroupId })
   );
-  const contests = getContests({
-    election,
-    ballotStyle: ballotStyleGroup,
-  }).filter((c) => c.type !== 'straight-party'); // Simply skip the straight party contest for now
-
-  const initialManualResults = convertTabulationResultsToFormResults(
-    contests,
-    savedManualResults?.manualResults
-  );
-  const [ballotCount, setBallotCount] = useState<number | EmptyValue>(
-    initialManualResults.ballotCount
-  );
-
-  const setManualTallyMutation = setManualResults.useMutation();
-  const history = useHistory();
-
-  async function saveBallotCount() {
-    assert(ballotCount !== '');
-
-    // Only update if the overall ballot count was actually changed as this update will clear any
-    // contest overrides of ballot counts
-    if (ballotCount !== initialManualResults.ballotCount) {
-      await setManualTallyMutation.mutateAsync({
-        precinctId,
-        ballotStyleGroupId,
-        votingMethod,
-        manualResults: {
-          ballotCount,
-          contestResults: mapObject(
-            savedManualResults?.manualResults.contestResults ?? {},
-            (contestResults) => ({
-              ...contestResults,
-              ballots: ballotCount,
-            })
-          ),
-        },
-      });
-    }
-
-    history.push(
-      routerPaths.tallyManualFormContest({
-        precinctId,
-        ballotStyleGroupId,
-        votingMethod,
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        contestId: contests[0]!.id,
-      })
-    );
-  }
-
-  const hasOverrides = Object.values(initialManualResults.contestResults).some(
-    (contestResults) =>
-      contestResults.ballots !== initialManualResults.ballotCount
-  );
-
-  return (
-    <TaskScreen>
-      <TallyTaskContent>
-        {hasOverrides && (
-          <Callout icon="Warning" color="warning">
-            Changing the manual tally ballot count will remove contest
-            overrides.
-          </Callout>
-        )}
-        <FormCard>
-          <label htmlFor="ballotCount">
-            <H3>Manual Tally Ballot Count</H3>
-          </label>
-          <NumberInput
-            autoFocus
-            id="ballotCount"
-            value={ballotCount}
-            onChange={(newValue) => setBallotCount(newValue)}
-          />
-        </FormCard>
-      </TallyTaskContent>
-      <TallyTaskControls>
-        <TallyTaskHeader />
-        <ControlsContent>
-          <TallyMetadata
-            election={election}
-            ballotStyleGroupId={ballotStyleGroupId}
-            precinct={precinct}
-            votingMethod={votingMethod}
-          />
-          <Actions>
-            <LinkButton to={routerPaths.tallyManual}>Cancel</LinkButton>
-            <Button
-              variant="primary"
-              icon="Done"
-              onPress={saveBallotCount}
-              disabled={ballotCount === '' || setManualTallyMutation.isLoading}
-            >
-              Save & Next
-            </Button>
-          </Actions>
-        </ControlsContent>
-      </TallyTaskControls>
-    </TaskScreen>
+  return getContests({ election, ballotStyle: ballotStyleGroup }).filter(
+    (c) => c.type !== 'straight-party'
   );
 }
 
@@ -608,7 +477,7 @@ function ContestForm({
   savedManualResults,
 }: {
   savedWriteInCandidates: WriteInCandidateRecord[];
-  savedManualResults: ManualResultsRecord;
+  savedManualResults: ManualResultsRecord | null;
 }): React.ReactNode {
   const { precinctId, ballotStyleGroupId, votingMethod, contestId } =
     useParams<ManualTallyFormContestParams>();
@@ -624,10 +493,7 @@ function ContestForm({
     ballotStyleGroupId: ballotStyleGroup.id,
   });
 
-  const contests = getContests({
-    election,
-    ballotStyle: ballotStyleGroup,
-  }).filter((c) => c.type !== 'straight-party'); // Simply skip the straight party contest for now
+  const contests = getManualTallyContests(election, ballotStyleGroupId);
   const contest = find(contests, (c) => c.id === contestId);
   const contestIndex = contests.indexOf(contest);
   const nextContest = contests[contestIndex + 1];
@@ -637,25 +503,35 @@ function ContestForm({
 
   const setManualTallyMutation = setManualResults.useMutation();
 
-  const initialManualResults = convertTabulationResultsToFormResults(
-    contests,
-    savedManualResults.manualResults
-  );
-  const [formManualResults, setFormManualResults] =
-    useState<FormManualResults>(initialManualResults);
+  const savedContestResults = savedManualResults?.manualResults.contestResults;
+  const [formContestResults, setFormContestResults] =
+    useState<FormContestResults>(() => {
+      const savedResults = savedContestResults?.[contestId];
+      assert(
+        savedResults?.contestType !== 'straight-party',
+        'Straight party contests are not yet supported for manual tallies'
+      );
+      if (savedResults) return savedResults;
+      const previousEnteredContest = contests
+        .slice(0, contestIndex)
+        .findLast((c) => savedContestResults?.[c.id]);
+      return emptyFormContestResults(
+        contest,
+        previousEnteredContest
+          ? assertDefined(savedContestResults?.[previousEnteredContest.id])
+              .ballots
+          : ''
+      );
+    });
   const [formWriteInCandidates, setFormWriteInCandidates] = useState<
     FormWriteInCandidate[]
   >([]);
-  const [isOverridingBallotCount, setIsOverridingBallotCount] = useState(
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    formManualResults.contestResults[contestId]!.ballots !==
-      formManualResults.ballotCount
-  );
   const firstInputRef = React.useRef<HTMLInputElement>(null);
 
+  const isLoaded = candidateOrderingsQuery.isSuccess;
   useEffect(() => {
     firstInputRef.current?.focus();
-  }, []);
+  }, [isLoaded]);
 
   if (!candidateOrderingsQuery.isSuccess) {
     return null;
@@ -664,19 +540,22 @@ function ContestForm({
   const candidateOrderings = candidateOrderingsQuery.data;
 
   async function saveResults() {
+    const contestResults: Tabulation.ManualElectionResults['contestResults'] = {
+      ...(savedContestResults ?? {}),
+      [contestId]:
+        convertFormContestResultsToTabulationContestResults(formContestResults),
+    };
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const firstContestResults = contestResults[contests[0]!.id];
     await setManualTallyMutation.mutateAsync({
       precinctId,
       ballotStyleGroupId,
       votingMethod,
       manualResults: {
-        ballotCount: savedManualResults.manualResults.ballotCount,
-        contestResults: {
-          ...savedManualResults.manualResults.contestResults,
-          [contestId]: convertFormContestResultsToTabulationContestResults(
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            formManualResults.contestResults[contestId]!
-          ),
-        },
+        ballotCount: firstContestResults
+          ? firstContestResults.ballots
+          : assertDefined(savedManualResults).manualResults.ballotCount,
+        contestResults,
       },
     });
     history.push(
@@ -691,21 +570,8 @@ function ContestForm({
     );
   }
 
-  function updateManualResultsWithNewContestResults(
-    newContestResults: FormContestResults
-  ) {
-    setFormManualResults({
-      ...formManualResults,
-      contestResults: {
-        ...formManualResults.contestResults,
-        [newContestResults.contestId]: newContestResults,
-      },
-    });
-  }
-
   function getValueForInput(dataKey: string): number | EmptyValue {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const contestResults = formManualResults.contestResults[contestId]!;
+    const contestResults = formContestResults;
     switch (dataKey) {
       case 'numBallots':
         return contestResults.ballots;
@@ -728,8 +594,7 @@ function ContestForm({
     value: number | EmptyValue,
     candidateName?: string
   ) {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const contestResults = formManualResults.contestResults[contestId]!;
+    const contestResults = formContestResults;
     let newContestResults = contestResults;
     switch (dataKey) {
       case 'overvotes':
@@ -786,7 +651,7 @@ function ContestForm({
       }
     }
 
-    updateManualResultsWithNewContestResults(newContestResults);
+    setFormContestResults(newContestResults);
   }
 
   function addFormWriteInCandidate(name: string): void {
@@ -795,10 +660,9 @@ function ContestForm({
       name,
     };
     setFormWriteInCandidates([...formWriteInCandidates, writeInCandidate]);
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const contestResults = formManualResults.contestResults[contestId]!;
+    const contestResults = formContestResults;
     assert(contestResults.contestType === 'candidate');
-    updateManualResultsWithNewContestResults({
+    setFormContestResults({
       ...contestResults,
       tallies: {
         ...contestResults.tallies,
@@ -816,16 +680,11 @@ function ContestForm({
     setFormWriteInCandidates(formWriteInCandidates.filter((c) => c.id !== id));
 
     // remove form candidate from contest
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const contestResults = formManualResults.contestResults[contestId]!;
+    const contestResults = formContestResults;
     assert(contestResults.contestType === 'candidate');
-    delete contestResults.tallies[id];
-
-    updateManualResultsWithNewContestResults(contestResults);
+    const { [id]: _removedTally, ...tallies } = contestResults.tallies;
+    setFormContestResults({ ...contestResults, tallies });
   }
-
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const formContestResults = formManualResults.contestResults[contestId]!;
 
   const contestWriteInCandidates = savedWriteInCandidates.filter(
     (candidate) => candidate.contestId === contestId
@@ -850,53 +709,29 @@ function ContestForm({
               <div>Vote for {contest.seats}</div>
             )}
           </div>
-          <ContestSection
-            fill={isOverridingBallotCount ? 'warning' : 'neutral'}
-          >
+          <ContestSection fill="neutral">
             <ContestDataRow>
               <NumberInput
+                inputRef={
+                  formContestResults.ballots === '' ? firstInputRef : undefined
+                }
                 id="numBallots"
                 value={getValueForInput('numBallots')}
                 onChange={(value) => updateContestData('numBallots', value)}
-                disabled={!isOverridingBallotCount}
                 style={{ fontWeight: '500' }}
               />
               <label htmlFor="numBallots">
-                <Font weight="bold">Manual Tally Ballot Count</Font>
+                <Font weight="bold">Ballot Count</Font>
               </label>
-              <div style={{ marginLeft: 'auto' }}>
-                {isOverridingBallotCount ? (
-                  <Button
-                    onPress={() => {
-                      updateManualResultsWithNewContestResults({
-                        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                        ...formManualResults.contestResults[contestId]!,
-                        ballots: formManualResults.ballotCount,
-                      });
-                      setIsOverridingBallotCount(false);
-                    }}
-                    icon="X"
-                    fill="transparent"
-                  >
-                    Remove Override
-                  </Button>
-                ) : (
-                  <Button
-                    onPress={() => setIsOverridingBallotCount(true)}
-                    icon="Edit"
-                    fill="transparent"
-                  >
-                    Override
-                  </Button>
-                )}
-              </div>
             </ContestDataRow>
           </ContestSection>
 
           <ContestSection>
             <ContestDataRow>
               <NumberInput
-                inputRef={firstInputRef}
+                inputRef={
+                  formContestResults.ballots === '' ? undefined : firstInputRef
+                }
                 id="undervotes"
                 value={getValueForInput('undervotes')}
                 onChange={(value) => updateContestData('undervotes', value)}
@@ -1020,20 +855,15 @@ function ContestForm({
             <Actions>
               <Button
                 icon="Previous"
+                disabled={!previousContest}
                 onPress={() => {
                   history.push(
-                    previousContest
-                      ? routerPaths.tallyManualFormContest({
-                          precinctId,
-                          ballotStyleGroupId,
-                          votingMethod,
-                          contestId: previousContest.id,
-                        })
-                      : routerPaths.tallyManualForm({
-                          precinctId,
-                          ballotStyleGroupId,
-                          votingMethod,
-                        })
+                    routerPaths.tallyManualFormContest({
+                      precinctId,
+                      ballotStyleGroupId,
+                      votingMethod,
+                      contestId: assertDefined(previousContest).id,
+                    })
                   );
                 }}
               >
@@ -1071,7 +901,7 @@ function ContestFormWrapper({
   return (
     <ContestForm
       savedWriteInCandidates={savedWriteInCandidates}
-      savedManualResults={assertDefined(savedManualResults)}
+      savedManualResults={savedManualResults}
       key={contestId}
     />
   );
@@ -1086,6 +916,13 @@ export function ManualTalliesFormScreen(): JSX.Element | null {
     ballotStyleGroupId,
     votingMethod,
   });
+
+  const { electionDefinition } = useContext(AppContext);
+  assert(electionDefinition);
+  const contests = getManualTallyContests(
+    electionDefinition.election,
+    ballotStyleGroupId
+  );
 
   if (
     !getWriteInCandidatesQuery.isSuccess ||
@@ -1104,10 +941,14 @@ export function ManualTalliesFormScreen(): JSX.Element | null {
           votingMethod: ':votingMethod' as ManualResultsVotingMethod,
         })}
       >
-        <BallotCountForm
-          savedManualResults={getManualResultsQuery.data}
-          // Make sure we don't cache the form state from previous manual tally entry
-          key={getManualResultsQuery.dataUpdatedAt}
+        <Redirect
+          to={routerPaths.tallyManualFormContest({
+            precinctId,
+            ballotStyleGroupId,
+            votingMethod,
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            contestId: contests[0]!.id,
+          })}
         />
       </Route>
       <Route
