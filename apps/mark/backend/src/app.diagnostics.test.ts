@@ -13,11 +13,11 @@ import {
 import type { Server } from 'node:http';
 import type * as grout from '@votingworks/grout';
 import type { MockUsbDrive } from '@votingworks/usb-drive/mocks';
+import { getDiskSpaceSummaries } from '@votingworks/backend';
 import {
-  getDiskSpaceSummaries,
   mockElectionPackageFileTree,
   type PartialElectionPackage,
-} from '@votingworks/backend';
+} from '@votingworks/backend/test-utils';
 import {
   HP_4001_PRINTER_CONFIG,
   type MemoryPrinterHandler,

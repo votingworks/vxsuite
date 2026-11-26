@@ -32,7 +32,7 @@ import {
   type SystemSettings,
   Tabulation,
 } from '@votingworks/types';
-import { modifyCastVoteRecordExport } from '@votingworks/backend';
+import { modifyCastVoteRecordExport } from '@votingworks/backend/test-utils';
 import { LogEventId } from '@votingworks/logging';
 import { readdirSync } from 'node:fs';
 import { createElectionDefinition } from '@votingworks/test-utils';

@@ -7,7 +7,8 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import { MockPaperHandlerDriver } from '@votingworks/custom-paper-handler';
-import { initializeSystemAudio, testDetectDevices } from '@votingworks/backend';
+import { initializeSystemAudio } from '@votingworks/backend';
+import { testDetectDevices } from '@votingworks/backend/test-utils';
 import { resolveDriver, start } from './server.js';
 import { createWorkspace } from './util/workspace.js';
 

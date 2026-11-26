@@ -14,6 +14,10 @@ export default defineConfig({
     },
     alias: [
       {
+        find: '@votingworks/backend/test-utils',
+        replacement: join(__dirname, '../backend/src/test_utils.ts'),
+      },
+      {
         find: '@votingworks/backend',
         replacement: join(__dirname, '../backend/src/index.ts'),
       },

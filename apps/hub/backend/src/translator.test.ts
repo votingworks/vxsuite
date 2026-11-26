@@ -1,9 +1,9 @@
 import { afterAll, beforeEach, expect, test, vi } from 'vitest';
+import type { VendoredTranslations } from '@votingworks/backend';
 import {
-  type VendoredTranslations,
   mockCloudTranslatedText,
   makeMockGoogleCloudTranslationClient,
-} from '@votingworks/backend';
+} from '@votingworks/backend/test-utils';
 import { LanguageCode } from '@votingworks/types';
 import { mockBaseLogger } from '@votingworks/logging';
 import { GoogleCloudTranslatorWithDbCache } from './translator.js';

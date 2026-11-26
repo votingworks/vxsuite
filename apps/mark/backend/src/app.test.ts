@@ -52,7 +52,7 @@ import { readFileSync } from 'node:fs';
 import {
   mockElectionPackageFileTree,
   type PartialElectionPackage,
-} from '@votingworks/backend';
+} from '@votingworks/backend/test-utils';
 import type { Server } from 'node:http';
 import type * as grout from '@votingworks/grout';
 import type { MockUsbDrive } from '@votingworks/usb-drive/mocks';

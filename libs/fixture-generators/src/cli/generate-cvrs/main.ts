@@ -10,7 +10,7 @@ import { assertDefined, iter } from '@votingworks/basics';
 import {
   type CastVoteRecordToExport,
   writeCastVoteRecordExport,
-} from '@votingworks/backend';
+} from '@votingworks/backend/test-utils';
 import { readElection } from '@votingworks/fs';
 import * as fs from 'node:fs/promises';
 import yargs from 'yargs/yargs';

@@ -12,7 +12,7 @@ import {
   mockBaseLogger,
 } from '@votingworks/logging';
 import tmp from 'tmp';
-import { mockElectionPackageFileTree } from '@votingworks/backend';
+import { mockElectionPackageFileTree } from '@votingworks/backend/test-utils';
 import type { Server } from 'node:http';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import {

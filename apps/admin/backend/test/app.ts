@@ -54,7 +54,7 @@ import type { Server } from 'node:http';
 import {
   createElectionPackageZipArchive,
   type PartialElectionPackage,
-} from '@votingworks/backend';
+} from '@votingworks/backend/test-utils';
 import { listenForTest } from '@votingworks/grout-test-utils';
 import type {
   Api,

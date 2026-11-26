@@ -1,11 +1,11 @@
 import { afterAll, beforeEach, expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 
+import { GoogleCloudVoices } from '@votingworks/backend';
 import {
-  GoogleCloudVoices,
   mockCloudSynthesizedSpeech,
   makeMockGoogleCloudTextToSpeechClient,
-} from '@votingworks/backend';
+} from '@votingworks/backend/test-utils';
 import { LanguageCode } from '@votingworks/types';
 import { mockBaseLogger } from '@votingworks/logging';
 import { GoogleCloudSpeechSynthesizerWithDbCache } from './speech_synthesizer.js';

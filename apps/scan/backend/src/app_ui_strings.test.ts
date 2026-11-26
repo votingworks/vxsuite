@@ -6,7 +6,7 @@ import {
   runUiStringApiTests,
   runUiStringMachineConfigurationTests,
   runUiStringMachineDeconfigurationTests,
-} from '@votingworks/backend';
+} from '@votingworks/backend/test-utils';
 import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
 import { createMockUsbDrive } from '@votingworks/usb-drive/mocks';
 

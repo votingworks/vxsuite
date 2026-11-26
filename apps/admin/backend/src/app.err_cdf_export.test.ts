@@ -20,7 +20,7 @@ import {
 } from '@votingworks/types';
 import { assert, assertDefined, err, find, ok } from '@votingworks/basics';
 import type { Client } from '@votingworks/grout';
-import { modifyCastVoteRecordExport } from '@votingworks/backend';
+import { modifyCastVoteRecordExport } from '@votingworks/backend/test-utils';
 import {
   attachUsbDrive,
   buildTestEnvironment,

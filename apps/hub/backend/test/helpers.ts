@@ -1,9 +1,9 @@
 // eslint-disable-next-line max-classes-per-file
+import type { VendoredTranslations } from '@votingworks/backend';
 import {
   makeMockGoogleCloudTextToSpeechClient,
   makeMockGoogleCloudTranslationClient,
-  type VendoredTranslations,
-} from '@votingworks/backend';
+} from '@votingworks/backend/test-utils';
 import {
   assert,
   assertDefined,

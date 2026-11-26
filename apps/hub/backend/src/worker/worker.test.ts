@@ -2,9 +2,11 @@ import { afterAll, beforeEach, describe, expect, test, vi } from 'vitest';
 import {
   GoogleCloudSpeechSynthesizer,
   GoogleCloudTranslator,
+} from '@votingworks/backend';
+import {
   makeMockGoogleCloudTextToSpeechClient,
   makeMockGoogleCloudTranslationClient,
-} from '@votingworks/backend';
+} from '@votingworks/backend/test-utils';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { mockBaseLogger } from '@votingworks/logging';
 import {

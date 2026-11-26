@@ -4,7 +4,6 @@ export * from './cast_vote_records/index.js';
 export * from './cpu_metrics.js';
 export * from './detect_devices.js';
 export * from './device_error_trackers.js';
-export * from './test_detect_devices.js';
 export * from './diagnostics.js';
 export * from './dotenv.js';
 export * from './election_package/index.js';

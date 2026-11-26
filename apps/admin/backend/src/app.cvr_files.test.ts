@@ -26,13 +26,15 @@ import {
   mockSigningMachineCertFields,
 } from '@votingworks/auth';
 import {
-  type CastVoteRecordExportModifications,
   combineImageAndLayoutHashes,
   getImageHash,
   getLayoutHash,
-  modifyCastVoteRecordExport,
   readCastVoteRecordExportMetadata,
 } from '@votingworks/backend';
+import {
+  type CastVoteRecordExportModifications,
+  modifyCastVoteRecordExport,
+} from '@votingworks/backend/test-utils';
 import { type MockFileTree, writeMockFileTree } from '@votingworks/usb-drive';
 import {
   attachUsbDrive,

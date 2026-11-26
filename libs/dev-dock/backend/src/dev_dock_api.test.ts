@@ -13,11 +13,11 @@ import {
   CONFIGURATION_PACKAGE_FOLDER,
   getFeatureFlagMock,
 } from '@votingworks/utils';
+import { getMostRecentElectionPackageFilepath } from '@votingworks/backend';
 import {
   createElectionPackageZipArchive,
-  getMostRecentElectionPackageFilepath,
   mockElectionPackageFileTree,
-} from '@votingworks/backend';
+} from '@votingworks/backend/test-utils';
 import {
   backendWaitFor,
   mockElectionManagerUser,

@@ -29,10 +29,8 @@ import {
   unsafeParse,
   type VotesDict,
 } from '@votingworks/types';
-import {
-  buildCastVoteRecord,
-  writeCastVoteRecordExport,
-} from '@votingworks/backend';
+import { buildCastVoteRecord } from '@votingworks/backend';
+import { writeCastVoteRecordExport } from '@votingworks/backend/test-utils';
 import { type BaseLogger, mockBaseLogger } from '@votingworks/logging';
 import {
   tabulateCastVoteRecords,

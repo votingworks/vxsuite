@@ -25,7 +25,7 @@ import {
 import {
   mockElectionPackageFileTree,
   type PartialElectionPackage,
-} from '@votingworks/backend';
+} from '@votingworks/backend/test-utils';
 import type { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import {
   constructElectionKey,

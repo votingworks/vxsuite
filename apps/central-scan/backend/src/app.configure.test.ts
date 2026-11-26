@@ -6,7 +6,7 @@ import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import {
   mockElectionPackageFileTree,
   type PartialElectionPackage,
-} from '@votingworks/backend';
+} from '@votingworks/backend/test-utils';
 
 import {
   getFeatureFlagMock,

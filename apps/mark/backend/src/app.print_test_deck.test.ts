@@ -31,7 +31,7 @@ import {
   mockElectionManagerUser,
   mockSessionExpiresAt,
 } from '@votingworks/test-utils';
-import { mockElectionPackageFileTree } from '@votingworks/backend';
+import { mockElectionPackageFileTree } from '@votingworks/backend/test-utils';
 import { createApp } from '../test/app_helpers.js';
 import type { Api } from './app.js';
 

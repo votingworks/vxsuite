@@ -4,7 +4,7 @@ import { iter, ok } from '@votingworks/basics';
 import {
   mockElectionPackageFileTree,
   type PartialElectionPackage,
-} from '@votingworks/backend';
+} from '@votingworks/backend/test-utils';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import type * as grout from '@votingworks/grout';
 import {

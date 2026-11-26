@@ -7,10 +7,8 @@ import { assert, assertDefined, err, ok, sleep } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
-import {
-  type BatteryInfo,
-  mockElectionPackageFileTree,
-} from '@votingworks/backend';
+import type { BatteryInfo } from '@votingworks/backend';
+import { mockElectionPackageFileTree } from '@votingworks/backend/test-utils';
 import {
   ballotPaperDimensions,
   BallotType,
