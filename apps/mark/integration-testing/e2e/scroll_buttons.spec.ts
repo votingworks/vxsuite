@@ -10,7 +10,7 @@ import {
   HP_4001_PRINTER_CONFIG,
   getMockFilePrinterHandler,
 } from '@votingworks/printing';
-import { mockElectionPackageFileTree } from '@votingworks/backend';
+import { mockElectionPackageFileTree } from '@votingworks/backend/test-utils';
 import { mockCardRemoval } from '@votingworks/auth';
 import {
   forceLogOutAndResetElectionDefinition,

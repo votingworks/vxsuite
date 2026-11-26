@@ -15,12 +15,8 @@ import {
   makeTemporaryDirectory,
 } from '@votingworks/fixtures';
 import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
-import {
-  analogAndHdmi,
-  getNodeEnv,
-  type NODE_ENV,
-  testDetectDevices,
-} from '@votingworks/backend';
+import { analogAndHdmi, getNodeEnv, type NODE_ENV } from '@votingworks/backend';
+import { testDetectDevices } from '@votingworks/backend/test-utils';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import { MockFileFujitsuPrinter } from '@votingworks/fujitsu-thermal-printer';
 import { buildApp } from './app.js';

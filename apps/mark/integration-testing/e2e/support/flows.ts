@@ -1,5 +1,5 @@
 import type { Page } from '@playwright/test';
-import type { mockElectionPackageFileTree } from '@votingworks/backend';
+import type { mockElectionPackageFileTree } from '@votingworks/backend/test-utils';
 import { assert, assertDefined, find } from '@votingworks/basics';
 import { type Election, getContests, hasSplits } from '@votingworks/types';
 import { getMockUsbDriveHandler } from '@votingworks/usb-drive';

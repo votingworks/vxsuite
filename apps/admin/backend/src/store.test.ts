@@ -53,10 +53,8 @@ import {
   toSplitFileElection,
 } from '@votingworks/test-utils';
 import { mockBaseLogger } from '@votingworks/logging';
-import {
-  createElectionPackageZipArchive,
-  type ElectionPackageError,
-} from '@votingworks/backend';
+import type { ElectionPackageError } from '@votingworks/backend';
+import { createElectionPackageZipArchive } from '@votingworks/backend/test-utils';
 import {
   generateElectionBasedSubfolderName,
   getGroupedBallotStyles,

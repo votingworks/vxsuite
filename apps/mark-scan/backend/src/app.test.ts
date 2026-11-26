@@ -42,7 +42,10 @@ import {
   getMockMultiLanguageElectionDefinition,
 } from '@votingworks/utils';
 import { Buffer } from 'node:buffer';
-import { mockElectionPackageFileTree } from '@votingworks/backend';
+import {
+  mockElectionPackageFileTree,
+  type PartialElectionPackage,
+} from '@votingworks/backend/test-utils';
 import type { Server } from 'node:http';
 import * as grout from '@votingworks/grout';
 import {
@@ -333,7 +336,7 @@ describe('configure populates ballot meta store', () => {
   });
 });
 
-async function configureFromUsb(pkg: backendLib.PartialElectionPackage) {
+async function configureFromUsb(pkg: PartialElectionPackage) {
   mockUsbDrive.insertUsbDrive(await mockElectionPackageFileTree(pkg));
   const res = await apiClient.configureElectionPackageFromUsb();
   res.unsafeUnwrap();

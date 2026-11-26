@@ -8,10 +8,8 @@ import {
 } from 'node:fs';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { basename, dirname, join } from 'node:path';
-import {
-  createElectionPackageZipArchive,
-  readElectionPackageFromFile,
-} from '@votingworks/backend';
+import { readElectionPackageFromFile } from '@votingworks/backend';
+import { createElectionPackageZipArchive } from '@votingworks/backend/test-utils';
 import {
   assert,
   assertDefined,

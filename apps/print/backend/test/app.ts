@@ -38,7 +38,7 @@ import {
 import {
   mockElectionPackageFileTree,
   type PartialElectionPackage,
-} from '@votingworks/backend';
+} from '@votingworks/backend/test-utils';
 import { readFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { listenForTest } from '@votingworks/grout-test-utils';

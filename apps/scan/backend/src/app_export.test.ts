@@ -1,9 +1,7 @@
 import * as fs from 'node:fs';
 import { beforeEach, expect, test, vi } from 'vitest';
-import {
-  getCastVoteRecordExportDirectoryPaths,
-  readCastVoteRecordExport,
-} from '@votingworks/backend';
+import { readCastVoteRecordExport } from '@votingworks/backend';
+import { getCastVoteRecordExportDirectoryPaths } from '@votingworks/backend/test-utils';
 import { assert, assertDefined, err, find, ok } from '@votingworks/basics';
 import {
   type BaseBallotProps,

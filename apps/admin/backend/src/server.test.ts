@@ -9,7 +9,7 @@ import {
   electionGridLayoutNewHampshireTestBallotFixtures,
   makeTemporaryDirectory,
 } from '@votingworks/fixtures';
-import { testDetectDevices } from '@votingworks/backend';
+import { testDetectDevices } from '@votingworks/backend/test-utils';
 import {
   BooleanEnvironmentVariableName,
   buildManualResultsFixture,

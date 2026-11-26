@@ -13,4 +13,3 @@ export {
 export * from './export.js';
 export * from './file_source.js';
 export * from './import.js';
-export * from './test_utils.js';

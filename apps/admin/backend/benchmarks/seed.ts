@@ -4,7 +4,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { BaseLogger, LogSource } from '@votingworks/logging';
-import { createElectionPackageZipArchive } from '@votingworks/backend';
+import { createElectionPackageZipArchive } from '@votingworks/backend/test-utils';
 import {
   type BallotStyle,
   type Election,

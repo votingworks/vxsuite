@@ -1,9 +1,8 @@
+import { isTestReport, readCastVoteRecordExport } from '@votingworks/backend';
 import {
   getCastVoteRecordExportDirectoryPaths,
-  isTestReport,
   mockElectionPackageFileTree,
-  readCastVoteRecordExport,
-} from '@votingworks/backend';
+} from '@votingworks/backend/test-utils';
 import { asStoredElectionDefinition } from '@votingworks/test-utils';
 import { iter, ok } from '@votingworks/basics';
 import { vxFamousNamesFixtures } from '@votingworks/hmpb';

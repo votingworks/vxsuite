@@ -58,14 +58,16 @@ import {
 } from '@votingworks/utils';
 import {
   forEachUiString,
-  isMockCloudSynthesizedSpeech,
-  mockCloudTranslatedText,
   openElectionPackageBuffer as openElectionPackageZipBuffer,
   readElectionPackageFromBuffer,
   streamElectionPackageAudioClips,
   streamElectionPackageBallots,
   withElectionPackageZip,
 } from '@votingworks/backend';
+import {
+  isMockCloudSynthesizedSpeech,
+  mockCloudTranslatedText,
+} from '@votingworks/backend/test-utils';
 import {
   backendWaitFor,
   countObjectLeaves,

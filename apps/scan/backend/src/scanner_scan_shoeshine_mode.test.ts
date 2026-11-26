@@ -3,7 +3,7 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   type SheetInterpretation,
 } from '@votingworks/types';
-import type { PartialElectionPackage } from '@votingworks/backend';
+import type { PartialElectionPackage } from '@votingworks/backend/test-utils';
 import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,

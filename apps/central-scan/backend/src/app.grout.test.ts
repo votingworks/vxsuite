@@ -1,4 +1,4 @@
-import { mockElectionPackageFileTree } from '@votingworks/backend';
+import { mockElectionPackageFileTree } from '@votingworks/backend/test-utils';
 import { err } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,

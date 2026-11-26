@@ -5,7 +5,7 @@ import {
   runUiStringApiTests,
   runUiStringMachineConfigurationTests,
   runUiStringMachineDeconfigurationTests,
-} from '@votingworks/backend';
+} from '@votingworks/backend/test-utils';
 import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import {

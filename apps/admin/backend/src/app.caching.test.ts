@@ -3,7 +3,7 @@ import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/f
 import type { Client } from '@votingworks/grout';
 import { readFileSync } from 'node:fs';
 import { assert, assertDefined, ok } from '@votingworks/basics';
-import { modifyCastVoteRecordExport } from '@votingworks/backend';
+import { modifyCastVoteRecordExport } from '@votingworks/backend/test-utils';
 import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,

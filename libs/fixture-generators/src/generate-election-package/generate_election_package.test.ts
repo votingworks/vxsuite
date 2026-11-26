@@ -5,10 +5,10 @@ import {
   makeTemporaryDirectory,
 } from '@votingworks/fixtures';
 import {
-  makeMockGoogleCloudTranslationClient,
   readElectionPackageFromBuffer,
   getAllStringsForElectionPackage,
 } from '@votingworks/backend';
+import { makeMockGoogleCloudTranslationClient } from '@votingworks/backend/test-utils';
 import { assert } from '@votingworks/basics';
 import {
   type Election,

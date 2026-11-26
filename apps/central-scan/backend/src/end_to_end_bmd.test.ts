@@ -1,9 +1,9 @@
 import { readdir } from 'node:fs/promises';
+import { readCastVoteRecordExport } from '@votingworks/backend';
 import {
   getCastVoteRecordExportDirectoryPaths,
   mockElectionPackageFileTree,
-  readCastVoteRecordExport,
-} from '@votingworks/backend';
+} from '@votingworks/backend/test-utils';
 import { asStoredElectionDefinition } from '@votingworks/test-utils';
 import { ok, sleep } from '@votingworks/basics';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';

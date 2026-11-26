@@ -95,3 +95,11 @@ export async function createElectionPackageDbForTest(
   }
   return dbPath;
 }
+
+export * from './cast_vote_records/test_utils.js';
+export * from './election_package/test_utils.js';
+export * from './language_and_audio/test_utils.js';
+export * from './test_detect_devices.js';
+export * from './ui_strings/ui_strings_api_test_runner.js';
+export * from './ui_strings/ui_strings_machine_configuration_test_runner.js';
+export * from './ui_strings/ui_strings_machine_deconfiguration_test_runner.js';
