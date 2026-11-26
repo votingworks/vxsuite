@@ -6,7 +6,7 @@ import {
   type PageInterpretation,
 } from '@votingworks/types';
 import { normalizeBallotMode } from './validation.js';
-import type { InterpreterOptions } from './types.js';
+import type { BaseInterpreterOptions } from './types.js';
 
 const BLANK_INTERPRETATION: PageInterpretation = { type: 'BlankPage' };
 
@@ -43,7 +43,7 @@ function createInterpreterOptions(spec: {
   const electionDefinition = readElectionGeneralDefinition();
   const { precincts } = electionDefinition.election;
 
-  const options: InterpreterOptions = {
+  const options: BaseInterpreterOptions = {
     adjudicationReasons: [],
     allowOfficialBallotsInTestMode: spec.allowOfficialBallotsInTestMode,
     electionDefinition,

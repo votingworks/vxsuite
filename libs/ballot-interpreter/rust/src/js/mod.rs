@@ -18,7 +18,8 @@ use types_rs::coding;
 
 use crate::ballot_card::{BallotPage, PaperInfo, ballot_scan_bubble_image};
 use crate::election_source::{
-    ElectionDefinition, ElectionSource, SqliteElectionSource, partial_ballot_hash_from_hex,
+    ElectionDefinition, ElectionSource, InMemoryElectionSource, SqliteElectionSource,
+    partial_ballot_hash_from_hex,
 };
 use crate::image_utils::write_png;
 use crate::interpret::{
@@ -315,12 +316,40 @@ pub async fn interpret_images(
     to_json(&result)
 }
 
+#[derive(Debug, Deserialize)]
+#[serde(untagged)]
+enum JsElectionSource {
+    #[serde(rename_all = "camelCase")]
+    Db { db_path: PathBuf },
+    #[serde(rename_all = "camelCase")]
+    Json {
+        election_json: String,
+        ballot_hash: String,
+    },
+}
+
+impl JsElectionSource {
+    fn election_definition(self) -> Result<ElectionDefinition, String> {
+        match self {
+            Self::Db { db_path } => SqliteElectionSource { db_path }.election_definition(),
+            Self::Json {
+                election_json,
+                ballot_hash,
+            } => InMemoryElectionSource::from_election_json(election_json.as_bytes())
+                .map_err(|err| format!("parsing election: {err}"))?
+                .with_ballot_hash(partial_ballot_hash_from_hex(&ballot_hash)?)
+                .election_definition(),
+        }
+    }
+}
+
 // struct_field_names: the names mirror the JS options.
 #[allow(clippy::struct_field_names)]
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct JsSummaryBallotOptions {
-    db_path: PathBuf,
+    #[serde(flatten)]
+    election_source: JsElectionSource,
     front_normalized_image_output_path: Option<PathBuf>,
     back_normalized_image_output_path: Option<PathBuf>,
 }
@@ -391,11 +420,10 @@ pub async fn interpret_summary_ballot(
     let ElectionDefinition {
         election,
         ballot_hash: expected_ballot_hash,
-    } = SqliteElectionSource {
-        db_path: options.db_path,
-    }
-    .election_definition()
-    .map_err(napi::Error::from_reason)?;
+    } = options
+        .election_source
+        .election_definition()
+        .map_err(napi::Error::from_reason)?;
     let to_gray = |image: JsImageData| gray_image(image.width, image.height, image.data.to_vec());
     let side_a = to_gray(side_a)?;
     let side_b = side_b.map(to_gray).transpose()?;

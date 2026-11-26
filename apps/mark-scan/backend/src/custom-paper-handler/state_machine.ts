@@ -390,6 +390,7 @@ async function loadMetadataAndInterpretBallot(
     testMode: store.getTestMode(),
     markThresholds,
     adjudicationReasons: precinctScanAdjudicationReasons,
+    dbPath: store.getElectionPackageStore().getDbPath(),
   });
 }
 

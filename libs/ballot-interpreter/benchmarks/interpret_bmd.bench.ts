@@ -61,6 +61,7 @@ test('Blank BMD', async () => {
           testMode: true,
           markThresholds: DEFAULT_MARK_THRESHOLDS,
           adjudicationReasons: [],
+          hasBallotPositions: true,
           dbPath,
         },
         (bs) => db.getCandidateOrderingsStore().getCandidateOrderings(bs),

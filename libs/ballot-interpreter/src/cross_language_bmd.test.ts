@@ -25,6 +25,7 @@ import { electionCombinedBallotPrimaryFixtures } from '@votingworks/fixtures';
 import { Buffer } from 'node:buffer';
 import { assertDefined, throwIllegalValue } from '@votingworks/basics';
 import { napi } from './bubble-ballot-ts/napi.js';
+import { convertSummaryBallotRecord } from './summary_ballot.js';
 import type {
   BridgeDecodeBmdResult,
   RustCandidateVote,
@@ -164,13 +165,14 @@ test('multi-page BMD ballot: TS encode matches Rust decode', async () => {
       arbitraryBallotId(),
       fc.boolean(),
       async (
-        { election, ballotHash },
+        electionDefinition,
         isTestMode,
         ballotType,
         totalPages,
         ballotAuditId,
         includeWriteIns
       ) => {
+        const { election, ballotHash } = electionDefinition;
         const ballotStyle = election.ballotStyles[0];
         if (!ballotStyle) return;
         const precinct = election.precincts.find((p) =>
@@ -233,6 +235,10 @@ test('multi-page BMD ballot: TS encode matches Rust decode', async () => {
           );
           const tsVotes = normalizeTsVotes(votes);
           expect(rustVotes).toEqual(tsVotes);
+
+          expect(convertSummaryBallotRecord(election, result)).toEqual(
+            decodeSummaryBallotPage(electionDefinition, encoded)
+          );
         }
       }
     ),

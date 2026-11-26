@@ -714,8 +714,8 @@ mod test {
         assert_eq!(qr_code.orientation(), Orientation::PortraitReversed);
     }
 
-    /// rqrr stands in for the TypeScript interpreter's quirc fallback, so it
-    /// must be able to read a summary ballot QR code on its own.
+    /// rqrr is the fallback decoder, so it must be able to read a summary
+    /// ballot QR code on its own.
     #[test]
     fn test_rqrr_detects_summary_ballot_qr_code() {
         let image = load_summary_ballot_fixture("summary-page.png");

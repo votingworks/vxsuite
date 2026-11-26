@@ -4,11 +4,7 @@ export default defineConfig({
   test: {
     setupFiles: ['test/setup.ts'],
     coverage: {
-      exclude: [
-        'src/index.ts',
-        'src/bubble-ballot-ts/index.ts',
-        'src/summary-ballot/index.ts',
-      ],
+      exclude: ['src/index.ts', 'src/bubble-ballot-ts/index.ts'],
     },
   },
 });

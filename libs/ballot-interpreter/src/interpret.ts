@@ -8,7 +8,6 @@ import {
   throwIllegalValue,
   typedAs,
 } from '@votingworks/basics';
-import { fromGrayScale, isRgba } from '@votingworks/image-utils';
 import {
   type AdjudicationInfo,
   AdjudicationReason,
@@ -41,7 +40,6 @@ import {
   type WriteInId,
   type EncodedImage,
   type ImageData,
-  type RgbaImageData,
   type OptionalCandidateOrderings,
 } from '@votingworks/types';
 import {
@@ -55,7 +53,6 @@ import {
   getAllPossibleAdjudicationReasons,
   getAllPossibleAdjudicationReasonsForBmdVotes,
 } from './adjudication_reasons.js';
-import { interpret as interpretVxBmdBallotSheet } from './summary-ballot/index.js';
 import {
   type Geometry,
   type InterpretedBallotCard,
@@ -70,7 +67,13 @@ import {
   decodeGrayImage,
   writeImageDataToPng,
 } from './bubble-ballot-ts/index.js';
-import type { InterpreterOptions } from './types.js';
+import { napi } from './bubble-ballot-ts/napi.js';
+import type {
+  BaseInterpreterOptions,
+  InterpreterOptions,
+  SimplexBmdInterpreterOptions,
+} from './types.js';
+import { convertSummaryBallotRecord } from './summary_ballot.js';
 import { normalizeBallotMode } from './validation.js';
 import { shouldSkipSummaryBallotInterpretation } from './should_skip_summary_ballot_interpretation.js';
 
@@ -288,7 +291,7 @@ function getUnmarkedWriteInsFromScoredContestOptions(
  */
 export function determineAdjudicationInfoFromBmdVotes(
   electionDefinition: ElectionDefinition,
-  options: InterpreterOptions,
+  options: BaseInterpreterOptions,
   votes: VotesDict,
   ballotStyleId: BallotStyleId,
   contestIds?: ContestId[]
@@ -551,7 +554,7 @@ export function convertRustInterpretResult(
  */
 function validateInterpretResults(
   results: SheetOf<PageInterpretation>,
-  options: InterpreterOptions
+  options: BaseInterpreterOptions
 ): SheetOf<PageInterpretation> {
   const { validPrecinctIds, testMode } = options;
 
@@ -610,7 +613,7 @@ async function interpretHmpb(
     ballotImageBitDepth: options.ballotImageBitDepth,
     frontNormalizedImageOutputPath: options.frontNormalizedImageOutputPath,
     backNormalizedImageOutputPath: options.backNormalizedImageOutputPath,
-    dbPath: assertDefined(options.dbPath),
+    dbPath: options.dbPath,
   });
 
   const converted = convertRustInterpretResult(
@@ -627,47 +630,29 @@ async function interpretHmpb(
 }
 
 /**
- * Ensures an image is in RGBA format. Returns the image unchanged if it's
- * already RGBA, or converts from grayscale if needed. The summary ballot
- * interpreter assumes RGBA layout for pixel operations (crop, rotate, etc.).
- */
-function ensureRgba(image: ImageData): RgbaImageData {
-  if (isRgba(image)) return image;
-  return fromGrayScale(image.data, image.width, image.height);
-}
-
-/**
- * Interpret a ballot sheet and convert the result into
- * the result format used by the rest of VxSuite.
+ * Interpret a summary ballot sheet, or a single page when `sideB` is omitted,
+ * and convert the result into the result format used by the rest of VxSuite.
  */
 async function interpretBmdBallot(
-  ballotImages: SheetOf<ImageData>,
-  options: InterpreterOptions
+  [sideA, sideB]: readonly [ImageData, ImageData | undefined],
+  options: SimplexBmdInterpreterOptions
 ): Promise<SheetOf<PageInterpretation>> {
-  const {
-    electionDefinition,
-    frontNormalizedImageOutputPath,
-    backNormalizedImageOutputPath,
-  } = options;
-  // The summary ballot interpreter assumes RGBA for pixel operations
-  const rgbaImages = mapSheet(ballotImages, ensureRgba);
-  const interpretResult = await interpretVxBmdBallotSheet(
-    electionDefinition,
-    rgbaImages
-  );
+  const { electionDefinition } = options;
+  const result = await napi.interpretSummaryBallot(sideA, sideB, {
+    ...(options.dbPath !== undefined
+      ? { dbPath: options.dbPath }
+      : {
+          electionJson: JSON.stringify(electionDefinition.election),
+          ballotHash: electionDefinition.ballotHash,
+        }),
+    frontNormalizedImageOutputPath: options.frontNormalizedImageOutputPath,
+    backNormalizedImageOutputPath: options.backNormalizedImageOutputPath,
+  });
 
-  if (interpretResult.isErr()) {
-    // In case of an error, just write the original images.
-    await Promise.all([
-      frontNormalizedImageOutputPath &&
-        writeImageDataToPng(frontNormalizedImageOutputPath, ballotImages[0]),
-      backNormalizedImageOutputPath &&
-        writeImageDataToPng(backNormalizedImageOutputPath, ballotImages[1]),
-    ]);
-
-    const error = interpretResult.err();
+  if (result.type === 'err') {
+    const error = result.value;
     switch (error.type) {
-      case 'mismatched-election': {
+      case 'mismatchedElection': {
         return [
           {
             type: 'InvalidBallotHashPage',
@@ -681,20 +666,13 @@ async function interpretBmdBallot(
           },
         ];
       }
-      case 'votes-not-found': {
+      case 'votesNotFound': {
         return [{ type: 'BlankPage' }, { type: 'BlankPage' }];
       }
-      case 'multiple-qr-codes': {
-        const [frontReason, backReason] = error.source;
+      case 'multipleQrCodes': {
         return [
-          {
-            type: 'UnreadablePage',
-            reason: JSON.stringify(frontReason),
-          },
-          {
-            type: 'UnreadablePage',
-            reason: JSON.stringify(backReason),
-          },
+          { type: 'UnreadablePage', reason: JSON.stringify(error.sideA) },
+          { type: 'UnreadablePage', reason: JSON.stringify(error.sideB) },
         ];
       }
       default:
@@ -702,9 +680,10 @@ async function interpretBmdBallot(
     }
   }
 
-  const { summaryBallotImage, blankPageImage, metadata, votes } =
-    interpretResult.ok();
-
+  const { metadata, votes } = convertSummaryBallotRecord(
+    electionDefinition.election,
+    result.value.record
+  );
   const adjudicationInfo = determineAdjudicationInfoFromBmdVotes(
     electionDefinition,
     options,
@@ -712,25 +691,14 @@ async function interpretBmdBallot(
     metadata.ballotStyleId,
     metadata.contestIds
   );
-  const front: PageInterpretation = {
-    type: 'InterpretedBmdPage',
-    metadata,
-    votes,
-    adjudicationInfo,
-  };
 
-  const back: PageInterpretation = {
-    type: 'BlankPage',
-  };
-
-  await Promise.all([
-    frontNormalizedImageOutputPath &&
-      writeImageDataToPng(frontNormalizedImageOutputPath, summaryBallotImage),
-    backNormalizedImageOutputPath &&
-      writeImageDataToPng(backNormalizedImageOutputPath, blankPageImage),
-  ]);
-
-  return validateInterpretResults([front, back], options);
+  return validateInterpretResults(
+    [
+      { type: 'InterpretedBmdPage', metadata, votes, adjudicationInfo },
+      { type: 'BlankPage' },
+    ],
+    options
+  );
 }
 
 /**
@@ -739,15 +707,9 @@ async function interpretBmdBallot(
  */
 export async function interpretSimplexBmdBallot(
   frontImage: ImageData,
-  options: InterpreterOptions
+  options: SimplexBmdInterpreterOptions
 ): Promise<SheetOf<PageInterpretation>> {
-  const ballotImages: SheetOf<ImageData> = [
-    frontImage,
-    // We need at least a 2x2 placeholder image for top-bottom search area logic to work as
-    // expected (see getSearchAreas in src/summary-ballot/utils/qrcode.ts)
-    fromGrayScale(new Uint8ClampedArray([0, 0, 0, 0]), 2, 2),
-  ];
-  return interpretBmdBallot(ballotImages, options);
+  return interpretBmdBallot([frontImage, undefined], options);
 }
 
 /**
@@ -838,7 +800,7 @@ export async function interpretSheet(
   const timer = time(debug, 'interpretSheet');
 
   try {
-    const hmpb = options.dbPath
+    const hmpb = options.hasBallotPositions
       ? await interpretHmpb(sheet, options, getCandidateOrderings)
       : undefined;
 

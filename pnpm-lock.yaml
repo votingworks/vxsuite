@@ -2769,8 +2769,6 @@ importers:
 
   libs/@types/kiosk-browser: {}
 
-  libs/@types/node-quirc: {}
-
   libs/@types/zip-stream:
     dependencies:
       '@types/compress-commons':
@@ -3004,12 +3002,6 @@ importers:
       debug:
         specifier: 4.3.4
         version: 4.3.4(supports-color@5.5.0)
-      node-quirc:
-        specifier: ^2.2.1
-        version: 2.3.0
-      zedbar:
-        specifier: ^0.5.1
-        version: 0.5.1
     devDependencies:
       '@napi-rs/cli':
         specifier: ^3.5.1
@@ -3023,9 +3015,6 @@ importers:
       '@types/node':
         specifier: 24.19.2
         version: 24.19.2
-      '@types/node-quirc':
-        specifier: workspace:*
-        version: link:../@types/node-quirc
       '@vitest/coverage-istanbul':
         specifier: 5.0.2
         version: 5.0.2(vitest@5.0.2)
@@ -11882,10 +11871,6 @@ packages:
       '@types/pg':
         optional: true
 
-  node-quirc@2.3.0:
-    resolution: {integrity: sha512-rhuAoXLF1cnxLY0wuHiENZiU5cqqY93X6i5XEmdNyncTAQg7vCSN58Fhu1riCpcN9CoZE94wuidOuaPPUf1ilQ==}
-    engines: {node: '>= 10'}
-
   node-releases@2.0.53:
     resolution: {integrity: sha512-D9UOmYG3UH1V+ENW56t5QXBwJw1YEY18ruVeus89Rw+SyIgjPkCO84bRzO3uNIYosJbNwiabWVn48o3uJLjxFQ==}
     engines: {node: '>=18'}
@@ -13810,11 +13795,6 @@ packages:
   yocto-queue@0.1.0:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
-
-  zedbar@0.5.1:
-    resolution: {integrity: sha512-zdKVpWbsvvPFpJmGvqO4XXSdU1KPWhW3eTCZfSRlUcZ0ybmiifV7CJYiy7PmOoAtXjI96oauA1gcP5cYgkxqBg==}
-    engines: {node: '>=16.0.0'}
-    hasBin: true
 
   zip-stream@4.1.0:
     resolution: {integrity: sha512-zshzwQW7gG7hjpBlgeQP9RuyPGNxvJdzR8SUM3QhxCnLjWN2E7j3dOvpeDcQoETfHx0urRS7EtmVToql7YpU4A==}
@@ -21064,11 +21044,6 @@ snapshots:
     optionalDependencies:
       '@types/pg': 8.11.10
 
-  node-quirc@2.3.0:
-    dependencies:
-      bindings: 1.5.0
-      nan: 2.28.0
-
   node-releases@2.0.53: {}
 
   nodemon@3.1.14:
@@ -23411,8 +23386,6 @@ snapshots:
       pend: 1.2.0
 
   yocto-queue@0.1.0: {}
-
-  zedbar@0.5.1: {}
 
   zip-stream@4.1.0:
     dependencies:

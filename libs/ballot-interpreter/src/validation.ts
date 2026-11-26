@@ -6,7 +6,7 @@ import type {
   PageInterpretation,
 } from '@votingworks/types';
 
-import type { InterpreterOptions } from './types.js';
+import type { BaseInterpreterOptions } from './types.js';
 
 type PageInterpretationWithMetadata =
   | InterpretedBmdPage
@@ -30,7 +30,7 @@ function setTestMode<T extends PageInterpretationWithMetadata>(
 
 export function normalizeBallotMode(
   interpretation: PageInterpretation,
-  options: InterpreterOptions
+  options: BaseInterpreterOptions
 ): PageInterpretation {
   if (
     'metadata' in interpretation &&

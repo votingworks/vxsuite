@@ -44,16 +44,13 @@
     "@votingworks/test-utils": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/utils": "workspace:*",
-    "debug": "4.3.4",
-    "node-quirc": "^2.2.1",
-    "zedbar": "^0.5.1"
+    "debug": "4.3.4"
   },
   "devDependencies": {
     "@napi-rs/cli": "^3.5.1",
     "@types/debug": "4.1.12",
     "@types/jest-image-snapshot": "^6.4.0",
     "@types/node": "24.19.2",
-    "@types/node-quirc": "workspace:*",
     "@vitest/coverage-istanbul": "5.0.2",
     "@votingworks/backend": "workspace:*",
     "@votingworks/bmd-ballot-fixtures": "workspace:*",

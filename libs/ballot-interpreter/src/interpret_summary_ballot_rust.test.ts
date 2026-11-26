@@ -21,7 +21,7 @@ import {
 } from '../test/helpers/interpretation.js';
 import type { BridgeSummaryBallotOptions } from '../index.js';
 import { napi } from './bubble-ballot-ts/napi.js';
-import { rotateImageData180 } from './summary-ballot/utils/rotate.js';
+import { rotateImageData180 } from '../test/helpers/rotate.js';
 
 const electionDefinition =
   electionFamousNames2021Fixtures.baseElection_DEPRECATED.readElectionDefinition();
@@ -164,4 +164,21 @@ test('rejects a missing election DB', async () => {
       dbPath: '/nonexistent/election-package.db',
     })
   ).rejects.toThrow('connecting to election DB');
+});
+
+test('reads the election from JSON', async () => {
+  const result = await napi.interpretSummaryBallot(summaryPage, undefined, {
+    electionJson: JSON.stringify(electionDefinition.election),
+    ballotHash: electionDefinition.ballotHash,
+  });
+  expect(result).toMatchObject({ type: 'ok', value: { side: 'front' } });
+});
+
+test('rejects unparseable election JSON', async () => {
+  await expect(
+    napi.interpretSummaryBallot(summaryPage, undefined, {
+      electionJson: '{}',
+      ballotHash: electionDefinition.ballotHash,
+    })
+  ).rejects.toThrow('parsing election');
 });

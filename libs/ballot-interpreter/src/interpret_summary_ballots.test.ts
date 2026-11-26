@@ -38,11 +38,17 @@ import { assert } from 'node:console';
 import { assertDefined, throwIllegalValue } from '@votingworks/basics';
 import { loadImageMetadata, toImageBuffer } from '@votingworks/image-utils';
 import { readFile } from 'node:fs/promises';
-import { pdfToPageImages } from '../test/helpers/interpretation.js';
+import {
+  makeInterpreterDb,
+  pdfToPageImages,
+} from '../test/helpers/interpretation.js';
 import { interpretSheet, interpretSimplexBmdBallot } from './interpret.js';
-import type { InterpreterOptions } from './types.js';
+import type {
+  InterpreterOptions,
+  SimplexBmdInterpreterOptions,
+} from './types.js';
 import { normalizeBallotMode } from './validation.js';
-import { rotateImageData180 } from './summary-ballot/utils/rotate.js';
+import { rotateImageData180 } from '../test/helpers/rotate.js';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 
@@ -56,6 +62,11 @@ describe('adjudication reporting', () => {
   const electionDefinition = electionGeneralDefinition;
   const ballotStyleId: BallotStyleId = DEFAULT_ELECTION_GENERAL_BALLOT_STYLE_ID;
   const precinctId: PrecinctId = DEFAULT_ELECTION_GENERAL_PRECINCT_ID;
+  let dbPath: string;
+
+  beforeAll(async () => {
+    dbPath = await makeInterpreterDb(electionDefinition);
+  });
 
   async function renderBmdSummaryBallotPage(
     votes: VotesDict
@@ -84,6 +95,7 @@ describe('adjudication reporting', () => {
       validPrecinctIds: allPrecinctIds(electionDefinition),
       testMode: true,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
+      dbPath,
       adjudicationReasons: [
         AdjudicationReason.BlankBallot,
         AdjudicationReason.Undervote,
@@ -114,6 +126,7 @@ describe('adjudication reporting', () => {
       validPrecinctIds: allPrecinctIds(electionDefinition),
       testMode: true,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
+      dbPath,
       adjudicationReasons: [
         AdjudicationReason.BlankBallot,
         AdjudicationReason.Undervote,
@@ -146,6 +159,7 @@ describe('adjudication reporting', () => {
       validPrecinctIds: allPrecinctIds(electionDefinition),
       testMode: true,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
+      dbPath,
       adjudicationReasons: [AdjudicationReason.Undervote],
     });
 
@@ -181,6 +195,7 @@ describe('adjudication reporting', () => {
       validPrecinctIds: allPrecinctIds(electionDefinition),
       testMode: true,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
+      dbPath,
       adjudicationReasons: [
         AdjudicationReason.BlankBallot,
         AdjudicationReason.Undervote,
@@ -223,6 +238,7 @@ describe('adjudication reporting', () => {
       validPrecinctIds: allPrecinctIds(electionDefinition),
       testMode: true,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
+      dbPath,
       adjudicationReasons: [
         AdjudicationReason.BlankBallot,
         AdjudicationReason.Undervote,
@@ -260,6 +276,7 @@ describe('adjudication reporting', () => {
       validPrecinctIds: allPrecinctIds(electionDefinition),
       testMode: true,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
+      dbPath,
       adjudicationReasons: [AdjudicationReason.BlankBallot],
     });
 
@@ -313,6 +330,7 @@ describe('adjudication reporting', () => {
       validPrecinctIds: allPrecinctIds(primaryElectionDefinition),
       testMode: true,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
+      dbPath: await makeInterpreterDb(primaryElectionDefinition),
       adjudicationReasons: [
         AdjudicationReason.BlankBallot,
         AdjudicationReason.Undervote,
@@ -348,8 +366,10 @@ describe('VX BMD interpretation', () => {
   let bmdSummaryBallotPage: RgbaImageData;
   let bmdBlankPage: RgbaImageData;
   let validBmdSheet: SheetOf<RgbaImageData>;
+  let dbPath: string;
 
   beforeAll(async () => {
+    dbPath = await makeInterpreterDb(electionDefinition);
     validBmdSheet = asSheet(
       await pdfToPageImages(
         await renderBmdBallotFixture({
@@ -370,6 +390,8 @@ describe('VX BMD interpretation', () => {
         validPrecinctIds: allPrecinctIds(electionDefinition),
         testMode: true,
         markThresholds: DEFAULT_MARK_THRESHOLDS,
+        dbPath,
+        hasBallotPositions: false,
         adjudicationReasons: [],
       },
       (bs) => bs.orderedCandidatesByContest,
@@ -384,6 +406,8 @@ describe('VX BMD interpretation', () => {
       validPrecinctIds: allPrecinctIds(electionDefinition),
       testMode: true,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
+      dbPath,
+      hasBallotPositions: false,
       adjudicationReasons: [],
     };
     expect(
@@ -408,6 +432,8 @@ describe('VX BMD interpretation', () => {
         validPrecinctIds: allPrecinctIds(electionDefinition),
         testMode: false,
         markThresholds: DEFAULT_MARK_THRESHOLDS,
+        dbPath,
+        hasBallotPositions: false,
         adjudicationReasons: [],
       },
       (bs) => bs.orderedCandidatesByContest,
@@ -424,6 +450,8 @@ describe('VX BMD interpretation', () => {
         testMode: true,
         validPrecinctIds: new Set(['20']),
         markThresholds: DEFAULT_MARK_THRESHOLDS,
+        dbPath,
+        hasBallotPositions: false,
         adjudicationReasons: [],
       },
       (bs) => bs.orderedCandidatesByContest,
@@ -440,6 +468,8 @@ describe('VX BMD interpretation', () => {
         testMode: true,
         validPrecinctIds: new Set([precinctId]),
         markThresholds: DEFAULT_MARK_THRESHOLDS,
+        dbPath,
+        hasBallotPositions: false,
         adjudicationReasons: [],
       },
       (bs) => bs.orderedCandidatesByContest,
@@ -452,13 +482,12 @@ describe('VX BMD interpretation', () => {
   test('properly detects a ballot with incorrect ballot hash', async () => {
     const interpretationResult = await interpretSheet(
       {
-        electionDefinition: {
-          ...electionGeneralDefinition,
-          ballotHash: 'd34db33f',
-        },
+        electionDefinition: electionGeneralDefinition,
         testMode: true,
         validPrecinctIds: new Set([precinctId]),
         markThresholds: DEFAULT_MARK_THRESHOLDS,
+        dbPath: await makeInterpreterDb(electionGeneralDefinition),
+        hasBallotPositions: false,
         adjudicationReasons: [],
       },
       (bs) => bs.orderedCandidatesByContest,
@@ -470,7 +499,9 @@ describe('VX BMD interpretation', () => {
       actualBallotHash: sliceBallotHashForEncoding(
         electionDefinition.ballotHash
       ),
-      expectedBallotHash: 'd34db33f',
+      expectedBallotHash: sliceBallotHashForEncoding(
+        electionGeneralDefinition.ballotHash
+      ),
     });
   });
 
@@ -504,6 +535,8 @@ describe('VX BMD interpretation', () => {
         validPrecinctIds: allPrecinctIds(electionDefinition),
         testMode: true,
         markThresholds: DEFAULT_MARK_THRESHOLDS,
+        dbPath,
+        hasBallotPositions: false,
         adjudicationReasons: [],
         frontNormalizedImageOutputPath: outputPath,
       },
@@ -536,6 +569,8 @@ describe('VX BMD interpretation', () => {
         validPrecinctIds: allPrecinctIds(electionDefinition),
         testMode: true,
         markThresholds: DEFAULT_MARK_THRESHOLDS,
+        dbPath,
+        hasBallotPositions: false,
         adjudicationReasons: [],
       },
       (bs) => bs.orderedCandidatesByContest,
@@ -553,6 +588,8 @@ describe('VX BMD interpretation', () => {
         validPrecinctIds: allPrecinctIds(electionDefinition),
         testMode: true,
         markThresholds: DEFAULT_MARK_THRESHOLDS,
+        dbPath,
+        hasBallotPositions: false,
         adjudicationReasons: [],
       },
       (bs) => bs.orderedCandidatesByContest,
@@ -571,10 +608,29 @@ describe('VX BMD interpretation', () => {
         validPrecinctIds: allPrecinctIds(electionDefinition),
         testMode: true,
         markThresholds: DEFAULT_MARK_THRESHOLDS,
+        dbPath,
         adjudicationReasons: [],
       }
     );
     expect(interpretation).toMatchSnapshot();
+  });
+
+  test('interpretSimplexBmdBallot without an election DB', async () => {
+    const options: SimplexBmdInterpreterOptions = {
+      electionDefinition,
+      validPrecinctIds: allPrecinctIds(electionDefinition),
+      testMode: true,
+      markThresholds: DEFAULT_MARK_THRESHOLDS,
+      adjudicationReasons: [],
+    };
+    expect(
+      await interpretSimplexBmdBallot(bmdSummaryBallotPage, options)
+    ).toEqual(
+      await interpretSimplexBmdBallot(bmdSummaryBallotPage, {
+        ...options,
+        dbPath,
+      })
+    );
   });
 
   test('normalizes ballot modes', async () => {
@@ -583,6 +639,8 @@ describe('VX BMD interpretation', () => {
       allowOfficialBallotsInTestMode: true,
       electionDefinition,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
+      dbPath,
+      hasBallotPositions: false,
       validPrecinctIds: new Set([precinctId]),
       testMode: true,
     };
@@ -657,6 +715,7 @@ describe('VX BMD interpretation', () => {
           validPrecinctIds: allPrecinctIds(electionDefinition),
           testMode: true,
           markThresholds: DEFAULT_MARK_THRESHOLDS,
+          dbPath,
           adjudicationReasons: [],
         }
       );
@@ -668,3 +727,51 @@ describe('VX BMD interpretation', () => {
 function allPrecinctIds(electionDef: ElectionDefinition) {
   return new Set(electionDef.election.precincts.map((p) => p.id));
 }
+
+test('interprets one page of a multi-page summary ballot', async () => {
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
+  const { election } = electionDefinition;
+  const pageContestIds = election.contests.slice(4).map((c) => c.id);
+  const [votedContestId, ...undervotedContestIds] = pageContestIds;
+  const ballotAuditId = 'test-multi-page-audit-id';
+
+  const [summaryPage] = asSheet(
+    await pdfToPageImages(
+      await renderBmdBallotFixture({
+        electionDefinition,
+        ballotStyleId: DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID,
+        precinctId: DEFAULT_FAMOUS_NAMES_PRECINCT_ID,
+        votes: {
+          [votedContestId!]: DEFAULT_FAMOUS_NAMES_VOTES[votedContestId!],
+        },
+        pageNumber: 2,
+        totalPages: 2,
+        ballotAuditId,
+        contestIdsForPage: pageContestIds,
+      })
+    ).toArray()
+  );
+
+  const [page] = await interpretSimplexBmdBallot(summaryPage, {
+    electionDefinition,
+    validPrecinctIds: allPrecinctIds(electionDefinition),
+    testMode: true,
+    markThresholds: DEFAULT_MARK_THRESHOLDS,
+    dbPath: await makeInterpreterDb(electionDefinition),
+    adjudicationReasons: [],
+  });
+
+  expect(page.type).toEqual('InterpretedBmdPage');
+  const interpretation = page as InterpretedBmdPage;
+  expect(interpretation.metadata).toMatchObject({
+    pageNumber: 2,
+    totalPages: 2,
+    ballotAuditId,
+    contestIds: pageContestIds,
+  });
+  expect(interpretation.votes).toEqual({
+    [votedContestId!]: DEFAULT_FAMOUS_NAMES_VOTES[votedContestId!],
+    ...Object.fromEntries(undervotedContestIds.map((id) => [id, []])),
+  });
+});

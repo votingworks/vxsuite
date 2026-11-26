@@ -168,8 +168,16 @@ afterEach(async () => {
   workspace[Symbol.dispose]();
 });
 
-async function waitForStatus(status: SimpleServerStatus): Promise<void> {
-  await waitForStatusHelper(apiClient, TEST_POLLING_INTERVAL_MS, status);
+async function waitForStatus(
+  status: SimpleServerStatus,
+  retries?: number
+): Promise<void> {
+  await waitForStatusHelper(
+    apiClient,
+    TEST_POLLING_INTERVAL_MS,
+    status,
+    retries
+  );
 }
 
 async function setUpUsbAndConfigureElection(
@@ -819,7 +827,8 @@ test.each([
     const pdfData = pdfDatas[0];
     await expect(pdfData).toMatchPdfSnapshot({ failureThreshold: 0.035 });
 
-    await waitForStatus('presenting_ballot');
+    // Interpretation takes tens of milliseconds, more on slower CI machines.
+    await waitForStatus('presenting_ballot', 50);
     const interpretation = await apiClient.getInterpretation();
     assert(interpretation);
     assert(interpretation.type === 'InterpretedBmdPage');

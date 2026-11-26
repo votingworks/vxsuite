@@ -35,6 +35,7 @@ test('blank sheet of paper', async () => {
       testMode: false,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
       adjudicationReasons: [],
+      hasBallotPositions: true,
       dbPath: await makeInterpreterDb(electionDefinition),
     },
     (bs) => bs.orderedCandidatesByContest,

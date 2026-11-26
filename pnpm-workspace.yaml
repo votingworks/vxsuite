@@ -72,7 +72,6 @@ allowBuilds:
   canvas: true
   esbuild: true
   node-hid: true
-  node-quirc: true
   pcsclite: true
   usb: true
   cbor-extract: false

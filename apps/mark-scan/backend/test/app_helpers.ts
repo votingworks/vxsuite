@@ -187,12 +187,13 @@ export async function configureApp(
 export async function waitForStatus(
   apiClient: grout.Client<Api>,
   interval: number,
-  status: string
+  status: string,
+  retries = 5
 ): Promise<void> {
   await backendWaitFor(
     async () => {
       expect(await apiClient.getPaperHandlerState()).toEqual(status);
     },
-    { interval, retries: 5 }
+    { interval, retries }
   );
 }

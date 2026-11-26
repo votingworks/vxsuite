@@ -129,6 +129,7 @@ test('treats BMD ballot with one blank side as valid', async () => {
     markThresholds: DEFAULT_MARK_THRESHOLDS,
     adjudicationReasons: [],
     dbPath,
+    hasBallotPositions: true,
     getCandidateOrderings: (bs) =>
       db.getCandidateOrderingsStore().getCandidateOrderings(bs),
   });
@@ -147,6 +148,7 @@ test('respects adjudication reasons for a BMD ballot on the front side', async (
       markThresholds: DEFAULT_MARK_THRESHOLDS,
       adjudicationReasons: [AdjudicationReason.Undervote],
       dbPath,
+      hasBallotPositions: true,
       getCandidateOrderings: (bs) =>
         db.getCandidateOrderingsStore().getCandidateOrderings(bs),
     }
@@ -176,6 +178,7 @@ test('NH interpreter of overvote yields a sheet that needs to be reviewed', asyn
     markThresholds: DEFAULT_MARK_THRESHOLDS,
     adjudicationReasons: [AdjudicationReason.Overvote],
     dbPath,
+    hasBallotPositions: true,
     getCandidateOrderings: (bs) =>
       db.getCandidateOrderingsStore().getCandidateOrderings(bs),
   });
@@ -192,6 +195,7 @@ test('NH interpreter with testMode=true', async () => {
       markThresholds: DEFAULT_MARK_THRESHOLDS,
       adjudicationReasons: [AdjudicationReason.Overvote],
       dbPath,
+      hasBallotPositions: true,
       getCandidateOrderings: (bs) =>
         db.getCandidateOrderingsStore().getCandidateOrderings(bs),
     })
@@ -237,6 +241,8 @@ test('uses candidate orderings from specified lookup fn', async () => {
     testMode: true,
     markThresholds: DEFAULT_MARK_THRESHOLDS,
     adjudicationReasons: [AdjudicationReason.Overvote],
+    dbPath,
+    hasBallotPositions: true,
     getCandidateOrderings,
   });
 
