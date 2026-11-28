@@ -65,7 +65,6 @@ export default function buildRecommended(
         '.lintstagedrc.js',
         '.lintstagedrc.cjs',
         '.lintstagedrc.shared.js',
-        '.pnpmfile.cjs',
         '.stylelintrc.js',
         '.stylelintrc.cjs',
         '.stylelintrc-css.js',

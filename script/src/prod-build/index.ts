@@ -43,7 +43,6 @@ export function main({ stdout }: IO): void {
     'package.json',
     'pnpm-lock.yaml',
     'pnpm-workspace.yaml',
-    '.pnpmfile.cjs',
     'Cargo.toml',
     'Cargo.lock',
   ]) {

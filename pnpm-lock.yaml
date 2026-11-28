@@ -173,7 +173,7 @@ overrides:
   postcss-styled-syntax>@typescript-eslint/typescript-estree: 8.70.0
   typescript: npm:@typescript/typescript6@6.0.2
 
-pnpmfileChecksum: sha256-afLeGIFVEWq+B8osJYQYjEkUqVnF46vOLCuiCKQAqQM=
+packageExtensionsChecksum: sha256-82/NwGj9RUKnDRzSFlD41NufBcm6dFC7txU7Gb7ml0k=
 
 patchedDependencies:
   '@fortawesome/react-fontawesome@3.5.0': 032ae55c6a44387cf033d69474e0a2e1cde9e7cd37dfc5c2a8159e32e1202ef3
