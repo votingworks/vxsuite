@@ -44,6 +44,16 @@ overrides:
   'postcss-styled-syntax>@typescript-eslint/typescript-estree': 8.70.0
   typescript: npm:@typescript/typescript6@6.0.2
 
+# Missing dependency declarations that `hoist: false` would otherwise expose.
+packageExtensions:
+  react-idle-timer:
+    dependencies:
+      prop-types: '*'
+      '@types/react': '*'
+  '@typescript-eslint/utils':
+    dependencies:
+      '@typescript-eslint/parser': '*'
+
 patchedDependencies:
   '@fortawesome/react-fontawesome@3.5.0': patches/@fortawesome__react-fontawesome@3.5.0.patch
   react-modal@3.16.1: patches/react-modal@3.16.1.patch
@@ -58,10 +68,18 @@ patchedDependencies:
 peerDependencyRules:
   allowedVersions:
     'jsdom>canvas': '3'
+    'eslint-config-airbnb>eslint': '9'
+    'eslint-config-airbnb-base>eslint': '9'
+    'eslint-config-airbnb>eslint-plugin-react-hooks': '7'
     '@typescript-eslint/parser>typescript': '*'
     '@typescript-eslint/typescript-estree>typescript': '*'
     '@typescript-eslint/project-service>typescript': '*'
     '@typescript-eslint/tsconfig-utils>typescript': '*'
+
+# Deprecated direct dependencies we knowingly stay on.
+allowedDeprecatedVersions:
+  eslint: '9'
+  i18next-parser: '9'
 
 # Which dependency build scripts may run. `true` = native/binary modules we
 # rely on and want built; `false` = packages whose postinstall we intentionally

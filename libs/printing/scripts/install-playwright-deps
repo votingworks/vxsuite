@@ -25,14 +25,7 @@ PLAYWRIGHT_DEPS_FLAG_DIRECTORY="${HOME}/.cache/vx-playwright-deps"
 PLAYWRIGHT_VERSION="$(pnpm exec playwright --version | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+')"
 PLAYWRIGHT_DEPS_INSTALLED_FLAG_FILE="${PLAYWRIGHT_DEPS_FLAG_DIRECTORY}/${PLAYWRIGHT_VERSION}_DEPS_INSTALLED"
 
-if [[ -f "${PLAYWRIGHT_DEPS_INSTALLED_FLAG_FILE}" ]]; then
-  message="Playwright dependencies already installed for version ${PLAYWRIGHT_VERSION}
-per existence of ${PLAYWRIGHT_DEPS_INSTALLED_FLAG_FILE} file.
-
-To force a reinstall, delete this file.
-"
-  echo "${message}"
-else
+if [[ ! -f "${PLAYWRIGHT_DEPS_INSTALLED_FLAG_FILE}" ]]; then
   pnpm exec playwright install --with-deps chromium
   mkdir -p "${PLAYWRIGHT_DEPS_FLAG_DIRECTORY}"
   touch "${PLAYWRIGHT_DEPS_INSTALLED_FLAG_FILE}"
